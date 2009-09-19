@@ -20,6 +20,7 @@ current:
     - change default scanner density to 1
     - add iconv to build infrastructure
   * initial hooks for QR Code, first pass at finder
+  * fix broken builds with --disable-pthread
 
 version 0.9:
   * hotfix configure check for Wand as well as MagickWand (bug #2848437)
