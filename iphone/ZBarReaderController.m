@@ -32,12 +32,13 @@
 NSString* const ZBarReaderControllerResults = @"ZBarReaderControllerResults";
 
 // expose undocumented API
+CF_RETURNS_RETAINED
 CGImageRef UIGetScreenImage(void);
 
 @implementation ZBarReaderController
 
 @synthesize scanner, readerDelegate, cameraMode, scanCrop, maxScanDimension,
-    showsHelpOnFail, takesPicture, enableCache;
+    showsHelpOnFail, takesPicture, enableCache, tracksSymbols;
 @dynamic showsZBarControls;
 
 - (id) init
@@ -46,7 +47,7 @@ CGImageRef UIGetScreenImage(void);
         showsHelpOnFail = YES;
         hasOverlay = showsZBarControls =
             [self respondsToSelector: @selector(cameraOverlayView)];
-        enableCache = YES;
+        enableCache = tracksSymbols = YES;
         scanCrop = CGRectMake(0, 0, 1, 1);
         maxScanDimension = 640;
 
@@ -392,6 +393,7 @@ CGImageRef UIGetScreenImage(void);
 }
 
 - (void) updateBox: (ZBarSymbol*) sym
+         imageSize: (CGSize) size
 {
     [CATransaction begin];
     [CATransaction setAnimationDuration: .3];
@@ -402,9 +404,9 @@ CGImageRef UIGetScreenImage(void);
     CGFloat alpha = boxLayer.opacity;
     if(sym) {
         CGRect r = sym.bounds;
-        // FIXME reverse image scaling
-        //r = crop.origin + ;
         if(r.size.width > 16 && r.size.height > 16) {
+            r.origin.x += scanCrop.origin.y * size.width;
+            r.origin.y += scanCrop.origin.x * size.height;
             r = CGRectInset(r, -16, -16);
             if(alpha > .25) {
                 CGRect frame = boxLayer.frame;
@@ -436,6 +438,7 @@ CGImageRef UIGetScreenImage(void);
 
     [self scanImage: image
           withScaling: 0];
+    CGSize size = CGSizeMake(CGImageGetWidth(image), CGImageGetHeight(image));
     CGImageRelease(image);
 
     ZBarSymbol *sym = [self extractBestResult: NO];
@@ -468,7 +471,9 @@ CGImageRef UIGetScreenImage(void);
           withObject: nil
           afterDelay: 0.001];
 
-    [self updateBox: sym];
+    if(tracksSymbols)
+        [self updateBox: sym
+              imageSize: size];
 }
 
 - (void) captureScreen
@@ -528,6 +533,7 @@ CGImageRef UIGetScreenImage(void);
                     [NSArray arrayWithObject: sym],
                         ZBarReaderControllerResults,
                     nil]];
+    CGSize size = image.size;
     [image release];
 
     // reschedule
@@ -535,7 +541,9 @@ CGImageRef UIGetScreenImage(void);
           withObject: nil
           afterDelay: 0.001];
 
-    [self updateBox: sym];
+    if(tracksSymbols)
+        [self updateBox: sym
+              imageSize: size];
 }
 
 - (void) showHelpWithReason: (NSString*) reason
