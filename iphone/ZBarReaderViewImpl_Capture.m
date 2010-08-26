@@ -100,6 +100,7 @@
                    context: NULL];
 
     [self initSubviews];
+    [self cropUpdate];
     return(self);
 }
 

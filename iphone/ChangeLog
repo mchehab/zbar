@@ -1,4 +1,5 @@
 current:
+  * fix initial zoom crop (performance bug)
   * workaround iPhone quartz access past image data
 
 version 0.1.1:
