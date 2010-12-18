@@ -38,6 +38,8 @@
 #ifdef HAVE_SYS_MMAN_H
 # include <sys/mman.h>
 #endif
+#include <fcntl.h>
+#include <libv4l2.h>
 #include <linux/videodev2.h>
 
 #include "video.h"
@@ -67,7 +69,7 @@ static int v4l2_nq (zbar_video_t *vdo,
         vbuf.length = img->datalen;
         vbuf.index = img->srcidx; /* FIXME workaround broken drivers */
     }
-    if(ioctl(vdo->fd, VIDIOC_QBUF, &vbuf) < 0)
+    if(v4l2_ioctl(vdo->fd, VIDIOC_QBUF, &vbuf) < 0)
         return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__,
                            "queuing video buffer (VIDIOC_QBUF)"));
     return(0);
@@ -91,7 +93,7 @@ static zbar_image_t *v4l2_dq (zbar_video_t *vdo)
         else
             vbuf.memory = V4L2_MEMORY_USERPTR;
 
-        if(ioctl(fd, VIDIOC_DQBUF, &vbuf) < 0)
+        if(v4l2_ioctl(fd, VIDIOC_DQBUF, &vbuf) < 0)
             return(NULL);
 
         if(iomode == VIDEO_MMAP) {
@@ -132,7 +134,7 @@ static int v4l2_start (zbar_video_t *vdo)
         return(0);
 
     enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    if(ioctl(vdo->fd, VIDIOC_STREAMON, &type) < 0)
+    if(v4l2_ioctl(vdo->fd, VIDIOC_STREAMON, &type) < 0)
         return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__,
                            "starting video stream (VIDIOC_STREAMON)"));
     return(0);
@@ -144,7 +146,7 @@ static int v4l2_stop (zbar_video_t *vdo)
         return(0);
 
     enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    if(ioctl(vdo->fd, VIDIOC_STREAMOFF, &type) < 0)
+    if(v4l2_ioctl(vdo->fd, VIDIOC_STREAMOFF, &type) < 0)
         return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__,
                            "stopping video stream (VIDIOC_STREAMOFF)"));
     return(0);
@@ -164,7 +166,7 @@ static int v4l2_cleanup (zbar_video_t *vdo)
         for(i = 0; i < vdo->num_images; i++) {
             zbar_image_t *img = vdo->images[i];
             if(img->data &&
-               munmap((void*)img->data, img->datalen))
+               v4l2_munmap((void*)img->data, img->datalen))
                 err_capture(vdo, SEV_WARNING, ZBAR_ERR_SYSTEM, __func__,
                             "unmapping video frame buffers");
             img->data = NULL;
@@ -177,27 +179,27 @@ static int v4l2_cleanup (zbar_video_t *vdo)
     /* requesting 0 buffers
      * should implicitly disable streaming
      */
-    if(ioctl(vdo->fd, VIDIOC_REQBUFS, &rb) < 0)
+    if(v4l2_ioctl(vdo->fd, VIDIOC_REQBUFS, &rb) < 0)
         err_capture(vdo, SEV_WARNING, ZBAR_ERR_SYSTEM, __func__,
                     "releasing video frame buffers (VIDIOC_REQBUFS)");
 
 
-    /* close open device */
+    /* v4l2_close v4l2_open device */
     if(vdo->fd >= 0) {
-        close(vdo->fd);
+        v4l2_close(vdo->fd);
         vdo->fd = -1;
     }
     return(0);
 }
 
-static int v4l2_mmap_buffers (zbar_video_t *vdo)
+static int v4l2_v4l2_mmap_buffers (zbar_video_t *vdo)
 {
     struct v4l2_requestbuffers rb;
     memset(&rb, 0, sizeof(rb));
     rb.count = vdo->num_images;
     rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     rb.memory = V4L2_MEMORY_MMAP;
-    if(ioctl(vdo->fd, VIDIOC_REQBUFS, &rb) < 0)
+    if(v4l2_ioctl(vdo->fd, VIDIOC_REQBUFS, &rb) < 0)
         return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__,
                            "requesting video frame buffers (VIDIOC_REQBUFS)"));
     zprintf(1, "mapping %u buffers (of %d requested)\n",
@@ -216,7 +218,7 @@ static int v4l2_mmap_buffers (zbar_video_t *vdo)
     int i;
     for(i = 0; i < vdo->num_images; i++) {
         vbuf.index = i;
-        if(ioctl(vdo->fd, VIDIOC_QUERYBUF, &vbuf) < 0)
+        if(v4l2_ioctl(vdo->fd, VIDIOC_QUERYBUF, &vbuf) < 0)
             /* FIXME cleanup */
             return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__,
                                "querying video buffer (VIDIOC_QUERYBUF)"));
@@ -229,7 +231,7 @@ static int v4l2_mmap_buffers (zbar_video_t *vdo)
 
         zbar_image_t *img = vdo->images[i];
         img->datalen = vbuf.length;
-        img->data = mmap(NULL, vbuf.length, PROT_READ | PROT_WRITE, MAP_SHARED,
+        img->data = v4l2_mmap(NULL, vbuf.length, PROT_READ | PROT_WRITE, MAP_SHARED,
                          vdo->fd, vbuf.m.offset);
         if(img->data == MAP_FAILED)
             /* FIXME cleanup */
@@ -253,7 +255,7 @@ static int v4l2_set_format (zbar_video_t *vdo,
     vpix->pixelformat = fmt;
     vpix->field = V4L2_FIELD_NONE;
     int rc = 0;
-    if((rc = ioctl(vdo->fd, VIDIOC_S_FMT, &vfmt)) < 0) {
+    if((rc = v4l2_ioctl(vdo->fd, VIDIOC_S_FMT, &vfmt)) < 0) {
         /* several broken drivers return an error if we request
          * no interlacing (NB v4l2 spec violation)
          * ...try again with an interlaced request
@@ -264,7 +266,7 @@ static int v4l2_set_format (zbar_video_t *vdo,
         /* FIXME this might be _ANY once we can de-interlace */
         vpix->field = V4L2_FIELD_INTERLACED;
 
-        if(ioctl(vdo->fd, VIDIOC_S_FMT, &vfmt) < 0)
+        if(v4l2_ioctl(vdo->fd, VIDIOC_S_FMT, &vfmt) < 0)
             return(err_capture_int(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__,
                                    "setting format %x (VIDIOC_S_FMT)", fmt));
 
@@ -276,7 +278,7 @@ static int v4l2_set_format (zbar_video_t *vdo,
     struct v4l2_pix_format *newpix = &newfmt.fmt.pix;
     memset(&newfmt, 0, sizeof(newfmt));
     newfmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    if(ioctl(vdo->fd, VIDIOC_G_FMT, &newfmt) < 0)
+    if(v4l2_ioctl(vdo->fd, VIDIOC_G_FMT, &newfmt) < 0)
         return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__,
                            "querying format (VIDIOC_G_FMT)"));
 
@@ -307,7 +309,7 @@ static int v4l2_init (zbar_video_t *vdo,
     if(v4l2_set_format(vdo, fmt))
         return(-1);
     if(vdo->iomode == VIDEO_MMAP)
-        return(v4l2_mmap_buffers(vdo));
+        return(v4l2_v4l2_mmap_buffers(vdo));
     return(0);
 }
 
@@ -322,7 +324,7 @@ static int v4l2_probe_iomode (zbar_video_t *vdo)
     else
         rb.memory = V4L2_MEMORY_USERPTR;
 
-    if(ioctl(vdo->fd, VIDIOC_REQBUFS, &rb) < 0) {
+    if(v4l2_ioctl(vdo->fd, VIDIOC_REQBUFS, &rb) < 0) {
         if(vdo->iomode)
             return(err_capture_int(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__,
                                    "unsupported iomode requested (%d)",
@@ -350,7 +352,7 @@ static inline int v4l2_probe_formats (zbar_video_t *vdo)
     memset(&desc, 0, sizeof(desc));
     desc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     for(desc.index = 0; desc.index < V4L2_FORMATS_MAX; desc.index++) {
-        if(ioctl(vdo->fd, VIDIOC_ENUM_FMT, &desc) < 0)
+        if(v4l2_ioctl(vdo->fd, VIDIOC_ENUM_FMT, &desc) < 0)
             break;
         zprintf(2, "    [%d] %.4s : %s%s\n",
                 desc.index, (char*)&desc.pixelformat, desc.description,
@@ -368,7 +370,7 @@ static inline int v4l2_probe_formats (zbar_video_t *vdo)
     struct v4l2_pix_format *pix = &fmt.fmt.pix;
     memset(&fmt, 0, sizeof(fmt));
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    if(ioctl(vdo->fd, VIDIOC_G_FMT, &fmt) < 0)
+    if(v4l2_ioctl(vdo->fd, VIDIOC_G_FMT, &fmt) < 0)
         return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__,
                            "querying current video format (VIDIO_G_FMT)"));
 
@@ -390,15 +392,15 @@ static inline int v4l2_probe_formats (zbar_video_t *vdo)
     maxpix->height = vdo->height;
 
     zprintf(1, "setting requested size: %d x %d\n", vdo->width, vdo->height);
-    if(ioctl(vdo->fd, VIDIOC_S_FMT, &maxfmt) < 0) {
+    if(v4l2_ioctl(vdo->fd, VIDIOC_S_FMT, &maxfmt) < 0) {
         zprintf(1, "set FAILED...trying to recover original format\n");
         /* ignore errors (driver broken anyway) */
-        ioctl(vdo->fd, VIDIOC_S_FMT, &fmt);
+        v4l2_ioctl(vdo->fd, VIDIOC_S_FMT, &fmt);
     }
 
     memset(&fmt, 0, sizeof(fmt));
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    if(ioctl(vdo->fd, VIDIOC_G_FMT, &fmt) < 0)
+    if(v4l2_ioctl(vdo->fd, VIDIOC_G_FMT, &fmt) < 0)
         return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__,
                            "querying current video format (VIDIOC_G_FMT)"));
 
@@ -420,7 +422,7 @@ static inline int v4l2_reset_crop (zbar_video_t *vdo)
     struct v4l2_cropcap ccap;
     memset(&ccap, 0, sizeof(ccap));
     ccap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    if(ioctl(vdo->fd, VIDIOC_CROPCAP, &ccap) < 0)
+    if(v4l2_ioctl(vdo->fd, VIDIOC_CROPCAP, &ccap) < 0)
         return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__,
                            "querying crop support (VIDIOC_CROPCAP)"));
 
@@ -442,7 +444,7 @@ static inline int v4l2_reset_crop (zbar_video_t *vdo)
     memset(&crop, 0, sizeof(crop));
     crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     crop.c = ccap.defrect;
-    if(ioctl(vdo->fd, VIDIOC_S_CROP, &crop) < 0 && errno != EINVAL)
+    if(v4l2_ioctl(vdo->fd, VIDIOC_S_CROP, &crop) < 0 && errno != EINVAL)
         return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__,
                            "setting default crop window (VIDIOC_S_CROP)"));
     return(0);
@@ -453,7 +455,7 @@ int _zbar_v4l2_probe (zbar_video_t *vdo)
     /* check capabilities */
     struct v4l2_capability vcap;
     memset(&vcap, 0, sizeof(vcap));
-    if(ioctl(vdo->fd, VIDIOC_QUERYCAP, &vcap) < 0)
+    if(v4l2_ioctl(vdo->fd, VIDIOC_QUERYCAP, &vcap) < 0)
         return(err_capture(vdo, SEV_WARNING, ZBAR_ERR_UNSUPPORTED, __func__,
                            "video4linux version 2 not supported (VIDIOC_QUERYCAP)"));
 
@@ -506,4 +508,22 @@ int _zbar_v4l2_probe (zbar_video_t *vdo)
     vdo->nq = v4l2_nq;
     vdo->dq = v4l2_dq;
     return(0);
+}
+
+int _zbar_video_open (zbar_video_t *vdo,
+                      const char *dev)
+{
+    vdo->fd = v4l2_open(dev, O_RDWR);
+    if(vdo->fd < 0)
+        return(err_capture_str(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__,
+                               "opening video device '%s'", dev));
+    zprintf(1, "opened camera device %s (fd=%d)\n", dev, vdo->fd);
+
+    int rc = _zbar_v4l2_probe(vdo);
+
+    if(rc && vdo->fd >= 0) {
+        v4l2_close(vdo->fd);
+        vdo->fd = -1;
+    }
+    return(rc);
 }

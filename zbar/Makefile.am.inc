@@ -53,21 +53,17 @@ else
 zbar_libzbar_la_SOURCES += zbar/processor/posix.h zbar/processor/posix.c
 endif
 
-if HAVE_V4L1
-zbar_libzbar_la_SOURCES += zbar/video/v4l1.c
-if HAVE_V4L2
-zbar_libzbar_la_SOURCES += zbar/video/v4l2.c
-endif
-endif
-if WIN32
 if HAVE_VIDEO
+if WIN32
 zbar_libzbar_la_SOURCES += zbar/video/vfw.c
 zbar_libzbar_la_LIBADD += -lvfw32
-endif
-endif
-if !HAVE_VIDEO
+else
+zbar_libzbar_la_SOURCES += zbar/video/v4l2.c
+zbar_libzbar_la_LDFLAGS += -lv4l2
+endif #WIN32
+else
 zbar_libzbar_la_SOURCES += zbar/video/null.c
-endif
+endif #HAVE_VIDEO
 
 if HAVE_JPEG
 zbar_libzbar_la_SOURCES += zbar/jpeg.c

@@ -147,20 +147,13 @@ AC_ARG_ENABLE([video],
 with_video="no"
 AS_IF([test "x$enable_video" != "xno"],
   [AS_IF([test "x$win32" = "xno"],
-    [AC_CHECK_HEADERS([linux/videodev.h], [with_video="v4l1"],
-      [AC_MSG_FAILURE([test for video support failed!
-rebuild your kernel to include video4linux support or
-configure --disable-video to skip building video support.])])
-       AC_CHECK_HEADERS([linux/videodev2.h], [with_video="v4l2"],
+    [AC_CHECK_LIB([v4l2], [v4l2_open], [],
          [AC_MSG_WARN([v4l2 API not detected, upgrade your kernel!])])],
     [AC_CHECK_HEADERS([vfw.h], [with_video="vfw"],
       [AC_MSG_FAILURE([test for VfW video support failed!
 configure --disable-video to skip building vidoe support.])])])
 ])
 AM_CONDITIONAL([HAVE_VIDEO], [test "x$enable_video" != "xno"])
-AM_CONDITIONAL([HAVE_V4L1],
-  [test "x$with_video" = "xv4l1" || test "x$with_video" = "xv4l2"])
-AM_CONDITIONAL([HAVE_V4L2], [test "x$with_video" = "xv4l2"])
 
 dnl X
 AC_ARG_VAR([XSHM_LIBS], [linker flags for X shared memory extension])
@@ -442,7 +435,7 @@ echo "please verify that the detected configuration matches your expectations:"
 echo "------------------------------------------------------------------------"
 echo "X                 --with-x=$have_x"
 echo "pthreads          --enable-pthread=$enable_pthread"
-echo "v4l               --enable-video=$enable_video"
+echo "v4l2              --enable-video=$enable_video"
 AS_IF([test "x$enable_video" != "xyes"],
   [echo "        => zbarcam video scanner will *NOT* be built"])
 echo "jpeg              --with-jpeg=$with_jpeg"

@@ -7,4 +7,6 @@ CLEANFILES += zbarcam/.libs/zbarcam
 if WIN32
 zbarcam_zbarcam_SOURCES += zbarcam/zbarcam.rc
 zbarcam_zbarcam_LDADD += zbarcam/zbarcam-rc.o
+else
+zbarcam_zbarcam_LDADD += -lv4l2
 endif
