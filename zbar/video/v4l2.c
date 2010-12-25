@@ -354,6 +354,8 @@ static int v4l2_probe_iomode (zbar_video_t *vdo)
 
 static inline int v4l2_probe_formats (zbar_video_t *vdo)
 {
+    int n_formats = 0, n_emu_formats = 0;
+
     zprintf(2, "enumerating supported formats:\n");
     struct v4l2_fmtdesc desc;
     memset(&desc, 0, sizeof(desc));
@@ -361,17 +363,39 @@ static inline int v4l2_probe_formats (zbar_video_t *vdo)
     for(desc.index = 0; desc.index < V4L2_FORMATS_MAX; desc.index++) {
         if(v4l2_ioctl(vdo->fd, VIDIOC_ENUM_FMT, &desc) < 0)
             break;
-        zprintf(2, "    [%d] %.4s : %s%s\n",
+        zprintf(2, "    [%d] %.4s : %s%s%s\n",
                 desc.index, (char*)&desc.pixelformat, desc.description,
-                (desc.flags & V4L2_FMT_FLAG_COMPRESSED) ? " COMPRESSED" : "");
-        vdo->formats = realloc(vdo->formats,
-                               (desc.index + 2) * sizeof(uint32_t));
-        vdo->formats[desc.index] = desc.pixelformat;
+                (desc.flags & V4L2_FMT_FLAG_COMPRESSED) ? " COMPRESSED" : "",
+                (desc.flags & V4L2_FMT_FLAG_EMULATED) ? " EMULATED" : "");
+        if (desc.flags & V4L2_FMT_FLAG_EMULATED) {
+            vdo->emu_formats = realloc(vdo->emu_formats,
+                                   (n_emu_formats + 2) * sizeof(uint32_t));
+            vdo->emu_formats[n_emu_formats++] = desc.pixelformat;
+        } else {
+            vdo->formats = realloc(vdo->formats,
+                                   (n_formats + 2) * sizeof(uint32_t));
+            vdo->formats[n_formats++] = desc.pixelformat;
+        }
     }
     if(!desc.index)
         return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__,
                            "enumerating video formats (VIDIOC_ENUM_FMT)"));
-    vdo->formats[desc.index] = 0;
+    if(vdo->formats)
+       vdo->formats[n_formats] = 0;
+    if(vdo->emu_formats)
+       vdo->emu_formats[n_emu_formats] = 0;
+    if(!vdo->formats && vdo->emu_formats) {
+       /*
+        * If only emu formats are available, just move them to vdo->formats.
+        * This happens when libv4l detects that the only available fourcc
+        * formats are webcam proprietary formats or bayer formats.
+        */
+       vdo->formats = vdo->emu_formats;
+       vdo->emu_formats = NULL;
+    }
+
+    zprintf(2, "Found %d formats and %d emulated formats.\n",
+            n_formats, n_emu_formats);
 
     struct v4l2_format fmt;
     struct v4l2_pix_format *pix = &fmt.fmt.pix;

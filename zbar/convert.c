@@ -1157,6 +1157,42 @@ int zbar_negotiate_format (zbar_video_t *vdo,
                 break;
         }
     }
+    if(!min_fmt && vdo->emu_formats) {
+        /* As vdo->formats aren't compatible, just free them */
+        free(vdo->formats);
+        vdo->formats = vdo->emu_formats;
+        vdo->emu_formats = NULL;
+
+        /*
+        * Use the same cost algorithm to select emulated formats.
+        * This might select a sub-optimal conversion, but, in practice,
+        * it will select a conversion to YUV at libv4l, and a YUY->Y8
+        * in zbar, with it is OK. Yet, it is better to not select the
+        * most performatic conversion than to not support the webcam.
+        */
+        for(fmt = _zbar_formats; *fmt; fmt++) {
+            /* only consider formats supported by video device */
+            uint32_t win_fmt = 0;
+            int cost;
+            if(!has_format(*fmt, srcs))
+                continue;
+            cost = _zbar_best_format(*fmt, &win_fmt, dsts);
+            if(cost < 0) {
+                zprintf(4, "%.4s(%08" PRIx32 ") -> ? (unsupported)\n",
+                        (char*)fmt, *fmt);
+                continue;
+            }
+            zprintf(4, "%.4s(%08" PRIx32 ") -> %.4s(%08" PRIx32 ") (%d)\n",
+                    (char*)fmt, *fmt, (char*)&win_fmt, win_fmt, cost);
+            if(min_cost > cost) {
+                min_cost = cost;
+                min_fmt = *fmt;
+                if(!cost)
+                    break;
+            }
+        }
+    }
+
     if(win)
         (void)window_unlock(win);
 

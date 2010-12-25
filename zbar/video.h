@@ -69,6 +69,7 @@ struct zbar_video_s {
     uint32_t format;            /* selected fourcc */
     unsigned palette;           /* v4l1 format index corresponding to format */
     uint32_t *formats;          /* 0 terminated list of supported formats */
+    uint32_t *emu_formats;      /* 0 terminated list of emulated formats */
 
     unsigned long datalen;      /* size of image data for selected format */
     unsigned long buflen;       /* total size of image data buffer */

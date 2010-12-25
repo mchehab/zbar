@@ -111,6 +111,9 @@ void zbar_video_destroy (zbar_video_t *vdo)
         free(vdo->buf);
     if(vdo->formats)
         free(vdo->formats);
+    if(vdo->emu_formats)
+        free(vdo->emu_formats);
+
     err_cleanup(&vdo->err);
     _zbar_mutex_destroy(&vdo->qlock);
 
