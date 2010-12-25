@@ -3,7 +3,8 @@ AC_PREREQ([2.61])
 AC_INIT([zbar], [0.10], [spadix@users.sourceforge.net])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR(config)
-AM_INIT_AUTOMAKE([1.10 -Wall -Werror foreign subdir-objects std-options dist-bzip2])
+AM_INIT_AUTOMAKE([1.10 -Werror foreign subdir-objects std-options dist-bzip2])
+AM_PROG_AR
 AC_CONFIG_HEADERS([include/config.h])
 AC_CONFIG_SRCDIR(zbar/scanner.c)
 LT_PREREQ([2.2])
@@ -47,7 +48,7 @@ AC_DEFINE_UNQUOTED([LIB_VERSION_REVISION],
   [Library revision])
 
 AM_CPPFLAGS="-I$srcdir/include"
-AM_CFLAGS="-Wall -Wno-parentheses -Werror"
+AM_CFLAGS="-Wall -Wno-parentheses"
 AM_CXXFLAGS="$AM_CFLAGS"
 AC_SUBST([AM_CPPFLAGS])
 AC_SUBST([AM_CFLAGS])
@@ -179,11 +180,13 @@ AC_ARG_ENABLE([video],
 
 have_v4l1="no"
 have_v4l2="no"
+have_libv4l="no"
 AS_IF([test "x$enable_video" = "xno"],
   [],
   [test "x$win32" = "xno"],
   [AC_CHECK_HEADERS([linux/videodev.h], [have_v4l1="yes"])
    AC_CHECK_HEADERS([linux/videodev2.h], [have_v4l2="yes"])
+   AC_CHECK_HEADERS([libv4l2.h], [have_libv4l="yes"])
    AS_IF([test "x$have_v4l2" = "xno" && test "x$have_v4l1" = "xno"],
      [AC_MSG_FAILURE([test for video support failed!
 rebuild your kernel to include video4linux support or
@@ -194,9 +197,15 @@ configure --disable-video to skip building video support.])],
     [AC_MSG_FAILURE([test for VfW video support failed!
 configure --disable-video to skip building video support.])])])
 
+AS_IF([test "x$have_libv4l" = "xyes"],
+   AC_CHECK_LIB([v4l2], [v4l2_open], [],
+     [AC_MSG_FAILURE([unable to find libv4l.so])]),
+  [AC_MSG_WARN([libv4l not detected. Install it to support more cameras!])])
+
 AM_CONDITIONAL([HAVE_VIDEO], [test "x$enable_video" != "xno"])
 AM_CONDITIONAL([HAVE_V4L1], [test "x$have_v4l1" != "xno"])
 AM_CONDITIONAL([HAVE_V4L2], [test "x$have_v4l2" != "xno"])
+AM_CONDITIONAL([HAVE_LIBV4L], [test "x$have_libv4l" != "xno"])
 
 dnl X
 AC_ARG_VAR([XSHM_LIBS], [linker flags for X shared memory extension])
@@ -571,6 +580,8 @@ echo "pthreads          --enable-pthread=$enable_pthread"
 echo "v4l               --enable-video=$enable_video"
 AS_IF([test "x$enable_video" != "xyes"],
   [echo "        => zbarcam video scanner will *NOT* be built"])
+AS_IF([test "x$have_libv4l" != "xyes"],
+  [echo "        => libv4l will *NOT* be used"])
 echo "jpeg              --with-jpeg=$with_jpeg"
 AS_IF([test "x$with_jpeg" != "xyes"],
   [echo "        => JPEG image conversions will *NOT* be supported"])
