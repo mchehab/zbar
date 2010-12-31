@@ -328,7 +328,10 @@ static const NSInteger const density_choices[] = {
     static const int symbolValues[] = {
         ZBAR_QRCODE, ZBAR_CODE128, ZBAR_CODE93, ZBAR_CODE39, ZBAR_I25,
         ZBAR_DATABAR, ZBAR_DATABAR_EXP,
-        ZBAR_EAN13, ZBAR_EAN8, ZBAR_UPCA, ZBAR_UPCE, ZBAR_ISBN13, ZBAR_ISBN10,
+        ZBAR_EAN13, ZBAR_EAN8, 
+	ZBAR_EAN2, ZBAR_EAN5, ZBAR_COMPOSITE,
+	ZBAR_UPCA, ZBAR_UPCE,
+	ZBAR_ISBN13, ZBAR_ISBN10,
         0
     };
     NSMutableArray *symbols = [NSMutableArray array];
@@ -336,7 +339,8 @@ static const NSInteger const density_choices[] = {
     symbolEnables = [[NSMutableArray alloc] init];
     BOOL en = YES;
     for(int i = 0; symbolValues[i]; i++) {
-        en = en && (symbolValues[i] != ZBAR_UPCA);
+        /* symbologies after ZBAR_EAN5 are disabled by default */
+        en = en && (symbolValues[i] != ZBAR_COMPOSITE);
         [symbols addObject:
             [self cellWithTitle: [ZBarSymbol nameForType: symbolValues[i]]
                   tag: symbolValues[i]

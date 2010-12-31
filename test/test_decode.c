@@ -824,6 +824,19 @@ static const unsigned char ean_parity_encode[] = {
     0x25,       /* ABBABA = 9 */
 };
 
+static const unsigned char addon_parity_encode[] = {
+    0x07,       /* BBAAA = 0 */
+    0x0b,       /* BABAA = 1 */
+    0x0d,       /* BAABA = 2 */
+    0x0e,       /* BAAAB = 3 */
+    0x13,       /* ABBAA = 4 */
+    0x19,       /* AABBA = 5 */
+    0x1c,       /* AAABB = 6 */
+    0x15,       /* ABABA = 7 */
+    0x16,       /* ABAAB = 8 */
+    0x1a,       /* AABAB = 9 */
+};
+
 static void calc_ean_parity (char *data,
                              int n)
 {
@@ -885,6 +898,43 @@ static void encode_ean8 (char *data)
     zprintf(3, "    encode end guard:");
     encode(ean_guard[3], REV);
     print_sep(3);
+}
+
+static void encode_addon (char *data,
+                          unsigned par,
+                          int n)
+{
+    int i;
+    assert(zbar_decoder_get_color(decoder) == ZBAR_SPACE);
+
+    print_sep(3);
+    zprintf(2, "EAN-%d: %s (par=%02x)\n", n, data, par);
+    zprintf(3, "    encode start guard:");
+    encode(ean_guard[4], FWD);
+    for(i = 0; i < n; i++, par <<= 1) {
+        zprintf(3, "    encode %x%c:", (par >> (n - 1)) & 1, data[i]);
+        encode(ean_digits[data[i] - '0'], (par >> (n - 1)) & 1);
+        if(i < n - 1) {
+	    zprintf(3, "    encode delineator:");
+            encode(ean_guard[2], FWD);
+        }
+    }
+    zprintf(3, "    encode trailing qz:");
+    encode(0x7, FWD);
+    print_sep(3);
+}
+
+static void encode_ean5 (char *data)
+{
+    unsigned chk = ((data[0] - '0' + data[2] - '0' + data[4] - '0') * 3 +
+                    (data[1] - '0' + data[3] - '0') * 9) % 10;
+    encode_addon(data, addon_parity_encode[chk], 5);
+}
+
+static void encode_ean2 (char *data)
+{
+    unsigned par = (~(10 * (data[0] - '0') + data[1] - '0')) & 3;
+    encode_addon(data, par, 2);
 }
 
 
@@ -977,13 +1027,23 @@ int test_numeric (char *data)
     calc_ean_parity(data + 2, 12);
     expect(ZBAR_EAN13, data + 2);
     encode_ean13(data + 2);
-
     encode_junk(rnd_size);
 
     calc_ean_parity(data + 7, 7);
     expect(ZBAR_EAN8, data + 7);
     encode_ean8(data + 7);
 
+    encode_junk(rnd_size);
+
+    data[5] = 0;
+    expect(ZBAR_EAN5, data);
+    encode_ean5(data);
+
+    encode_junk(rnd_size);
+
+    data[2] = 0;
+    expect(ZBAR_EAN2, data);
+    encode_ean2(data);
     encode_junk(rnd_size);
 
     expect(ZBAR_NONE, NULL);
@@ -1060,6 +1120,8 @@ int main (int argc, char **argv)
     char *end;
 
     decoder = zbar_decoder_create();
+    /* allow empty CODE39 symbologies */
+    zbar_decoder_set_config(decoder, ZBAR_CODE39, ZBAR_CFG_MIN_LEN, 0);
     zbar_decoder_set_handler(decoder, symbol_handler);
 
     encode_junk(rnd_size + 1);

@@ -86,12 +86,15 @@ typedef enum zbar_color_e {
 typedef enum zbar_symbol_type_e {
     ZBAR_NONE        =      0,  /**< no symbol decoded */
     ZBAR_PARTIAL     =      1,  /**< intermediate status */
+    ZBAR_EAN2        =      2,  /**< GS1 2-digit add-on */
+    ZBAR_EAN5        =      5,  /**< GS1 5-digit add-on */
     ZBAR_EAN8        =      8,  /**< EAN-8 */
     ZBAR_UPCE        =      9,  /**< UPC-E */
     ZBAR_ISBN10      =     10,  /**< ISBN-10 (from EAN-13). @since 0.4 */
     ZBAR_UPCA        =     12,  /**< UPC-A */
     ZBAR_EAN13       =     13,  /**< EAN-13 */
     ZBAR_ISBN13      =     14,  /**< ISBN-13 (from EAN-13). @since 0.4 */
+    ZBAR_COMPOSITE   =     15,  /**< EAN/UPC composite */
     ZBAR_I25         =     25,  /**< Interleaved 2 of 5. @since 0.4 */
     ZBAR_DATABAR     =     34,  /**< GS1 DataBar (RSS). @since 0.11 */
     ZBAR_DATABAR_EXP =     35,  /**< GS1 DataBar Expanded. @since 0.11 */
@@ -100,10 +103,27 @@ typedef enum zbar_symbol_type_e {
     ZBAR_QRCODE      =     64,  /**< QR Code. @since 0.10 */
     ZBAR_CODE93      =     93,  /**< Code 93. @since 0.11 */
     ZBAR_CODE128     =    128,  /**< Code 128 */
-    ZBAR_SYMBOL      = 0x00ff,  /**< mask for base symbol type */
-    ZBAR_ADDON2      = 0x0200,  /**< 2-digit add-on flag */
-    ZBAR_ADDON5      = 0x0500,  /**< 5-digit add-on flag */
-    ZBAR_ADDON       = 0x0700,  /**< add-on flag mask */
+
+    /** mask for base symbol type.
+     * @deprecated in 0.11, remove this from existing code
+     */
+    ZBAR_SYMBOL      = 0x00ff,
+    /** 2-digit add-on flag.
+     * @deprecated in 0.11, a ::ZBAR_EAN2 component is used for
+     * 2-digit GS1 add-ons
+     */
+    ZBAR_ADDON2      = 0x0200,
+    /** 5-digit add-on flag.
+     * @deprecated in 0.11, a ::ZBAR_EAN5 component is used for
+     * 5-digit GS1 add-ons
+     */
+    ZBAR_ADDON5      = 0x0500,
+    /** add-on flag mask.
+     * @deprecated in 0.11, GS1 add-ons are represented using composite
+     * symbols of type ::ZBAR_COMPOSITE; add-on components use ::ZBAR_EAN2
+     * or ::ZBAR_EAN5
+     */
+    ZBAR_ADDON       = 0x0700,
 } zbar_symbol_type_t;
 
 /** decoded symbol coarse orientation.
@@ -203,6 +223,7 @@ extern const char *zbar_get_symbol_name(zbar_symbol_type_t sym);
  * @param sym symbol type encoding
  * @returns static string name for any addon, or the empty string
  * if no addons were decoded
+ * @deprecated in 0.11
  */
 extern const char *zbar_get_addon_name(zbar_symbol_type_t sym);
 
@@ -381,7 +402,7 @@ extern int zbar_symbol_get_loc_y(const zbar_symbol_t *symbol,
 
 /** retrieve general orientation of decoded symbol.
  * @returns a coarse, axis-aligned indication of symbol orientation or
- * ZBAR_ORIENT_UNKNOWN if unknown
+ * ::ZBAR_ORIENT_UNKNOWN if unknown
  * @since 0.11
  */
 extern zbar_orientation_t

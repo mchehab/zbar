@@ -54,6 +54,8 @@ zbar_decoder_t *zbar_decoder_create ()
     dcode->ean.upce_config = 1 << ZBAR_CFG_EMIT_CHECK;
     dcode->ean.isbn10_config = 1 << ZBAR_CFG_EMIT_CHECK;
     dcode->ean.isbn13_config = 1 << ZBAR_CFG_EMIT_CHECK;
+    dcode->ean.ean2_config = 1 << ZBAR_CFG_ENABLE;
+    dcode->ean.ean5_config = 1 << ZBAR_CFG_ENABLE;
 #endif
 #ifdef ENABLE_I25
     dcode->i25.config = 1 << ZBAR_CFG_ENABLE;
@@ -225,14 +227,14 @@ zbar_symbol_type_t zbar_decode_width (zbar_decoder_t *dcode,
     dcode->s6 += get_width(dcode, 1);
 
     /* each decoder processes width stream in parallel */
-#ifdef ENABLE_EAN
-    if((dcode->ean.enable) &&
-       (tmp = _zbar_decode_ean(dcode)))
-        sym = tmp;
-#endif
 #ifdef ENABLE_QRCODE
     if(TEST_CFG(dcode->qrf.config, ZBAR_CFG_ENABLE) &&
        (tmp = _zbar_find_qr(dcode)) > ZBAR_PARTIAL)
+        sym = tmp;
+#endif
+#ifdef ENABLE_EAN
+    if((dcode->ean.enable) &&
+       (tmp = _zbar_decode_ean(dcode)))
         sym = tmp;
 #endif
 #ifdef ENABLE_CODE39
@@ -287,6 +289,14 @@ decoder_get_configp (const zbar_decoder_t *dcode,
 #ifdef ENABLE_EAN
     case ZBAR_EAN13:
         config = &dcode->ean.ean13_config;
+        break;
+
+    case ZBAR_EAN2:
+        config = &dcode->ean.ean2_config;
+        break;
+
+    case ZBAR_EAN5:
+        config = &dcode->ean.ean5_config;
         break;
 
     case ZBAR_EAN8:
@@ -355,8 +365,6 @@ decoder_get_configp (const zbar_decoder_t *dcode,
         break;
 #endif
 
-    /* FIXME handle addons */
-
     default:
         config = NULL;
     }
@@ -390,6 +398,8 @@ static inline int decoder_set_config_bool (zbar_decoder_t *dcode,
 
 #ifdef ENABLE_EAN
     dcode->ean.enable = TEST_CFG(dcode->ean.ean13_config |
+                                 dcode->ean.ean2_config |
+                                 dcode->ean.ean5_config |
                                  dcode->ean.ean8_config |
                                  dcode->ean.upca_config |
                                  dcode->ean.upce_config |
@@ -446,20 +456,16 @@ int zbar_decoder_set_config (zbar_decoder_t *dcode,
                              int val)
 {
     if(sym == ZBAR_NONE) {
-        zbar_decoder_set_config(dcode, ZBAR_EAN13, cfg, val);
-        zbar_decoder_set_config(dcode, ZBAR_EAN8, cfg, val);
-        zbar_decoder_set_config(dcode, ZBAR_UPCA, cfg, val);
-        zbar_decoder_set_config(dcode, ZBAR_UPCE, cfg, val);
-        zbar_decoder_set_config(dcode, ZBAR_ISBN10, cfg, val);
-        zbar_decoder_set_config(dcode, ZBAR_ISBN13, cfg, val);
-        zbar_decoder_set_config(dcode, ZBAR_I25, cfg, val);
-        zbar_decoder_set_config(dcode, ZBAR_DATABAR, cfg, val);
-        zbar_decoder_set_config(dcode, ZBAR_DATABAR_EXP, cfg, val);
-        zbar_decoder_set_config(dcode, ZBAR_CODE39, cfg, val);
-        zbar_decoder_set_config(dcode, ZBAR_CODE93, cfg, val);
-        zbar_decoder_set_config(dcode, ZBAR_CODE128, cfg, val);
-        zbar_decoder_set_config(dcode, ZBAR_PDF417, cfg, val);
-        zbar_decoder_set_config(dcode, ZBAR_QRCODE, cfg, val);
+        static const zbar_symbol_type_t all[] = {
+	    ZBAR_EAN13, ZBAR_EAN2, ZBAR_EAN5, ZBAR_EAN8,
+            ZBAR_UPCA, ZBAR_UPCE, ZBAR_ISBN10, ZBAR_ISBN13,
+            ZBAR_I25, ZBAR_DATABAR, ZBAR_DATABAR_EXP,
+	    ZBAR_CODE39, ZBAR_CODE93, ZBAR_CODE128, ZBAR_QRCODE, 
+	    ZBAR_PDF417, 0
+        };
+        const zbar_symbol_type_t *symp;
+        for(symp = all; *symp; symp++)
+            zbar_decoder_set_config(dcode, *symp, cfg, val);
         return(0);
     }
 

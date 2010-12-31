@@ -32,12 +32,15 @@
 const char *zbar_get_symbol_name (zbar_symbol_type_t sym)
 {
     switch(sym & ZBAR_SYMBOL) {
+    case ZBAR_EAN2: return("EAN-2");
+    case ZBAR_EAN5: return("EAN-5");
     case ZBAR_EAN8: return("EAN-8");
     case ZBAR_UPCE: return("UPC-E");
     case ZBAR_ISBN10: return("ISBN-10");
     case ZBAR_UPCA: return("UPC-A");
     case ZBAR_EAN13: return("EAN-13");
     case ZBAR_ISBN13: return("ISBN-13");
+    case ZBAR_COMPOSITE: return("COMPOSITE");
     case ZBAR_I25: return("I2/5");
     case ZBAR_DATABAR: return("DataBar");
     case ZBAR_DATABAR_EXP: return("DataBar-Exp");
@@ -52,11 +55,7 @@ const char *zbar_get_symbol_name (zbar_symbol_type_t sym)
 
 const char *zbar_get_addon_name (zbar_symbol_type_t sym)
 {
-    switch(sym & ZBAR_ADDON) {
-    case ZBAR_ADDON2: return("+2");
-    case ZBAR_ADDON5: return("+5");
-    default: return("");
-    }
+    return("");
 }
 
 const char *zbar_get_config_name (zbar_config_t cfg)
@@ -99,11 +98,11 @@ const char *zbar_get_orientation_name (zbar_orientation_t orient)
 int _zbar_get_symbol_hash (zbar_symbol_type_t sym)
 {
     static const signed char hash[0x20] = {
-        0x00, 0x01, 0x0d, 0x0e,   -1,   -1,   -1, 0x09,
-        0x05, 0x06, 0x08,   -1, 0x04, 0x03, 0x07,   -1,
-          -1,   -1,   -1,   -1,   -1,   -1,   -1, 0x02,
-          -1, 0x00, 0x0f, 0x0c, 0x0b, 0x00, 0x0a, 0x00,
-    };
+        0x00, 0x01, 0x10, 0x11,   -1, 0x11,   -1, 0x0c,
+	0x05, 0x06, 0x08,   -1, 0x04, 0x03, 0x07, 0x12,
+	  -1,   -1,   -1,   -1,   -1,   -1,   -1, 0x02,
+	  -1, 0x00, 0x12, 0x0c, 0x0b, 0x1d, 0x0a, 0x00,
+     };
     int g0 = hash[sym & 0x1f];
     int g1 = hash[~(sym >> 4) & 0x1f];
     assert(g0 >= 0 && g1 >= 0);

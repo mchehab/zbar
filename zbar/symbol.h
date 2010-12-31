@@ -27,7 +27,7 @@
 #include <zbar.h>
 #include "refcnt.h"
 
-#define NUM_SYMS  16
+#define NUM_SYMS  19
 
 typedef struct point_s {
     int x, y;

@@ -1,4 +1,7 @@
 current:
+  * add support for EAN/UPC 2 and 5 digit add-on symbols
+    - deprecate original, unfinished add-on APIs
+    - add self-checking to test_decode
   * fix support for GS1 AIs
     - thanks to jockusch for a patch!
     - add decoder/symbol "modifier" flags and config read access

@@ -62,6 +62,12 @@ int zbar_parse_config (const char *cfgstr,
             *sym = ZBAR_EAN13;
         else if(!strncmp(cfgstr, "ean8", len))
             *sym = ZBAR_EAN8;
+        else if(!strncmp(cfgstr, "ean5", len))
+            *sym = ZBAR_EAN5;
+        else if(!strncmp(cfgstr, "ean2", len))
+            *sym = ZBAR_EAN2;
+        else if(!strncmp(cfgstr, "composite", len))
+            *sym = ZBAR_COMPOSITE;
         else if(!strncmp(cfgstr, "i25", len))
             *sym = ZBAR_I25;
         else if(len < 4)
@@ -74,13 +80,6 @@ int zbar_parse_config (const char *cfgstr,
             *sym = ZBAR_ISBN10;
         else if(!strncmp(cfgstr, "db-exp", len))
             *sym = ZBAR_DATABAR_EXP;
-#if 0
-        /* FIXME addons are configured per-main symbol type */
-        else if(!strncmp(cfgstr, "addon2", len))
-            *sym = ZBAR_ADDON2;
-        else if(!strncmp(cfgstr, "addon5", len))
-            *sym = ZBAR_ADDON5;
-#endif
         else if(len < 6)
             return(1);
         else if(!strncmp(cfgstr, "code93", len))
