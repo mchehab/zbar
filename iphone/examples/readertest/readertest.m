@@ -30,6 +30,10 @@ static const NSInteger const density_choices[] = {
     3, 2, 1, 0, 4, -1
 };
 
+static const CGFloat const zoom_choices[] = {
+    1, 10/9., 10/8., 8/6., 10/7., 9/6., 10/6., 7/4., 2, 0, -1
+};
+
 @interface AppDelegate
     : UITableViewController
     < UIApplicationDelegate,
@@ -43,7 +47,7 @@ static const NSInteger const density_choices[] = {
     UINavigationController *nav;
 
     NSSet *defaultSymbologies;
-    CGFloat defaultZoom;
+    CGFloat zoom;
 
     NSMutableArray *sections, *symbolEnables;
     NSInteger xDensity, yDensity;
@@ -85,7 +89,7 @@ static const NSInteger const density_choices[] = {
     // apply defaults for demo
     ZBarImageScanner *scanner = reader.scanner;
     continuous = NO;
-    defaultZoom = 1;
+    zoom = 1;
     reader.showsZBarControls = NO;
     reader.scanCrop = CGRectMake(0, .35, 1, .3);
 
@@ -177,6 +181,13 @@ static const NSInteger const density_choices[] = {
                     target: self
                     action: @selector(manualCapture)];
 
+
+    UIButton *info =
+        [UIButton buttonWithType: UIButtonTypeInfoLight];
+    [info addTarget: self
+          action: @selector(info)
+          forControlEvents: UIControlEventTouchUpInside];
+
     toolbar.items =
         [NSArray arrayWithObjects:
             [[[UIBarButtonItem alloc]
@@ -206,18 +217,12 @@ static const NSInteger const density_choices[] = {
                  target: nil
                  action: nil]
                 autorelease],
+            [[[UIBarButtonItem alloc]
+                 initWithCustomView: info]
+                autorelease],
             nil];
     [overlay addSubview: toolbar];
     [toolbar release];
-
-
-    UIButton *info =
-        [UIButton buttonWithType: UIButtonTypeInfoLight];
-    info.frame = CGRectMake(266, 0, 54, 54);
-    [info addTarget: self
-             action: @selector(info)
-             forControlEvents: UIControlEventTouchUpInside];
-    [overlay addSubview: info];
 }
 
 - (void) updateCropMask
@@ -340,14 +345,6 @@ static const NSInteger const density_choices[] = {
     [sections replaceObjectAtIndex: CONFIG_SECTION
               withObject: configs];
 
-    UITableViewCell *cropCell =
-        [[[UITableViewCell alloc]
-             initWithStyle: UITableViewCellStyleValue1
-             reuseIdentifier: nil]
-            autorelease];
-    cropCell.textLabel.text = @"scanCrop";
-    cropCell.detailTextLabel.text = NSStringFromCGRect(reader.scanCrop);
-
     UITableViewCell *xDensityCell =
         [[[UITableViewCell alloc]
              initWithStyle: UITableViewCellStyleValue1
@@ -368,11 +365,29 @@ static const NSInteger const density_choices[] = {
     yDensityCell.detailTextLabel.text =
         [NSString stringWithFormat: @"%d", yDensity];
 
+    UITableViewCell *cropCell =
+        [[[UITableViewCell alloc]
+             initWithStyle: UITableViewCellStyleValue1
+             reuseIdentifier: nil]
+            autorelease];
+    cropCell.textLabel.text = @"scanCrop";
+    cropCell.detailTextLabel.text = NSStringFromCGRect(reader.scanCrop);
+
+    UITableViewCell *zoomCell =
+        [[[UITableViewCell alloc]
+             initWithStyle: UITableViewCellStyleValue1
+             reuseIdentifier: nil]
+            autorelease];
+    zoomCell.textLabel.text = @"zoom";
+    zoomCell.detailTextLabel.text =
+        [NSString stringWithFormat: @"%g", zoom];
+
     [sections replaceObjectAtIndex: CUSTOM_SECTION
               withObject: [NSArray arrayWithObjects:
                               xDensityCell,
                               yDensityCell,
                               cropCell,
+                              zoomCell,
                               [self cellWithTitle: @"continuous"
                                     tag: 1
                                     checked: continuous],
@@ -509,13 +524,14 @@ static const NSInteger const density_choices[] = {
     [self.tableView reloadData];
     if([reader respondsToSelector: @selector(readerView)]) {
         reader.readerView.showsFPS = YES;
-        if(defaultZoom)
-            reader.readerView.zoom = defaultZoom;
+        if(zoom)
+            reader.readerView.zoom = zoom;
     }
     if(reader.sourceType == UIImagePickerControllerSourceTypeCamera)
         reader.cameraOverlayView = (reader.showsZBarControls) ? nil : overlay;
     manualBtn.enabled = TARGET_IPHONE_SIMULATOR ||
-        (reader.cameraMode == ZBarReaderControllerCameraModeDefault);
+        (reader.cameraMode == ZBarReaderControllerCameraModeDefault) ||
+        [reader isKindOfClass: [ZBarReaderViewController class]];
     [self presentModalViewController: reader
           animated: YES];
 }
@@ -641,6 +657,19 @@ static const NSInteger const density_choices[] = {
     [self updateCropMask];
 }
 
+- (void) advanceZoom: (UILabel*) label
+{
+    int i;
+    for(i = 0; zoom_choices[i] >= 0;)
+        if(zoom == zoom_choices[i++])
+            break;
+    if(zoom_choices[i] < 0)
+        i = 0;
+    zoom = zoom_choices[i];
+    assert(zoom >= 0);
+    label.text = [NSString stringWithFormat: @"%g", zoom];
+}
+
 - (void) advanceDensity: (UILabel*) label
                   value: (NSInteger*) value
 {
@@ -729,6 +758,9 @@ static const NSInteger const density_choices[] = {
             [self advanceCrop: cell.detailTextLabel];
             break;
         case 3:
+            [self advanceZoom: cell.detailTextLabel];
+            break;
+        case 4:
             [self setCheck: continuous = !continuous
                   forCell: cell];
             break;
@@ -787,8 +819,12 @@ static const NSInteger const density_choices[] = {
     if(idx == sheet.cancelButtonIndex)
         return;
     idx -= sheet.firstOtherButtonIndex;
-    if(!idx)
-        UIImageWriteToSavedPhotosAlbum(imageView.image, nil, NULL, NULL);
+    if(!idx) {
+        UIImage *img =
+            [UIImage imageWithData:
+                         UIImagePNGRepresentation(imageView.image)];
+        UIImageWriteToSavedPhotosAlbum(img, nil, NULL, NULL);
+    }
 }
 
 // ZBarReaderDelegate
@@ -810,7 +846,6 @@ static const NSInteger const density_choices[] = {
     for(ZBarSymbol *sym in results)
         if(sym.quality > quality)
             bestResult = sym;
-    assert(!!bestResult);
 
     [self performSelector: @selector(presentResult:)
           withObject: bestResult
@@ -821,10 +856,14 @@ static const NSInteger const density_choices[] = {
 
 - (void) presentResult: (ZBarSymbol*) sym
 {
-    found = !!sym;
-    NSString *typeName = sym.typeName;
+    found = sym || imageView.image;
+    NSString *typeName = @"NONE";
+    NSString *data = @"";
+    if(sym) {
+        typeName = sym.typeName;
+        data = sym.data;
+    }
     typeLabel.text = typeName;
-    NSString *data = sym.data;
     dataLabel.text = data;
 
     if(continuous) {
@@ -833,7 +872,7 @@ static const NSInteger const density_choices[] = {
     }
 
     NSLog(@"imagePickerController:didFinishPickingMediaWithInfo:\n");
-    NSLog(@"    type=%@ data=%@\n", sym.typeName, data);
+    NSLog(@"    type=%@ data=%@\n", typeName, data);
 
     CGSize size = [data sizeWithFont: [UIFont systemFontOfSize: 17]
                         constrainedToSize: CGSizeMake(288, 2000)
