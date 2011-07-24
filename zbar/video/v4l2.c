@@ -55,6 +55,37 @@
 #define V4L2_FORMATS_MAX 64
 #define V4L2_FORMATS_SIZE_MAX 256
 
+typedef enum v4l2_control_type_e {
+    V4L2_CTRL_USER,
+    V4L2_CTRL_EXT
+} v4l2_control_type_t;
+
+typedef enum v4l2_value_type_e {
+    V4L2_VALUE_INT,
+    V4L2_VALUE_BOOL
+} v4l2_value_type_t;
+
+typedef struct v4l2_control_def_s {
+    char *name;
+    int type;
+    int value_type;
+    __u32 id;
+} v4l2_control_def_t;
+
+static const v4l2_control_def_t v4l2_controls[] = {
+    { "brightness", V4L2_CTRL_USER, V4L2_VALUE_INT, V4L2_CID_BRIGHTNESS },
+    { "contrast", V4L2_CTRL_USER, V4L2_VALUE_INT, V4L2_CID_CONTRAST },
+    { "whiteness", V4L2_CTRL_USER, V4L2_VALUE_INT, V4L2_CID_WHITENESS },
+    { "sharpness", V4L2_CTRL_USER, V4L2_VALUE_INT, V4L2_CID_SHARPNESS },
+    { "hflip", V4L2_CTRL_USER, V4L2_VALUE_BOOL, V4L2_CID_HFLIP },
+    { "vflip", V4L2_CTRL_USER, V4L2_VALUE_BOOL, V4L2_CID_VFLIP },
+    { "autogain", V4L2_CTRL_USER, V4L2_VALUE_BOOL, V4L2_CID_AUTOGAIN },
+    { "autofocus", V4L2_CTRL_EXT, V4L2_VALUE_BOOL, V4L2_CID_FOCUS_AUTO },
+    { 0, 0, 0, 0}
+};
+
+#define return_if_non_zero(a) { int rv=(a); if (rv!=0) return(rv); }
+
 static int v4l2_nq (zbar_video_t *vdo,
                     zbar_image_t *img)
 {
@@ -559,6 +590,212 @@ static inline int v4l2_reset_crop (zbar_video_t *vdo)
     return(0);
 }
 
+/** for debug purposes
+ *  issue zbar_processor_get_control_n(proc, "debug-dump", 0)
+ */
+static int v4l2_dump_controls(zbar_video_t *vdo)
+{
+    int id;
+    puts("begin dump user controls");
+    struct v4l2_queryctrl query;
+    for(id=V4L2_CID_BASE; id<V4L2_CID_LASTP1; id++) {
+        query.id = id;
+        if(ioctl(vdo->fd, VIDIOC_QUERYCTRL, &query)==0 &&
+           !(query.flags & V4L2_CTRL_FLAG_DISABLED)) {
+            printf("user control V4L2_CID_BASE+%d, %X\n",
+                   query.id - V4L2_CID_BASE, query.id);
+        }
+    }
+
+    puts("private user controls");
+    id=V4L2_CID_PRIVATE_BASE;
+    do {
+        query.id = id;
+        if(ioctl(vdo->fd, VIDIOC_QUERYCTRL, &query)==0 &&
+           !(query.flags & V4L2_CTRL_FLAG_DISABLED)) {
+            printf("private user control V4L2_CID_PRIVATE_BASE+%d, %X\n",
+                   query.id - V4L2_CID_PRIVATE_BASE, query.id);
+        } else
+            break;
+    } while (1);
+
+    puts("extended controls");
+    // standard controls are also shown here as V4L2_CTRL_CLASS_USER
+    // is it possible to get/set them through extended interface?
+    // not in my case (jarekczek)
+    id=0;
+    do {
+        query.id = id | V4L2_CTRL_FLAG_NEXT_CTRL;
+        if(ioctl(vdo->fd, VIDIOC_QUERYCTRL, &query)==0 &&
+           !(query.flags & V4L2_CTRL_FLAG_DISABLED)) {
+            printf("extended control %X, class %lX, index %d\n", query.id,
+                   V4L2_CTRL_ID2CLASS(query.id),
+                   query.id - (int)V4L2_CTRL_ID2CLASS(query.id));
+            id = query.id;
+        } else
+            break;
+    } while (1);
+    puts("end dump");
+    return(0);
+}
+
+/** locate entry in v4l2_controls
+ *  @param flags if non-zero then should be one of #CTRLF_BOOL,
+ *               #CTRLF_INT, #CTRLF_STR. A test for compatibility of types
+ *               is then performed
+ */
+static int v4l2_get_control_def(const v4l2_control_def_t **ppdef_out,
+                                const char *name,
+                                unsigned long flags)
+{
+    const v4l2_control_def_t *pdef = v4l2_controls;
+    *ppdef_out = NULL;
+    if(flags!=0 && flags!=CTRLF_BOOL && flags!=CTRLF_INT) {
+        zprintf(4, "incorrect flags (%lu) in call to v4l2_get_control_def\n",
+                flags);
+        return(ZBAR_ERR_INVALID);
+    }
+    while (pdef->name) {
+        if(strcmp(pdef->name, name)==0) break;
+        pdef++;
+    }
+    if(pdef->name) {
+        if((flags==CTRLF_BOOL && pdef->value_type!=V4L2_VALUE_BOOL) ||
+           (flags==CTRLF_INT && pdef->value_type!=V4L2_VALUE_INT)) {
+            zprintf(1, "requested control operation for a wrong type\n");
+            return ZBAR_ERR_INVALID;
+        }
+        // all ok, will return 0
+        *ppdef_out = pdef;
+    } else {
+        // we have no such a control on the list
+        return(ZBAR_ERR_UNSUPPORTED);
+    }
+
+    return(0);
+}
+
+static int v4l2_set_control(zbar_video_t *vdo,
+                            const char *name,
+                            void *value,
+                            unsigned long flags)
+{
+    struct v4l2_control cs;
+    const v4l2_control_def_t *def;
+    return_if_non_zero(v4l2_get_control_def(&def, name, flags));
+
+    switch(def->type) {
+        case V4L2_CTRL_USER:
+            cs.id = def->id;
+            cs.value = *(int*)value;
+            int rv = ioctl(vdo->fd, VIDIOC_S_CTRL, &cs);
+            if(rv!=0) {
+                zprintf(1, "v4l2 set user control \"%s\" returned %d\n", def->name, rv);
+                rv = ZBAR_ERR_INVALID;
+            }
+            return rv;
+        case V4L2_CTRL_EXT:
+            zprintf(1, "v4l2 ext controls not supported\n");
+            return ZBAR_ERR_UNSUPPORTED;
+        default:
+            return ZBAR_ERR_INVALID;
+    }
+}
+
+static int v4l2_get_control(zbar_video_t *vdo,
+                            const char *name,
+                            void *value,
+                            unsigned long flags)
+{
+    struct v4l2_control cs;
+    const v4l2_control_def_t *def;
+    //struct v4l2_ext_controls ext_ctrls;
+    //struct v4l2_ext_control ext_ctrl;
+    if(strcmp(name, "debug-dump")==0)
+        return(v4l2_dump_controls(vdo));
+    return_if_non_zero(v4l2_get_control_def(&def, name, flags));
+
+    switch(def->type) {
+        case V4L2_CTRL_USER:
+            cs.id = def->id;
+            cs.value = *(int*)value;
+            int rv = ioctl(vdo->fd, VIDIOC_G_CTRL, &cs);
+            *(int*)value = cs.value;
+            if(rv!=0) {
+                zprintf(1, "v4l2 get user control \"%s\" returned %d\n", def->name, rv);
+                rv = ZBAR_ERR_UNSUPPORTED;
+            }
+            return rv;
+        case V4L2_CTRL_EXT:
+            zprintf(1, "v4l2 ext controls not supported\n");
+            return(ZBAR_ERR_UNSUPPORTED);
+            /* untested stuff */
+            /*
+            memset(&ext_ctrls, 0, sizeof(ext_ctrls));
+            ext_ctrls.ctrl_class = V4L2_CTRL_CLASS_MPEG; //V4L2_CTRL_ID2CLASS(def->id);
+            ext_ctrls.count = 1;
+            ext_ctrls.controls = &ext_ctrl;
+            memset(&ext_ctrl, 0, sizeof(ext_ctrl));
+            ext_ctrl.id = def->id;
+            rv = ioctl(vdo->fd, VIDIOC_G_EXT_CTRLS, &ext_ctrls);
+            *(int*)value = ext_ctrl.value;
+            if(rv!=0) {
+                zprintf(1, "v4l2 get ext control \"%s\" returned %d\n", def->name, rv);
+                rv = ZBAR_ERR_UNSUPPORTED;
+            }
+            return rv;
+            */
+        default:
+            assert(0);
+            return ZBAR_ERR_INVALID;
+    }
+}
+
+static int v4l2_query_control (zbar_video_t *vdo,
+                               const char *name,
+                               zbar_video_control_info_t *info)
+{
+    int rv;
+    struct v4l2_queryctrl query;
+    const v4l2_control_def_t *def;
+    return_if_non_zero(v4l2_get_control_def(&def, name, 0));
+    memset(&query, 0, sizeof(query));
+    switch(def->type) {
+        case V4L2_CTRL_USER:
+            query.id = def->id;
+            rv = ioctl(vdo->fd, VIDIOC_QUERYCTRL, &query);
+            if(rv!=0) {
+                printf("error here\n");
+                return(ZBAR_ERR_UNSUPPORTED);
+            }
+            switch(query.type) {
+                case V4L2_CTRL_TYPE_INTEGER:
+                    /* FIXME ignoring query.step member */
+                    info->value_type = CTRLF_INT;
+                    info->min_value = query.minimum;
+                    info->max_value = query.maximum;
+                    break;
+                case V4L2_CTRL_TYPE_BOOLEAN:
+                    info->value_type = CTRLF_BOOL;
+                    info->min_value = 0;
+                    info->max_value = 1;
+                    break;
+                default:
+                    zprintf(1, "v4l2 control type of \"%s\": %d not supported\n",
+                            name, query.type);
+                    return(ZBAR_ERR_UNSUPPORTED);
+            }
+            break;
+        case V4L2_CTRL_EXT:
+            zprintf(1, "v4l2 ext controls not supported\n");
+            return(ZBAR_ERR_UNSUPPORTED);
+        default:
+            assert(0);
+            return ZBAR_ERR_INVALID;
+    }
+    return 0;
+}
+
 int _zbar_v4l2_probe (zbar_video_t *vdo)
 {
     /* check capabilities */
@@ -610,5 +847,8 @@ int _zbar_v4l2_probe (zbar_video_t *vdo)
     vdo->stop = v4l2_stop;
     vdo->nq = v4l2_nq;
     vdo->dq = v4l2_dq;
+    vdo->set_control = v4l2_set_control;
+    vdo->get_control = v4l2_get_control;
+    vdo->query_control = v4l2_query_control;
     return(0);
 }

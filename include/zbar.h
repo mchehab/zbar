@@ -839,6 +839,53 @@ extern int zbar_processor_set_config(zbar_processor_t *processor,
                                      zbar_config_t config,
                                      int value);
 
+/** set video control value (integer).
+ * @returns 0 for success, non-0 for failure
+ * @param flags #CTRLF_ABS (default, when 0), #CTRLF_REL, #CTRLF_PERC
+ * @since 0.11
+ * @see zbar_video_set_control_n()
+ */
+extern int zbar_processor_set_control_n (zbar_processor_t *processor,
+                                         const char *control_name,
+                                         int value,
+                                         unsigned long flags);
+#define CTRLF_ABS 1
+#define CTRLF_REL 2
+#define CTRLF_PERC 4
+#define CTRLF_TOGGLE 8
+#define CTRLF_BOOL 16
+#define CTRLF_INT 32
+#define CTRLF_STR 64
+
+/** set video control value (boolean).
+ * @returns 0 for success, non-0 for failure
+ * @param flags #CTRLF_ABS (default, when 0), #CTRLF_TOGGLE
+ * @since 0.11
+ * @see zbar_video_set_control_b()
+ */
+extern int zbar_processor_set_control_b (zbar_processor_t *processor,
+                                         const char *control_name,
+                                         int value,
+                                         unsigned long flags);
+
+/** get video control value (integer).
+ * @returns 0 for success, non-0 for failure
+ * @since 0.11
+ * @see zbar_video_get_control_n()
+ */
+extern int zbar_processor_get_control_n (zbar_processor_t *processor,
+                                         const char *control_name,
+                                         int *value);
+
+/** get video control value (boolean).
+ * @returns 0 for success, non-0 for failure
+ * @since 0.11
+ * @see zbar_video_get_control_b()
+ */
+extern int zbar_processor_get_control_b (zbar_processor_t *processor,
+                                         const char *control_name,
+                                         int *value);
+
 /** parse configuration string using zbar_parse_config()
  * and apply to processor using zbar_processor_set_config().
  * @returns 0 for success, non-0 for failure
@@ -1039,6 +1086,46 @@ extern int zbar_video_enable(zbar_video_t *video,
  * @returns NULL if video is not enabled or an error occurs
  */
 extern zbar_image_t *zbar_video_next_image(zbar_video_t *video);
+
+/** set video control value (integer).
+ * @returns 0 for success, non-0 for failure
+ * @param flags CTRLF_ABS, CTRLF_REL, CTRLF_PERC
+ * @since 0.11
+ * @see zbar_processor_set_control_n()
+ */
+extern int zbar_video_set_control_n (zbar_video_t *video,
+                                     const char *control_name,
+                                     int value,
+                                     unsigned long flags);
+
+/** set video control value (boolean).
+ * @returns 0 for success, non-0 for failure
+ * @param flags CTRLF_ABS, CTRLF_TOGGLE
+ * @since 0.11
+ * @see zbar_processor_set_control_b()
+ */
+extern int zbar_video_set_control_b (zbar_video_t *video,
+                                     const char *control_name,
+                                     int value,
+                                     unsigned long flags);
+
+/** get video control value (integer).
+ * @returns 0 for success, non-0 for failure
+ * @since 0.11
+ * @see zbar_processor_get_control_n()
+ */
+extern int zbar_video_get_control_n (zbar_video_t *video,
+                                     const char *control_name,
+                                     int *value);
+
+/** get video control value (boolean).
+ * @returns 0 for success, non-0 for failure
+ * @since 0.11
+ * @see zbar_processor_get_control_b()
+ */
+extern int zbar_video_get_control_b (zbar_video_t *video,
+                                     const char *control_name,
+                                     int *value);
 
 /** display detail for last video error to stderr.
  * @returns a non-zero value suitable for passing to exit()

@@ -477,6 +477,64 @@ int zbar_processor_set_config (zbar_processor_t *proc,
     return(rc);
 }
 
+int zbar_processor_set_control_n (zbar_processor_t *proc,
+                                  const char *control_name,
+                                  int value,
+                                  unsigned long flags)
+{
+    proc_enter(proc);
+    int value_before, value_after;
+    if(_zbar_verbosity >= 4)
+        if(zbar_video_get_control_n(proc->video, control_name, &value_before)==0)
+            zprintf(0, "value of %s before: %d\n", control_name, value_before);
+    int rc = zbar_video_set_control_n(proc->video, control_name,
+                                      value, flags);
+    if(_zbar_verbosity >= 4)
+        if(zbar_video_get_control_n(proc->video, control_name, &value_after)==0)
+            zprintf(0, "value of %s after: %d\n", control_name, value_after);
+    proc_leave(proc);
+    return(rc);
+}
+
+int zbar_processor_set_control_b (zbar_processor_t *proc,
+                                  const char *control_name,
+                                  int value,
+                                  unsigned long flags)
+{
+    proc_enter(proc);
+    int value_before, value_after;
+    if(_zbar_verbosity >= 4)
+        if(zbar_video_get_control_b(proc->video, control_name, &value_before)==0)
+            zprintf(0, "value of %s before a set: %d\n", control_name, value_before);
+    int rc = zbar_video_set_control_b(proc->video, control_name,
+                                      value, flags);
+    if(_zbar_verbosity >= 4)
+        if(zbar_video_get_control_b(proc->video, control_name, &value_after)==0)
+            zprintf(0, "value of %s after a set: %d\n", control_name, value_after);
+    proc_leave(proc);
+    return(rc);
+}
+
+int zbar_processor_get_control_n (zbar_processor_t *proc,
+                                  const char *control_name,
+                                  int *value)
+{
+    proc_enter(proc);
+    int rc = zbar_video_get_control_n(proc->video, control_name, value);
+    proc_leave(proc);
+    return(rc);
+}
+
+int zbar_processor_get_control_b (zbar_processor_t *proc,
+                                  const char *control_name,
+                                  int *value)
+{
+    proc_enter(proc);
+    int rc = zbar_video_get_control_b(proc->video, control_name, value);
+    proc_leave(proc);
+    return(rc);
+}
+
 int zbar_processor_request_size (zbar_processor_t *proc,
                                  unsigned width,
                                  unsigned height)

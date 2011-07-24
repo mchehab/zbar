@@ -272,6 +272,18 @@ int main (int argc, const char *argv[])
     while((rc = zbar_processor_user_wait(proc, -1)) >= 0) {
         if(rc == 'q' || rc == 'Q')
             break;
+        if(rc == 'b' || rc == 'B')
+            zbar_processor_set_control_n(proc, "brightness", 10,
+                                         CTRLF_REL | CTRLF_PERC);
+        if(rc == 'n' || rc == 'N')
+            zbar_processor_set_control_n(proc, "brightness", -10,
+                                         CTRLF_REL | CTRLF_PERC);
+        if(rc == 'g' || rc == 'G')
+            zbar_processor_set_control_b(proc, "autogain", 1, CTRLF_TOGGLE);
+        if(rc == 'f' || rc == 'F')
+            zbar_processor_set_control_b(proc, "autofocus", 1, CTRLF_TOGGLE);
+        if(rc == 'p' || rc == 'P')
+            zbar_processor_get_control_n(proc, "debug-dump", 0);
         if(rc == ' ') {
             active = !active;
             if(zbar_processor_set_active(proc, active))
