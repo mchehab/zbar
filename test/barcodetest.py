@@ -66,7 +66,7 @@ def distdir_search(subdir, base, suffixes=('',)):
         import re
         makefile = open('Makefile')
         for line in makefile:
-            if re.match('^VPATH\s*=', line):
+            if re.match(r'^VPATH\s*=', line):
                 vpath = line.split('=', 1)[1].strip()
                 if vpath and vpath != rundir:
                     search.append(vpath)
@@ -124,6 +124,8 @@ def run_zbarimg(images):
     assert rc in (0, 4), \
            'zbarimg returned error status (%d)\n' % rc + err
 
+    assert not err, err
+
     result = ET.XML(xml)
     assert result.tag == ET.QName(BC, 'barcodes')
     return result
@@ -167,7 +169,8 @@ class BuiltinTestCase(TestCase):
             href = 'http://zbar.sf.net/test/barcode.png'
 
         self.source = src = ET.Element(ET.QName(BC, 'source'), href=href)
-        sym = ET.SubElement(src, ET.QName(BC, 'symbol'), type='EAN-13')
+        sym = ET.SubElement(src, ET.QName(BC, 'symbol'), type='EAN-13',
+                            orientation='UP')
         data = ET.SubElement(sym, ET.QName(BC, 'data'))
         data.text = '9876543210128'
 
@@ -258,8 +261,9 @@ def compare_indices(expect, actual):
 
 
 def compare_symbols(expect, actual):
-    pass
-
+    orient = expect.get('orientation')
+    if orient:
+        assert actual.get('orientation') == orient
 
 # override unittest.TestLoader to populate tests from xml description
 class TestLoader:
@@ -348,7 +352,10 @@ class TestLoader:
                 continue
             if src.tag == ET.QName(BC, 'source'):
                 test = TestCase()
-                src.set('href', urljoin(url, href))
+                # convert file URLs to filesystem paths
+                href = urljoin(url, href)
+                href = re.sub(r'^file://', '', href)
+                src.set('href', href)
                 test.source = src
                 suite.addTest(test)
             elif src.tag == ET.QName(TS, 'index'):

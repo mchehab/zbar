@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------
- *  Copyright 2007-2009 (c) Jeff Brown <spadix@users.sourceforge.net>
+ *  Copyright 2007-2010 (c) Jeff Brown <spadix@users.sourceforge.net>
  *
  *  This file is part of the ZBar Bar Code Reader.
  *
@@ -95,11 +95,11 @@ int _zbar_process_image (zbar_processor_t *proc,
             while(sym) {
                 zbar_symbol_type_t type = zbar_symbol_get_type(sym);
                 int count = zbar_symbol_get_count(sym);
-                zprintf(8, "%s%s: %s (%d pts) (q=%d) (%s)\n",
+                zprintf(8, "%s: %s (%d pts) (dir=%d) (q=%d) (%s)\n",
                         zbar_get_symbol_name(type),
-                        zbar_get_addon_name(type),
                         zbar_symbol_get_data(sym),
                         zbar_symbol_get_loc_size(sym),
+                        zbar_symbol_get_orientation(sym),
                         zbar_symbol_get_quality(sym),
                         (count < 0) ? "uncertain" :
                         (count > 0) ? "duplicate" : "new");
@@ -288,6 +288,10 @@ void zbar_processor_destroy (zbar_processor_t *proc)
 {
     zbar_processor_init(proc, NULL, 0);
 
+    if(proc->syms) {
+        zbar_symbol_set_ref(proc->syms, -1);
+        proc->syms = NULL;
+    }
     if(proc->scanner) {
         zbar_image_scanner_destroy(proc->scanner);
         proc->scanner = NULL;
