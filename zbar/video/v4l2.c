@@ -201,21 +201,6 @@ static int v4l2_cleanup (zbar_video_t *vdo)
 
 static int v4l2_mmap_buffers (zbar_video_t *vdo)
 {
-    struct v4l2_requestbuffers rb;
-    memset(&rb, 0, sizeof(rb));
-    rb.count = vdo->num_images;
-    rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    rb.memory = V4L2_MEMORY_MMAP;
-    if(v4l2_ioctl(vdo->fd, VIDIOC_REQBUFS, &rb) < 0)
-        return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__,
-                           "requesting video frame buffers (VIDIOC_REQBUFS)"));
-    zprintf(1, "mapping %u buffers (of %d requested)\n",
-            rb.count, vdo->num_images);
-    if(!rb.count)
-        return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__,
-                           "driver returned 0 buffers"));
-    if(vdo->num_images > rb.count)
-        vdo->num_images = rb.count;
 
     struct v4l2_buffer vbuf;
     memset(&vbuf, 0, sizeof(vbuf));
@@ -313,8 +298,32 @@ static int v4l2_set_format (zbar_video_t *vdo,
 static int v4l2_init (zbar_video_t *vdo,
                       uint32_t fmt)
 {
+    struct v4l2_requestbuffers rb;
     if(v4l2_set_format(vdo, fmt))
         return(-1);
+
+    memset(&rb, 0, sizeof(rb));
+    rb.count = vdo->num_images;
+    rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    if(vdo->iomode == VIDEO_MMAP)
+        rb.memory = V4L2_MEMORY_MMAP;
+    else
+        rb.memory = V4L2_MEMORY_USERPTR;
+
+    if(v4l2_ioctl(vdo->fd, VIDIOC_REQBUFS, &rb) < 0)
+        return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__,
+                           "requesting video frame buffers (VIDIOC_REQBUFS)"));
+
+    if(!rb.count)
+        return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__,
+                           "driver returned 0 buffers"));
+
+    if(vdo->num_images > rb.count)
+        vdo->num_images = rb.count;
+
+    zprintf(1, "using %u buffers (of %d requested)\n",
+            rb.count, vdo->num_images);
+
     if(vdo->iomode == VIDEO_MMAP)
         return(v4l2_mmap_buffers(vdo));
     return(0);
@@ -324,7 +333,7 @@ static int v4l2_probe_iomode (zbar_video_t *vdo)
 {
     struct v4l2_requestbuffers rb;
     memset(&rb, 0, sizeof(rb));
-    rb.count = vdo->num_images; /* FIXME workaround broken drivers */
+    rb.count = vdo->num_images;
     rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     if(vdo->iomode == VIDEO_MMAP)
         rb.memory = V4L2_MEMORY_MMAP;
@@ -340,14 +349,31 @@ static int v4l2_probe_iomode (zbar_video_t *vdo)
             return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__,
                                "querying streaming mode (VIDIOC_REQBUFS)"));
 #ifdef HAVE_SYS_MMAN_H
+	err_capture(vdo, SEV_WARNING, ZBAR_ERR_SYSTEM, __func__,
+                               "USERPTR failed. Falling back to mmap");
         vdo->iomode = VIDEO_MMAP;
+#else
+	return err_capture(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__,
+                           "Userptr not supported, and zbar was compiled without mmap support"));
 #endif
     }
     else {
         if(!vdo->iomode)
-            vdo->iomode = VIDEO_USERPTR;
+            rb.memory = V4L2_MEMORY_USERPTR;
+	/* Update the num_images with the max supported by the driver */
         if(rb.count)
             vdo->num_images = rb.count;
+	else
+            err_capture(vdo, SEV_WARNING, ZBAR_ERR_SYSTEM, __func__,
+                        "Something is wrong: number of buffers returned by REQBUF is zero!");
+
+        /* requesting 0 buffers
+         * This cleans up the buffers allocated previously on probe
+         */
+	rb.count = 0;
+        if(v4l2_ioctl(vdo->fd, VIDIOC_REQBUFS, &rb) < 0)
+            err_capture(vdo, SEV_WARNING, ZBAR_ERR_SYSTEM, __func__,
+                        "releasing video frame buffers (VIDIOC_REQBUFS)");
     }
     return(0);
 }
