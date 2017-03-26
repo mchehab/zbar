@@ -26,7 +26,12 @@
 /// @file
 /// Barcode Reader Qt4 Widget
 
-#include <qwidget.h>
+#include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#else
+#  include <qwidget.h>
+#endif
 
 namespace zbar {
 

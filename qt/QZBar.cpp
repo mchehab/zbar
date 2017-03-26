@@ -23,7 +23,7 @@
 
 #include <qevent.h>
 #include <qurl.h>
-#include <qx11info_x11.h>
+#include <QX11Info>
 #include <zbar/QZBar.h>
 #include "QZBarThread.h"
 
@@ -49,7 +49,11 @@ QZBar::QZBar (QWidget *parent)
 
     thread = new QZBarThread;
     if(testAttribute(Qt::WA_WState_Created)) {
+#if QT_VERSION >= 0x050000
+        thread->window.attach(QX11Info::display(), winId());
+#else
         thread->window.attach(x11Info().display(), winId());
+#endif
         _attached = 1;
     }
     connect(thread, SIGNAL(videoOpened(bool)),
@@ -204,7 +208,12 @@ void QZBar::changeEvent(QEvent *event)
     try {
         QMutexLocker locker(&thread->mutex);
         if(event->type() == QEvent::ParentChange)
+#if QT_VERSION >= 0x050000
+            thread->window.attach(QX11Info::display(), winId());
+#else
             thread->window.attach(x11Info().display(), winId());
+#endif
+
     }
     catch(Exception) { /* ignore (FIXME do something w/error) */ }
 }
@@ -215,7 +224,11 @@ void QZBar::attach ()
         return;
 
     try {
+#if QT_VERSION >= 0x050000
+        thread->window.attach(QX11Info::display(), winId());
+#else
         thread->window.attach(x11Info().display(), winId());
+#endif
         _attached = 1;
 
         _videoEnabled = !_videoDevice.isEmpty();
