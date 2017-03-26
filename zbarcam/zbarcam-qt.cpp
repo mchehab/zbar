@@ -40,7 +40,7 @@ int scan_video(void *add_device,
                const char *default_device);
 }
 
-class TestQZBar : public QWidget
+class ZbarcamQZBar : public QWidget
 {
     Q_OBJECT
 
@@ -52,7 +52,7 @@ protected:
     }
 
 public:
-    TestQZBar (const char *default_device)
+    ZbarcamQZBar (const char *default_device)
     {
         // drop-down list of video devices
         QComboBox *videoList = new QComboBox;
@@ -142,7 +142,7 @@ private:
     zbar::QZBar *zbar;
 };
 
-#include "moc_test_qt.h"
+#include "moc_zbarcam_qt.h"
 
 int main (int argc, char *argv[])
 {
@@ -152,7 +152,7 @@ int main (int argc, char *argv[])
     if(argc > 1)
         dev = argv[1];
 
-    TestQZBar window(dev);
+    ZbarcamQZBar window(dev);
     window.show();
     return(app.exec());
 }

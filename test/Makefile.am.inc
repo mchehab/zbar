@@ -45,26 +45,6 @@ test_dbg_scan_CPPFLAGS = $(MAGICK_CFLAGS) $(AM_CPPFLAGS)
 test_dbg_scan_LDADD = $(MAGICK_LIBS) -lMagick++ zbar/libzbar.la $(AM_LDADD)
 endif
 
-if HAVE_GTK
-check_PROGRAMS += test/test_gtk
-test_test_gtk_SOURCES = test/test_gtk.c test/scan_video.c
-test_test_gtk_CPPFLAGS = $(GTK_CFLAGS) $(AM_CPPFLAGS)
-test_test_gtk_LDADD = $(GTK_LIBS) gtk/libzbargtk.la $(AM_LDADD)
-endif
-
-if HAVE_QT
-check_PROGRAMS += test/test_qt
-test_test_qt_SOURCES = test/test_qt.cpp test/scan_video.c
-nodist_test_test_qt_SOURCES = test/moc_test_qt.h
-test_test_qt_CPPFLAGS = -Itest $(QT_CFLAGS) $(AM_CPPFLAGS)
-test_test_qt_LDADD = $(QT_LIBS) qt/libzbarqt.la $(AM_LDADD)
-BUILT_SOURCES += $(nodist_test_test_qt_SOURCES)
-DISTCLEANFILES += $(nodist_test_test_qt_SOURCES)
-
-test/moc_%.h: test/%.cpp
-	$(MOC) -i $(test_test_qt_CPPFLAGS) $< -o $@
-endif
-
 EXTRA_DIST += test/test_pygtk.py test/test_perl.pl
 
 # automake bug in "monolithic mode"?
