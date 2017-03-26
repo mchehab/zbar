@@ -476,18 +476,33 @@ AM_CONDITIONAL([HAVE_PYTHON], [test "x$with_python" = "xyes"])
 dnl Qt
 AC_ARG_WITH([qt],
   [AS_HELP_STRING([--without-qt],
-    [disable support for Qt4 widget])],
+    [disable support for Qt widget])],
   [],
   [with_qt="yes"])
+
+dnl Qt5
+AC_ARG_WITH([qt5],
+  [AS_HELP_STRING([--without-qt5],
+    [disable support for Qt5 widget. if --with-qt, it will seek only for Qt4])],
+  [],
+  [with_qt5="yes"])
 
 AC_ARG_VAR([MOC], [full path to Qt moc program])
 
 AS_IF([test "x$with_qt" != "xno"],
-  [PKG_CHECK_MODULES([QT], [QtCore >= 4 QtGui >= 4])
-   MOC=`$PKG_CONFIG QtGui --variable=moc_location`
-   AC_MSG_NOTICE([using moc from $MOC])
-   QT_VERSION=`$PKG_CONFIG QtGui --modversion`
-   AC_MSG_NOTICE([using Qt version $QT_VERSION])])
+   AS_IF([test "x$with_qt5" != "xno"],
+     [PKG_CHECK_MODULES([QT], [Qt5Core >= 5 Qt5Gui >= 5 Qt5Widgets >= 5.0 Qt5X11Extras >= 5.0])
+     AC_CHECK_PROGS(MOC, [moc-qt5 moc])
+     AC_MSG_NOTICE([using moc from $MOC])
+     QT_VERSION=`$PKG_CONFIG Qt5Gui --modversion`
+     CPPFLAGS="$CPPFLAGS $QT_CPPFLAGS -fPIC"
+     AC_MSG_NOTICE([using Qt version $QT_VERSION])],
+
+     [PKG_CHECK_MODULES([QT], [QtCore >= 4 QtGui >= 4])
+     MOC=`$PKG_CONFIG QtGui --variable=moc_location`
+     AC_MSG_NOTICE([using moc from $MOC])
+     QT_VERSION=`$PKG_CONFIG QtGui --modversion`
+     AC_MSG_NOTICE([using Qt version $QT_VERSION])]))
 
 AM_CONDITIONAL([HAVE_QT], [test "x$with_qt" = "xyes"])
 
@@ -596,9 +611,9 @@ AS_IF([test "x$with_gtk" != "xyes"],
   [echo "        => the GTK+ widget will *NOT* be built"],
   [AS_IF([test "x$with_python" != "xyes"],
      [echo "        => the PyGTK widget wrapper will *NOT* be built"])])
-echo "Qt4               --with-qt=$with_qt"
+echo "Qt${QT_VERSION}           --with-qt=$with_qt"
 AS_IF([test "x$with_qt" != "xyes"],
-  [echo "        => the Qt4 widget will *NOT* be built"])
+  [echo "        => the Qt widget will *NOT* be built"])
 echo "Java              --with-java=$with_java"
 AS_IF([test "x$with_java" != "xyes"],
   [echo "        => the Java interface will *NOT* be built"])
