@@ -83,7 +83,7 @@ class QZBar : public QWidget
 public:
 
     /// constructs a barcode reader widget with the given @a parent
-    QZBar(QWidget *parent = NULL);
+    QZBar(QWidget *parent = NULL, int verbosity = 0);
 
     ~QZBar();
 

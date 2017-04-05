@@ -100,7 +100,7 @@ public:
 
     Window window;
 
-    QZBarThread();
+    QZBarThread(int verbosity = 0);
 
     void pushEvent (QEvent *e)
     {

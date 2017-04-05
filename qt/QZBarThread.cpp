@@ -28,7 +28,7 @@ using namespace zbar;
 
 static const QString textFormat("%1:%2");
 
-QZBarThread::QZBarThread ()
+QZBarThread::QZBarThread (int verbosity)
     : _videoOpened(false),
       reqWidth(DEFAULT_WIDTH),
       reqHeight(DEFAULT_HEIGHT),
@@ -38,6 +38,7 @@ QZBarThread::QZBarThread ()
       videoRunning(false),
       videoEnabled(false)
 {
+    zbar_set_verbosity(verbosity);
     scanner.set_handler(*this);
 }
 

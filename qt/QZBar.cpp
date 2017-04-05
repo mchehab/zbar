@@ -29,7 +29,7 @@
 
 using namespace zbar;
 
-QZBar::QZBar (QWidget *parent)
+QZBar::QZBar (QWidget *parent, int verbosity)
     : QWidget(parent),
       thread(NULL),
       _videoDevice(),
@@ -47,7 +47,7 @@ QZBar::QZBar (QWidget *parent)
     sizing.setHeightForWidth(true);
     setSizePolicy(sizing);
 
-    thread = new QZBarThread;
+    thread = new QZBarThread (verbosity);
     if(testAttribute(Qt::WA_WState_Created)) {
 #if QT_VERSION >= 0x050000
         thread->window.attach(QX11Info::display(), winId());
