@@ -53,6 +53,7 @@
 #include "image.h"
 
 #define V4L2_FORMATS_MAX 64
+#define V4L2_FORMATS_SIZE_MAX 256
 
 static int v4l2_nq (zbar_video_t *vdo,
                     zbar_image_t *img)
@@ -378,9 +379,44 @@ static int v4l2_probe_iomode (zbar_video_t *vdo)
     return(0);
 }
 
+static inline void v4l2_max_size (zbar_video_t *vdo, uint32_t pixfmt,
+                                  uint32_t *max_width,  uint32_t *max_height)
+{
+    int mwidth = 0, mheight = 0;
+    zprintf(2, "enumerating supported sizes:\n");
+    struct v4l2_frmsizeenum frm;
+
+    for(frm.index = 0; frm.index < V4L2_FORMATS_SIZE_MAX; frm.index++) {
+        memset(&frm, 0, sizeof(frm));
+        frm.pixel_format = pixfmt;
+
+        if(v4l2_ioctl(vdo->fd, VIDIOC_ENUM_FRAMESIZES, &frm) < 0)
+            break;
+
+        switch (frm.type) {
+        case V4L2_FRMSIZE_TYPE_DISCRETE:
+            mwidth = frm.discrete.width;
+            mheight = frm.discrete.height;
+            break;
+        case V4L2_FRMSIZE_TYPE_CONTINUOUS:
+        case V4L2_FRMSIZE_TYPE_STEPWISE:
+            mwidth = frm.stepwise.max_width;
+            mheight = frm.stepwise.max_height;
+            break;
+        default:
+            continue;
+        }
+        if (mwidth > *max_width)
+            *max_width = mwidth;
+        if (mheight > *max_height)
+            *max_height = mheight;
+    }
+}
+
 static inline int v4l2_probe_formats (zbar_video_t *vdo)
 {
     int n_formats = 0, n_emu_formats = 0;
+    uint32_t max_width = 0, max_height = 0;
 
     zprintf(2, "enumerating supported formats:\n");
     struct v4l2_fmtdesc desc;
@@ -401,8 +437,24 @@ static inline int v4l2_probe_formats (zbar_video_t *vdo)
             vdo->formats = realloc(vdo->formats,
                                    (n_formats + 2) * sizeof(uint32_t));
             vdo->formats[n_formats++] = desc.pixelformat;
+
+            if(!vdo->width || !vdo->height)
+                v4l2_max_size(vdo, desc.pixelformat, &max_width, &max_height);
         }
     }
+
+    if(!vdo->width || !vdo->height) {
+        if (max_width && max_height) {
+            vdo->width = max_width;
+            vdo->height = max_height;
+        } else {
+            /* fallback to large size, driver reduces to max available */
+            vdo->width = 640 * 64;
+            vdo->height = 480 * 64;
+
+        }
+    }
+
     if(!desc.index)
         return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__,
                            "enumerating video formats (VIDIOC_ENUM_FMT)"));
@@ -534,12 +586,6 @@ int _zbar_v4l2_probe (zbar_video_t *vdo)
 
     if(v4l2_reset_crop(vdo))
         /* ignoring errors (driver cropping support questionable) */;
-
-    if(!vdo->width || !vdo->height) {
-        /* fallback to large size, driver reduces to max available */
-        vdo->width = 640 * 64;
-        vdo->height = 480 * 64;
-    }
 
     if(v4l2_probe_formats(vdo))
         return(-1);
