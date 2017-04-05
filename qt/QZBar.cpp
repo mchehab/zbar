@@ -229,6 +229,7 @@ void QZBar::attach ()
 #else
         thread->window.attach(x11Info().display(), winId());
 #endif
+        thread->window.resize(width(), height());
         _attached = 1;
 
         _videoEnabled = !_videoDevice.isEmpty();
