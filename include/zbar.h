@@ -195,6 +195,27 @@ typedef enum zbar_modifier_e {
     ZBAR_MOD_NUM,
 } zbar_modifier_t;
 
+typedef enum video_control_type_e {
+    VIDEO_CNTL_BOOLEAN = 1,
+    VIDEO_CNTL_INTEGER,
+} video_control_type_t;
+
+/** store video controls
+ * @param name name of the control
+ * @param type type of the control
+ * @param min minimum value of control (if control is integer)
+ * @param max maximum value of control (if control is integer)
+ * @param def default value of control (if control is integer)
+ * @param step increment steps (if control is integer)
+ *
+ * @returns 0
+ */
+typedef struct video_controls_s {
+    char *name;
+    video_control_type_t type;
+    int min, max, def, step;
+} video_controls_t;
+
 /** retrieve runtime library version information.
  * @param major set to the running major version (unless NULL)
  * @param minor set to the running minor version (unless NULL)
@@ -1126,6 +1147,14 @@ extern int zbar_video_get_control_n (zbar_video_t *video,
 extern int zbar_video_get_control_b (zbar_video_t *video,
                                      const char *control_name,
                                      int *value);
+
+/** get available controls from video source
+ * @returns 0 for success, non-0 for failure
+ * @since 0.11
+ */
+extern struct video_controls_s
+*zbar_video_get_controls (const zbar_video_t *video,
+                          int index);
 
 /** display detail for last video error to stderr.
  * @returns a non-zero value suitable for passing to exit()

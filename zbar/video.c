@@ -489,3 +489,20 @@ int zbar_video_get_control_b (zbar_video_t *vdo,
     return_if_not_supported(vdo->get_control, "get_control");
     return(vdo->get_control(vdo, control_name, value, CTRLF_BOOL));
 }
+
+struct video_controls_s *zbar_video_get_controls (const zbar_video_t *vdo,
+                                                  int index)
+{
+    int i = 0;
+    struct video_controls_s *p = vdo->controls;
+
+    while (p->name && i != index) {
+        p++;
+        i++;
+    }
+
+    if (!p->name)
+        return NULL;
+
+    return p;
+}

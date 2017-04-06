@@ -615,10 +615,15 @@ static int v4l2_query_controls(zbar_video_t *vdo)
 
                 vdo->controls = realloc(vdo->controls, (n_controls + 2) * sizeof(*vdo->controls));
                 vdo->controls[n_controls].name = strdup((const char *)query.name);
-                if (query.type == V4L2_CTRL_TYPE_INTEGER)
+                if (query.type == V4L2_CTRL_TYPE_INTEGER) {
                     vdo->controls[n_controls].type = VIDEO_CNTL_INTEGER;
-                else
+                    vdo->controls[n_controls].min = query.minimum;
+                    vdo->controls[n_controls].max = query.maximum;
+                    vdo->controls[n_controls].def = query.default_value;
+                    vdo->controls[n_controls].step = query.step;
+                } else {
                     vdo->controls[n_controls].type = VIDEO_CNTL_BOOLEAN;
+                }
                 n_controls++;
             }
 
@@ -642,10 +647,15 @@ static int v4l2_query_controls(zbar_video_t *vdo)
 
             vdo->controls = realloc(vdo->controls, (n_controls + 2) * sizeof(*vdo->controls));
             vdo->controls[n_controls].name = strdup((const char *)query.name);
-            if (query.type == V4L2_CTRL_TYPE_INTEGER)
+            if (query.type == V4L2_CTRL_TYPE_INTEGER) {
                 vdo->controls[n_controls].type = VIDEO_CNTL_INTEGER;
-            else
+                vdo->controls[n_controls].min = query.minimum;
+                vdo->controls[n_controls].max = query.maximum;
+                vdo->controls[n_controls].def = query.default_value;
+                vdo->controls[n_controls].step = query.step;
+            } else {
                 vdo->controls[n_controls].type = VIDEO_CNTL_BOOLEAN;
+            }
             n_controls++;
         } else
             break;

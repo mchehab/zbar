@@ -56,16 +56,6 @@ typedef enum video_iomode_e {
 
 typedef struct video_state_s video_state_t;
 
-typedef enum video_control_type_e {
-    VIDEO_CNTL_BOOLEAN = 1,
-    VIDEO_CNTL_INTEGER,
-} video_control_type_t;
-
-struct video_controls_s {
-    char *name;
-    video_control_type_t type;
-};
-
 /** used to get information about a video control from driver
  */
 struct zbar_video_control_info_s {
