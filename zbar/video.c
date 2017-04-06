@@ -114,6 +114,14 @@ void zbar_video_destroy (zbar_video_t *vdo)
     if(vdo->emu_formats)
         free(vdo->emu_formats);
 
+    if(vdo->controls) {
+        struct video_controls_s *p = vdo->controls;
+        while (p->name) {
+            free(p->name);
+            p++;
+        }
+        free(vdo->controls);
+    }
     err_cleanup(&vdo->err);
     _zbar_mutex_destroy(&vdo->qlock);
 

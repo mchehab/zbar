@@ -590,52 +590,69 @@ static inline int v4l2_reset_crop (zbar_video_t *vdo)
     return(0);
 }
 
-/** for debug purposes
- *  issue zbar_processor_get_control_n(proc, "debug-dump", 0)
- */
-static int v4l2_dump_controls(zbar_video_t *vdo)
+static int v4l2_query_controls(zbar_video_t *vdo)
 {
-    int id;
-    puts("begin dump user controls");
+    int n_controls = 0, id = 0;
     struct v4l2_queryctrl query;
-    for(id=V4L2_CID_BASE; id<V4L2_CID_LASTP1; id++) {
-        query.id = id;
-        if(v4l2_ioctl(vdo->fd, VIDIOC_QUERYCTRL, &query)==0 &&
-           !(query.flags & V4L2_CTRL_FLAG_DISABLED)) {
-            printf("user control V4L2_CID_BASE+%d, %X\n",
-                   query.id - V4L2_CID_BASE, query.id);
-        }
-    }
 
-    puts("private user controls");
-    id=V4L2_CID_PRIVATE_BASE;
-    do {
-        query.id = id;
-        if(v4l2_ioctl(vdo->fd, VIDIOC_QUERYCTRL, &query)==0 &&
-           !(query.flags & V4L2_CTRL_FLAG_DISABLED)) {
-            printf("private user control V4L2_CID_PRIVATE_BASE+%d, %X\n",
-                   query.id - V4L2_CID_PRIVATE_BASE, query.id);
-        } else
-            break;
-    } while (1);
+    // FIXME: add support also for other control types
 
-    puts("extended controls");
-    // standard controls are also shown here as V4L2_CTRL_CLASS_USER
-    // is it possible to get/set them through extended interface?
-    // not in my case (jarekczek)
     id=0;
     do {
         query.id = id | V4L2_CTRL_FLAG_NEXT_CTRL;
-        if(v4l2_ioctl(vdo->fd, VIDIOC_QUERYCTRL, &query)==0 &&
-           !(query.flags & V4L2_CTRL_FLAG_DISABLED)) {
-            printf("extended control %X, class %lX, index %d\n", query.id,
-                   V4L2_CTRL_ID2CLASS(query.id),
-                   query.id - (int)V4L2_CTRL_ID2CLASS(query.id));
+        if(v4l2_ioctl(vdo->fd, VIDIOC_QUERYCTRL, &query)==0) {
+            if (!(query.flags & V4L2_CTRL_FLAG_DISABLED) &&
+                ((query.type == V4L2_CTRL_TYPE_INTEGER) ||
+                 (query.type == V4L2_CTRL_TYPE_BOOLEAN))) {
+
+                zprintf(1, "extended %s control %-32s %X, class %lX, index %d\n",
+                    (query.type == V4L2_CTRL_TYPE_INTEGER) ? "integer" :
+                                                             "boolean",
+                    query.name,
+                    query.id,
+                    V4L2_CTRL_ID2CLASS(query.id),
+                    query.id - (int)V4L2_CTRL_ID2CLASS(query.id));
+
+                vdo->controls = realloc(vdo->controls, (n_controls + 2) * sizeof(*vdo->controls));
+                vdo->controls[n_controls].name = strdup((const char *)query.name);
+                if (query.type == V4L2_CTRL_TYPE_INTEGER)
+                    vdo->controls[n_controls].type = VIDEO_CNTL_INTEGER;
+                else
+                    vdo->controls[n_controls].type = VIDEO_CNTL_BOOLEAN;
+                n_controls++;
+            }
+
             id = query.id;
         } else
             break;
     } while (1);
-    puts("end dump");
+
+    id=V4L2_CID_PRIVATE_BASE;
+    do {
+        query.id = id;
+        if(v4l2_ioctl(vdo->fd, VIDIOC_QUERYCTRL, &query)==0 &&
+           !(query.flags & V4L2_CTRL_FLAG_DISABLED) &&
+           ((query.type == V4L2_CTRL_TYPE_INTEGER) ||
+            (query.type == V4L2_CTRL_TYPE_BOOLEAN))) {
+            printf("private %s user control %-32s V4L2_CID_PRIVATE_BASE+%d, %X\n",
+                   (query.type == V4L2_CTRL_TYPE_INTEGER) ? "integer" :
+                                                            "boolean",
+                   query.name,
+                   query.id - V4L2_CID_PRIVATE_BASE, query.id);
+
+            vdo->controls = realloc(vdo->controls, (n_controls + 2) * sizeof(*vdo->controls));
+            vdo->controls[n_controls].name = strdup((const char *)query.name);
+            if (query.type == V4L2_CTRL_TYPE_INTEGER)
+                vdo->controls[n_controls].type = VIDEO_CNTL_INTEGER;
+            else
+                vdo->controls[n_controls].type = VIDEO_CNTL_BOOLEAN;
+            n_controls++;
+        } else
+            break;
+    } while (1);
+
+    vdo->controls[n_controls++].name = NULL;
+
     return(0);
 }
 
@@ -709,10 +726,7 @@ static int v4l2_g_control(zbar_video_t *vdo,
 {
     struct v4l2_control cs;
     const v4l2_control_def_t *def;
-    //struct v4l2_ext_controls ext_ctrls;
-    //struct v4l2_ext_control ext_ctrl;
-    if(strcmp(name, "debug-dump")==0)
-        return(v4l2_dump_controls(vdo));
+
     return_if_non_zero(v4l2_g_control_def(&def, name, flags));
 
     switch(def->type) {
@@ -825,6 +839,9 @@ int _zbar_v4l2_probe (zbar_video_t *vdo)
         /* ignoring errors (driver cropping support questionable) */;
 
     if(v4l2_probe_formats(vdo))
+        return(-1);
+
+    if (v4l2_query_controls(vdo))
         return(-1);
 
     /* FIXME report error and fallback to readwrite? (if supported...) */

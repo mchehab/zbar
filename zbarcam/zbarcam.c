@@ -282,8 +282,6 @@ int main (int argc, const char *argv[])
             zbar_processor_set_control_b(proc, "autogain", 1, CTRLF_TOGGLE);
         if(rc == 'f' || rc == 'F')
             zbar_processor_set_control_b(proc, "autofocus", 1, CTRLF_TOGGLE);
-        if(rc == 'p' || rc == 'P')
-            zbar_processor_get_control_n(proc, "debug-dump", 0);
         if(rc == ' ') {
             active = !active;
             if(zbar_processor_set_active(proc, active))
