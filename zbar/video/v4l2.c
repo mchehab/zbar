@@ -600,7 +600,7 @@ static int v4l2_dump_controls(zbar_video_t *vdo)
     struct v4l2_queryctrl query;
     for(id=V4L2_CID_BASE; id<V4L2_CID_LASTP1; id++) {
         query.id = id;
-        if(ioctl(vdo->fd, VIDIOC_QUERYCTRL, &query)==0 &&
+        if(v4l2_ioctl(vdo->fd, VIDIOC_QUERYCTRL, &query)==0 &&
            !(query.flags & V4L2_CTRL_FLAG_DISABLED)) {
             printf("user control V4L2_CID_BASE+%d, %X\n",
                    query.id - V4L2_CID_BASE, query.id);
@@ -611,7 +611,7 @@ static int v4l2_dump_controls(zbar_video_t *vdo)
     id=V4L2_CID_PRIVATE_BASE;
     do {
         query.id = id;
-        if(ioctl(vdo->fd, VIDIOC_QUERYCTRL, &query)==0 &&
+        if(v4l2_ioctl(vdo->fd, VIDIOC_QUERYCTRL, &query)==0 &&
            !(query.flags & V4L2_CTRL_FLAG_DISABLED)) {
             printf("private user control V4L2_CID_PRIVATE_BASE+%d, %X\n",
                    query.id - V4L2_CID_PRIVATE_BASE, query.id);
@@ -626,7 +626,7 @@ static int v4l2_dump_controls(zbar_video_t *vdo)
     id=0;
     do {
         query.id = id | V4L2_CTRL_FLAG_NEXT_CTRL;
-        if(ioctl(vdo->fd, VIDIOC_QUERYCTRL, &query)==0 &&
+        if(v4l2_ioctl(vdo->fd, VIDIOC_QUERYCTRL, &query)==0 &&
            !(query.flags & V4L2_CTRL_FLAG_DISABLED)) {
             printf("extended control %X, class %lX, index %d\n", query.id,
                    V4L2_CTRL_ID2CLASS(query.id),
@@ -688,7 +688,7 @@ static int v4l2_s_control(zbar_video_t *vdo,
         case V4L2_CTRL_USER:
             cs.id = def->id;
             cs.value = *(int*)value;
-            int rv = ioctl(vdo->fd, VIDIOC_S_CTRL, &cs);
+            int rv = v4l2_ioctl(vdo->fd, VIDIOC_S_CTRL, &cs);
             if(rv!=0) {
                 zprintf(1, "v4l2 set user control \"%s\" returned %d\n", def->name, rv);
                 rv = ZBAR_ERR_INVALID;
@@ -719,7 +719,7 @@ static int v4l2_g_control(zbar_video_t *vdo,
         case V4L2_CTRL_USER:
             cs.id = def->id;
             cs.value = *(int*)value;
-            int rv = ioctl(vdo->fd, VIDIOC_G_CTRL, &cs);
+            int rv = v4l2_ioctl(vdo->fd, VIDIOC_G_CTRL, &cs);
             *(int*)value = cs.value;
             if(rv!=0) {
                 zprintf(1, "v4l2 get user control \"%s\" returned %d\n", def->name, rv);
@@ -737,7 +737,7 @@ static int v4l2_g_control(zbar_video_t *vdo,
             ext_ctrls.controls = &ext_ctrl;
             memset(&ext_ctrl, 0, sizeof(ext_ctrl));
             ext_ctrl.id = def->id;
-            rv = ioctl(vdo->fd, VIDIOC_G_EXT_CTRLS, &ext_ctrls);
+            rv = v4l2_ioctl(vdo->fd, VIDIOC_G_EXT_CTRLS, &ext_ctrls);
             *(int*)value = ext_ctrl.value;
             if(rv!=0) {
                 zprintf(1, "v4l2 get ext control \"%s\" returned %d\n", def->name, rv);
@@ -763,7 +763,7 @@ static int v4l2_query_control (zbar_video_t *vdo,
     switch(def->type) {
         case V4L2_CTRL_USER:
             query.id = def->id;
-            rv = ioctl(vdo->fd, VIDIOC_QUERYCTRL, &query);
+            rv = v4l2_ioctl(vdo->fd, VIDIOC_QUERYCTRL, &query);
             if(rv!=0) {
                 printf("error here\n");
                 return(ZBAR_ERR_UNSUPPORTED);
