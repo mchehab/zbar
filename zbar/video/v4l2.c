@@ -644,14 +644,14 @@ static int v4l2_dump_controls(zbar_video_t *vdo)
  *               #CTRLF_INT, #CTRLF_STR. A test for compatibility of types
  *               is then performed
  */
-static int v4l2_get_control_def(const v4l2_control_def_t **ppdef_out,
+static int v4l2_g_control_def(const v4l2_control_def_t **ppdef_out,
                                 const char *name,
                                 unsigned long flags)
 {
     const v4l2_control_def_t *pdef = v4l2_controls;
     *ppdef_out = NULL;
     if(flags!=0 && flags!=CTRLF_BOOL && flags!=CTRLF_INT) {
-        zprintf(4, "incorrect flags (%lu) in call to v4l2_get_control_def\n",
+        zprintf(4, "incorrect flags (%lu) in call to v4l2_g_control_def\n",
                 flags);
         return(ZBAR_ERR_INVALID);
     }
@@ -675,14 +675,14 @@ static int v4l2_get_control_def(const v4l2_control_def_t **ppdef_out,
     return(0);
 }
 
-static int v4l2_set_control(zbar_video_t *vdo,
-                            const char *name,
-                            void *value,
-                            unsigned long flags)
+static int v4l2_s_control(zbar_video_t *vdo,
+                          const char *name,
+                          void *value,
+                          unsigned long flags)
 {
     struct v4l2_control cs;
     const v4l2_control_def_t *def;
-    return_if_non_zero(v4l2_get_control_def(&def, name, flags));
+    return_if_non_zero(v4l2_g_control_def(&def, name, flags));
 
     switch(def->type) {
         case V4L2_CTRL_USER:
@@ -702,7 +702,7 @@ static int v4l2_set_control(zbar_video_t *vdo,
     }
 }
 
-static int v4l2_get_control(zbar_video_t *vdo,
+static int v4l2_g_control(zbar_video_t *vdo,
                             const char *name,
                             void *value,
                             unsigned long flags)
@@ -713,7 +713,7 @@ static int v4l2_get_control(zbar_video_t *vdo,
     //struct v4l2_ext_control ext_ctrl;
     if(strcmp(name, "debug-dump")==0)
         return(v4l2_dump_controls(vdo));
-    return_if_non_zero(v4l2_get_control_def(&def, name, flags));
+    return_if_non_zero(v4l2_g_control_def(&def, name, flags));
 
     switch(def->type) {
         case V4L2_CTRL_USER:
@@ -758,7 +758,7 @@ static int v4l2_query_control (zbar_video_t *vdo,
     int rv;
     struct v4l2_queryctrl query;
     const v4l2_control_def_t *def;
-    return_if_non_zero(v4l2_get_control_def(&def, name, 0));
+    return_if_non_zero(v4l2_g_control_def(&def, name, 0));
     memset(&query, 0, sizeof(query));
     switch(def->type) {
         case V4L2_CTRL_USER:
@@ -847,8 +847,8 @@ int _zbar_v4l2_probe (zbar_video_t *vdo)
     vdo->stop = v4l2_stop;
     vdo->nq = v4l2_nq;
     vdo->dq = v4l2_dq;
-    vdo->set_control = v4l2_set_control;
-    vdo->get_control = v4l2_get_control;
+    vdo->set_control = v4l2_s_control;
+    vdo->get_control = v4l2_g_control;
     vdo->query_control = v4l2_query_control;
     return(0);
 }
