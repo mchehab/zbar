@@ -272,16 +272,18 @@ int main (int argc, const char *argv[])
     while((rc = zbar_processor_user_wait(proc, -1)) >= 0) {
         if(rc == 'q' || rc == 'Q')
             break;
-        if(rc == 'b' || rc == 'B')
-            zbar_processor_set_control_n(proc, "brightness", 10,
-                                         CTRLF_REL | CTRLF_PERC);
-        if(rc == 'n' || rc == 'N')
-            zbar_processor_set_control_n(proc, "brightness", -10,
-                                         CTRLF_REL | CTRLF_PERC);
-        if(rc == 'g' || rc == 'G')
-            zbar_processor_set_control_b(proc, "autogain", 1, CTRLF_TOGGLE);
-        if(rc == 'f' || rc == 'F')
-            zbar_processor_set_control_b(proc, "autofocus", 1, CTRLF_TOGGLE);
+        // HACK: controls are known on V4L2 by ID, not by name. This is also
+        // not compatible with other platforms
+        if(rc == 'b' || rc == 'B') {
+            int value;
+            zbar_processor_get_control(proc, "Brightness", &value);
+            zbar_processor_set_control(proc, "Brightness", ++value);
+        }
+        if(rc == 'n' || rc == 'N') {
+            int value;
+            zbar_processor_get_control(proc, "Brightness", &value);
+            zbar_processor_set_control(proc, "Brightness", --value);
+        }
         if(rc == ' ') {
             active = !active;
             if(zbar_processor_set_active(proc, active))

@@ -116,9 +116,9 @@ void zbar_video_destroy (zbar_video_t *vdo)
 
     if(vdo->controls) {
         struct video_controls_s *p = vdo->controls;
-        while (p->name) {
+        while (p) {
             free(p->name);
-            p++;
+            p = p->next;
         }
         free(vdo->controls);
     }
@@ -404,90 +404,27 @@ zbar_image_t *zbar_video_next_image (zbar_video_t *vdo)
 }
 #define return_if_non_zero(a) { int rv=a; if (rv!=0) return(rv); }
 
-/** query video driver about control of a given name
- *  @since 0.11
- */
-static int zbar_video_query_control (zbar_video_t *vdo,
-                              const char *control_name,
-                              zbar_video_control_info_t *info)
-{
-    return_if_not_supported(vdo->query_control, "query_control");
-    return(vdo->query_control(vdo, control_name, info));
-}
-
-int zbar_video_set_control_n (zbar_video_t *vdo,
-                              const char *control_name,
-                              int value,
-                              unsigned long flags)
+int zbar_video_set_control (zbar_video_t *vdo,
+                            const char *control_name,
+                            int value)
 {
     int loc_value, rv;
     return_if_not_supported(vdo->set_control, "set_control");
-    if((flags&CTRLF_PERC) && !(flags&CTRLF_REL))
-        return ZBAR_ERR_INVALID;
-    if(flags & CTRLF_REL) {
-        return_if_not_supported(vdo->get_control, "get_control");
-        return_if_non_zero(vdo->get_control(vdo, control_name,
-                                            &loc_value, CTRLF_INT));
-        if(flags & CTRLF_PERC) {
-            // have to obtain range for this control to calculate percent
-            zbar_video_control_info_t info;
-            return_if_non_zero(zbar_video_query_control(vdo, control_name, &info));
-            long loc_value_long = loc_value;
-            loc_value_long += (long)value * (info.max_value - info.min_value) / 100;
-            loc_value = (int)loc_value_long;
-            if(loc_value<info.min_value)
-                loc_value = info.min_value;
-            if(loc_value>info.max_value)
-                loc_value = info.max_value;
-        } else {
-            loc_value += value;
-        }
-    } else {
-        loc_value = value;
-    }
-    rv = vdo->set_control(vdo, control_name, &loc_value, CTRLF_INT);
+    loc_value = value;
+
+    rv = vdo->set_control(vdo, control_name, &loc_value);
+
     if(rv==0)
         zprintf(1, "value of %s set to: %d\n", control_name, loc_value);
     return(rv);
 }
 
-int zbar_video_set_control_b (zbar_video_t *vdo,
-                              const char *control_name,
-                              int value,
-                              unsigned long flags)
-{
-    int loc_value, rv;
-    return_if_not_supported(vdo->set_control, "set_control");
-    if(flags&(CTRLF_REL|CTRLF_PERC))
-        return ZBAR_ERR_INVALID;
-    if(flags & CTRLF_TOGGLE) {
-        return_if_not_supported(vdo->get_control, "get_control");
-        return_if_non_zero(vdo->get_control(vdo, control_name,
-                                            &loc_value, CTRLF_BOOL));
-        loc_value = !loc_value;
-    } else {
-        loc_value = value;
-    }
-    rv = vdo->set_control(vdo, control_name, &loc_value, CTRLF_BOOL);
-    if(rv==0)
-        zprintf(1, "value of %s set to: %d\n", control_name, loc_value);
-    return(rv);
-}
-
-int zbar_video_get_control_n (zbar_video_t *vdo,
-                              const char *control_name,
-                              int *value)
+int zbar_video_get_control (zbar_video_t *vdo,
+                            const char *control_name,
+                            int *value)
 {
     return_if_not_supported(vdo->get_control, "get_control");
-    return(vdo->get_control(vdo, control_name, value, CTRLF_INT));
-}
-
-int zbar_video_get_control_b (zbar_video_t *vdo,
-                              const char *control_name,
-                              int *value)
-{
-    return_if_not_supported(vdo->get_control, "get_control");
-    return(vdo->get_control(vdo, control_name, value, CTRLF_BOOL));
+    return(vdo->get_control(vdo, control_name, value));
 }
 
 struct video_controls_s *zbar_video_get_controls (const zbar_video_t *vdo,
@@ -496,12 +433,12 @@ struct video_controls_s *zbar_video_get_controls (const zbar_video_t *vdo,
     int i = 0;
     struct video_controls_s *p = vdo->controls;
 
-    while (p->name && i != index) {
-        p++;
+    while (p && i != index) {
         i++;
+        p = p->next;
     }
 
-    if (!p->name)
+    if (!p)
         return NULL;
 
     return p;

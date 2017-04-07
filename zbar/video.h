@@ -56,16 +56,6 @@ typedef enum video_iomode_e {
 
 typedef struct video_state_s video_state_t;
 
-/** used to get information about a video control from driver
- */
-struct zbar_video_control_info_s {
-    /** one of #CTRLF_INT, #CTRLF_BOOL, #CTRLF_STR */
-    unsigned long value_type;
-    long max_value;
-    long min_value;
-};
-typedef struct zbar_video_control_info_s zbar_video_control_info_t;
-
 struct zbar_video_s {
     errinfo_t err;              /* error reporting */
     int fd;                     /* open camera device */
@@ -81,7 +71,7 @@ struct zbar_video_s {
     uint32_t *formats;          /* 0 terminated list of supported formats */
     uint32_t *emu_formats;      /* 0 terminated list of emulated formats */
 
-    struct video_controls_s *controls;  /* NULL terminated list of controls */
+    struct video_controls_s *controls;  /* linked list of controls */
 
     unsigned long datalen;      /* size of image data for selected format */
     unsigned long buflen;       /* total size of image data buffer */
@@ -114,23 +104,16 @@ struct zbar_video_s {
      *  @param name name of a control, acceptable names are listed
      *         in processor.h
      *  @param value pointer to value of a type specified by flags
-     *  @param flags any of #CTRLF_BOOL, #CTRLF_INT, #CTRLF_STR
      */
-    int (*set_control)(zbar_video_t*, const char* name, void* value, unsigned long flags);
+    int (*set_control)(zbar_video_t*, const char* name, void* value);
     /** get value of video control
      *  implemented by v4l2_get_control()
      *  @param name name of a control, acceptable names are listed
      *         in processor.h
      *  @param value pointer to a receiver of a value of a type
      *         specified by flags
-     *  @param flags any of #CTRLF_BOOL, #CTRLF_INT, #CTRLF_STR
      */
-    int (*get_control)(zbar_video_t*, const char* name, void* value, unsigned long flags);
-    /** get info about video control
-     *  implemented by v4l2_query_control
-     */
-    int (*query_control)(zbar_video_t*, const char *name,
-                         zbar_video_control_info_t *info);
+    int (*get_control)(zbar_video_t*, const char* name, void* value);
 
     zbar_image_t* (*dq)(zbar_video_t*);
 };

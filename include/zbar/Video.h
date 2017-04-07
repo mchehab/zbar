@@ -176,7 +176,7 @@ public:
                      int value,
                      unsigned long flags)
     {
-        return zbar_video_set_control_n (_video, name, value, flags);
+        return zbar_video_set_control (_video, name, value);
     }
 
     /// set the value on a boolean control
@@ -186,7 +186,7 @@ public:
                      bool value,
                      unsigned long flags)
     {
-        return zbar_video_set_control_b (_video, name, (int)value, flags);
+        return zbar_video_set_control (_video, name, value ? 1 : 0);
     }
 
     /// get the value on a boolean control
@@ -195,7 +195,7 @@ public:
     int get_control (const char *name,
                      int *value)
     {
-        return zbar_video_get_control_b (_video, name, value);
+        return zbar_video_get_control (_video, name, value);
     }
 
     /// get the value on an integer control
@@ -205,9 +205,9 @@ public:
                      bool *value)
     {
         int __value;
-        int ret = zbar_video_get_control_n (_video, name, &__value);
+        int ret = zbar_video_get_control (_video, name, &__value);
 
-        *value = (bool) __value;
+        *value =  __value ? true : false;
 
         return ret;
     }
