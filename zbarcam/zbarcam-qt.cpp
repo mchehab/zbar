@@ -190,12 +190,31 @@ public Q_SLOTS:
         zbar->set_control(name.toUtf8().data(), val, 0);
     }
 
+    void clearLayout(QLayout *layout)
+    {
+        QLayoutItem *item;
+        while((item = layout->takeAt(0))) {
+            if (item->layout()) {
+                clearLayout(item->layout());
+                delete item->layout();
+            }
+            if (item->widget()) {
+                delete item->widget();
+            }
+            delete item;
+        }
+    }
+
     void setEnabled(bool videoEnabled)
     {
         zbar->setVideoEnabled(videoEnabled);
 
+        // Update the status button
         statusButton->setEnabled(videoEnabled);
         statusButton->setChecked(videoEnabled);
+
+        // Delete items before creating a new set of controls
+        clearLayout(controlBoxLayout);
 
         if (!videoEnabled)
             return;
