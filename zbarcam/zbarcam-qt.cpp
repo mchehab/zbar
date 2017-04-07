@@ -25,7 +25,7 @@
 #include <QWidget>
 #include <QLayout>
 #include <QComboBox>
-#include <QPushButton>
+#include <QCheckBox>
 #include <QTextEdit>
 #include <QFileDialog>
 #include <QImage>
@@ -58,7 +58,7 @@ public:
         QComboBox *videoList = new QComboBox;
 
         // toggle button to disable/enable video
-        statusButton = new QPushButton;
+        statusButton = new QCheckBox;
 
         QStyle *style = QApplication::style();
         QIcon statusIcon = style->standardIcon(QStyle::SP_DialogNoButton);
@@ -73,7 +73,7 @@ public:
         statusButton->setEnabled(false);
 
         // command button to open image files for scanning
-        QPushButton *openButton = new QPushButton("&Open");
+        QCheckBox *openButton = new QCheckBox("&Open");
         QIcon openIcon = style->standardIcon(QStyle::SP_DialogOpenButton);
         openButton->setIcon(openIcon);
 
@@ -99,10 +99,6 @@ public:
         // Group box where controls will be added
         controlGroup = new QGroupBox;
         controlBoxLayout = new QGridLayout(controlGroup);
-
-        QLabel *label = new QLabel(QString::fromUtf8("Camera controls"));
-        controlBoxLayout->addWidget(label);
-
         grid->addWidget(controlGroup, 0, 1, -1, 1, Qt::AlignTop);
 
         setLayout(grid);
@@ -142,6 +138,18 @@ public Q_SLOTS:
             zbar->scanImage(QImage(file));
     }
 
+    void clicked()
+    {
+        QCheckBox *button = qobject_cast<QCheckBox*>(sender());
+        if (!button)
+            return;
+
+        QString name = button->text();
+        bool val = button->isChecked();
+
+        zbar->set_control(name.toUtf8().data(), val, 0);
+    }
+
     void setEnabled(bool videoEnabled)
     {
         zbar->setVideoEnabled(videoEnabled);
@@ -165,16 +173,28 @@ public Q_SLOTS:
 
             switch (type) {
                 case zbar::QZBar::Boolean: {
-                    QRadioButton *radioButton = new QRadioButton(controlGroup);
-                    QLabel *label = new QLabel(QString::fromUtf8(name));
-                    controlBoxLayout->addWidget(label, pos, 1);
-                    controlBoxLayout->addWidget(radioButton, pos++, 0);
+                    bool val;
+
+                    QCheckBox *button = new QCheckBox(name, controlGroup);
+                    controlBoxLayout->addWidget(button, pos++, 0);
+
+                    if (!zbar->get_control(name, &val))
+                        button->setChecked(val);
+                    else
+                        button->setChecked(def);
+                    connect(button, SIGNAL(clicked()),
+                            this, SLOT(clicked()));
                     break;
                 }
                 case zbar::QZBar::Integer: {
+                    int val;
                     QSpinBox *spinBox = new QSpinBox(controlGroup);
                     spinBox->setRange(min, max);
                     spinBox->setSingleStep(step);
+                    if (!zbar->get_control(name, &val))
+                        spinBox->setValue(val);
+                    else
+                        spinBox->setValue(def);
 
                     QLabel *label = new QLabel(QString::fromUtf8(name));
                     controlBoxLayout->addWidget(label, pos, 0);
@@ -185,12 +205,17 @@ public Q_SLOTS:
                     break;
             }
         }
+        if (pos > 2) {
+            QLabel *label = new QLabel(QString::fromUtf8("<strong>Camera controls</strong>"));
+            controlBoxLayout->addWidget(label, 0, 0, 0, 1,
+                                        Qt::AlignTop | Qt::AlignHCenter);
+        }
     }
 
 private:
     QString file;
     zbar::QZBar *zbar;
-    QPushButton *statusButton;
+    QCheckBox *statusButton;
     QGroupBox *controlGroup;
     QGridLayout *controlBoxLayout;
 };
