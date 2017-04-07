@@ -58,7 +58,7 @@ public:
         QComboBox *videoList = new QComboBox;
 
         // toggle button to disable/enable video
-        QPushButton *statusButton = new QPushButton;
+        statusButton = new QPushButton;
 
         QStyle *style = QApplication::style();
         QIcon statusIcon = style->standardIcon(QStyle::SP_DialogNoButton);
@@ -91,12 +91,21 @@ public:
         QTextEdit *results = new QTextEdit;
         results->setReadOnly(true);
 
-        QVBoxLayout *vbox = new QVBoxLayout;
-        vbox->addLayout(hbox);
-        vbox->addWidget(zbar);
-        vbox->addWidget(results);
+        QGridLayout *grid = new QGridLayout;
+        grid->addLayout(hbox, 0, 0, 1, 1);
+        grid->addWidget(zbar, 1, 0, 1, 1);
+        grid->addWidget(results, 2, 0, 1, 1);
 
-        setLayout(vbox);
+        // Group box where controls will be added
+        controlGroup = new QGroupBox;
+        controlBoxLayout = new QGridLayout(controlGroup);
+
+        QLabel *label = new QLabel(QString::fromUtf8("Camera controls"));
+        controlBoxLayout->addWidget(label);
+
+        grid->addWidget(controlGroup, 0, 1, -1, 1, Qt::AlignTop);
+
+        setLayout(grid);
 
         videoList->addItem("");
         int active = scan_video((void*)add_device, videoList, default_device);
@@ -111,11 +120,7 @@ public:
 
         // also update status button state when video is opened/closed
         connect(zbar, SIGNAL(videoOpened(bool)),
-                statusButton, SLOT(setEnabled(bool)));
-
-        // enable/disable status button when video is opened/closed
-        connect(zbar, SIGNAL(videoOpened(bool)),
-                statusButton, SLOT(setChecked(bool)));
+                this, SLOT(setEnabled(bool)));
 
         // prompt for image file to scan when openButton is clicked
         connect(openButton, SIGNAL(clicked()), SLOT(openImage()));
@@ -137,9 +142,57 @@ public Q_SLOTS:
             zbar->scanImage(QImage(file));
     }
 
+    void setEnabled(bool videoEnabled)
+    {
+        zbar->setVideoEnabled(videoEnabled);
+        statusButton->setChecked(videoEnabled);
+
+        if (!videoEnabled)
+            return;
+
+        // get_controls
+
+        int pos = 2;
+        for (int i = 0;; i++) {
+            char *name;
+            enum zbar::QZBar::ControlType type;
+            int min, max, def, step;
+
+            int ret = zbar->get_controls(i, &name, &type,
+                                         &min, &max, &def, &step);
+            if (!ret)
+                break;
+
+            switch (type) {
+                case zbar::QZBar::Boolean: {
+                    QRadioButton *radioButton = new QRadioButton(controlGroup);
+                    QLabel *label = new QLabel(QString::fromUtf8(name));
+                    controlBoxLayout->addWidget(label, pos, 1);
+                    controlBoxLayout->addWidget(radioButton, pos++, 0);
+                    break;
+                }
+                case zbar::QZBar::Integer: {
+                    QSpinBox *spinBox = new QSpinBox(controlGroup);
+                    spinBox->setRange(min, max);
+                    spinBox->setSingleStep(step);
+
+                    QLabel *label = new QLabel(QString::fromUtf8(name));
+                    controlBoxLayout->addWidget(label, pos, 0);
+                    controlBoxLayout->addWidget(spinBox, pos++, 1);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+
 private:
     QString file;
     zbar::QZBar *zbar;
+    QPushButton *statusButton;
+    QGroupBox *controlGroup;
+    QGridLayout *controlBoxLayout;
 };
 
 #include "moc_zbarcam_qt.h"
