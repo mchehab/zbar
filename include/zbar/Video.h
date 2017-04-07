@@ -161,6 +161,12 @@ public:
             throw_exception(_video);
     }
 
+    struct video_controls_s *get_controls(int index)
+    {
+        return(zbar_video_get_controls(_video, index));
+    }
+
+
 private:
     zbar_video_t *_video;
 };

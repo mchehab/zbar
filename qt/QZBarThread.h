@@ -102,6 +102,11 @@ public:
 
     QZBarThread(int verbosity = 0);
 
+    int get_controls(int index, char **name = NULL,
+                     enum QZBar::ControlType *type = NULL,
+                     int *min = NULL, int *max = NULL,
+                     int *def = NULL, int *step = NULL);
+
     void pushEvent (QEvent *e)
     {
         QMutexLocker locker(&mutex);

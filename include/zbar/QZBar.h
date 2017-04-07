@@ -82,6 +82,12 @@ class QZBar : public QWidget
 
 public:
 
+    enum ControlType {
+        Unknown,
+        Boolean,
+        Integer,
+    };
+
     /// constructs a barcode reader widget with the given @a parent
     QZBar(QWidget *parent = NULL, int verbosity = 0);
 
@@ -126,6 +132,13 @@ public Q_SLOTS:
 
     /// scan for barcodes in a QImage.
     void scanImage(const QImage &image);
+
+    /// get controls from the camera device
+    int get_controls(int index, char **name = NULL,
+                     enum ControlType *type = NULL,
+                     int *min = NULL, int *max = NULL,
+                     int *def = NULL, int *step = NULL);
+
 
 Q_SIGNALS:
     /// emitted when when a video device is opened or closed.

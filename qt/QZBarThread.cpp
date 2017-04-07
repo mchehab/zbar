@@ -232,3 +232,44 @@ void QZBarThread::run ()
     clear();
     openVideo("");
 }
+
+int QZBarThread::get_controls(int index, char **name,
+                              enum QZBar::ControlType *type,
+                              int *min, int *max, int *def, int *step)
+{
+    struct video_controls_s *ctrl;
+
+    if(!video)
+        return 0;
+
+    ctrl = video->get_controls(index);
+    if (!ctrl)
+        return 0;
+
+    if (name)
+        *name = ctrl->name;
+    if (min)
+        *min = ctrl->min;
+    if (max)
+        *max = ctrl->max;
+    if (def)
+        *def = ctrl->def;
+    if (step)
+        *step = ctrl->step;
+
+    if (type) {
+        switch (ctrl->type) {
+        case VIDEO_CNTL_BOOLEAN:
+            *type = QZBar::Boolean;
+            break;
+        case VIDEO_CNTL_INTEGER:
+            *type = QZBar::Integer;
+            break;
+        default:
+            *type = QZBar::Unknown;
+            break;
+        }
+    }
+
+    return 1;
+}

@@ -101,6 +101,15 @@ void QZBar::setVideoDevice (const QString& videoDevice)
     }
 }
 
+int QZBar::get_controls(int index, char **name, enum ControlType *type,
+                        int *min, int *max, int *def, int *step)
+{
+    if(!thread)
+        return 0;
+
+    return thread->get_controls(index, name, type, min, max, def, step);
+}
+
 bool QZBar::isVideoEnabled () const
 {
     return(_videoEnabled);
