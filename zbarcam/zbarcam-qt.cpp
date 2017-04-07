@@ -25,6 +25,7 @@
 #include <QWidget>
 #include <QLayout>
 #include <QComboBox>
+#include <QPushButton>
 #include <QCheckBox>
 #include <QTextEdit>
 #include <QFileDialog>
@@ -97,7 +98,7 @@ public:
         QComboBox *videoList = new QComboBox;
 
         // toggle button to disable/enable video
-        statusButton = new QCheckBox;
+        statusButton = new QPushButton;
 
         QStyle *style = QApplication::style();
         QIcon statusIcon = style->standardIcon(QStyle::SP_DialogNoButton);
@@ -112,7 +113,7 @@ public:
         statusButton->setEnabled(false);
 
         // command button to open image files for scanning
-        QCheckBox *openButton = new QCheckBox("&Open");
+        QPushButton *openButton = new QPushButton("&Open");
         QIcon openIcon = style->standardIcon(QStyle::SP_DialogOpenButton);
         openButton->setIcon(openIcon);
 
@@ -192,6 +193,8 @@ public Q_SLOTS:
     void setEnabled(bool videoEnabled)
     {
         zbar->setVideoEnabled(videoEnabled);
+
+        statusButton->setEnabled(videoEnabled);
         statusButton->setChecked(videoEnabled);
 
         if (!videoEnabled)
@@ -250,7 +253,7 @@ public Q_SLOTS:
 private:
     QString file;
     zbar::QZBar *zbar;
-    QCheckBox *statusButton;
+    QPushButton *statusButton;
     QGroupBox *controlGroup;
     QGridLayout *controlBoxLayout;
     QSignalMapper *signalMapper;
