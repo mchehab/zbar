@@ -40,6 +40,45 @@ int scan_video(void *add_device,
                const char *default_device);
 }
 
+class IntegerControl : public QSpinBox
+{
+    Q_OBJECT
+
+private:
+    char *name;
+    zbar::QZBar *zbar;
+
+private slots:
+    void updateControl(int value);
+
+public:
+
+    IntegerControl(QGroupBox *parent, zbar::QZBar *_zbar, char *_name,
+                   int min, int max, int def, int step)
+        : QSpinBox(parent)
+    {
+        int val;
+
+        zbar = _zbar;
+        name = _name;
+
+        setRange(min, max);
+        setSingleStep(step);
+        if (!zbar->get_control(name, &val))
+            setValue(val);
+        else
+            setValue(def);
+
+        connect(this, SIGNAL(valueChanged(int)),
+                this, SLOT(updateControl(int)));
+    }
+};
+
+void IntegerControl::updateControl(int value)
+{
+        zbar->set_control(name, value, 0);
+}
+
 class ZbarcamQZBar : public QWidget
 {
     Q_OBJECT
@@ -187,18 +226,14 @@ public Q_SLOTS:
                     break;
                 }
                 case zbar::QZBar::Integer: {
-                    int val;
-                    QSpinBox *spinBox = new QSpinBox(controlGroup);
-                    spinBox->setRange(min, max);
-                    spinBox->setSingleStep(step);
-                    if (!zbar->get_control(name, &val))
-                        spinBox->setValue(val);
-                    else
-                        spinBox->setValue(def);
+                    IntegerControl *ctrl;
 
                     QLabel *label = new QLabel(QString::fromUtf8(name));
+                    ctrl= new IntegerControl(controlGroup, zbar, name,
+                                             min, max, def, step);
+
                     controlBoxLayout->addWidget(label, pos, 0);
-                    controlBoxLayout->addWidget(spinBox, pos++, 1);
+                    controlBoxLayout->addWidget(ctrl, pos++, 1);
                     break;
                 }
                 default:
@@ -218,6 +253,7 @@ private:
     QCheckBox *statusButton;
     QGroupBox *controlGroup;
     QGridLayout *controlBoxLayout;
+    QSignalMapper *signalMapper;
 };
 
 #include "moc_zbarcam_qt.h"
