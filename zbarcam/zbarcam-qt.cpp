@@ -52,7 +52,7 @@ protected:
     }
 
 public:
-    ZbarcamQZBar (const char *default_device)
+    ZbarcamQZBar (const char *default_device, int verbose = 0)
     {
         // drop-down list of video devices
         QComboBox *videoList = new QComboBox;
@@ -84,7 +84,7 @@ public:
         hbox->addWidget(openButton, 1);
 
         // video barcode scanner
-        zbar = new zbar::QZBar;
+        zbar = new zbar::QZBar(NULL, verbose);
         zbar->setAcceptDrops(true);
 
         // text box for results
@@ -199,13 +199,26 @@ private:
 
 int main (int argc, char *argv[])
 {
+    int verbose = 0;
     QApplication app(argc, argv);
 
     const char *dev = NULL;
-    if(argc > 1)
-        dev = argv[1];
 
-    ZbarcamQZBar window(dev);
+    // FIXME: poor man's argument parser.
+    // Should use, instead, QCommandLineParser
+    for (int i = 1; i < argc; i++) {
+        if (!strcmp(argv[i], "--debug")) {
+            verbose = 127;
+        } else if (!strcmp(argv[i], "--help")) {
+            qInfo() << "Usage:" << argv[0]
+                    << "[<--debug>] [<--help>] [<device or file name>]\n";
+            return(-1);
+        } else {
+            dev = argv[i];
+        }
+    }
+
+    ZbarcamQZBar window(dev, verbose);
     window.show();
     return(app.exec());
 }
