@@ -399,14 +399,15 @@ static int v4l2_probe_iomode (zbar_video_t *vdo)
 static inline void v4l2_max_size (zbar_video_t *vdo, uint32_t pixfmt,
                                   uint32_t *max_width,  uint32_t *max_height)
 {
-    int mwidth = 0, mheight = 0;
+    int mwidth = 0, mheight = 0, i;
     struct v4l2_frmsizeenum frm;
 
-    for(frm.index = 0; frm.index < V4L2_FORMATS_SIZE_MAX; frm.index++) {
+    for(i = 0; i < V4L2_FORMATS_SIZE_MAX; i++) {
         memset(&frm, 0, sizeof(frm));
+        frm.index = i;
         frm.pixel_format = pixfmt;
 
-        if(v4l2_ioctl(vdo->fd, VIDIOC_ENUM_FRAMESIZES, &frm) < 0)
+        if(v4l2_ioctl(vdo->fd, VIDIOC_ENUM_FRAMESIZES, &frm))
             break;
 
         switch (frm.type) {
@@ -427,7 +428,6 @@ static inline void v4l2_max_size (zbar_video_t *vdo, uint32_t pixfmt,
         if (mheight > *max_height)
             *max_height = mheight;
     }
-    zprintf(1, "Max supported size: %d x %d\n", max_width, max_height);
 }
 
 static inline int v4l2_probe_formats (zbar_video_t *vdo)
@@ -466,6 +466,7 @@ static inline int v4l2_probe_formats (zbar_video_t *vdo)
     }
 
     if(!vdo->width || !vdo->height) {
+        zprintf(1, "Max supported size: %d x %d\n", max_width, max_height);
         if (max_width && max_height) {
             vdo->width = max_width;
             vdo->height = max_height;
