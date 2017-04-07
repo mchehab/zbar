@@ -566,10 +566,13 @@ static inline int v4l2_reset_crop (zbar_video_t *vdo)
             ccap.defrect.left, ccap.defrect.top,
             ccap.pixelaspect.numerator, ccap.pixelaspect.denominator);
 
+#if 0
+    // This logic causes the device to fallback to the current resolution
     if(!vdo->width || !vdo->height) {
         vdo->width = ccap.defrect.width;
         vdo->height = ccap.defrect.height;
     }
+#endif
 
     /* reset crop parameters */
     struct v4l2_crop crop;
