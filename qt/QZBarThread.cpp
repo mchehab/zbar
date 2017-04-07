@@ -273,3 +273,35 @@ int QZBarThread::get_controls(int index, char **name,
 
     return 1;
 }
+
+int QZBarThread::set_control(char *name, bool value, unsigned long flags)
+{
+    if(!video)
+        return 0;
+
+    return video->set_control(name, value, flags);
+}
+
+int QZBarThread::set_control(char *name, int value, unsigned long flags)
+{
+    if(!video)
+        return 0;
+
+    return video->set_control(name, value, flags);
+}
+
+int QZBarThread::get_control(char *name, bool *value)
+{
+    if(!video)
+        return 0;
+
+    return video->get_control(name, value);
+}
+
+int QZBarThread::get_control(char *name, int *value)
+{
+    if(!video)
+        return 0;
+
+    return video->get_control(name, value);
+}

@@ -139,6 +139,12 @@ public Q_SLOTS:
                      int *min = NULL, int *max = NULL,
                      int *def = NULL, int *step = NULL);
 
+    // get/set controls from the camera device
+    int set_control(char *name, bool value, unsigned long flags);
+    int set_control(char *name, int value, unsigned long flags);
+    int get_control(char *name, bool *value);
+    int get_control(char *name, int *value);
+
 
 Q_SIGNALS:
     /// emitted when when a video device is opened or closed.

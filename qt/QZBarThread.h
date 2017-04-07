@@ -106,6 +106,10 @@ public:
                      enum QZBar::ControlType *type = NULL,
                      int *min = NULL, int *max = NULL,
                      int *def = NULL, int *step = NULL);
+    int set_control(char *name, bool value, unsigned long flags);
+    int set_control(char *name, int value, unsigned long flags);
+    int get_control(char *name, bool *value);
+    int get_control(char *name, int *value);
 
     void pushEvent (QEvent *e)
     {

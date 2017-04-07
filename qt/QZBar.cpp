@@ -110,6 +110,38 @@ int QZBar::get_controls(int index, char **name, enum ControlType *type,
     return thread->get_controls(index, name, type, min, max, def, step);
 }
 
+int QZBar::set_control(char *name, bool value, unsigned long flags)
+{
+    if(!thread)
+        return 0;
+
+    return thread->set_control(name, value, flags);
+}
+
+int QZBar::set_control(char *name, int value, unsigned long flags)
+{
+    if(!thread)
+        return 0;
+
+    return thread->set_control(name, value, flags);
+}
+
+int QZBar::get_control(char *name, bool *value)
+{
+    if(!thread)
+        return 0;
+
+    return thread->get_control(name, value);
+}
+
+int QZBar::get_control(char *name, int *value)
+{
+    if(!thread)
+        return 0;
+
+    return thread->get_control(name, value);
+}
+
 bool QZBar::isVideoEnabled () const
 {
     return(_videoEnabled);
