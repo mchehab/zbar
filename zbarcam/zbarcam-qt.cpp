@@ -22,6 +22,7 @@
 //------------------------------------------------------------------------
 
 #include <QApplication>
+#include <QtGlobal>
 #include <QWidget>
 #include <QLayout>
 #include <QComboBox>
@@ -293,7 +294,7 @@ int main (int argc, char *argv[])
         if (!strcmp(argv[i], "--debug")) {
             verbose = 127;
         } else if (!strcmp(argv[i], "--help")) {
-            qInfo() << "Usage:" << argv[0]
+            qWarning() << "Usage:" << argv[0]
                     << "[<--debug>] [<--help>] [<device or file name>]\n";
             return(-1);
         } else {
