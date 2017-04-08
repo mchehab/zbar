@@ -611,35 +611,65 @@ static char *v4l2_ctrl_type(uint32_t type)
     }
 }
 
-static void v4l2_add_control(zbar_video_t *vdo,
-                            char *group_name,
+static char *v4l2_ctrl_class(uint32_t class)
+{
+    switch(class) {
+    // All classes below are available since, at least, Kernel 2.6.31
+    case V4L2_CTRL_CLASS_USER:
+        return "User";
+    case V4L2_CTRL_CLASS_MPEG:
+        return "MPEG-compression";
+    case V4L2_CTRL_CLASS_CAMERA:
+        return "Camera";
+    case V4L2_CTRL_CLASS_FM_TX:
+        return "FM Modulator";
+#ifdef V4L2_CTRL_CLASS_DETECT
+    // Newer classes added up to Kernel 3.16
+    case V4L2_CTRL_CLASS_FLASH:
+        return "Camera flash";
+    case V4L2_CTRL_CLASS_JPEG:
+        return "JPEG-compression";
+    case V4L2_CTRL_CLASS_IMAGE_SOURCE:
+        return "Image source";
+    case V4L2_CTRL_CLASS_IMAGE_PROC:
+        return "Image processing";
+    case V4L2_CTRL_CLASS_DV:
+        return "Digital Video";
+    case V4L2_CTRL_CLASS_FM_RX:
+        return "FM Receiver";
+    case V4L2_CTRL_CLASS_RF_TUNER:
+        return "RF tuner";
+    case V4L2_CTRL_CLASS_DETECT:
+        return "Detection";
+#endif
+    default:
+        return "Unknown";
+    }
+}
+
+// return values: 1: ignore, 0: added, -1: silently ignore
+static int v4l2_add_control(zbar_video_t *vdo,
                             struct v4l2_query_ext_ctrl *query,
                             struct video_controls_priv_s **ptr)
 {
-    int ignored;
-
     // Control is disabled, ignore it. Please notice that disabled controls
     // can be re-enabled. The right thing here would be to get those too,
     // and add a logic to
     if (query->flags & V4L2_CTRL_FLAG_DISABLED)
-        return;
+        return 1;
+
+    /* Silently ignore control classes */
+    if (query->type == V4L2_CTRL_TYPE_CTRL_CLASS)
+        return -1;
 
     // FIXME: add support also for other control types
-    if (((query->type == V4L2_CTRL_TYPE_INTEGER) ||
+    if (!((query->type == V4L2_CTRL_TYPE_INTEGER) ||
           (query->type == V4L2_CTRL_TYPE_BOOLEAN)))
-        ignored = 0;
-    else
-        ignored = 1;
+        return 1;
 
-    zprintf(1, "%s %-10s ctrl %-32s id: 0x%x%s\n",
-            group_name,
-            v4l2_ctrl_type(query->type),
-            query->name,
-            query->id,
-            ignored ? " - Ignored" : "");
-
-    if (ignored)
-        return;
+    // There's not much sense on displaying permanent read-only controls
+    if (query->flags & V4L2_CTRL_FLAG_READ_ONLY)
+        return 1;
 
     // Allocate a new element on the linked list
     if (!vdo->controls) {
@@ -680,13 +710,15 @@ static void v4l2_add_control(zbar_video_t *vdo,
         (*ptr)->s.type = VIDEO_CNTL_STRING;
         break;
     }
+    return 0;
 }
 
 static int v4l2_query_controls(zbar_video_t *vdo)
 {
-    int id = 0;
     struct video_controls_priv_s *ptr;
     struct v4l2_query_ext_ctrl query;
+    int ignore;
+    char *old_class = NULL;
 
     // Free controls list if not NULL
     ptr = (void *)vdo->controls;
@@ -698,24 +730,26 @@ static int v4l2_query_controls(zbar_video_t *vdo)
     vdo->controls = NULL;
     ptr = NULL;
 
-    id=0;
-    do {
-        query.id = id | V4L2_CTRL_FLAG_NEXT_CTRL;
-        if(v4l2_ioctl(vdo->fd, VIDIOC_QUERY_EXT_CTRL, &query))
-            break;
+    memset(&query, 0, sizeof(query));
+    query.id = V4L2_CTRL_FLAG_NEXT_CTRL;
+    while (!v4l2_ioctl(vdo->fd, VIDIOC_QUERY_EXT_CTRL, &query)) {
+        ignore = v4l2_add_control(vdo, &query, &ptr);
 
-        v4l2_add_control(vdo, "extended", &query, &ptr);
-        id = query.id;
-    } while (1);
+        if (ignore >= 0) {
+            char *class = v4l2_ctrl_class(V4L2_CTRL_ID2CLASS(query.id));
+            if (class != old_class)
+                zprintf(1, "Control class %s:\n", class);
 
-    id=V4L2_CID_PRIVATE_BASE;
-    do {
-        query.id = id;
-        if(v4l2_ioctl(vdo->fd, VIDIOC_QUERY_EXT_CTRL, &query))
-            break;
-        v4l2_add_control(vdo, "private", &query, &ptr);
-        id = query.id;
-    } while (1);
+            zprintf(1, "%-10s %-32s - 0x%x%s\n",
+                    v4l2_ctrl_type(query.type),
+                    query.name,
+                    query.id,
+                    ignore ? " - Ignored" : "");
+            old_class = class;
+        }
+
+        query.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
+    }
 
     return(0);
 }
