@@ -198,6 +198,11 @@ typedef enum zbar_modifier_e {
 typedef enum video_control_type_e {
     VIDEO_CNTL_BOOLEAN = 1,
     VIDEO_CNTL_INTEGER,
+    VIDEO_CNTL_MENU,
+    VIDEO_CNTL_BUTTON,
+    VIDEO_CNTL_INTEGER64,
+    VIDEO_CNTL_CTRL_CLASS,
+    VIDEO_CNTL_STRING,
 } video_control_type_t;
 
 /** store video controls

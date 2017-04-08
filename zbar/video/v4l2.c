@@ -663,14 +663,32 @@ static void v4l2_add_control(zbar_video_t *vdo,
     // Fill control data
     (*ptr)->id = query->id;
     (*ptr)->s.name = strdup((const char *)query->name);
-    if (query->type == V4L2_CTRL_TYPE_INTEGER) {
+    switch (query->type) {
+    case V4L2_CTRL_TYPE_INTEGER:
         (*ptr)->s.type = VIDEO_CNTL_INTEGER;
         (*ptr)->s.min = query->minimum;
         (*ptr)->s.max = query->maximum;
         (*ptr)->s.def = query->default_value;
         (*ptr)->s.step = query->step;
-    } else {
+        break;
+    case V4L2_CTRL_TYPE_BOOLEAN:
         (*ptr)->s.type = VIDEO_CNTL_BOOLEAN;
+        break;
+    case V4L2_CTRL_TYPE_MENU:
+        (*ptr)->s.type = VIDEO_CNTL_MENU;
+        break;
+    case V4L2_CTRL_TYPE_BUTTON:
+        (*ptr)->s.type = VIDEO_CNTL_BUTTON;
+        break;
+    case V4L2_CTRL_TYPE_INTEGER64:
+        (*ptr)->s.type = VIDEO_CNTL_INTEGER64;
+        break;
+    case V4L2_CTRL_TYPE_CTRL_CLASS:
+        (*ptr)->s.type = VIDEO_CNTL_CTRL_CLASS;
+        break;
+    case V4L2_CTRL_TYPE_STRING:
+        (*ptr)->s.type = VIDEO_CNTL_STRING;
+        break;
     }
 }
 
