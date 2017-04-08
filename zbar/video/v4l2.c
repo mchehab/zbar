@@ -55,16 +55,6 @@
 #define V4L2_FORMATS_MAX 64
 #define V4L2_FORMATS_SIZE_MAX 256
 
-typedef enum v4l2_control_type_e {
-    V4L2_CTRL_USER,
-    V4L2_CTRL_EXT
-} v4l2_control_type_t;
-
-typedef enum v4l2_value_type_e {
-    V4L2_VALUE_INT,
-    V4L2_VALUE_BOOL
-} v4l2_value_type_t;
-
 typedef struct video_controls_priv_s {
     struct video_controls_s s;
 
