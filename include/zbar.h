@@ -23,6 +23,8 @@
 #ifndef _ZBAR_H_
 #define _ZBAR_H_
 
+#include <stdint.h>
+
 /** @file
  * ZBar Barcode Reader C API definition
  */
@@ -218,7 +220,8 @@ typedef enum video_control_type_e {
 typedef struct video_controls_s {
     char *name;
     video_control_type_t type;
-    int min, max, def, step;
+    int64_t min, max, def;
+    uint64_t step;
 
     void *next;
 

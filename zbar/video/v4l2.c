@@ -613,7 +613,7 @@ static char *v4l2_ctrl_type(uint32_t type)
 
 static void v4l2_add_control(zbar_video_t *vdo,
                             char *group_name,
-                            struct v4l2_queryctrl *query,
+                            struct v4l2_query_ext_ctrl *query,
                             struct video_controls_priv_s **ptr)
 {
     int ignored;
@@ -686,7 +686,7 @@ static int v4l2_query_controls(zbar_video_t *vdo)
 {
     int id = 0;
     struct video_controls_priv_s *ptr;
-    struct v4l2_queryctrl query;
+    struct v4l2_query_ext_ctrl query;
 
     // Free controls list if not NULL
     ptr = (void *)vdo->controls;
@@ -701,7 +701,7 @@ static int v4l2_query_controls(zbar_video_t *vdo)
     id=0;
     do {
         query.id = id | V4L2_CTRL_FLAG_NEXT_CTRL;
-        if(v4l2_ioctl(vdo->fd, VIDIOC_QUERYCTRL, &query))
+        if(v4l2_ioctl(vdo->fd, VIDIOC_QUERY_EXT_CTRL, &query))
             break;
 
         v4l2_add_control(vdo, "extended", &query, &ptr);
@@ -711,7 +711,7 @@ static int v4l2_query_controls(zbar_video_t *vdo)
     id=V4L2_CID_PRIVATE_BASE;
     do {
         query.id = id;
-        if(v4l2_ioctl(vdo->fd, VIDIOC_QUERYCTRL, &query))
+        if(v4l2_ioctl(vdo->fd, VIDIOC_QUERY_EXT_CTRL, &query))
             break;
         v4l2_add_control(vdo, "private", &query, &ptr);
         id = query.id;
