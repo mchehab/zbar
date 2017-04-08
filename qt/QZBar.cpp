@@ -112,6 +112,17 @@ int QZBar::get_controls(int index, char **name, char **group,
                                 min, max, def, step);
 }
 
+QVector< QPair< int , QString >> QZBar::get_menu(int index)
+{
+    if(!thread) {
+        QVector< QPair< int , QString >> empty;
+        return empty;
+    }
+
+    return thread->get_menu(index);
+}
+
+
 int QZBar::set_control(char *name, bool value, unsigned long flags)
 {
     if(!thread)

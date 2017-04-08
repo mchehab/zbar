@@ -233,6 +233,25 @@ void QZBarThread::run ()
     openVideo("");
 }
 
+QVector< QPair< int , QString >> QZBarThread::get_menu(int index)
+{
+    QVector< QPair< int , QString >> vector;
+    struct video_controls_s *ctrl;
+
+    if(!video)
+        return vector;
+
+    ctrl = video->get_controls(index);
+    if (!ctrl)
+        return vector;
+
+    for (unsigned int i = 0; i < ctrl->menu_size; i++)
+        vector.append(qMakePair(ctrl->menu[i].value,
+                                QString::fromUtf8(ctrl->menu[i].name)));
+
+    return vector;
+}
+
 int QZBarThread::get_controls(int index, char **name, char **group,
                               enum QZBar::ControlType *type,
                               int *min, int *max, int *def, int *step)
@@ -261,11 +280,23 @@ int QZBarThread::get_controls(int index, char **name, char **group,
 
     if (type) {
         switch (ctrl->type) {
-        case VIDEO_CNTL_BOOLEAN:
-            *type = QZBar::Boolean;
-            break;
         case VIDEO_CNTL_INTEGER:
             *type = QZBar::Integer;
+            break;
+        case VIDEO_CNTL_MENU:
+            *type = QZBar::Menu;
+            break;
+        case VIDEO_CNTL_BUTTON:
+            *type = QZBar::Button;
+            break;
+        case VIDEO_CNTL_INTEGER64:
+            *type = QZBar::Integer64;
+            break;
+        case VIDEO_CNTL_STRING:
+            *type = QZBar::String;
+            break;
+        case VIDEO_CNTL_BOOLEAN:
+            *type = QZBar::Boolean;
             break;
         default:
             *type = QZBar::Unknown;

@@ -82,8 +82,8 @@ class QZBar : public QWidget
 
 public:
 
-    // Should match video_control_type_e order
-    // FIXME: should we have an abstraction here or some common header?
+    // Should match the types at video_control_type_e
+    // get_controls() will do the mapping between the two types.
     enum ControlType {
         Unknown,
         Integer,
@@ -144,6 +144,9 @@ public Q_SLOTS:
                      enum ControlType *type = NULL,
                      int *min = NULL, int *max = NULL,
                      int *def = NULL, int *step = NULL);
+
+    /// Get items for control menus
+    QVector< QPair< int , QString >> get_menu(int index);
 
     // get/set controls from the camera device
     int set_control(char *name, bool value, unsigned long flags);
