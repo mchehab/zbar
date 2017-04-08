@@ -585,11 +585,49 @@ static inline int v4l2_reset_crop (zbar_video_t *vdo)
     return(0);
 }
 
+static char *v4l2_ctrl_type(uint32_t type)
+{
+    switch(type) {
+    // All controls below are available since, at least, Kernel 2.6.31
+    case V4L2_CTRL_TYPE_INTEGER:
+        return "int";
+    case V4L2_CTRL_TYPE_BOOLEAN:
+        return "bool";
+    case V4L2_CTRL_TYPE_MENU:
+        return "menu";
+    case V4L2_CTRL_TYPE_BUTTON:
+        return "button";
+    case V4L2_CTRL_TYPE_INTEGER64:
+        return "int64";
+    case V4L2_CTRL_TYPE_CTRL_CLASS:
+        return "ctrl class";
+    case V4L2_CTRL_TYPE_STRING:
+        return "string";
+#ifdef V4L2_CTRL_TYPE_U32
+    // Newer controls. All of them should be there since Kernel 3.16
+    case V4L2_CTRL_TYPE_BITMASK:
+        return "bitmask";
+    case V4L2_CTRL_TYPE_INTEGER_MENU:
+        return "int menu";
+    case V4L2_CTRL_TYPE_U8:
+        return "compound u8";
+    case V4L2_CTRL_TYPE_U16:
+        return "compound u16";
+    case V4L2_CTRL_TYPE_U32:
+        return "compound 32";
+#endif
+    default:
+        return "unknown";
+    }
+}
+
 static void v4l2_add_control(zbar_video_t *vdo,
                             char *group_name,
                             struct v4l2_queryctrl *query,
                             struct video_controls_priv_s **ptr)
 {
+    int ignored;
+
     // Control is disabled, ignore it. Please notice that disabled controls
     // can be re-enabled. The right thing here would be to get those too,
     // and add a logic to
@@ -597,16 +635,21 @@ static void v4l2_add_control(zbar_video_t *vdo,
         return;
 
     // FIXME: add support also for other control types
-    if (!((query->type == V4L2_CTRL_TYPE_INTEGER) ||
+    if (((query->type == V4L2_CTRL_TYPE_INTEGER) ||
           (query->type == V4L2_CTRL_TYPE_BOOLEAN)))
-        return;
+        ignored = 0;
+    else
+        ignored = 1;
 
-    zprintf(1, "%s %s ctrl %-32s id: 0x%x\n",
+    zprintf(1, "%s %-10s ctrl %-32s id: 0x%x%s\n",
             group_name,
-            (query->type == V4L2_CTRL_TYPE_INTEGER) ? "int " :
-                                                      "bool",
+            v4l2_ctrl_type(query->type),
             query->name,
-            query->id);
+            query->id,
+            ignored ? " - Ignored" : "");
+
+    if (ignored)
+        return;
 
     // Allocate a new element on the linked list
     if (!vdo->controls) {
