@@ -233,7 +233,7 @@ void QZBarThread::run ()
     openVideo("");
 }
 
-int QZBarThread::get_controls(int index, char **name,
+int QZBarThread::get_controls(int index, char **name, char **group,
                               enum QZBar::ControlType *type,
                               int *min, int *max, int *def, int *step)
 {
@@ -248,6 +248,8 @@ int QZBarThread::get_controls(int index, char **name,
 
     if (name)
         *name = ctrl->name;
+    if (group)
+        *group = ctrl->group;
     if (min)
         *min = ctrl->min;
     if (max)

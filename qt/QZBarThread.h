@@ -102,7 +102,7 @@ public:
 
     QZBarThread(int verbosity = 0);
 
-    int get_controls(int index, char **name = NULL,
+    int get_controls(int index, char **name = NULL, char **group = NULL,
                      enum QZBar::ControlType *type = NULL,
                      int *min = NULL, int *max = NULL,
                      int *def = NULL, int *step = NULL);

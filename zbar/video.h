@@ -115,6 +115,8 @@ struct zbar_video_s {
      */
     int (*get_control)(zbar_video_t*, const char* name, void* value);
 
+    void (*free)(zbar_video_t*);
+
     zbar_image_t* (*dq)(zbar_video_t*);
 };
 

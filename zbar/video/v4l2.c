@@ -575,7 +575,7 @@ static inline int v4l2_reset_crop (zbar_video_t *vdo)
     return(0);
 }
 
-static char *v4l2_ctrl_type(uint32_t type)
+static const char *v4l2_ctrl_type(uint32_t type)
 {
     switch(type) {
     // All controls below are available since, at least, Kernel 2.6.31
@@ -593,12 +593,14 @@ static char *v4l2_ctrl_type(uint32_t type)
         return "ctrl class";
     case V4L2_CTRL_TYPE_STRING:
         return "string";
+#ifdef V4L2_CTRL_TYPE_INTEGER_MENU
+    case V4L2_CTRL_TYPE_INTEGER_MENU:
+        return "int menu";
+#endif
 #ifdef V4L2_CTRL_TYPE_U32
     // Newer controls. All of them should be there since Kernel 3.16
     case V4L2_CTRL_TYPE_BITMASK:
         return "bitmask";
-    case V4L2_CTRL_TYPE_INTEGER_MENU:
-        return "int menu";
     case V4L2_CTRL_TYPE_U8:
         return "compound u8";
     case V4L2_CTRL_TYPE_U16:
@@ -611,7 +613,7 @@ static char *v4l2_ctrl_type(uint32_t type)
     }
 }
 
-static char *v4l2_ctrl_class(uint32_t class)
+static const char *v4l2_ctrl_class(uint32_t class)
 {
     switch(class) {
     // All classes below are available since, at least, Kernel 2.6.31
@@ -662,11 +664,6 @@ static int v4l2_add_control(zbar_video_t *vdo,
     if (query->type == V4L2_CTRL_TYPE_CTRL_CLASS)
         return -1;
 
-    // FIXME: add support also for other control types
-    if (!((query->type == V4L2_CTRL_TYPE_INTEGER) ||
-          (query->type == V4L2_CTRL_TYPE_BOOLEAN)))
-        return 1;
-
     // There's not much sense on displaying permanent read-only controls
     if (query->flags & V4L2_CTRL_FLAG_READ_ONLY)
         return 1;
@@ -683,6 +680,7 @@ static int v4l2_add_control(zbar_video_t *vdo,
     // Fill control data
     (*ptr)->id = query->id;
     (*ptr)->s.name = strdup((const char *)query->name);
+    (*ptr)->s.group = strdup(v4l2_ctrl_class(V4L2_CTRL_ID2CLASS(query->id)));
     switch (query->type) {
     case V4L2_CTRL_TYPE_INTEGER:
         (*ptr)->s.type = VIDEO_CNTL_INTEGER;
@@ -690,53 +688,102 @@ static int v4l2_add_control(zbar_video_t *vdo,
         (*ptr)->s.max = query->maximum;
         (*ptr)->s.def = query->default_value;
         (*ptr)->s.step = query->step;
-        break;
-    case V4L2_CTRL_TYPE_BOOLEAN:
-        (*ptr)->s.type = VIDEO_CNTL_BOOLEAN;
-        break;
-    case V4L2_CTRL_TYPE_MENU:
-        (*ptr)->s.type = VIDEO_CNTL_MENU;
-        break;
-    case V4L2_CTRL_TYPE_BUTTON:
-        (*ptr)->s.type = VIDEO_CNTL_BUTTON;
-        break;
+        return(0);
     case V4L2_CTRL_TYPE_INTEGER64:
         (*ptr)->s.type = VIDEO_CNTL_INTEGER64;
-        break;
-    case V4L2_CTRL_TYPE_CTRL_CLASS:
-        (*ptr)->s.type = VIDEO_CNTL_CTRL_CLASS;
-        break;
+        (*ptr)->s.min = query->minimum;
+        (*ptr)->s.max = query->maximum;
+        (*ptr)->s.def = query->default_value;
+        (*ptr)->s.step = query->step;
+        return(0);
+    case V4L2_CTRL_TYPE_BOOLEAN:
+        (*ptr)->s.type = VIDEO_CNTL_BOOLEAN;
+        return(0);
+    case V4L2_CTRL_TYPE_BUTTON:
+        (*ptr)->s.type = VIDEO_CNTL_BUTTON;
+        return (0);
     case V4L2_CTRL_TYPE_STRING:
         (*ptr)->s.type = VIDEO_CNTL_STRING;
-        break;
+        return (0);
+#ifdef V4L2_CTRL_TYPE_INTEGER_MENU
+    case V4L2_CTRL_TYPE_INTEGER_MENU:
+#endif
+    case V4L2_CTRL_TYPE_MENU: {
+        struct v4l2_querymenu menu;
+        struct video_control_menu_s *first = NULL, *p;
+        int n_menu = 0;
+
+        memset(&menu, 0, sizeof(menu));
+        menu.id = query->id;
+
+        for (menu.index = query->minimum;
+             menu.index <= query->maximum;
+             menu.index++) {
+            if (!ioctl(vdo->fd, VIDIOC_QUERYMENU, &menu)) {
+                first = realloc(first, (n_menu + 1) * sizeof(*(*ptr)->s.menu));
+
+                p = &first[n_menu];
+                p->name = strdup((const char *)menu.name);
+#ifdef V4L2_CTRL_TYPE_INTEGER_MENU
+                if (query->type == V4L2_CTRL_TYPE_INTEGER_MENU)
+                    p->value = menu.value;
+                else
+                    p->value = n_menu;
+#else
+                p->value = n_menu;
+#endif
+                n_menu++;
+            }
+        }
+        (*ptr)->s.menu = first;
+        (*ptr)->s.menu_size = n_menu;
+        (*ptr)->s.type = VIDEO_CNTL_MENU;
+        return (0);
+        }
+    default:
+        return (1);
     }
-    return 0;
+}
+
+void v4l2_free_controls(zbar_video_t *vdo)
+{
+    int i;
+
+    if(vdo->controls) {
+        struct video_controls_s *p = vdo->controls;
+        while (p) {
+            free(p->name);
+            free(p->group);
+            if(p->menu) {
+                for (i = 0; i < p->menu_size; i++)
+                    free(p->menu[i].name);
+                free(p->menu);
+            }
+            p = p->next;
+        }
+        free(vdo->controls);
+    }
+    vdo->controls = NULL;
 }
 
 static int v4l2_query_controls(zbar_video_t *vdo)
 {
-    struct video_controls_priv_s *ptr;
+    struct video_controls_priv_s *ptr = NULL;
     struct v4l2_query_ext_ctrl query;
     int ignore;
-    char *old_class = NULL;
+    const char *old_class = NULL;
 
     // Free controls list if not NULL
-    ptr = (void *)vdo->controls;
-    while (ptr) {
-        free(ptr->s.name);
-        ptr = ptr->s.next;
-    }
-    free(vdo->controls);
-    vdo->controls = NULL;
-    ptr = NULL;
+    v4l2_free_controls(vdo);
 
     memset(&query, 0, sizeof(query));
     query.id = V4L2_CTRL_FLAG_NEXT_CTRL;
     while (!v4l2_ioctl(vdo->fd, VIDIOC_QUERY_EXT_CTRL, &query)) {
         ignore = v4l2_add_control(vdo, &query, &ptr);
 
-        if (ignore >= 0) {
-            char *class = v4l2_ctrl_class(V4L2_CTRL_ID2CLASS(query.id));
+        if (ignore >= 0 && _zbar_verbosity) {
+            int i;
+            const char *class = v4l2_ctrl_class(V4L2_CTRL_ID2CLASS(query.id));
             if (class != old_class)
                 zprintf(1, "Control class %s:\n", class);
 
@@ -745,6 +792,11 @@ static int v4l2_query_controls(zbar_video_t *vdo)
                     query.name,
                     query.id,
                     ignore ? " - Ignored" : "");
+
+            for (i = 0; i < ptr->s.menu_size; i++)
+                zprintf(1, "           %" PRId64 ": %s\n",
+                        ptr->s.menu[i].value, ptr->s.menu[i].name);
+
             old_class = class;
         }
 
@@ -897,5 +949,6 @@ int _zbar_v4l2_probe (zbar_video_t *vdo)
     vdo->dq = v4l2_dq;
     vdo->set_control = v4l2_s_control;
     vdo->get_control = v4l2_g_control;
+    vdo->free = v4l2_free_controls;
     return(0);
 }

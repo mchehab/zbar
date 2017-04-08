@@ -198,30 +198,44 @@ typedef enum zbar_modifier_e {
 } zbar_modifier_t;
 
 typedef enum video_control_type_e {
-    VIDEO_CNTL_BOOLEAN = 1,
-    VIDEO_CNTL_INTEGER,
+    VIDEO_CNTL_INTEGER = 1,
     VIDEO_CNTL_MENU,
     VIDEO_CNTL_BUTTON,
     VIDEO_CNTL_INTEGER64,
-    VIDEO_CNTL_CTRL_CLASS,
     VIDEO_CNTL_STRING,
+    VIDEO_CNTL_BOOLEAN,
 } video_control_type_t;
+
+/** store video control menu
+ * @param name name of the menu item
+ * @param val integer value associated with the item
+ */
+typedef struct video_control_menu_s {
+    char *name;
+    int64_t value;
+} video_control_menu_t;
 
 /** store video controls
  * @param name name of the control
+ * @param group name of the control group/class
  * @param type type of the control
  * @param min minimum value of control (if control is integer)
  * @param max maximum value of control (if control is integer)
  * @param def default value of control (if control is integer)
  * @param step increment steps (if control is integer)
- *
- * @returns 0
+ * @param menu menu array
+ * @param menu_size menu size
  */
 typedef struct video_controls_s {
     char *name;
+    char *group;
     video_control_type_t type;
+
     int64_t min, max, def;
     uint64_t step;
+
+    unsigned int menu_size;
+    video_control_menu_t *menu;
 
     void *next;
 

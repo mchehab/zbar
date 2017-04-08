@@ -101,13 +101,15 @@ void QZBar::setVideoDevice (const QString& videoDevice)
     }
 }
 
-int QZBar::get_controls(int index, char **name, enum ControlType *type,
+int QZBar::get_controls(int index, char **name, char **group,
+                        enum ControlType *type,
                         int *min, int *max, int *def, int *step)
 {
     if(!thread)
         return 0;
 
-    return thread->get_controls(index, name, type, min, max, def, step);
+    return thread->get_controls(index, name, group, type,
+                                min, max, def, step);
 }
 
 int QZBar::set_control(char *name, bool value, unsigned long flags)

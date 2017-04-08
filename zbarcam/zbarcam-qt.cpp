@@ -223,22 +223,36 @@ public Q_SLOTS:
         // get_controls
 
         int pos = 2;
+        QString oldGroup;
         for (int i = 0;; i++) {
-            char *name;
+            char *name, *group;
             enum zbar::QZBar::ControlType type;
             int min, max, def, step;
 
-            int ret = zbar->get_controls(i, &name, &type,
+            int ret = zbar->get_controls(i, &name, &group, &type,
                                          &min, &max, &def, &step);
             if (!ret)
                 break;
 
+            QString newGroup = QString::asprintf("<strong>%s Controls</strong>",
+                                                 group);
+
             switch (type) {
+                case zbar::QZBar::Button:
                 case zbar::QZBar::Boolean: {
                     bool val;
 
+                    if (newGroup != oldGroup) {
+                        QLabel *label = new QLabel(newGroup);
+                        controlBoxLayout->addWidget(label, pos++, 0, 1, 2,
+                                                    Qt::AlignTop |
+                                                    Qt::AlignHCenter);
+                        pos++;
+                        oldGroup = newGroup;
+                    }
+
                     QCheckBox *button = new QCheckBox(name, controlGroup);
-                    controlBoxLayout->addWidget(button, pos++, 0);
+                    controlBoxLayout->addWidget(button, pos++, 0, Qt::AlignLeft);
 
                     if (!zbar->get_control(name, &val))
                         button->setChecked(val);
@@ -251,22 +265,27 @@ public Q_SLOTS:
                 case zbar::QZBar::Integer: {
                     IntegerControl *ctrl;
 
+                    if (newGroup != oldGroup) {
+                        QLabel *label = new QLabel(newGroup);
+                        controlBoxLayout->addWidget(label, pos++, 0, 1, 2,
+                                                    Qt::AlignTop |
+                                                    Qt::AlignHCenter);
+                        pos++;
+                        oldGroup = newGroup;
+                    }
+
                     QLabel *label = new QLabel(QString::fromUtf8(name));
                     ctrl= new IntegerControl(controlGroup, zbar, name,
                                              min, max, def, step);
 
-                    controlBoxLayout->addWidget(label, pos, 0);
-                    controlBoxLayout->addWidget(ctrl, pos++, 1);
+                    controlBoxLayout->addWidget(label, pos, 0, Qt::AlignLeft);
+                    controlBoxLayout->addWidget(ctrl, pos++, 1, Qt::AlignLeft);
                     break;
                 }
                 default:
+                    // Just ignore other types
                     break;
             }
-        }
-        if (pos > 2) {
-            QLabel *label = new QLabel(QString::fromUtf8("<strong>Camera controls</strong>"));
-            controlBoxLayout->addWidget(label, 0, 0, 0, 1,
-                                        Qt::AlignTop | Qt::AlignHCenter);
         }
     }
 

@@ -82,10 +82,16 @@ class QZBar : public QWidget
 
 public:
 
+    // Should match video_control_type_e order
+    // FIXME: should we have an abstraction here or some common header?
     enum ControlType {
         Unknown,
-        Boolean,
         Integer,
+        Menu,
+        Button,
+        Integer64,
+        String,
+        Boolean,
     };
 
     /// constructs a barcode reader widget with the given @a parent
@@ -134,7 +140,7 @@ public Q_SLOTS:
     void scanImage(const QImage &image);
 
     /// get controls from the camera device
-    int get_controls(int index, char **name = NULL,
+    int get_controls(int index, char **name = NULL, char **group = NULL,
                      enum ControlType *type = NULL,
                      int *min = NULL, int *max = NULL,
                      int *def = NULL, int *step = NULL);
