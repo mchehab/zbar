@@ -42,6 +42,8 @@ int scan_video(void *add_device,
                const char *default_device);
 }
 
+// Represents an integer control
+
 class IntegerControl : public QSpinBox
 {
     Q_OBJECT
@@ -77,6 +79,49 @@ public:
 };
 
 void IntegerControl::updateControl(int value)
+{
+        zbar->set_control(name, value, 0);
+}
+
+// Represents a menu control
+class MenuControl : public QComboBox
+{
+    Q_OBJECT
+
+private:
+    char *name;
+    zbar::QZBar *zbar;
+
+private slots:
+    void updateControl(int value);
+
+public:
+
+    MenuControl(QGroupBox *parent, zbar::QZBar *_zbar, char *_name,
+                QVector< QPair< int , QString >> vector)
+        : QComboBox(parent)
+    {
+        int val;
+
+        zbar = _zbar;
+        name = _name;
+
+        if (!zbar->get_control(name, &val))
+            val = 0;
+        for (int i = 0; i < vector.size(); ++i) {
+            QPair < int , QString > pair = vector.at(i);
+            addItem(pair.second, pair.first);
+
+            if (val == pair.first)
+                setCurrentIndex(i);
+        }
+
+        connect(this, SIGNAL(currentIndexChanged(int)),
+                this, SLOT(updateControl(int)));
+    }
+};
+
+void MenuControl::updateControl(int value)
 {
         zbar->set_control(name, value, 0);
 }
@@ -243,6 +288,9 @@ public Q_SLOTS:
                     bool val;
 
                     if (newGroup != oldGroup) {
+                        controlBoxLayout->addItem(new QSpacerItem(0, 12),
+                                                  pos++, 0, 1, 2,
+                                                  Qt::AlignLeft);
                         QLabel *label = new QLabel(newGroup);
                         controlBoxLayout->addWidget(label, pos++, 0, 1, 2,
                                                     Qt::AlignTop |
@@ -252,7 +300,8 @@ public Q_SLOTS:
                     }
 
                     QCheckBox *button = new QCheckBox(name, controlGroup);
-                    controlBoxLayout->addWidget(button, pos++, 0, Qt::AlignLeft);
+                    controlBoxLayout->addWidget(button, pos++, 0, 1, 2,
+                                                Qt::AlignLeft);
 
                     if (!zbar->get_control(name, &val))
                         button->setChecked(val);
@@ -266,6 +315,9 @@ public Q_SLOTS:
                     IntegerControl *ctrl;
 
                     if (newGroup != oldGroup) {
+                        controlBoxLayout->addItem(new QSpacerItem(0, 12),
+                                                  pos++, 0, 1, 2,
+                                                  Qt::AlignLeft);
                         QLabel *label = new QLabel(newGroup);
                         controlBoxLayout->addWidget(label, pos++, 0, 1, 2,
                                                     Qt::AlignTop |
@@ -277,6 +329,32 @@ public Q_SLOTS:
                     QLabel *label = new QLabel(QString::fromUtf8(name));
                     ctrl= new IntegerControl(controlGroup, zbar, name,
                                              min, max, def, step);
+
+                    controlBoxLayout->addWidget(label, pos, 0, Qt::AlignLeft);
+                    controlBoxLayout->addWidget(ctrl, pos++, 1, Qt::AlignLeft);
+                    break;
+                }
+                case zbar::QZBar::Menu: {
+                    MenuControl *ctrl;
+
+
+                    if (newGroup != oldGroup) {
+                        controlBoxLayout->addItem(new QSpacerItem(0, 12),
+                                                  pos++, 0, 1, 2,
+                                                  Qt::AlignLeft);
+                        QLabel *label = new QLabel(newGroup);
+                        controlBoxLayout->addWidget(label, pos++, 0, 1, 2,
+                                                    Qt::AlignTop |
+                                                    Qt::AlignHCenter);
+                        pos++;
+                        oldGroup = newGroup;
+                    }
+
+                    QLabel *label = new QLabel(QString::fromUtf8(name));
+
+                    QVector< QPair< int , QString >> vector;
+                    vector = zbar->get_menu(i);
+                    ctrl= new MenuControl(controlGroup, zbar, name, vector);
 
                     controlBoxLayout->addWidget(label, pos, 0, Qt::AlignLeft);
                     controlBoxLayout->addWidget(ctrl, pos++, 1, Qt::AlignLeft);
