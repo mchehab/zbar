@@ -80,7 +80,7 @@ public:
 
 void IntegerControl::updateControl(int value)
 {
-        zbar->set_control(name, value, 0);
+        zbar->set_control(name, value);
 }
 
 // Represents a menu control
@@ -123,7 +123,7 @@ public:
 
 void MenuControl::updateControl(int value)
 {
-        zbar->set_control(name, value, 0);
+        zbar->set_control(name, value);
 }
 
 class ZbarcamQZBar : public QWidget
@@ -233,7 +233,7 @@ public Q_SLOTS:
         QString name = button->text();
         bool val = button->isChecked();
 
-        zbar->set_control(name.toUtf8().data(), val, 0);
+        zbar->set_control(name.toUtf8().data(), val);
     }
 
     void clearLayout(QLayout *layout)

@@ -173,8 +173,7 @@ public:
     /// see zbar_video_set_control_n()
     /// @since 0.11
     int set_control (const char *name,
-                     int value,
-                     unsigned long flags)
+                     int value)
     {
         return zbar_video_set_control (_video, name, value);
     }
@@ -183,8 +182,7 @@ public:
     /// see zbar_video_set_control_b()
     /// @since 0.11
     int set_control (const char *name,
-                     bool value,
-                     unsigned long flags)
+                     bool value)
     {
         return zbar_video_set_control (_video, name, value ? 1 : 0);
     }

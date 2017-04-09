@@ -123,20 +123,20 @@ QVector< QPair< int , QString >> QZBar::get_menu(int index)
 }
 
 
-int QZBar::set_control(char *name, bool value, unsigned long flags)
+int QZBar::set_control(char *name, bool value)
 {
     if(!thread)
         return 0;
 
-    return thread->set_control(name, value, flags);
+    return thread->set_control(name, value);
 }
 
-int QZBar::set_control(char *name, int value, unsigned long flags)
+int QZBar::set_control(char *name, int value)
 {
     if(!thread)
         return 0;
 
-    return thread->set_control(name, value, flags);
+    return thread->set_control(name, value);
 }
 
 int QZBar::get_control(char *name, bool *value)

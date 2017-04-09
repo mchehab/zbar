@@ -149,8 +149,8 @@ public Q_SLOTS:
     QVector< QPair< int , QString >> get_menu(int index);
 
     // get/set controls from the camera device
-    int set_control(char *name, bool value, unsigned long flags);
-    int set_control(char *name, int value, unsigned long flags);
+    int set_control(char *name, bool value);
+    int set_control(char *name, int value);
     int get_control(char *name, bool *value);
     int get_control(char *name, int *value);
 

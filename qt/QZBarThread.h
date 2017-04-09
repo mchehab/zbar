@@ -107,8 +107,8 @@ public:
                      int *min = NULL, int *max = NULL,
                      int *def = NULL, int *step = NULL);
     QVector< QPair< int , QString >> get_menu(int index);
-    int set_control(char *name, bool value, unsigned long flags);
-    int set_control(char *name, int value, unsigned long flags);
+    int set_control(char *name, bool value);
+    int set_control(char *name, int value);
     int get_control(char *name, bool *value);
     int get_control(char *name, int *value);
 
