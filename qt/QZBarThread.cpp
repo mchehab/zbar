@@ -246,7 +246,7 @@ QVector< QPair< int , QString >> QZBarThread::get_menu(int index)
         return vector;
 
     for (unsigned int i = 0; i < ctrl->menu_size; i++)
-        vector.append(qMakePair(ctrl->menu[i].value,
+        vector.append(qMakePair((int)ctrl->menu[i].value,
                                 QString::fromUtf8(ctrl->menu[i].name)));
 
     return vector;

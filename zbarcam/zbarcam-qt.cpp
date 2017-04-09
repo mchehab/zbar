@@ -281,8 +281,8 @@ public Q_SLOTS:
             if (!ret)
                 break;
 
-            QString newGroup = QString::asprintf("<strong>%s Controls</strong>",
-                                                 group);
+            QString newGroup = "<strong>" + QString::fromUtf8(group) +
+                               " Controls</strong>";
 
             switch (type) {
                 case zbar::QZBar::Button:
