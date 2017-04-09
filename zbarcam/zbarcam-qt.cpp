@@ -106,7 +106,7 @@ public:
         zbar = _zbar;
         name = _name;
 
-        if (!zbar->get_control(name, &val))
+        if (zbar->get_control(name, &val))
             val = 0;
         for (int i = 0; i < vector.size(); ++i) {
             QPair < int , QString > pair = vector.at(i);
