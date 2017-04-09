@@ -724,13 +724,11 @@ static int v4l2_add_control(zbar_video_t *vdo,
 
                 p = &first[n_menu];
                 p->name = strdup((const char *)menu.name);
+                p->value = n_menu + query->minimum;
+
 #ifdef V4L2_CTRL_TYPE_INTEGER_MENU
                 if (query->type == V4L2_CTRL_TYPE_INTEGER_MENU)
                     p->value = menu.value;
-                else
-                    p->value = n_menu;
-#else
-                p->value = n_menu;
 #endif
                 n_menu++;
             }
@@ -814,13 +812,15 @@ static struct video_controls_priv_s *v4l2_g_control_def(zbar_video_t *vdo,
     struct video_controls_priv_s *p = (void *)vdo->controls;
 
     while (p) {
-        if (!strcmp(p->s.name, name))
+        if (!strcasecmp(p->s.name, name))
             break;
         p = p->s.next;
     }
 
-    if (!p->s.name)
+    if (!p->s.name) {
+        zprintf(1, "Control not found: %s", name);
         return NULL;
+    }
 
     return p;
 }
@@ -829,68 +829,93 @@ static int v4l2_s_control(zbar_video_t *vdo,
                           const char *name,
                           void *value)
 {
-    struct v4l2_control cs;
+    struct v4l2_ext_controls ctrls;
+    struct v4l2_ext_control c;
     struct video_controls_priv_s *p;
 
     p = v4l2_g_control_def(vdo, name);
     if (!p)
         return ZBAR_ERR_UNSUPPORTED; // we have no such a control on the list
 
-    zprintf(1, "%-32s id: 0x%x set to value %d\n",
-            name, p->id, *(int*)value);
+    memset(&ctrls, 0, sizeof(ctrls));
+    ctrls.count = 1;
+    ctrls.which = V4L2_CTRL_WHICH_CUR_VAL;
+    ctrls.controls = &c;
 
-    // FIXME: add support for VIDIOC_S_EXT_CTRL
-    memset(&cs, 0, sizeof(cs));
-    cs.id = p->id;
-    cs.value = *(int*)value;
-    int rv = v4l2_ioctl(vdo->fd, VIDIOC_S_CTRL, &cs);
-    if(rv!=0) {
+    memset(&c, 0, sizeof(c));
+    c.id = p->id;
+
+    switch (p->s.type) {
+    case VIDEO_CNTL_INTEGER:
+    case VIDEO_CNTL_BOOLEAN:
+    case VIDEO_CNTL_BUTTON:
+    case VIDEO_CNTL_MENU:
+        c.value = *(int *)value;
+        break;
+#if 0
+    //FIXME: Need to check callers with respect bufffer size
+    case VIDEO_CNTL_INTEGER64:
+        c.value64 = *(int64_t *)value;
+        break;
+#endif
+    default:
+        return ZBAR_ERR_UNSUPPORTED;
+    }
+
+    int rv = v4l2_ioctl(vdo->fd, VIDIOC_S_EXT_CTRLS, &ctrls);
+    if(rv) {
         zprintf(1, "v4l2 set user control \"%s\" returned %d\n", p->s.name, rv);
         rv = ZBAR_ERR_INVALID;
     }
-    return rv;
+    zprintf(1, "%-32s id: 0x%x set to value %d\n",
+            name, p->id, *(int*)value);
+
+    return 0;
 }
 
 static int v4l2_g_control(zbar_video_t *vdo,
                             const char *name,
                             void *value)
 {
-    struct v4l2_control cs;
+    struct v4l2_ext_controls ctrls;
+    struct v4l2_ext_control c;
     struct video_controls_priv_s *p;
 
     p = v4l2_g_control_def(vdo, name);
     if (!p)
         return ZBAR_ERR_UNSUPPORTED; // we have no such a control on the list
 
-    memset(&cs, 0, sizeof(cs));
+    memset(&ctrls, 0, sizeof(ctrls));
+    ctrls.count = 1;
+    ctrls.which = V4L2_CTRL_WHICH_CUR_VAL;
+    ctrls.controls = &c;
 
-    cs.id = p->id;
-    cs.value = *(int*)value;
-    int rv = v4l2_ioctl(vdo->fd, VIDIOC_G_CTRL, &cs);
-    *(int*)value = cs.value;
-    if(rv!=0) {
+    memset(&c, 0, sizeof(c));
+    c.id = p->id;
+
+    int rv = v4l2_ioctl(vdo->fd, VIDIOC_G_EXT_CTRLS, &ctrls);
+    if (rv) {
         zprintf(1, "v4l2 get user control \"%s\" returned %d\n", p->s.name, rv);
-        rv = ZBAR_ERR_UNSUPPORTED;
+        return ZBAR_ERR_UNSUPPORTED;
     }
-    return rv;
 
-    // FIXME: add support for VIDIOC_G_EXT_CTRL
-    /* untested stuff */
+    switch (p->s.type) {
+    case VIDEO_CNTL_INTEGER:
+    case VIDEO_CNTL_BOOLEAN:
+    case VIDEO_CNTL_BUTTON:
+    case VIDEO_CNTL_MENU:
+        *(int *)value = c.value;
+        zprintf(1, "v4l2 get user control \"%s\" = %d\n", p->s.name, c.value);
+        return(0);
 #if 0
-    memset(&ext_ctrls, 0, sizeof(ext_ctrls));
-    ext_ctrls.ctrl_class = V4L2_CTRL_CLASS_MPEG; //V4L2_CTRL_ID2CLASS(p->id);
-    ext_ctrls.count = 1;
-    ext_ctrls.controls = &ext_ctrl;
-    memset(&ext_ctrl, 0, sizeof(ext_ctrl));
-    ext_ctrl.id = p->id;
-    rv = v4l2_ioctl(vdo->fd, VIDIOC_G_EXT_CTRLS, &ext_ctrls);
-    *(int*)value = ext_ctrl.value;
-    if(rv!=0) {
-        zprintf(1, "v4l2 get ext control \"%s\" returned %d\n", p->name, rv);
-        rv = ZBAR_ERR_UNSUPPORTED;
-    }
-    return rv;
+    //FIXME: Need to check callers with respect bufffer size
+    case VIDEO_CNTL_INTEGER64:
+        *(int64_t *)value = c.value64;
+        return(0);
 #endif
+    default:
+        return ZBAR_ERR_UNSUPPORTED;
+    }
 }
 
 int _zbar_v4l2_probe (zbar_video_t *vdo)
