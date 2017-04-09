@@ -91,6 +91,7 @@ class MenuControl : public QComboBox
 private:
     char *name;
     zbar::QZBar *zbar;
+    QVector< QPair< int , QString >> vector;
 
 private slots:
     void updateControl(int value);
@@ -98,13 +99,14 @@ private slots:
 public:
 
     MenuControl(QGroupBox *parent, zbar::QZBar *_zbar, char *_name,
-                QVector< QPair< int , QString >> vector)
+                QVector< QPair< int , QString >> _vector)
         : QComboBox(parent)
     {
         int val;
 
         zbar = _zbar;
         name = _name;
+        vector = _vector;
 
         if (zbar->get_control(name, &val))
             val = 0;
@@ -115,15 +117,15 @@ public:
             if (val == pair.first)
                 setCurrentIndex(i);
         }
-
         connect(this, SIGNAL(currentIndexChanged(int)),
                 this, SLOT(updateControl(int)));
     }
 };
 
-void MenuControl::updateControl(int value)
+void MenuControl::updateControl(int index)
 {
-        zbar->set_control(name, value);
+
+    zbar->set_control(name, vector.at(index).first);
 }
 
 class ZbarcamQZBar : public QWidget
