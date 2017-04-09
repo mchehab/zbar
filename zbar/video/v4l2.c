@@ -723,18 +723,23 @@ static int v4l2_add_control(zbar_video_t *vdo,
                 first = realloc(first, (n_menu + 1) * sizeof(*(*ptr)->s.menu));
 
                 p = &first[n_menu];
-                p->name = strdup((const char *)menu.name);
-                p->value = n_menu + query->minimum;
+                p->value = menu.index;
 
 #ifdef V4L2_CTRL_TYPE_INTEGER_MENU
                 if (query->type == V4L2_CTRL_TYPE_INTEGER_MENU)
-                    p->value = menu.value;
+                    asprintf(p->name, "%i", menu.value);
+                else
 #endif
+                    p->name = strdup((const char *)menu.name);
+
                 n_menu++;
             }
         }
         (*ptr)->s.menu = first;
         (*ptr)->s.menu_size = n_menu;
+        (*ptr)->s.min = query->minimum;
+        (*ptr)->s.max = query->maximum;
+        (*ptr)->s.def = query->default_value;
         (*ptr)->s.type = VIDEO_CNTL_MENU;
         return (0);
         }
