@@ -390,9 +390,11 @@ int main (int argc, char *argv[])
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "--debug")) {
             verbose = 127;
+        } else if (!strcmp(argv[i], "-v")) {
+            verbose++;
         } else if (!strcmp(argv[i], "--help")) {
             qWarning() << "Usage:" << argv[0]
-                    << "[<--debug>] [<--help>] [<device or file name>]\n";
+                    << "[<--debug>] [<-v>] [<--help>] [<device or file name>]\n";
             return(-1);
         } else {
             dev = argv[i];
