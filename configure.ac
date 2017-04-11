@@ -24,13 +24,13 @@ dnl   - If any interfaces have been added since the last public release,
 dnl     then increment age.
 dnl   - If any interfaces have been removed since the last public release,
 dnl     then set age to 0. 
-AC_SUBST([LIB_VERSION], [2:1:0])
+AC_SUBST([LIB_VERSION], [3:0:3])
 AC_SUBST([RELDATE], [2017-04-11])
 
 dnl widget libraries use their own versioning.
 dnl NB pygtk wrapper is *unversioned*
-AC_SUBST([ZGTK_LIB_VERSION], [0:3:0])
-AC_SUBST([ZQT_LIB_VERSION], [0:3:0])
+AC_SUBST([ZGTK_LIB_VERSION], [0:2:0])
+AC_SUBST([ZQT_LIB_VERSION], [1:2:1])
 
 AC_DEFINE_UNQUOTED([ZBAR_VERSION_MAJOR],
   [[`echo "$PACKAGE_VERSION" | sed -e 's/\..*$//'`]],
