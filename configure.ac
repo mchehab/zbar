@@ -91,6 +91,7 @@ AS_IF([test "x$JAVA_HOME" = "x"],
 
 AC_ARG_VAR([JAVAC], [location of Java language compiler])
 AC_PATH_PROGS([JAVAC], [javac jikes ecj gcj], [:], [$JAVA_PATH])
+JAVAC=${JAVAC/ecj/ecj -1.5}
 AS_IF([test "x$JAVAC" = "x:"], [have_java="no"])
 
 AC_ARG_VAR([JAVAH], [location of Java header generator])
@@ -518,6 +519,9 @@ AC_ARG_WITH([java],
 AC_ARG_VAR([JAVA_CFLAGS], [compiler flags for building JNI extensions])
 AS_IF([test "x$JAVA_CFLAGS" = "x" && test "x$JAVA_HOME" != "x"],
   [JAVA_CFLAGS="-I$JAVA_HOME/include"])
+
+AS_IF([test -d "$JAVA_HOME/include/linux"],
+  [JAVA_CFLAGS="$JAVA_CFLAGS -I$JAVA_HOME/include/linux"])
 
 AS_IF([test "x$with_java" != "xno"],
   [CPPFLAGS_save="$CPPFLAGS"
