@@ -31,4 +31,7 @@ zbarcam/zbarcam
 zbarcam/zbarcam-gtk
 zbarcam/zbarcam-qt
 zbarimg/zbarimg
+java/net/sourceforge/zbar/*.class
+java/zbar.jar
+java/zbarjni.h
 
