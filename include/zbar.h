@@ -225,6 +225,7 @@ typedef struct video_control_menu_s {
  * @param step increment steps (if control is integer)
  * @param menu menu array
  * @param menu_size menu size
+ * @since 0.20
  */
 typedef struct video_controls_s {
     char *name;
@@ -888,7 +889,7 @@ extern int zbar_processor_set_config(zbar_processor_t *processor,
 
 /** set video control value
  * @returns 0 for success, non-0 for failure
- * @since 0.11
+ * @since 0.20
  * @see zbar_video_set_control()
  */
 extern int zbar_processor_set_control (zbar_processor_t *processor,
@@ -897,7 +898,7 @@ extern int zbar_processor_set_control (zbar_processor_t *processor,
 
 /** get video control value
  * @returns 0 for success, non-0 for failure
- * @since 0.11
+ * @since 0.20
  * @see zbar_video_get_control()
  */
 extern int zbar_processor_get_control (zbar_processor_t *processor,
@@ -1107,7 +1108,7 @@ extern zbar_image_t *zbar_video_next_image(zbar_video_t *video);
 
 /** set video control value (integer).
  * @returns 0 for success, non-0 for failure
- * @since 0.11
+ * @since 0.20
  * @see zbar_processor_set_control()
  */
 extern int zbar_video_set_control (zbar_video_t *video,
@@ -1117,7 +1118,7 @@ extern int zbar_video_set_control (zbar_video_t *video,
 
 /** get video control value (integer).
  * @returns 0 for success, non-0 for failure
- * @since 0.11
+ * @since 0.20
  * @see zbar_processor_get_control()
  */
 extern int zbar_video_get_control (zbar_video_t *video,
@@ -1126,7 +1127,7 @@ extern int zbar_video_get_control (zbar_video_t *video,
 
 /** get available controls from video source
  * @returns 0 for success, non-0 for failure
- * @since 0.11
+ * @since 0.20
  */
 extern struct video_controls_s
 *zbar_video_get_controls (const zbar_video_t *video,

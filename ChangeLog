@@ -1,4 +1,13 @@
-current:
+0.20:
+  * As upstream became abandoned, created a ZBar fork at linuxtv.org
+  * Use libv4l2 for V4L2 support, using emulated formats as last resort
+  * Add support for Qt5
+  * Add zbarcam-qt and zbarcam-gtk (from the example codes)
+  * Add support for v4l2 controls
+  * Add the needed GUI bits for zbarcam-qt to work with controls
+  * Fix compilation issues with newer automake versions.
+
+0.11:
   * Codabar reliability enhancements
     - fix missing check
     - require minimum quality

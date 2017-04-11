@@ -1,5 +1,13 @@
 ZBar Barcode Reader
 
+version 0.20 (2017-04-11):
+  As upstream didn't have any version since 2009, created a ZBar fork at linuxtv.org. This release improves a lot V4L2 support, by using libv4l2
+  to handle formats that are alien to ZBar, making it compatible with a lot
+  more webcam models. Qt support was also updated, making it compatible
+  with Qt5. ZBar now have two other GUI applications (zbarcam-qt and
+  zbarcam-gtk). With zbarcam-qt, it is now possible to adjust the camera
+  controls, making easier to read barcodes using a camera.
+
 version 0.10 (2009-10-23):
   ZBar goes 2D!  This release introduces support for QR Code, developed
   by our new project member, Timothy Terriberry.  Timothy is an image
