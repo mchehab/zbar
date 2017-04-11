@@ -1,9 +1,11 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_PREREQ([2.61])
+AC_PREREQ([2.68])
 AC_INIT([zbar], [0.20], [mchehab@s-opensource.com])
+m4_ifndef([AC_LANG_DEFINES_PROVIDED],
+          [m4_define([AC_LANG_DEFINES_PROVIDED])])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR(config)
-AM_INIT_AUTOMAKE([1.10 -Werror foreign subdir-objects std-options dist-bzip2])
+AM_INIT_AUTOMAKE([1.13 -Werror foreign subdir-objects std-options dist-bzip2])
 m4_pattern_allow([AM_PROG_AR])
 AC_CONFIG_HEADERS([include/config.h])
 AC_CONFIG_SRCDIR(zbar/scanner.c)
