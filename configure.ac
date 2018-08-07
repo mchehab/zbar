@@ -465,7 +465,8 @@ Install the development package for python-$am_cv_python_version, or configure
 
    AS_IF([test "x$with_gtk" = "xyes"],
      [PKG_CHECK_MODULES([PYGTK], [pygtk-2.0])
-      AC_CHECK_PROGS([PYGTK_CODEGEN], [pygtk-codegen-2.0 pygtk-codegen], [:])
+      AC_CHECK_PROGS([PYGTK_CODEGEN], [pygobject-codegen-2.0 pygtk-codegen-2.0 pygtk-codegen], [:])
+
       AS_IF([test "x$PYGTK_H2DEF" = "x"],
         [PYGTK_H2DEF=`$PKG_CONFIG pygtk-2.0 --variable=codegendir`/h2def.py
          AS_IF([test -f "$PYGTK_H2DEF"], [], [PYGTK_H2DEF=":"])])
