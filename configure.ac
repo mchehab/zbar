@@ -444,7 +444,7 @@ AC_ARG_VAR([PYGTK_CODEGEN], [full path to pygtk-codegen program])
 AC_ARG_VAR([PYGTK_DEFS], [directory where PyGTK definitions may be found])
 
 AS_IF([test "x$with_python" != "xno"],
-  [AM_PATH_PYTHON(2.3.5)
+  [AM_PATH_PYTHON(2.7.0)
    AS_IF([test "x$PYTHON_CFLAGS" != "x"],
      [],
      [test "x$PYTHON_CONFIG" != "x" && test -x "$PYTHON_CONFIG"],

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 from sys import argv
 import zbar
 
@@ -19,7 +19,7 @@ def my_handler(proc, image, closure):
     # extract results
     for symbol in image.symbols:
         # do something useful with results
-        print 'decoded', symbol.type, 'symbol', '"%s"' % symbol.data
+        print('decoded', symbol.type, 'symbol', '"%s"' % symbol.data)
 
 proc.set_data_handler(my_handler)
 
@@ -31,5 +31,5 @@ proc.active = True
 try:
     # keep scanning until user provides key/mouse input
     proc.user_wait()
-except zbar.WindowClosed, e:
+except zbar.WindowClosed as e:
     pass
