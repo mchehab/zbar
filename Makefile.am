@@ -87,3 +87,7 @@ dist-nsis: html-local
 	  makensis -NOCD -V2 -DVERSION=$(VERSION) $(abs_srcdir)/zbar.nsi
 	@ls -l _nsis/zbar-$(VERSION)-setup.exe
 endif
+
+archive:
+	git archive --format=tar --prefix=zbar-$(VERSION) -o zbar-$(VERSION).tar $(VERSION)
+	bzip2 zbar-$(VERSION).tar
