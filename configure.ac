@@ -429,11 +429,11 @@ AS_IF([test "x$with_gtk" != "xno"],
 AM_CONDITIONAL([HAVE_GTK], [test "x$with_gtk" = "xyes"])
 
 dnl PyGTK
-AC_ARG_WITH([python],
-  [AS_HELP_STRING([--without-python],
-    [disable support for Python bindings])],
+AC_ARG_WITH([python2],
+  [AS_HELP_STRING([--without-python2],
+    [disable support for Python 2 bindings])],
   [],
-  [with_python="yes"])
+  [with_python2="yes"])
 
 AC_ARG_VAR([PYTHON_CONFIG], [full path to python-config program])
 AC_ARG_VAR([PYTHON_CFLAGS], [compiler flags for building python extensions])
@@ -443,7 +443,7 @@ AC_ARG_VAR([PYGTK_H2DEF], [full path to PyGTK h2def.py module])
 AC_ARG_VAR([PYGTK_CODEGEN], [full path to pygtk-codegen program])
 AC_ARG_VAR([PYGTK_DEFS], [directory where PyGTK definitions may be found])
 
-AS_IF([test "x$with_python" != "xno"],
+AS_IF([test "x$with_python2" != "xno"],
   [AM_PATH_PYTHON(2.7.0)
    AS_IF([test "x$PYTHON_CFLAGS" != "x"],
      [],
@@ -475,7 +475,7 @@ Install the development package for python-$am_cv_python_version, or configure
    ])
 ])
 
-AM_CONDITIONAL([HAVE_PYTHON], [test "x$with_python" = "xyes"])
+AM_CONDITIONAL([HAVE_PYTHON], [test "x$with_python2" = "xyes"])
 
 dnl Qt
 AC_ARG_WITH([qt],
@@ -612,11 +612,11 @@ AS_IF([test "x$have_GM" = "xyes"],
   [echo "ImageMagick       --with-imagemagick=$with_imagemagick"])
 AS_IF([test "x$have_IM" != "xyes" && test "x$have_GM" != "xyes"],
   [echo "        => the zbarimg file scanner will *NOT* be built"])
-echo "Python            --with-python=$with_python"
-echo "GTK+              --with-gtk=$with_gtk"
+echo "Python ${PYTHON_VERSION}        --with-python2=$with_python2"
+echo "GTK+${GTK_VERSION}       --with-gtk=$with_gtk"
 AS_IF([test "x$with_gtk" != "xyes"],
   [echo "        => the GTK+ widget will *NOT* be built"],
-  [AS_IF([test "x$with_python" != "xyes"],
+  [AS_IF([test "x$with_python2" != "xyes"],
      [echo "        => the PyGTK widget wrapper will *NOT* be built"])])
 echo "Qt${QT_VERSION}           --with-qt=$with_qt"
 AS_IF([test "x$with_qt" != "xyes"],

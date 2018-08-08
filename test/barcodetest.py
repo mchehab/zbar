@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 import sys, re, unittest as UT, xml.etree.ElementTree as ET
 from os import path, getcwd

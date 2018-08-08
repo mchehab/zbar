@@ -7,8 +7,8 @@ intensity sensors. It supports EAN-13/UPC-A, UPC-E, EAN-8, Code 128,
 Code 39, Codabar, Interleaved 2 of 5 and QR Code.  Included with the
 library are basic applications for decoding captured bar code images and
 using a video device (eg, webcam) as a bar code scanner.  For application
-developers, language bindings are included for C, C++, Python and Perl
-as well as GUI widgets for Qt, GTK and PyGTK.
+developers, language bindings are included for C, C++, Python 2 and Perl
+as well as GUI widgets for Qt, GTK and PyGTK 2.0.
 
 Check the ZBar home page for the latest release, mailing lists, etc.
     http://zbar.sourceforge.net/
@@ -50,13 +50,13 @@ like to use or develop a GTK+ GUI application with an integrated bar
 code scanning widget.  GTK+ may be obtained from
     http://www.gtk.org/
 
-The PyGTK wrapper for the GTK+ widget requires Python and PyGTK.  You
-will need both if you would like to use or develop a PyGTK GUI
+The PyGTK 2.0 wrapper for the GTK+ widget requires Python 2, PyGTK.
+You will need both if you would like to use or develop a PyGTK GUI
 application with an integrated bar code scanning widget.  PyGTK may be
 obtained from
     http://www.pygtk.org/
 
-The Python bindings require Python (version?).  You will need Python
+The Python bindings require Python 2.  You will need Python and PIL
 if you would like to scan images or video directly using Python.
 Python is available from
     http://python.org/
