@@ -286,7 +286,11 @@ static inline unsigned postprocess_c (zbar_decoder_t *dcode,
     /* expand buffer to accomodate 2x set C characters (2 digits per-char) */
     unsigned delta = end - start;
     unsigned newlen = dcode->code128.character + delta;
-    size_buf(dcode, newlen);
+    if (size_buf(dcode, newlen)) {
+	dbprintf(2, " [overflow]\n");
+        return ZBAR_NONE;
+    }
+
 
     /* relocate unprocessed data to end of buffer */
     memmove(dcode->buf + start + delta, dcode->buf + start,
