@@ -1,7 +1,14 @@
 ZBar Barcode Reader
 
+version 0.20.1 (2018-08-08):
+  Minor changes at ZBar, in order to adapt to modern distributions
+  with are removing /usr/bin/python in favor of just using python2.
+  Also, updated some python2 scripts to work with modern distros,
+  where the Image module is now inside PIL.
+
 version 0.20 (2017-04-11):
-  As upstream didn't have any version since 2009, created a ZBar fork at linuxtv.org. This release improves a lot V4L2 support, by using libv4l2
+  As upstream didn't have any version since 2009, created a ZBar fork at
+  linuxtv.org. This release improves a lot V4L2 support, by using libv4l2
   to handle formats that are alien to ZBar, making it compatible with a lot
   more webcam models. Qt support was also updated, making it compatible
   with Qt5. ZBar now have two other GUI applications (zbarcam-qt and

@@ -1,3 +1,9 @@
+0.20.1:
+  * Be sure to use python2, as /usr/bin/python is being removed
+    (or made non-functional) on some distributions
+  * Prefer using pygobject-codegen-2.0 instead of pygtk-codegen-2.0
+  * Make it work with modern versions of python 2
+
 0.20:
   * As upstream became abandoned, created a ZBar fork at linuxtv.org
   * Use libv4l2 for V4L2 support, using emulated formats as last resort
@@ -5,7 +11,7 @@
   * Add zbarcam-qt and zbarcam-gtk (from the example codes)
   * Add support for v4l2 controls
   * Add the needed GUI bits for zbarcam-qt to work with controls
-  * Fix compilation issues with newer automake versions.
+  * Fix compilation issues with newer automake versions
 
 0.11:
   * Codabar reliability enhancements
