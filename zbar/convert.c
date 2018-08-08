@@ -1163,6 +1163,9 @@ int zbar_negotiate_format (zbar_video_t *vdo,
         vdo->formats = vdo->emu_formats;
         vdo->emu_formats = NULL;
 
+	srcs = (vdo) ? vdo->formats : y800;
+	dsts = (win) ? win->formats : y800;
+
         /*
         * Use the same cost algorithm to select emulated formats.
         * This might select a sub-optimal conversion, but, in practice,
