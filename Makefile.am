@@ -89,5 +89,5 @@ dist-nsis: html-local
 endif
 
 archive:
-	git archive --format=tar --prefix=zbar-$(VERSION) -o zbar-$(VERSION).tar $(VERSION)
+	git archive --format=tar --prefix=zbar-$(VERSION)/ -o zbar-$(VERSION).tar $(VERSION)
 	bzip2 zbar-$(VERSION).tar
