@@ -312,7 +312,8 @@ static void *zbar_gtk_processing_thread (void *arg)
 
         if(video_enabled) {
             /* release reference to any previous pixbuf */
-            zbar_window_draw(zbar->window, NULL);
+	    if(zbar->window)
+                zbar_window_draw(zbar->window, NULL);
 
             if(zbar_video_enable(zbar->video, 1)) {
                 zbar_video_error_spew(zbar->video, 0);
