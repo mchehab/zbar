@@ -608,6 +608,7 @@ static void zbar_gtk_get_property (GObject *object,
         break;
     case PROP_VIDEO_OPENED:
         g_value_set_boolean(value, zbar->video_opened);
+	break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
     }
