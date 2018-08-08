@@ -249,7 +249,8 @@ typedef struct video_controls_s {
  * @returns 0
  */
 extern int zbar_version(unsigned *major,
-                        unsigned *minor);
+                        unsigned *minor,
+			unsigned *patch);
 
 /** set global library debug level.
  * @param verbosity desired debug level.  higher values create more spew

@@ -142,7 +142,7 @@ version (PyObject *self,
         return(NULL);
 
     unsigned int major, minor;
-    zbar_version(&major, &minor);
+    zbar_version(&major, &minor, NULL);
 
     return(Py_BuildValue("II", major, minor));
 }

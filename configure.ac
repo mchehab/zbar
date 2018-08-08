@@ -36,8 +36,11 @@ AC_DEFINE_UNQUOTED([ZBAR_VERSION_MAJOR],
   [[`echo "$PACKAGE_VERSION" | sed -e 's/\..*$//'`]],
   [Program major version (before the '.') as a number])
 AC_DEFINE_UNQUOTED([ZBAR_VERSION_MINOR],
-  [[`echo "$PACKAGE_VERSION" | sed -e 's/^[^.]*\.\([^.]*\)$/\1/'`]],
+  [[`echo "$PACKAGE_VERSION" | sed -e 's/^[^\.]*\.\([^\.]*\).*/\1/'`]],
   [Program minor version (after '.') as a number])
+AC_DEFINE_UNQUOTED([ZBAR_VERSION_PATCH],
+  [[`echo "$PACKAGE_VERSION" | sed -e 's/^[^\.]*\.[^\.]*\.*//' | sed s,^$,0,`]],
+  [Program patch version (after the second '.') as a number])
 
 cur=`echo "$LIB_VERSION" | sed -e 's/:.*$//'`
 age=`echo "$LIB_VERSION" | sed -e 's/^.*://'`

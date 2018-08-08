@@ -210,7 +210,7 @@ zbar_version()
 	unsigned major;
         unsigned minor;
     CODE:
-        zbar_version(&major, &minor);
+        zbar_version(&major, &minor, NULL);
         RETVAL = newSVpvf("%u.%u", major, minor);
     OUTPUT:
         RETVAL
