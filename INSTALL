@@ -26,10 +26,10 @@ it or regenerate `configure' using a newer version of `autoconf'.
 The simplest way to compile this package is:
 
   1. `cd' to the directory containing the package's source code and type
-     `./configure' to configure the package for your system.  If you're
-     using `csh' on an old version of System V, you might need to type
-     `sh ./configure' instead to prevent `csh' from trying to execute
-     `configure' itself.
+     `autoreconf -vfi && ./configure' to configure the package for
+     your system.  If you're using `csh' on an old version of System V,
+     you might need to type `sh ./configure' instead to prevent `csh'
+     from trying to execute `configure' itself.
 
      Running `configure' takes awhile.  While running, it prints some
      messages telling which features it is checking for.
