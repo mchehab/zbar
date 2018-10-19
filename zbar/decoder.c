@@ -31,6 +31,7 @@
 #if defined(DEBUG_DECODER) || defined(DEBUG_EAN) || defined(DEBUG_CODE93) || \
     defined(DEBUG_CODE39) || defined(DEBUG_CODABAR) || defined(DEBUG_I25) || \
     defined(DEBUG_DATABAR) || defined(DEBUG_CODE128) || \
+    defined(DEBUG_SQ_FINDER) || \
     defined(DEBUG_QR_FINDER) || (defined(DEBUG_PDF417) && (DEBUG_PDF417 >= 4))
 # define DEBUG_LEVEL 1
 #endif
@@ -90,6 +91,9 @@ zbar_decoder_t *zbar_decoder_create ()
 #endif
 #ifdef ENABLE_QRCODE
     dcode->qrf.config = 1 << ZBAR_CFG_ENABLE;
+#endif
+#ifdef ENABLE_SQCODE
+    dcode->sqf.config = 1 << ZBAR_CFG_ENABLE;
 #endif
 
     zbar_decoder_reset(dcode);
@@ -388,6 +392,12 @@ decoder_get_configp (const zbar_decoder_t *dcode,
         break;
 #endif
 
+#ifdef ENABLE_SQCODE
+    case ZBAR_SQCODE:
+        config = &dcode->sqf.config;
+        break;
+#endif
+
     default:
         config = NULL;
     }
@@ -489,6 +499,7 @@ int zbar_decoder_set_config (zbar_decoder_t *dcode,
             ZBAR_UPCA, ZBAR_UPCE, ZBAR_ISBN10, ZBAR_ISBN13,
             ZBAR_I25, ZBAR_DATABAR, ZBAR_DATABAR_EXP, ZBAR_CODABAR,
 	    ZBAR_CODE39, ZBAR_CODE93, ZBAR_CODE128, ZBAR_QRCODE, 
+            ZBAR_SQCODE,
 	    ZBAR_PDF417, 0
         };
         const zbar_symbol_type_t *symp;

@@ -114,9 +114,9 @@ dnl symbologies
 
 AC_ARG_ENABLE([codes],
   [AS_HELP_STRING([--enable-codes=SYMS],
-    [select symbologies to compile [default=ean,databar,code128,code93,code39,codabar,i25,qrcode]])],
+    [select symbologies to compile [default=ean,databar,code128,code93,code39,codabar,i25,qrcode,sqcode]])],
   [],
-  [enable_codes="ean,databar,code128,code93,code39,codabar,i25,qrcode"])
+  [enable_codes="ean,databar,code128,code93,code39,codabar,i25,qrcode,sqcode"])
 
 AC_DEFUN([ZBAR_CHK_CODE], [
   AC_MSG_CHECKING([whether to build $2])
@@ -141,6 +141,7 @@ ZBAR_CHK_CODE([code39], [Code 39 symbology])
 ZBAR_CHK_CODE([codabar], [Codabar symbology])
 ZBAR_CHK_CODE([i25], [Interleaved 2 of 5 symbology])
 ZBAR_CHK_CODE([qrcode], [QR Code])
+ZBAR_CHK_CODE([sqcode], [SQ Code])
 ZBAR_CHK_CODE([pdf417], [PDF417 symbology])
 
 dnl libraries

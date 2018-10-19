@@ -51,6 +51,10 @@ zbar_libzbar_la_SOURCES += zbar/qrcode.h \
     zbar/qrcode/binarize.h zbar/qrcode/binarize.c \
     zbar/qrcode/util.h zbar/qrcode/util.c
 endif
+if ENABLE_SQCODE
+zbar_libzbar_la_SOURCES += zbar/sqcode.h zbar/sqcode.c \
+    zbar/decoder/sq_finder.h zbar/decoder/sq_finder.c
+endif
 
 if WIN32
 zbar_libzbar_la_SOURCES += zbar/processor/win.c zbar/libzbar.rc
