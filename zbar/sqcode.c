@@ -196,8 +196,6 @@ new_point:
     dot->width = width;
     dot->height = height;
 
-    /* TODO: Is it other shape? White hole? */
-
     /* Is it a corner? */
     if (is_black(img, x0 + 0.25 * width, y0 + 0.25 * height)
         && !is_black(img, x0 + 0.75 * width, y0 + 0.25 * height)
@@ -226,6 +224,8 @@ new_point:
     dot->type = SHAPE_DOT;
     set_dot_center(dot, x_sum / (float) total_weight + 0.5,
         y_sum / (float) total_weight + 0.5);
+
+    /* TODO: Is it other shape? White hole? Really a dot? */
 }
 
 static void set_middle_point(sq_point *middle, const sq_point *start,
@@ -407,6 +407,8 @@ found_start: ;
         if (bottom_left_dot.type != SHAPE_DOT)
             goto free_borders;
         cur_len += 2;
+        if (cur_len > border_len)
+            goto free_borders;
         left_border[cur_len - 1] = bottom_left_dot.center;
         set_middle_point(&left_border[cur_len - 2],
             &left_border[cur_len - 3],
@@ -435,10 +437,14 @@ found_start: ;
             goto free_borders;
         if (cur_len == 3) {
             cur_len++;
+            if (cur_len > border_len)
+                goto free_borders;
             right_border[cur_len - 1] = bottom_right_dot.center;
         }
         else {
             cur_len += 2;
+            if (cur_len > border_len)
+                goto free_borders;
             right_border[cur_len - 1] = bottom_right_dot.center;
             set_middle_point(&right_border[cur_len - 2],
                 &right_border[cur_len - 3],
@@ -468,6 +474,8 @@ found_start: ;
         if (bottom_left2_dot.type == SHAPE_CORNER)
             break;
         if (bottom_left2_dot.type != SHAPE_DOT)
+            goto free_borders;
+        if (offset < 2)
             goto free_borders;
         offset -= 2;
         bottom_border[offset] = bottom_left2_dot.center;
