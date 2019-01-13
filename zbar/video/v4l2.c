@@ -569,7 +569,7 @@ static inline int v4l2_reset_crop (zbar_video_t *vdo)
     memset(&crop, 0, sizeof(crop));
     crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     crop.c = ccap.defrect;
-    if(v4l2_ioctl(vdo->fd, VIDIOC_S_CROP, &crop) < 0 && errno != EINVAL)
+    if(v4l2_ioctl(vdo->fd, VIDIOC_S_CROP, &crop) < 0 && errno != EINVAL && errno != ENOTTY)
         return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__,
                            "setting default crop window (VIDIOC_S_CROP)"));
     return(0);
