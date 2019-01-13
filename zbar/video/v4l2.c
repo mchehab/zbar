@@ -243,6 +243,21 @@ static int v4l2_mmap_buffers (zbar_video_t *vdo)
     return(0);
 }
 
+static int v4l2_request_buffers (zbar_video_t *vdo)
+{
+    struct v4l2_requestbuffers rb;
+    memset(&rb, 0, sizeof(rb));
+    rb.count = vdo->num_images;
+    rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    rb.memory = V4L2_MEMORY_USERPTR;
+    if(v4l2_ioctl(vdo->fd, VIDIOC_REQBUFS, &rb) < 0)
+        return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__,
+                           "requesting video frame buffers (VIDIOC_REQBUFS)"));
+    if(rb.count)
+        vdo->num_images = rb.count;
+    return(0);
+}
+
 static int v4l2_set_format (zbar_video_t *vdo,
                             uint32_t fmt)
 {
@@ -334,6 +349,8 @@ static int v4l2_init (zbar_video_t *vdo,
 
     if(vdo->iomode == VIDEO_MMAP)
         return(v4l2_mmap_buffers(vdo));
+    if(vdo->iomode == VIDEO_USERPTR)
+        return(v4l2_request_buffers(vdo));
     return(0);
 }
 
