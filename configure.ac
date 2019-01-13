@@ -177,6 +177,15 @@ or configure --disable-pthread to skip threaded support.])])
    AC_DEFINE([__USE_UNIX98], [1], [used only for pthread debug attributes])
 ])
 
+dnl doc
+AC_ARG_ENABLE([doc],
+  [AS_HELP_STRING([--disable-doc],
+    [disable building docs])],
+  [],
+  [enable_doc="yes"])
+
+AM_CONDITIONAL([HAVE_DOC], [test "x$enable_doc" != "xno"])
+
 dnl video
 AC_ARG_ENABLE([video],
   [AS_HELP_STRING([--disable-video],
@@ -602,6 +611,7 @@ echo "please verify that the detected configuration matches your expectations:"
 echo "------------------------------------------------------------------------"
 echo "X                 --with-x=$have_x"
 echo "pthreads          --enable-pthread=$enable_pthread"
+echo "doc               --enable-doc=$enable_doc"
 echo "v4l               --enable-video=$enable_video"
 AS_IF([test "x$enable_video" != "xyes"],
   [echo "        => zbarcam video scanner will *NOT* be built"])

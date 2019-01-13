@@ -45,7 +45,9 @@ if HAVE_NPAPI
 include $(srcdir)/plugin/Makefile.am.inc
 endif
 include $(srcdir)/test/Makefile.am.inc
+if HAVE_DOC
 include $(srcdir)/doc/Makefile.am.inc
+endif
 
 EXTRA_DIST += zbar.ico zbar.nsi
 
