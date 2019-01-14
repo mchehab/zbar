@@ -39,6 +39,7 @@ html-local: doc/html/index.html
 doc/html/index.html: $(DOCSOURCES)
 	$(XMLTO) $(doc_path) $(XMLTOFLAGS) -o doc/html xhtml $<
 
+CLEANFILES += doc/html/*.html
 
 $(dist_man_MANS): $(man_stamp)
 	@if test ! -f $@ ; then \
