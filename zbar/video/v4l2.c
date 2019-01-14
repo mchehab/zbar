@@ -960,13 +960,13 @@ int _zbar_v4l2_probe (zbar_video_t *vdo)
             vcap.driver, (vcap.version >> 16) & 0xff,
             (vcap.version >> 8) & 0xff, vcap.version & 0xff);
     zprintf(1, "    capabilities:%s%s%s%s\n",
-            (vcap.capabilities & V4L2_CAP_VIDEO_CAPTURE) ? " CAPTURE" : "",
-            (vcap.capabilities & V4L2_CAP_VIDEO_OVERLAY) ? " OVERLAY" : "",
-            (vcap.capabilities & V4L2_CAP_READWRITE) ? " READWRITE" : "",
-            (vcap.capabilities & V4L2_CAP_STREAMING) ? " STREAMING" : "");
+            (vcap.device_caps & V4L2_CAP_VIDEO_CAPTURE) ? " CAPTURE" : "",
+            (vcap.device_caps & V4L2_CAP_VIDEO_OVERLAY) ? " OVERLAY" : "",
+            (vcap.device_caps & V4L2_CAP_READWRITE) ? " READWRITE" : "",
+            (vcap.device_caps & V4L2_CAP_STREAMING) ? " STREAMING" : "");
 
-    if(!(vcap.capabilities & V4L2_CAP_VIDEO_CAPTURE) ||
-       !(vcap.capabilities & (V4L2_CAP_READWRITE | V4L2_CAP_STREAMING)))
+    if(!(vcap.device_caps & V4L2_CAP_VIDEO_CAPTURE) ||
+       !(vcap.device_caps & (V4L2_CAP_READWRITE | V4L2_CAP_STREAMING)))
         return(err_capture(vdo, SEV_WARNING, ZBAR_ERR_UNSUPPORTED, __func__,
                            "v4l2 device does not support usable CAPTURE"));
 
@@ -981,7 +981,7 @@ int _zbar_v4l2_probe (zbar_video_t *vdo)
 
     /* FIXME report error and fallback to readwrite? (if supported...) */
     if(vdo->iomode != VIDEO_READWRITE &&
-       (vcap.capabilities & V4L2_CAP_STREAMING) &&
+       (vcap.device_caps & V4L2_CAP_STREAMING) &&
        v4l2_probe_iomode(vdo))
         return(-1);
     if(!vdo->iomode)
