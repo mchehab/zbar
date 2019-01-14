@@ -10,6 +10,7 @@ MAINTAINERCLEANFILES =
 BUILT_SOURCES =
 EXTRA_DIST =
 SUBDIRS = .
+PHONY = $(SUBDIRS)
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = zbar.pc
@@ -93,3 +94,5 @@ endif
 archive:
 	git archive --format=tar --prefix=zbar-$(VERSION)/ -o zbar-$(VERSION).tar $(VERSION)
 	bzip2 zbar-$(VERSION).tar
+
+.PHONY : $(PHONY)

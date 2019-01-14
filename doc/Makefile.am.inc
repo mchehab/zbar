@@ -24,7 +24,8 @@ EXTRA_DIST += $(DOCSOURCES) $(man_stamp)
 EXTRA_DIST += doc/api/footer.html doc/style.xsl
 
 docs: $(dist_man_MANS) #dist_doc_DATA
-.PHONY: docs
+
+PHONY += docs
 
 doc_path = --searchpath $(abs_builddir)/doc -m $(abs_srcdir)/doc/style.xsl
 # xmlto --searchpath broken again...

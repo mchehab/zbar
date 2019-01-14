@@ -64,4 +64,4 @@ regress-decoder: test/test_decode
 check-local: check-cpp check-decoder check-images
 regress: regress-decoder regress-images
 
-.PHONY: check-cpp check-decoder check-images regress-decoder regress-images regress
+PHONY += check-cpp check-decoder check-images regress-decoder regress-images regress
