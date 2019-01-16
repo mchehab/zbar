@@ -866,7 +866,11 @@ static int v4l2_s_control(zbar_video_t *vdo,
 
     memset(&ctrls, 0, sizeof(ctrls));
     ctrls.count = 1;
-    ctrls.which = V4L2_CTRL_WHICH_CUR_VAL;
+#ifdef V4L2_CTRL_ID2WHICH
+    ctrls.which = V4L2_CTRL_ID2WHICH(p->id);
+#else
+    ctrls.ctrl_class = V4L2_CTRL_ID2CLASS(p->id);
+#endif
     ctrls.controls = &c;
 
     memset(&c, 0, sizeof(c));
@@ -914,7 +918,11 @@ static int v4l2_g_control(zbar_video_t *vdo,
 
     memset(&ctrls, 0, sizeof(ctrls));
     ctrls.count = 1;
-    ctrls.which = V4L2_CTRL_WHICH_CUR_VAL;
+#ifdef V4L2_CTRL_ID2WHICH
+    ctrls.which = V4L2_CTRL_ID2WHICH(p->id);
+#else
+    ctrls.ctrl_class = V4L2_CTRL_ID2CLASS(p->id);
+#endif
     ctrls.controls = &c;
 
     memset(&c, 0, sizeof(c));
