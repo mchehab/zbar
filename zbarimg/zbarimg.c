@@ -74,6 +74,9 @@ static const char *note_usage =
     "    -q, --quiet     minimal output, only print decoded symbol data\n"
     "    -v, --verbose   increase debug output level\n"
     "    --verbose=N     set specific debug output level\n"
+#ifdef HAVE_DBUS
+    "    --nodbus        disable dbus message\n"
+#endif
     "    -d, --display   enable display of following images to the screen\n"
     "    -D, --nodisplay disable display of following images (default)\n"
     "    --xml, --noxml  enable/disable XML output format\n"
@@ -291,6 +294,9 @@ int main (int argc, const char *argv[])
 {
     // option pre-scan
     int quiet = 0;
+#ifdef HAVE_DBUS
+    int dbus = 1;
+#endif
     int display = 0;
     int i, j;
     for(i = 1; i < argc; i++) {
@@ -331,6 +337,10 @@ int main (int argc, const char *argv[])
             zbar_increase_verbosity();
         else if(!strncmp(arg, "--verbose=", 10))
             zbar_set_verbosity(strtol(argv[i] + 10, NULL, 0));
+#ifdef HAVE_DBUS
+        else if(!strcmp(arg, "--nodbus"))
+            dbus = 0;
+#endif
         else if(!strcmp(arg, "--display"))
             display++;
         else if(!strcmp(arg, "--nodisplay") ||
@@ -356,6 +366,11 @@ int main (int argc, const char *argv[])
 
     processor = zbar_processor_create(0);
     assert(processor);
+
+#ifdef HAVE_DBUS
+    zbar_processor_request_dbus(processor, dbus);
+#endif
+
     if(zbar_processor_init(processor, NULL, display)) {
         zbar_processor_error_spew(processor, 0);
         return(1);

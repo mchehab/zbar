@@ -986,6 +986,14 @@ extern int zbar_process_one(zbar_processor_t *processor,
 extern int zbar_process_image(zbar_processor_t *processor,
                               zbar_image_t *image);
 
+/** enable dbus IPC API.
+ * @returns 0 succesful
+ */
+#ifdef HAVE_DBUS
+int zbar_processor_request_dbus (zbar_processor_t *proc,
+                                 int req_dbus_enabled);
+#endif
+
 /** display detail for last processor error to stderr.
  * @returns a non-zero value suitable for passing to exit()
  */

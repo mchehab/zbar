@@ -295,6 +295,35 @@ specify XV_LIBS or configure --without-xv to disable the extension])],
 ])
 AM_CONDITIONAL([HAVE_XV], [test "x$with_xv" = "xyes"])
 
+dnl dbus
+AC_ARG_WITH([dbus],
+  [AS_HELP_STRING([--without-dbus],
+    [disable support for dbus])],
+  [],
+  [with_dbus="check"])
+
+AS_IF([test "x$with_dbus" != "xno"],
+  [PKG_CHECK_MODULES(DBUS, dbus-1 >= 1.0, have_dbus=yes, have_dbus=no)
+  AS_IF([test "x$have_dbus$with_dbus" = "xnoyes"],
+    [AC_MSG_FAILURE([DBus development libraries not found])],
+    [with_dbus="$have_dbus"])
+])
+AM_CONDITIONAL([HAVE_DBUS], [test "x$with_dbus" = "xyes"])
+
+AS_IF([test "x$with_dbus" = "xyes"],
+  [CPPFLAGS="$CPPFLAGS $DBUS_CFLAGS"
+  AC_ARG_VAR([DBUS_LIBS], [linker flags for building dbus])
+  AC_DEFINE([HAVE_DBUS], [1], [Define to 1 to use dbus])
+  AC_ARG_WITH(dbusconfdir, AC_HELP_STRING([--with-dbusconfdir=PATH],
+  [path to D-Bus config directory]),
+  [path_dbusconf=$withval],
+  [path_dbusconf="`$PKG_CONFIG --variable=sysconfdir dbus-1`"])
+  AS_IF([test -z "$path_dbusconf"],
+    DBUS_CONFDIR="$sysconfdir/dbus-1/system.d",
+    DBUS_CONFDIR="$path_dbusconf/dbus-1/system.d")
+  AC_SUBST(DBUS_CONFDIR)
+])
+
 dnl libjpeg
 AC_ARG_WITH([jpeg],
   [AS_HELP_STRING([--without-jpeg],
@@ -635,6 +664,7 @@ AS_IF([test "x$enable_video" != "xyes"],
   [echo "        => zbarcam video scanner will *NOT* be built"])
 AS_IF([test "x$have_libv4l" != "xyes"],
   [echo "        => libv4l will *NOT* be used"])
+echo "dbus              --with-dbus=$with_dbus"
 AS_IF([test "x$with_jpeg" != "xyes"],
   [echo "        => JPEG image conversions will *NOT* be supported"])
 AS_IF([test "x$have_IM" != "xyes" && test "x$have_GM" != "xyes"],

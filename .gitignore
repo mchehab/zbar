@@ -20,6 +20,7 @@ gtk/zbarmarshal.c
 gtk/zbarmarshal.h
 include/config.h
 include/config.h.in
+include/config.h.in~
 include/stamp-h1
 libtool
 pygtk/zbarpygtk.c
