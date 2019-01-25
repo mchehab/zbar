@@ -55,6 +55,28 @@
 #define V4L2_FORMATS_MAX 64
 #define V4L2_FORMATS_SIZE_MAX 256
 
+#ifndef VIDIOC_QUERY_EXT_CTRL
+#define VIDIOC_QUERY_EXT_CTRL   _IOWR('V', 103, struct v4l2_query_ext_ctrl)
+#define V4L2_CTRL_MAX_DIMS    (4)
+
+struct v4l2_query_ext_ctrl {
+    __u32            id;
+    __u32            type;
+    char             name[32];
+    __s64            minimum;
+    __s64            maximum;
+    __u64            step;
+    __s64            default_value;
+    __u32                flags;
+    __u32                elem_size;
+    __u32                elems;
+    __u32                nr_of_dims;
+    __u32                dims[V4L2_CTRL_MAX_DIMS];
+    __u32            reserved[32];
+};
+
+#endif
+
 typedef struct video_controls_priv_s {
     struct video_controls_s s;
 
