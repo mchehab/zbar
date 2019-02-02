@@ -239,8 +239,8 @@ bool find_left_dot(zbar_image_t *img, sq_dot *dot, unsigned *found_x,
     unsigned *found_y)
 {
     for (int y = dot->y0; y < dot->y0 + dot->height; y++) {
-        /* x >= (int) (dot->x0 - 2 * dot->width) */
-        for (int x = dot->x0 - 1; x + 2 * dot->width >= dot->x0; x--) {
+        int xmin = dot->x0 - 2 * dot->width;
+        for (int x = dot->x0 - 1; x >= xmin; x--) {
             if (is_black(img, x, y)) {
                 *found_x = x;
                 *found_y = y;
