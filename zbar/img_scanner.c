@@ -39,6 +39,9 @@
 #ifdef ENABLE_QRCODE
 # include "qrcode.h"
 #endif
+#ifdef ENABLE_SQCODE
+# include "sqcode.h"
+#endif
 #include "img_scanner.h"
 #include "svg.h"
 
@@ -89,6 +92,9 @@ struct zbar_image_scanner_s {
     zbar_decoder_t *dcode;      /* associated symbol decoder */
 #ifdef ENABLE_QRCODE
     qr_reader *qr;              /* QR Code 2D reader */
+#endif
+#ifdef ENABLE_SQCODE
+    sq_reader *sq;              /* SQ Code 2D reader */
 #endif
 
     const void *userdata;       /* application data */
@@ -390,6 +396,16 @@ static inline void qr_handler (zbar_image_scanner_t *iscn)
 }
 #endif
 
+#ifdef ENABLE_SQCODE
+extern unsigned _zbar_decoder_get_sq_finder_config(zbar_decoder_t*);
+
+static void sq_handler (zbar_image_scanner_t *iscn)
+{
+    unsigned config = _zbar_decoder_get_sq_finder_config(iscn->dcode);
+    _zbar_sq_new_config(iscn->sq, config);
+}
+#endif
+
 static void symbol_handler (zbar_decoder_t *dcode)
 {
     zbar_image_scanner_t *iscn = zbar_decoder_get_userdata(dcode);
@@ -484,6 +500,10 @@ zbar_image_scanner_t *zbar_image_scanner_create ()
     iscn->qr = _zbar_qr_create();
 #endif
 
+#ifdef ENABLE_SQCODE
+    iscn->sq = _zbar_sq_create();
+#endif
+
     /* apply default configuration */
     CFG(iscn, ZBAR_CFG_X_DENSITY) = 1;
     CFG(iscn, ZBAR_CFG_Y_DENSITY) = 1;
@@ -542,6 +562,12 @@ void zbar_image_scanner_destroy (zbar_image_scanner_t *iscn)
     if(iscn->qr) {
         _zbar_qr_destroy(iscn->qr);
         iscn->qr = NULL;
+    }
+#endif
+#ifdef ENABLE_SQCODE
+    if(iscn->sq) {
+        _zbar_sq_destroy(iscn->sq);
+        iscn->sq = NULL;
     }
 #endif
     free(iscn);
@@ -657,6 +683,10 @@ int zbar_scan_image (zbar_image_scanner_t *iscn,
 
 #ifdef ENABLE_QRCODE
     _zbar_qr_reset(iscn->qr);
+#endif
+
+#ifdef ENABLE_SQCODE
+    _zbar_sq_reset(iscn->sq);
 #endif
 
     /* image must be in grayscale format */
@@ -804,6 +834,11 @@ int zbar_scan_image (zbar_image_scanner_t *iscn,
 
 #ifdef ENABLE_QRCODE
     _zbar_qr_decode(iscn->qr, iscn, img);
+#endif
+
+#ifdef ENABLE_SQCODE
+    sq_handler(iscn);
+    _zbar_sq_decode(iscn->sq, iscn, img);
 #endif
 
     /* FIXME tmp hack to filter bad EAN results */

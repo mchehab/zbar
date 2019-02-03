@@ -94,7 +94,7 @@ static inline int window_draw_overlay (zbar_window_t *w)
         const zbar_symbol_t *sym = w->image->syms->head;
         for(; sym; sym = sym->next) {
             uint32_t color = ((sym->cache_count < 0) ? 4 : 2);
-            if(sym->type == ZBAR_QRCODE)
+            if(sym->type == ZBAR_QRCODE || sym->type == ZBAR_SQCODE)
                 window_outline_symbol(w, color, sym);
             else {
                 /* FIXME linear bbox broken */
