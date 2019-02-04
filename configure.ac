@@ -214,7 +214,7 @@ configure --disable-video to skip building video support.])],
 configure --disable-video to skip building video support.])])])
 
 AS_IF([test "x$have_libv4l" = "xyes"],
-   AC_CHECK_LIB([v4l2], [v4l2_open], [],
+   PKG_CHECK_MODULES([V4L2], [libv4l2], [],
      [AC_MSG_FAILURE([unable to find libv4l.so])]),
   [AC_MSG_WARN([libv4l not detected. Install it to support more cameras!])])
 

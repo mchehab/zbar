@@ -85,6 +85,10 @@ if !HAVE_VIDEO
 zbar_libzbar_la_SOURCES += zbar/video/null.c
 endif
 
+if HAVE_LIBV4L
+zbar_libzbar_la_LIBADD += $(V4L2_LIBS)
+endif
+
 if HAVE_JPEG
 zbar_libzbar_la_SOURCES += zbar/jpeg.c
 endif
