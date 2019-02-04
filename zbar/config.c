@@ -50,6 +50,8 @@ int zbar_parse_config (const char *cfgstr,
             return(1);
         else if(!strncmp(cfgstr, "qrcode", len))
             *sym = ZBAR_QRCODE;
+        else if(!strncmp(cfgstr, "sqcode", len))
+            *sym = ZBAR_SQCODE;
         else if(!strncmp(cfgstr, "db", len))
             *sym = ZBAR_DATABAR;
         else if(len < 3)
