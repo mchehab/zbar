@@ -90,6 +90,8 @@ build-perl-stamp: perl/Makefile build-nopython/build-stamp
 	$(MAKE) -C perl OTHERLDFLAGS="$(LDFLAGS_LIB_SEARCHPATH)" LD_RUN_PATH=''
 	touch $@
 
+PACKAGES := $(shell dh_listpackages)
+
 install: build
 	dh_testdir
 	dh_testroot
@@ -97,6 +99,7 @@ install: build
 	$(MAKE) -C build-nopython install DESTDIR=$(CURDIR)/debian/tmp
 	$(MAKE) -C perl install DESTDIR=$(PERL_TMP) PREFIX=/usr
 
+ifneq (,$(filter zbar-dbg,$(PACKAGES)))
 	set -e; for i in $(PYVERS); do \
 		$(MAKE) -C build-python$${i} install-pyexecLTLIBRARIES DESTDIR=$(CURDIR)/debian/tmp ;\
 		$(MAKE) -C build-python$${i}-dbg install-pyexecLTLIBRARIES DESTDIR=$(CURDIR)/debian/tmp_pydbg ;\
@@ -104,6 +107,11 @@ install: build
 	set -e; for i in `find $(CURDIR)/debian/tmp_pydbg -name '*[^d].so'`; do \
 		mv $$i `echo $$i | sed 's,\.so$$,_d.so,'`; \
 	done
+else
+	set -e; for i in $(PYVERS); do \
+		$(MAKE) -C build-python$${i} install-pyexecLTLIBRARIES DESTDIR=$(CURDIR)/debian/tmp ;\
+	done
+endif
 
 
 binary: binary-arch
@@ -114,11 +122,17 @@ binary-arch: install
 	dh_installchangelogs ChangeLog
 	dh_installdocs
 	dh_install -Nzbar-dbg
+ifneq (,$(filter zbar-dbg,$(PACKAGES)))
 	dh_install --sourcedir=debian/tmp_pydbg -pzbar-dbg
+endif
 	dh_installman
 	dh_python2
 	dh_perl
+ifneq (,$(filter zbar-dbg,$(PACKAGES)))
 	dh_strip --dbg-package=zbar-dbg
+else
+	dh_strip
+endif
 	dh_compress
 	dh_fixperms
 	dh_makeshlibs -Nlibzbarqt0 -- -c4
