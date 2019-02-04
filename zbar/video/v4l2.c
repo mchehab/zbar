@@ -597,6 +597,48 @@ static inline int v4l2_reset_crop (zbar_video_t *vdo)
     return(0);
 }
 
+/** locate a control entry
+ */
+static struct video_controls_priv_s *v4l2_g_control_def(zbar_video_t *vdo,
+                                                   const char *name)
+{
+    struct video_controls_priv_s *p = (void *)vdo->controls;
+
+    while (p) {
+        if (!strcasecmp(p->s.name, name))
+            break;
+        p = p->s.next;
+    }
+
+    if (!p->s.name) {
+        zprintf(1, "Control not found: %s", name);
+        return NULL;
+    }
+
+    return p;
+}
+
+void v4l2_free_controls(zbar_video_t *vdo)
+{
+    int i;
+
+    if(vdo->controls) {
+        struct video_controls_s *p = vdo->controls;
+        while (p) {
+            free(p->name);
+            free(p->group);
+            if(p->menu) {
+                for (i = 0; i < p->menu_size; i++)
+                    free(p->menu[i].name);
+                free(p->menu);
+            }
+            p = p->next;
+        }
+        free(vdo->controls);
+    }
+    vdo->controls = NULL;
+}
+
 static const char *v4l2_ctrl_type(uint32_t type)
 {
     switch(type) {
@@ -770,27 +812,6 @@ static int v4l2_add_control(zbar_video_t *vdo,
     }
 }
 
-void v4l2_free_controls(zbar_video_t *vdo)
-{
-    int i;
-
-    if(vdo->controls) {
-        struct video_controls_s *p = vdo->controls;
-        while (p) {
-            free(p->name);
-            free(p->group);
-            if(p->menu) {
-                for (i = 0; i < p->menu_size; i++)
-                    free(p->menu[i].name);
-                free(p->menu);
-            }
-            p = p->next;
-        }
-        free(vdo->controls);
-    }
-    vdo->controls = NULL;
-}
-
 static int v4l2_query_controls(zbar_video_t *vdo)
 {
     struct video_controls_priv_s *ptr = NULL;
@@ -829,27 +850,6 @@ static int v4l2_query_controls(zbar_video_t *vdo)
     }
 
     return(0);
-}
-
-/** locate a control entry
- */
-static struct video_controls_priv_s *v4l2_g_control_def(zbar_video_t *vdo,
-                                                   const char *name)
-{
-    struct video_controls_priv_s *p = (void *)vdo->controls;
-
-    while (p) {
-        if (!strcasecmp(p->s.name, name))
-            break;
-        p = p->s.next;
-    }
-
-    if (!p->s.name) {
-        zprintf(1, "Control not found: %s", name);
-        return NULL;
-    }
-
-    return p;
 }
 
 static int v4l2_s_control(zbar_video_t *vdo,
