@@ -1,0 +1,133 @@
+#!/usr/bin/make -f
+
+DEB_HOST_GNU_TYPE	?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+DEB_BUILD_GNU_TYPE	?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+DEB_HOST_ARCH_OS	?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
+
+VERSION:=$(strip $(shell dpkg-parsechangelog| grep '^Version' | awk '{print $$2}'))
+
+ifneq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
+	CROSS= --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
+else
+	CROSS= --build $(DEB_BUILD_GNU_TYPE)
+endif
+
+PERL        ?= /usr/bin/perl
+PERL_PACKAGE = $(shell dh_listpackages| grep perl)
+PERL_TMP     = $(CURDIR)/debian/$(PERL_PACKAGE)
+
+
+SRCDIR := $(CURDIR)
+CONFIGURE = $(SRCDIR)/configure $(CROSS) --prefix=/usr --mandir=/usr/share/man CFLAGS="$(CFLAGS)"
+ifeq (,$(findstring linux,$(DEB_HOST_ARCH_OS)))
+  CONFIGURE += --disable-video
+endif
+
+PYVERS = $(shell pyversions -rv)
+
+LDFLAGS_DEFAULT = $(LDFLAGS) -Wl,-z,defs
+LDFLAGS_LIB_SEARCHPATH = $(strip $(shell find $(CURDIR)/build-nopython -name '*.so' -printf "-L%h "))
+LDFLAGS_BINDINGS = $(strip $(LDFLAGS) $(LDFLAGS_LIB_SEARCHPATH))
+
+clean:
+	dh_testdir
+	dh_testroot
+	dh_autoreconf_clean
+	dh_autotools-dev_restoreconfig
+	rm -rf $(CURDIR)/build-python* $(CURDIR)/build-nopython
+	rm -rf $(CURDIR)/debian/tmp_*
+	[ ! -f $(CURDIR)/perl/Makefile ] || $(MAKE) -C perl realclean
+	dh_clean
+
+autotools-dev: autotools-dev-stamp
+autotools-dev-stamp:
+	dh_autotools-dev_updateconfig
+	dh_autoreconf
+	touch $@
+
+configure: build-nopython/configure-stamp $(PYVERS:%=build-python%/configure-stamp) $(PYVERS:%=build-python%-dbg/configure-stamp) perl/Makefile
+build-nopython/configure-stamp: autotools-dev-stamp
+	dh_testdir
+
+	mkdir -p build-nopython
+	cd build-nopython && $(CONFIGURE) --without-python LDFLAGS="$(LDFLAGS_DEFAULT)"
+	touch $@
+
+build-python%/configure-stamp: autotools-dev-stamp
+	dh_testdir
+	mkdir -p build-python$*
+	set -e ;\
+		cd build-python$* ;\
+		export PYTHON=/usr/bin/python$* ;\
+		$(CONFIGURE) PYTHON_CONFIG=/usr/bin/python$*-config LDFLAGS="$(LDFLAGS_BINDINGS)"
+	touch $@
+
+perl/Makefile: build-nopython/build-stamp
+	cd $(CURDIR)/perl && $(PERL) Makefile.PL \
+		INSTALLDIRS=vendor \
+		INC="-I$(CURDIR)/include" \
+		LIBS="$(LDFLAGS_LIB_SEARCHPATH) -lzbar"
+	test -f $(CURDIR)/perl/Makefile
+
+build: build-arch
+build-indep:
+build-arch: build-nopython/build-stamp $(PYVERS:%=build-python%/build-stamp) $(PYVERS:%=build-python%-dbg/build-stamp) build-perl-stamp
+build-nopython/build-stamp: build-nopython/configure-stamp
+	dh_testdir
+	$(MAKE) -C build-nopython
+	touch $@
+
+build-python%/build-stamp: build-python%/configure-stamp build-nopython/build-stamp
+	dh_testdir
+	$(MAKE) -C build-python$* gtk/zbarmarshal.h
+	$(MAKE) -C build-python$* python/zbar.la
+	$(MAKE) -C build-python$* pygtk/zbarpygtk.la
+	touch $@
+
+build-perl-stamp: perl/Makefile build-nopython/build-stamp
+	$(MAKE) -C perl OTHERLDFLAGS="$(LDFLAGS_LIB_SEARCHPATH)" LD_RUN_PATH=''
+	touch $@
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_prep
+	$(MAKE) -C build-nopython install DESTDIR=$(CURDIR)/debian/tmp
+	$(MAKE) -C perl install DESTDIR=$(PERL_TMP) PREFIX=/usr
+
+	set -e; for i in $(PYVERS); do \
+		$(MAKE) -C build-python$${i} install-pyexecLTLIBRARIES DESTDIR=$(CURDIR)/debian/tmp ;\
+		$(MAKE) -C build-python$${i}-dbg install-pyexecLTLIBRARIES DESTDIR=$(CURDIR)/debian/tmp_pydbg ;\
+	done
+	set -e; for i in `find $(CURDIR)/debian/tmp_pydbg -name '*[^d].so'`; do \
+		mv $$i `echo $$i | sed 's,\.so$$,_d.so,'`; \
+	done
+
+
+binary: binary-arch
+
+binary-arch: install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs ChangeLog
+	dh_installdocs
+	dh_install -Nzbar-dbg
+	dh_install --sourcedir=debian/tmp_pydbg -pzbar-dbg
+	dh_installman
+	dh_python2
+	dh_perl
+	dh_strip --dbg-package=zbar-dbg
+	dh_compress
+	dh_fixperms
+	dh_makeshlibs -Nlibzbarqt0 -- -c4
+	dh_makeshlibs -plibzbarqt0 -- -c0
+	sed -i 's,$(VERSION),$(VERSION)~,' debian/libzbarqt0/DEBIAN/symbols
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary-indep:
+
+.PHONY: configure clean build build-arch build-indep install binary binary-arch binary-indep

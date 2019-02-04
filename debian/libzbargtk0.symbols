@@ -1,0 +1,11 @@
+libzbargtk.so.0 libzbargtk0 #MINVER#
+ zbar_gtk_get_type@Base 0.10
+ zbar_gtk_get_video_device@Base 0.10
+ zbar_gtk_get_video_enabled@Base 0.10
+ zbar_gtk_get_video_opened@Base 0.10
+ zbar_gtk_image_from_pixbuf@Base 0.10
+ zbar_gtk_new@Base 0.10
+ zbar_gtk_release_pixbuf@Base 0.10
+ zbar_gtk_scan_image@Base 0.10
+ zbar_gtk_set_video_device@Base 0.10
+ zbar_gtk_set_video_enabled@Base 0.10
