@@ -1,3 +1,9 @@
+zbar (0.20.2) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Javier Serrano Polo <javier@jasp.net>  Mon, 04 Feb 2019 07:17:57 +0100
+
 zbar (0.10+doc-10.1) unstable; urgency=low
 
   * Non-maintainer upload with maintainer permission.

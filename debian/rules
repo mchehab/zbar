@@ -25,6 +25,8 @@ endif
 
 PYVERS = $(shell pyversions -rv)
 
+export QT_SELECT := 5
+
 LDFLAGS_DEFAULT = $(LDFLAGS) -Wl,-z,defs
 LDFLAGS_LIB_SEARCHPATH = $(strip $(shell find $(CURDIR)/build-nopython -name '*.so' -printf "-L%h "))
 LDFLAGS_BINDINGS = $(strip $(LDFLAGS) $(LDFLAGS_LIB_SEARCHPATH))
@@ -50,7 +52,7 @@ build-nopython/configure-stamp: autotools-dev-stamp
 	dh_testdir
 
 	mkdir -p build-nopython
-	cd build-nopython && $(CONFIGURE) --without-python LDFLAGS="$(LDFLAGS_DEFAULT)"
+	cd build-nopython && $(CONFIGURE) --without-python2 LDFLAGS="$(LDFLAGS_DEFAULT)"
 	touch $@
 
 build-python%/configure-stamp: autotools-dev-stamp
