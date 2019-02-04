@@ -126,8 +126,11 @@ AC_DEFUN([ZBAR_CHK_CODE], [
   AS_CASE([$enable_codes],
     [*$1* | *all*],
     [enable_$1="yes"
+     enabled_codes="$enabled_codes $1"
      AC_DEFINE([ENABLE_]translit($1, a-z, A-Z), [1])
-    ])
+    ],
+    disabled_codes="$disabled_codes $1"
+  )
   AM_CONDITIONAL([ENABLE_]translit($1, a-z, A-Z),
     [test "x$enable_$1" = "xyes"])
   AC_MSG_RESULT([$enable_$1])
@@ -641,4 +644,6 @@ AS_IF([test "x$with_java" != "xyes"],
 #echo "NPAPI Plugin     --with-npapi=$with_npapi"
 #AS_IF([test "x$with_mozilla" != "xyes"],
 #  [echo "       => the Mozilla/Firefox/OpenOffice plugin will *NOT* be built"])
+echo "Enabled codes:   $enabled_codes"
+echo "Disabled codes:  $disabled_codes"
 echo ""
