@@ -1,11 +1,12 @@
 libzbarqt.so.0 libzbarqt0 #MINVER#
- (c++)"QList<QEvent*>::~QList()@Base" 0.10
- (c++)"QMutexLocker::~QMutexLocker()@Base" 0.10
+ (c++)"QList<QEvent*>::append(QEvent* const&)@Base" 0.20.1
+ (c++)"QList<QEvent*>::detach_helper(int)@Base" 0.20.1
+ (c++)"QList<QEvent*>::detach_helper_grow(int, int)@Base" 0.20.1
  (c++)"QString::~QString()@Base" 0.10
+ (c++)"QVector<QPair<int, QString> >::operator=(QVector<QPair<int, QString> > const&)@Base" 0.20.1
+ (c++)"QVector<QPair<int, QString> >::reallocData(int, int, QFlags<QArrayData::AllocationOption>)@Base" 0.20.1
  (c++)"non-virtual thunk to zbar::QZBarThread::image_callback(zbar::Image&)@Base" 0.10
  (c++)"non-virtual thunk to zbar::QZBarThread::~QZBarThread()@Base" 0.10
- (c++)"non-virtual thunk to zbar::QZBarThread::~QZBarThread()@Base" 0.10
- (c++)"non-virtual thunk to zbar::QZBar::~QZBar()@Base" 0.10
  (c++)"non-virtual thunk to zbar::QZBar::~QZBar()@Base" 0.10
  (c++)"non-virtual thunk to zbar::QZBar::paintEngine() const@Base" 0.10
  (c++)"typeinfo for zbar::BusyError@Base" 0.10
@@ -46,7 +47,6 @@ libzbarqt.so.0 libzbarqt0 #MINVER#
  (c++)"vtable for zbar::ClosedError@Base" 0.10
  (c++)"vtable for zbar::Exception@Base" 0.10
  (c++)"vtable for zbar::FormatError@Base" 0.10
- (c++)"vtable for zbar::Image::Handler@Base" 0.10
  (c++)"vtable for zbar::InternalError@Base" 0.10
  (c++)"vtable for zbar::InvalidError@Base" 0.10
  (c++)"vtable for zbar::LockingError@Base" 0.10
@@ -60,32 +60,28 @@ libzbarqt.so.0 libzbarqt0 #MINVER#
  (c++)"vtable for zbar::XDisplayError@Base" 0.10
  (c++)"vtable for zbar::XProtoError@Base" 0.10
  (c++)"zbar::BusyError::~BusyError()@Base" 0.10
- (c++)"zbar::BusyError::~BusyError()@Base" 0.10
  (c++)"zbar::ClosedError::~ClosedError()@Base" 0.10
- (c++)"zbar::ClosedError::~ClosedError()@Base" 0.10
- (c++)"zbar::Exception::~Exception()@Base" 0.10
  (c++)"zbar::Exception::~Exception()@Base" 0.10
  (c++)"zbar::Exception::what() const@Base" 0.10
- (c++)"zbar::FormatError::~FormatError()@Base" 0.10
  (c++)"zbar::FormatError::~FormatError()@Base" 0.10
  (c++)"zbar::FormatError::what() const@Base" 0.10
  (c++)"zbar::Image::_cleanup(zbar::zbar_image_s*)@Base" 0.10
  (c++)"zbar::Image::Handler::_cb(zbar::zbar_image_s*, void const*)@Base" 0.10
- (c++)"zbar::Image::Handler::~Handler()@Base" 0.10
- (c++)"zbar::Image::Handler::~Handler()@Base" 0.10
- (c++)"zbar::Image::SymbolIterator::~SymbolIterator()@Base" 0.10
- (c++)"zbar::InternalError::~InternalError()@Base" 0.10
+ (c++)"zbar::Image::~Image()@Base" 0.20.1
  (c++)"zbar::InternalError::~InternalError()@Base" 0.10
  (c++)"zbar::InvalidError::~InvalidError()@Base" 0.10
- (c++)"zbar::InvalidError::~InvalidError()@Base" 0.10
  (c++)"zbar::LockingError::~LockingError()@Base" 0.10
- (c++)"zbar::LockingError::~LockingError()@Base" 0.10
+ (c++)"zbar::QZBar::QZBar(QWidget*, int)@Base" 0.20.1
  (c++)"zbar::QZBar::attach()@Base" 0.10
  (c++)"zbar::QZBar::changeEvent(QEvent*)@Base" 0.10
  (c++)"zbar::QZBar::decoded(int, QString const&)@Base" 0.10
  (c++)"zbar::QZBar::decodedText(QString const&)@Base" 0.10
  (c++)"zbar::QZBar::dragEnterEvent(QDragEnterEvent*)@Base" 0.10
  (c++)"zbar::QZBar::dropEvent(QDropEvent*)@Base" 0.10
+ (c++)"zbar::QZBar::get_control(char*, bool*)@Base" 0.20.1
+ (c++)"zbar::QZBar::get_control(char*, int*)@Base" 0.20.1
+ (c++)"zbar::QZBar::get_controls(int, char**, char**, zbar::QZBar::ControlType*, int*, int*, int*, int*)@Base" 0.20.1
+ (c++)"zbar::QZBar::get_menu(int)@Base" 0.20.1
  (c++)"zbar::QZBar::heightForWidth(int) const@Base" 0.10
  (c++)"zbar::QZBar::isVideoEnabled() const@Base" 0.10
  (c++)"zbar::QZBar::isVideoOpened() const@Base" 0.10
@@ -95,23 +91,26 @@ libzbarqt.so.0 libzbarqt0 #MINVER#
  (c++)"zbar::QZBar::qt_metacall(QMetaObject::Call, int, void**)@Base" 0.10
  (c++)"zbar::QZBar::qt_metacast(char const*)@Base" 0.10
  (c++)"zbar::QZBar::~QZBar()@Base" 0.10
- (c++)"zbar::QZBar::~QZBar()@Base" 0.10
- (c++)"zbar::QZBar::~QZBar()@Base" 0.10
- (c++)"zbar::QZBar::QZBar(QWidget*)@Base" 0.10
- (c++)"zbar::QZBar::QZBar(QWidget*)@Base" 0.10
  (c++)"zbar::QZBar::resizeEvent(QResizeEvent*)@Base" 0.10
  (c++)"zbar::QZBar::scanImage(QImage const&)@Base" 0.10
  (c++)"zbar::QZBar::setVideoDevice(QString const&)@Base" 0.10
  (c++)"zbar::QZBar::setVideoEnabled(bool)@Base" 0.10
+ (c++)"zbar::QZBar::set_control(char*, bool)@Base" 0.20.1
+ (c++)"zbar::QZBar::set_control(char*, int)@Base" 0.20.1
  (c++)"zbar::QZBar::showEvent(QShowEvent*)@Base" 0.10
  (c++)"zbar::QZBar::sizeChange()@Base" 0.10
  (c++)"zbar::QZBar::sizeHint() const@Base" 0.10
  (c++)"zbar::QZBar::staticMetaObject@Base" 0.10
+ (c++)"zbar::QZBarThread::QZBarThread(int)@Base" 0.20.1
  (c++)"zbar::QZBarThread::clear()@Base" 0.10
  (c++)"zbar::QZBarThread::decoded(int, QString const&)@Base" 0.10
  (c++)"zbar::QZBarThread::decodedText(QString const&)@Base" 0.10
  (c++)"zbar::QZBarThread::enableVideo(bool)@Base" 0.10
  (c++)"zbar::QZBarThread::event(QEvent*)@Base" 0.10
+ (c++)"zbar::QZBarThread::get_control(char*, bool*)@Base" 0.20.1
+ (c++)"zbar::QZBarThread::get_control(char*, int*)@Base" 0.20.1
+ (c++)"zbar::QZBarThread::get_controls(int, char**, char**, zbar::QZBar::ControlType*, int*, int*, int*, int*)@Base" 0.20.1
+ (c++)"zbar::QZBarThread::get_menu(int)@Base" 0.20.1
  (c++)"zbar::QZBarThread::image_callback(zbar::Image&)@Base" 0.10
  (c++)"zbar::QZBarThread::metaObject() const@Base" 0.10
  (c++)"zbar::QZBarThread::openVideo(QString const&)@Base" 0.10
@@ -119,31 +118,21 @@ libzbarqt.so.0 libzbarqt0 #MINVER#
  (c++)"zbar::QZBarThread::qt_metacall(QMetaObject::Call, int, void**)@Base" 0.10
  (c++)"zbar::QZBarThread::qt_metacast(char const*)@Base" 0.10
  (c++)"zbar::QZBarThread::~QZBarThread()@Base" 0.10
- (c++)"zbar::QZBarThread::~QZBarThread()@Base" 0.10
- (c++)"zbar::QZBarThread::QZBarThread()@Base" 0.10
- (c++)"zbar::QZBarThread::QZBarThread()@Base" 0.10
  (c++)"zbar::QZBarThread::run()@Base" 0.10
  (c++)"zbar::QZBarThread::ScanImageEvent::~ScanImageEvent()@Base" 0.10
- (c++)"zbar::QZBarThread::ScanImageEvent::~ScanImageEvent()@Base" 0.10
  (c++)"zbar::QZBarThread::scanImageEvent(zbar::QZBarThread::ScanImageEvent*)@Base" 0.10
+ (c++)"zbar::QZBarThread::set_control(char*, bool)@Base" 0.20.1
+ (c++)"zbar::QZBarThread::set_control(char*, int)@Base" 0.20.1
  (c++)"zbar::QZBarThread::staticMetaObject@Base" 0.10
  (c++)"zbar::QZBarThread::update()@Base" 0.10
  (c++)"zbar::QZBarThread::VideoDeviceEvent::~VideoDeviceEvent()@Base" 0.10
- (c++)"zbar::QZBarThread::VideoDeviceEvent::~VideoDeviceEvent()@Base" 0.10
  (c++)"zbar::QZBarThread::videoDeviceEvent(zbar::QZBarThread::VideoDeviceEvent*)@Base" 0.10
- (c++)"zbar::QZBarThread::VideoEnabledEvent::~VideoEnabledEvent()@Base" 0.10
  (c++)"zbar::QZBarThread::VideoEnabledEvent::~VideoEnabledEvent()@Base" 0.10
  (c++)"zbar::QZBarThread::videoEnabledEvent(zbar::QZBarThread::VideoEnabledEvent*)@Base" 0.10
  (c++)"zbar::QZBarThread::videoOpened(bool)@Base" 0.10
  (c++)"zbar::QZBar::videoDevice() const@Base" 0.10
  (c++)"zbar::QZBar::videoOpened(bool)@Base" 0.10
- (c++)"zbar::SymbolSet::~SymbolSet()@Base" 0.10
- (c++)"zbar::Symbol::~Symbol()@Base" 0.10
- (c++)"zbar::SystemError::~SystemError()@Base" 0.10
  (c++)"zbar::SystemError::~SystemError()@Base" 0.10
  (c++)"zbar::UnsupportedError::~UnsupportedError()@Base" 0.10
- (c++)"zbar::UnsupportedError::~UnsupportedError()@Base" 0.10
  (c++)"zbar::XDisplayError::~XDisplayError()@Base" 0.10
- (c++)"zbar::XDisplayError::~XDisplayError()@Base" 0.10
- (c++)"zbar::XProtoError::~XProtoError()@Base" 0.10
  (c++)"zbar::XProtoError::~XProtoError()@Base" 0.10
