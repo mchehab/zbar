@@ -114,9 +114,9 @@ dnl symbologies
 
 AC_ARG_ENABLE([codes],
   [AS_HELP_STRING([--enable-codes=SYMS],
-    [select symbologies to compile [default=ean,databar,code128,code93,code39,codabar,i25,qrcode,sqcode]])],
+    [select symbologies to compile [default=ean,databar,code128,code93,code39,codabar,i25,qrcode]])],
   [],
-  [enable_codes="ean,databar,code128,code93,code39,codabar,i25,qrcode,sqcode"])
+  [enable_codes="ean,databar,code128,code93,code39,codabar,i25,qrcode"])
 
 AC_DEFUN([ZBAR_CHK_CODE], [
   AC_MSG_CHECKING([whether to build $2])
@@ -617,6 +617,9 @@ echo "X                 --with-x=$have_x"
 echo "pthreads          --enable-pthread=$enable_pthread"
 echo "doc               --enable-doc=$enable_doc"
 echo "v4l               --enable-video=$enable_video"
+echo "Enabled codes:   $enabled_codes"
+echo "Disabled codes:  $disabled_codes"
+echo ""
 AS_IF([test "x$enable_video" != "xyes"],
   [echo "        => zbarcam video scanner will *NOT* be built"])
 AS_IF([test "x$have_libv4l" != "xyes"],
@@ -644,8 +647,8 @@ AS_IF([test "x$with_java" != "xyes"],
 #echo "NPAPI Plugin     --with-npapi=$with_npapi"
 #AS_IF([test "x$with_mozilla" != "xyes"],
 #  [echo "       => the Mozilla/Firefox/OpenOffice plugin will *NOT* be built"])
-echo "Enabled codes:   $enabled_codes"
-echo "Disabled codes:  $disabled_codes"
 AS_IF([test "x$enable_pdf417" == "xyes"],
   [echo "        => the pdf417 code support is incomplete!"])
+AS_IF([test "x$enable_sqcode" == "xyes"],
+  [echo "        => the sqcode support is currently experimental. Use with care!"])
 echo ""
