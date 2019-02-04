@@ -2,8 +2,8 @@ libzbarqt.so.0 libzbarqt0 #MINVER#
  (c++)"QList<QEvent*>::append(QEvent* const&)@Base" 0.20.1
  (c++)"QList<QEvent*>::detach_helper(int)@Base" 0.20.1
  (c++)"QList<QEvent*>::detach_helper_grow(int, int)@Base" 0.20.1
+ (c++)"QList<QEvent*>::~QList()@Base" 0.20.1
  (c++)"QString::~QString()@Base" 0.10
- (c++)"QVector<QPair<int, QString> >::operator=(QVector<QPair<int, QString> > const&)@Base" 0.20.1
  (c++)"QVector<QPair<int, QString> >::reallocData(int, int, QFlags<QArrayData::AllocationOption>)@Base" 0.20.1
  (c++)"non-virtual thunk to zbar::QZBarThread::image_callback(zbar::Image&)@Base" 0.10
  (c++)"non-virtual thunk to zbar::QZBarThread::~QZBarThread()@Base" 0.10
@@ -43,6 +43,7 @@ libzbarqt.so.0 libzbarqt0 #MINVER#
  (c++)"typeinfo name for zbar::UnsupportedError@Base" 0.10
  (c++)"typeinfo name for zbar::XDisplayError@Base" 0.10
  (c++)"typeinfo name for zbar::XProtoError@Base" 0.10
+ (c++)"void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char const*>(char const*, char const*, std::forward_iterator_tag)@Base" 0.20.1
  (c++)"vtable for zbar::BusyError@Base" 0.10
  (c++)"vtable for zbar::ClosedError@Base" 0.10
  (c++)"vtable for zbar::Exception@Base" 0.10
