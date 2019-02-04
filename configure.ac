@@ -145,7 +145,7 @@ ZBAR_CHK_CODE([codabar], [Codabar symbology])
 ZBAR_CHK_CODE([i25], [Interleaved 2 of 5 symbology])
 ZBAR_CHK_CODE([qrcode], [QR Code])
 ZBAR_CHK_CODE([sqcode], [SQ Code])
-ZBAR_CHK_CODE([pdf417], [PDF417 symbology])
+ZBAR_CHK_CODE([pdf417], [PDF417 symbology (incomplete)])
 
 dnl libraries
 
@@ -646,4 +646,6 @@ AS_IF([test "x$with_java" != "xyes"],
 #  [echo "       => the Mozilla/Firefox/OpenOffice plugin will *NOT* be built"])
 echo "Enabled codes:   $enabled_codes"
 echo "Disabled codes:  $disabled_codes"
+AS_IF([test "x$enable_pdf417" == "xyes"],
+  [echo "        => the pdf417 code support is incomplete!"])
 echo ""
