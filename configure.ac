@@ -617,31 +617,34 @@ echo "X                 --with-x=$have_x"
 echo "pthreads          --enable-pthread=$enable_pthread"
 echo "doc               --enable-doc=$enable_doc"
 echo "v4l               --enable-video=$enable_video"
+echo "jpeg              --with-jpeg=$with_jpeg"
+echo "Python ${PYTHON_VERSION}        --with-python2=$with_python2"
+echo "GTK+${GTK_VERSION}       --with-gtk=$with_gtk"
+echo "Qt${QT_VERSION}           --with-qt=$with_qt"
+echo "Java              --with-java=$with_java"
+AS_IF([test "x$have_GM" = "xyes"],
+  [echo "GraphicsMagick    --with-graphicsmagick=yes"],
+  [echo "ImageMagick       --with-imagemagick=$with_imagemagick"])
 echo "Enabled codes:   $enabled_codes"
 echo "Disabled codes:  $disabled_codes"
 echo ""
+
+dnl Display "warnings" about disabled and experimental features
+
 AS_IF([test "x$enable_video" != "xyes"],
   [echo "        => zbarcam video scanner will *NOT* be built"])
 AS_IF([test "x$have_libv4l" != "xyes"],
   [echo "        => libv4l will *NOT* be used"])
-echo "jpeg              --with-jpeg=$with_jpeg"
 AS_IF([test "x$with_jpeg" != "xyes"],
   [echo "        => JPEG image conversions will *NOT* be supported"])
-AS_IF([test "x$have_GM" = "xyes"],
-  [echo "GraphicsMagick    --with-graphicsmagick=yes"],
-  [echo "ImageMagick       --with-imagemagick=$with_imagemagick"])
 AS_IF([test "x$have_IM" != "xyes" && test "x$have_GM" != "xyes"],
   [echo "        => the zbarimg file scanner will *NOT* be built"])
-echo "Python ${PYTHON_VERSION}        --with-python2=$with_python2"
-echo "GTK+${GTK_VERSION}       --with-gtk=$with_gtk"
 AS_IF([test "x$with_gtk" != "xyes"],
   [echo "        => the GTK+ widget will *NOT* be built"],
   [AS_IF([test "x$with_python2" != "xyes"],
      [echo "        => the PyGTK widget wrapper will *NOT* be built"])])
-echo "Qt${QT_VERSION}           --with-qt=$with_qt"
 AS_IF([test "x$with_qt" != "xyes"],
   [echo "        => the Qt widget will *NOT* be built"])
-echo "Java              --with-java=$with_java"
 AS_IF([test "x$with_java" != "xyes"],
   [echo "        => the Java interface will *NOT* be built"])
 #echo "NPAPI Plugin     --with-npapi=$with_npapi"
@@ -651,4 +654,3 @@ AS_IF([test "x$enable_pdf417" == "xyes"],
   [echo "        => the pdf417 code support is incomplete!"])
 AS_IF([test "x$enable_sqcode" == "xyes"],
   [echo "        => the sqcode support is currently experimental. Use with care!"])
-echo ""
