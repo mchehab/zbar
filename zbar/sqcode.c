@@ -137,7 +137,8 @@ static bool is_black_color(const unsigned char c)
 
 static bool is_black(zbar_image_t *img, int x, int y)
 {
-    if (x < 0 || x >= img->width || y < 0 || y >= img->height)
+    if (x < 0 || (unsigned) x >= img->width || y < 0
+        || (unsigned) y >= img->height)
         return false;
     const unsigned char *data = img->data;
     return is_black_color(data[y * img->width + x]);
@@ -168,7 +169,7 @@ static void sq_scan_shape(zbar_image_t *img, sq_dot *dot, int start_x,
     unsigned height = 1;
 
 new_point:
-    for (int x = x0 - 1; x < x0 + width + 1; x++) {
+    for (int x = x0 - 1; x < (int) (x0 + width + 1); x++) {
         if (is_black(img, x, y0 - 1)) {
             y0 = y0 - 1;
             height++;
@@ -179,7 +180,7 @@ new_point:
             goto new_point;
         }
     }
-    for (int y = y0; y < y0 + height; y++) {
+    for (int y = y0; y < (int) (y0 + height); y++) {
         if (is_black(img, x0 - 1, y)) {
             x0 = x0 - 1;
             width++;
@@ -211,8 +212,8 @@ new_point:
     unsigned x_sum = 0;
     unsigned y_sum = 0;
     unsigned total_weight = 0;
-    for (int y = y0; y < y0 + height; y++) {
-        for (int x = x0; x < x0 + width; x++) {
+    for (int y = y0; y < (int) (y0 + height); y++) {
+        for (int x = x0; x < (int) (x0 + width); x++) {
             if (!is_black(img, x, y))
                 continue;
             unsigned char weight = 0xff - data[y * img->width + x];
@@ -238,9 +239,8 @@ static void set_middle_point(sq_point *middle, const sq_point *start,
 bool find_left_dot(zbar_image_t *img, sq_dot *dot, unsigned *found_x,
     unsigned *found_y)
 {
-    for (int y = dot->y0; y < dot->y0 + dot->height; y++) {
-        int xmin = dot->x0 - 2 * dot->width;
-        for (int x = dot->x0 - 1; x >= xmin; x--) {
+    for (int y = dot->y0; y < (int) (dot->y0 + dot->height); y++) {
+        for (int x = dot->x0 - 1; x >= (int) (dot->x0 - 2 * dot->width); x--) {
             if (is_black(img, x, y)) {
                 *found_x = x;
                 *found_y = y;
@@ -254,8 +254,9 @@ bool find_left_dot(zbar_image_t *img, sq_dot *dot, unsigned *found_x,
 bool find_right_dot(zbar_image_t *img, sq_dot *dot, unsigned *found_x,
     unsigned *found_y)
 {
-    for (int y = dot->y0; y < dot->y0 + dot->height; y++) {
-        for (int x = dot->x0 + dot->width; x < dot->x0 + 3 * dot->width; x++) {
+    for (int y = dot->y0; y < (int) (dot->y0 + dot->height); y++) {
+        for (int x = dot->x0 + dot->width; x < (int) (dot->x0 + 3 * dot->width);
+             x++) {
             if (is_black(img, x, y)) {
                 *found_x = x;
                 *found_y = y;
@@ -269,9 +270,9 @@ bool find_right_dot(zbar_image_t *img, sq_dot *dot, unsigned *found_x,
 bool find_bottom_dot(zbar_image_t *img, sq_dot *dot, unsigned *found_x,
     unsigned *found_y)
 {
-    for (int x = dot->x0 + dot->width - 1; x >= dot->x0; x--) {
-        for (int y = dot->y0 + dot->height; y < dot->y0 + 3 * dot->height;
-            y++) {
+    for (int x = dot->x0 + dot->width - 1; x >= (int) dot->x0; x--) {
+        for (int y = dot->y0 + dot->height;
+             y < (int) (dot->y0 + 3 * dot->height); y++) {
             if (is_black(img, x, y)) {
                 *found_x = x;
                 *found_y = y;
