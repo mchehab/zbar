@@ -30,7 +30,7 @@ if [ "@ENABLE_CODE39@" == "1" ]; then
 fi
 
 if [ "@ENABLE_CODABAR@" == "1" ]; then
-        test code-codabar.png
+        test codabar.png
 fi
 
 if [ "@ENABLE_DATABAR@" == "1" ]; then
