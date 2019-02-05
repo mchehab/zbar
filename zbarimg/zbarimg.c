@@ -89,34 +89,34 @@ static const char *warning_not_found =
     "WARNING: barcode data was not detected in some image(s)\n"
     "Things to check:\n"
     "  - is the barcode type supported? Currently supported symbologies are:\n"
-#ifdef ENABLE_EAN
+#if ENABLE_EAN == 1
     "    . EAN/UPC (EAN-13, EAN-8, EAN-2, EAN-5, UPC-A, UPC-E, ISBN-10, ISBN-13)\n"
 #endif
-#ifdef ENABLE_DATABAR
+#if ENABLE_DATABAR == 1
     "    . DataBar, DataBar Expanded\n"
 #endif
-#ifdef ENABLE_CODE128
+#if ENABLE_CODE128 == 1
     "    . Code 128\n"
 #endif
-#ifdef ENABLE_CODE93
+#if ENABLE_CODE93 == 1
     "    . Code 93\n"
 #endif
-#ifdef ENABLE_CODE39
+#if ENABLE_CODE39 == 1
     "    . Code 39\n"
 #endif
-#ifdef ENABLE_CODABAR
+#if ENABLE_CODABAR == 1
     "    . Codabar\n"
 #endif
-#ifdef ENABLE_I25
+#if ENABLE_I25 == 1
     "    . Interleaved 2 of 5\n"
 #endif
-#ifdef ENABLE_QRCODE
+#if ENABLE_QRCODE == 1
     "    . QR code\n"
 #endif
-#ifdef ENABLE_SQCODE
+#if ENABLE_SQCODE == 1
     "    . SQ code\n"
 #endif
-#ifdef ENABLE_PDF417
+#if ENABLE_PDF417 == 1
     "    . PDF 417\n"
 #endif
     "  - is the barcode large enough in the image?\n"

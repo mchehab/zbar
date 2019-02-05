@@ -36,10 +36,10 @@
 #include "error.h"
 #include "image.h"
 #include "timer.h"
-#ifdef ENABLE_QRCODE
+#if ENABLE_QRCODE == 1
 # include "qrcode.h"
 #endif
-#ifdef ENABLE_SQCODE
+#if ENABLE_SQCODE == 1
 # include "sqcode.h"
 #endif
 #include "img_scanner.h"
@@ -90,10 +90,10 @@ typedef struct recycle_bucket_s {
 struct zbar_image_scanner_s {
     zbar_scanner_t *scn;        /* associated linear intensity scanner */
     zbar_decoder_t *dcode;      /* associated symbol decoder */
-#ifdef ENABLE_QRCODE
+#if ENABLE_QRCODE == 1
     qr_reader *qr;              /* QR Code 2D reader */
 #endif
-#ifdef ENABLE_SQCODE
+#if ENABLE_SQCODE == 1
     sq_reader *sq;              /* SQ Code 2D reader */
 #endif
 
@@ -357,7 +357,7 @@ void _zbar_image_scanner_add_sym(zbar_image_scanner_t *iscn,
     _zbar_symbol_refcnt(sym, 1);
 }
 
-#ifdef ENABLE_QRCODE
+#if ENABLE_QRCODE == 1
 extern qr_finder_line *_zbar_decoder_get_qr_finder_line(zbar_decoder_t*);
 
 # define QR_FIXED(v, rnd) ((((v) << 1) + (rnd)) << (QR_FINDER_SUBPREC - 1))
@@ -396,7 +396,7 @@ static inline void qr_handler (zbar_image_scanner_t *iscn)
 }
 #endif
 
-#ifdef ENABLE_SQCODE
+#if ENABLE_SQCODE == 1
 extern unsigned _zbar_decoder_get_sq_finder_config(zbar_decoder_t*);
 
 static void sq_handler (zbar_image_scanner_t *iscn)
@@ -415,7 +415,7 @@ static void symbol_handler (zbar_decoder_t *dcode)
     unsigned datalen;
     zbar_symbol_t *sym;
 
-#ifdef ENABLE_QRCODE
+#if ENABLE_QRCODE == 1
     if(type == ZBAR_QRCODE) {
         qr_handler(iscn);
         return;
@@ -496,11 +496,11 @@ zbar_image_scanner_t *zbar_image_scanner_create ()
     zbar_decoder_set_userdata(iscn->dcode, iscn);
     zbar_decoder_set_handler(iscn->dcode, symbol_handler);
 
-#ifdef ENABLE_QRCODE
+#if ENABLE_QRCODE == 1
     iscn->qr = _zbar_qr_create();
 #endif
 
-#ifdef ENABLE_SQCODE
+#if ENABLE_SQCODE == 1
     iscn->sq = _zbar_sq_create();
 #endif
 
@@ -558,13 +558,13 @@ void zbar_image_scanner_destroy (zbar_image_scanner_t *iscn)
             _zbar_symbol_free(sym);
         }
     }
-#ifdef ENABLE_QRCODE
+#if ENABLE_QRCODE == 1
     if(iscn->qr) {
         _zbar_qr_destroy(iscn->qr);
         iscn->qr = NULL;
     }
 #endif
-#ifdef ENABLE_SQCODE
+#if ENABLE_SQCODE == 1
     if(iscn->sq) {
         _zbar_sq_destroy(iscn->sq);
         iscn->sq = NULL;
@@ -681,11 +681,11 @@ int zbar_scan_image (zbar_image_scanner_t *iscn,
      */
     iscn->time = _zbar_timer_now();
 
-#ifdef ENABLE_QRCODE
+#if ENABLE_QRCODE == 1
     _zbar_qr_reset(iscn->qr);
 #endif
 
-#ifdef ENABLE_SQCODE
+#if ENABLE_SQCODE == 1
     _zbar_sq_reset(iscn->sq);
 #endif
 
@@ -832,11 +832,11 @@ int zbar_scan_image (zbar_image_scanner_t *iscn,
     iscn->dy = 0;
     iscn->img = NULL;
 
-#ifdef ENABLE_QRCODE
+#if ENABLE_QRCODE == 1
     _zbar_qr_decode(iscn->qr, iscn, img);
 #endif
 
-#ifdef ENABLE_SQCODE
+#if ENABLE_SQCODE == 1
     sq_handler(iscn);
     _zbar_sq_decode(iscn->sq, iscn, img);
 #endif

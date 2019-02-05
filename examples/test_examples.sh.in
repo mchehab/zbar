@@ -6,8 +6,8 @@ DIR=`dirname $0`
 
 test()
 {
-	i=$1
-	j=`basename $i`
+        j=$1
+        i=$DIR/$j
 	CK=`$DIR/../zbarimg/zbarimg $i 2>/dev/null|sha1sum|cut -d" " -f1`
 	ORG=`grep $j $DIR/sha1sum|cut -d " " -f1`
 
@@ -17,47 +17,49 @@ test()
 	fi
 }
 
-if [ "@ENABLE_CODE128@" != "" ]; then
+if [ "@ENABLE_CODE128@" == "1" ]; then
 	test code-128.png
 fi
 
-if [ "@ENABLE_CODE93@" != "" ]; then
+if [ "@ENABLE_CODE93@" == "1" ]; then
         test code-93.png
 fi
 
-if [ "@ENABLE_CODE39@" != "" ]; then
+if [ "@ENABLE_CODE39@" == "1" ]; then
         test code-39.png
 fi
 
-#if [ "@ENABLE_CODABAR@" != "" ]; then
-#        test code-codabar.png
-#fi
-#
-#if [ "@ENABLE_PDF417@" != "" ]; then
-#        test code-pdf417.png
-#fi
-
-if [ "@ENABLE_DATABAR@" != "" ]; then
-        test code-128.png
+if [ "@ENABLE_CODABAR@" == "1" ]; then
+        test code-codabar.png
 fi
 
-if [ "@ENABLE_EAN@" != "" ]; then
+if [ "@ENABLE_DATABAR@" == "1" ]; then
+        test databar.png
+fi
+
+if [ "@ENABLE_EAN@" == "1" ]; then
         test ean-13.png
         test ean-8.png
 fi
 
-if [ "@ENABLE_I25@" != "" ]; then
+if [ "@ENABLE_I25@" == "1" ]; then
         test i2-5.png
 fi
 
-if [ "@ENABLE_QRCODE@" != "" ]; then
+if [ "@ENABLE_QRCODE@" == "1" ]; then
         test qr-code.png
 fi
 
-if [ "@ENABLE_SQCODE@" != "" ]; then
+if [ "@ENABLE_SQCODE@" == "1" ]; then
         test sqcode1-generated.png
 	test sqcode1-scanned.png
 fi
+
+# The pdf417 code is incomplete: it doesn't output any results
+#
+#if [ "@ENABLE_PDF417@" == "1" ]; then
+#        test code-pdf417.png
+#fi
 
 if [ "$ERR" == "" ]; then
 	echo "PASSED."

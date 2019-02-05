@@ -33,34 +33,34 @@
 
 #define NUM_CFGS (ZBAR_CFG_MAX_LEN - ZBAR_CFG_MIN_LEN + 1)
 
-#ifdef ENABLE_EAN
+#if ENABLE_EAN == 1
 # include "decoder/ean.h"
 #endif
-#ifdef ENABLE_I25
+#if ENABLE_I25 == 1
 # include "decoder/i25.h"
 #endif
-#ifdef ENABLE_DATABAR
+#if ENABLE_DATABAR == 1
 # include "decoder/databar.h"
 #endif
-#ifdef ENABLE_CODABAR
+#if ENABLE_CODABAR == 1
 # include "decoder/codabar.h"
 #endif
-#ifdef ENABLE_CODE39
+#if ENABLE_CODE39 == 1
 # include "decoder/code39.h"
 #endif
-#ifdef ENABLE_CODE93
+#if ENABLE_CODE93 == 1
 # include "decoder/code93.h"
 #endif
-#ifdef ENABLE_CODE128
+#if ENABLE_CODE128 == 1
 # include "decoder/code128.h"
 #endif
-#ifdef ENABLE_PDF417
+#if ENABLE_PDF417 == 1
 # include "decoder/pdf417.h"
 #endif
-#ifdef ENABLE_QRCODE
+#if ENABLE_QRCODE == 1
 # include "decoder/qr_finder.h"
 #endif
-#ifdef ENABLE_SQCODE
+#if ENABLE_SQCODE == 1
 # include "decoder/sq_finder.h"
 #endif
 
@@ -108,34 +108,34 @@ struct zbar_decoder_s {
     zbar_decoder_handler_t *handler;    /* application callback */
 
     /* symbology specific state */
-#ifdef ENABLE_EAN
+#if ENABLE_EAN == 1
     ean_decoder_t ean;                  /* EAN/UPC parallel decode attempts */
 #endif
-#ifdef ENABLE_I25
+#if ENABLE_I25 == 1
     i25_decoder_t i25;                  /* Interleaved 2 of 5 decode state */
 #endif
-#ifdef ENABLE_DATABAR
+#if ENABLE_DATABAR == 1
     databar_decoder_t databar;          /* DataBar decode state */
 #endif
-#ifdef ENABLE_CODABAR
+#if ENABLE_CODABAR == 1
     codabar_decoder_t codabar;          /* Codabar decode state */
 #endif
-#ifdef ENABLE_CODE39
+#if ENABLE_CODE39 == 1
     code39_decoder_t code39;            /* Code 39 decode state */
 #endif
-#ifdef ENABLE_CODE93
+#if ENABLE_CODE93 == 1
     code93_decoder_t code93;            /* Code 93 decode state */
 #endif
-#ifdef ENABLE_CODE128
+#if ENABLE_CODE128 == 1
     code128_decoder_t code128;          /* Code 128 decode state */
 #endif
-#ifdef ENABLE_PDF417
+#if ENABLE_PDF417 == 1
     pdf417_decoder_t pdf417;            /* PDF417 decode state */
 #endif
-#ifdef ENABLE_QRCODE
+#if ENABLE_QRCODE == 1
     qr_finder_t qrf;                    /* QR Code finder state */
 #endif
-#ifdef ENABLE_SQCODE
+#if ENABLE_SQCODE == 1
     sq_finder_t sqf;                    /* SQ Code finder state */
 #endif
 };

@@ -135,7 +135,7 @@ AC_DEFUN([ZBAR_CHK_CODE], [
      AC_DEFINE_SUBST([ENABLE_]translit($1, a-z, A-Z), [1])
     ], [
      disabled_codes="$disabled_codes $1"
-     AC_DEFINE_SUBST([ENABLE_]translit($1, a-z, A-Z), [])
+     AC_DEFINE_SUBST([ENABLE_]translit($1, a-z, A-Z), [0])
   ])
   AM_CONDITIONAL([ENABLE_]translit($1, a-z, A-Z),
     [test "x$enable_$1" = "xyes"])
