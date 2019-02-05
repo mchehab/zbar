@@ -113,8 +113,8 @@ static const char *warning_not_found =
 #ifdef ENABLE_QRCODE
     "    . QR code\n"
 #endif
-#ifdef ENABLE_SDCODE
-    "    . SD code\n"
+#ifdef ENABLE_SQCODE
+    "    . SQ code\n"
 #endif
 #ifdef ENABLE_PDF417
     "    . PDF 417\n"
