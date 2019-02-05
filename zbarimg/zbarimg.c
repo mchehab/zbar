@@ -87,16 +87,41 @@ static const char *note_usage =
 static const char *warning_not_found =
     "\n"
     "WARNING: barcode data was not detected in some image(s)\n"
-    "  things to check:\n"
-    "    - is the barcode type supported?"
-    "  currently supported symbologies are:\n"
-    "      EAN/UPC (EAN-13, EAN-8, EAN-2, EAN-5, UPC-A, UPC-E,\n"
-    "      ISBN-10, ISBN-13), Code 128, Code 93, Code 39, Codabar,\n"
-    "      DataBar, DataBar Expanded, Interleaved 2 of 5,\n"
-    "      QR code, and SQ code\n"
-    "    - is the barcode large enough in the image?\n"
-    "    - is the barcode mostly in focus?\n"
-    "    - is there sufficient contrast/illumination?\n"
+    "Things to check:\n"
+    "  - is the barcode type supported? Currently supported symbologies are:\n"
+#ifdef ENABLE_EAN
+    "    . EAN/UPC (EAN-13, EAN-8, EAN-2, EAN-5, UPC-A, UPC-E, ISBN-10, ISBN-13)\n"
+#endif
+#ifdef ENABLE_DATABAR
+    "    . DataBar, DataBar Expanded\n"
+#endif
+#ifdef ENABLE_CODE128
+    "    . Code 128\n"
+#endif
+#ifdef ENABLE_CODE93
+    "    . Code 93\n"
+#endif
+#ifdef ENABLE_CODE39
+    "    . Code 39\n"
+#endif
+#ifdef ENABLE_CODABAR
+    "    . Codabar\n"
+#endif
+#ifdef ENABLE_I25
+    "    . Interleaved 2 of 5\n"
+#endif
+#ifdef ENABLE_QRCODE
+    "    . QR code\n"
+#endif
+#ifdef ENABLE_SDCODE
+    "    . SD code\n"
+#endif
+#ifdef ENABLE_PDF417
+    "    . PDF 417\n"
+#endif
+    "  - is the barcode large enough in the image?\n"
+    "  - is the barcode mostly in focus?\n"
+    "  - is there sufficient contrast/illumination?\n"
     "\n";
 
 static const char *xml_head =
