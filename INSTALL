@@ -180,3 +180,18 @@ operates.
      script, and exit.
 
 `configure' also accepts some other, not widely useful, options.
+
+Debian/Ubuntu package build
+===========================
+
+For Debian/Ubuntu, one alternative way to build ZBar is by using
+pbuilder. In order to install pbuilder, see, for example:
+
+    https://wiki.ubuntu.com/PbuilderHowto
+
+Once you have pbuilder installed and configured, you
+can build a ZBar package, running the following commands as
+root:
+
+    # pbuilder create --basetgz /var/cache/pbuilder/base-test.tgz
+    # pbuilder build --basetgz /var/cache/pbuilder/base-test.tgz ../zbar_0.20.2.dsc
