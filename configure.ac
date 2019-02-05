@@ -12,6 +12,7 @@ AC_CONFIG_SRCDIR(zbar/scanner.c)
 LT_PREREQ([2.2])
 LT_INIT([dlopen win32-dll])
 LT_LANG([Windows Resource])
+AM_SILENT_RULES([yes])
 
 dnl update these just before each release (along w/pacakge version above)
 dnl   LIB_VERSION update instructions copied from libtool docs:
