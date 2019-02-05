@@ -1,0 +1,14 @@
+#! /usr/bin/dh-exec
+/usr/include/zbar.h
+/usr/include/zbar/Decoder.h
+/usr/include/zbar/Exception.h
+/usr/include/zbar/Image.h
+/usr/include/zbar/ImageScanner.h
+/usr/include/zbar/Processor.h
+/usr/include/zbar/Scanner.h
+/usr/include/zbar/Symbol.h
+/usr/include/zbar/Video.h
+/usr/include/zbar/Window.h
+/usr/lib/libzbar.a /usr/lib/${DEB_HOST_MULTIARCH}/
+/usr/lib/libzbar.so /usr/lib/${DEB_HOST_MULTIARCH}/
+/usr/lib/pkgconfig/zbar.pc /usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig/
