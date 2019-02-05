@@ -1,0 +1,3 @@
+version=3
+
+http://sf.net/zbar/zbar-(.+)\.tar\.bz2

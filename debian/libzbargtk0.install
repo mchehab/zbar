@@ -1,0 +1,3 @@
+#! /usr/bin/dh-exec
+/usr/lib/libzbargtk.so.0.* /usr/lib/${DEB_HOST_MULTIARCH}
+/usr/lib/libzbargtk.so.0 /usr/lib/${DEB_HOST_MULTIARCH}

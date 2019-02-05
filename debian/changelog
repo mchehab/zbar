@@ -1,0 +1,306 @@
+zbar (0.20.2) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Javier Serrano Polo <javier@jasp.net>  Mon, 04 Feb 2019 07:17:57 +0100
+
+zbar (0.10+doc-10.1) unstable; urgency=low
+
+  * Non-maintainer upload with maintainer permission.
+
+  [ Francois Gouget ]
+  * Add missing versioned Build-Depends for automake
+  * Convert most binary packages to Multi-Arch (Closes: #777202)
+  * Switch to 3.0 (quilt) format, in order to use dh-exec
+
+  [ Thorsten Glaser ]
+  * Add missing versioned Build-Depends for autoconf
+  * Build-Depends: dh-python (as requested by dh_python)
+  * Make zbar-dbg M-A: same (as pointed out by lintian)
+  * Add missing required build-{arch,indep} targets (lintian)
+  * Mention Perl module name in long package description (lintian)
+
+ -- Thorsten Glaser <tg@mirbsd.de>  Mon, 02 Jan 2017 17:16:01 +0100
+
+zbar (0.10+doc-10) unstable; urgency=medium
+
+  * [d3eba6e2] Add support for Python GIL / asynchronous scanning.
+    Thanks to Jonathan McDowell (Closes: #766089)
+  * [fd5fd7f1] Fix typo in package description.
+    Thanks to Pascal De Vuyst (Closes: #697516, #715178)
+
+ -- Bernd Zeimetz <bzed@debian.org>  Mon, 20 Oct 2014 22:04:56 +0200
+
+zbar (0.10+doc-9) unstable; urgency=low
+
+  * [2c641cc9] Fix configure.ac to build with newer autotools.
+    Thanks to Lucas Nussbaum (Closes: #713332)
+
+ -- Bernd Zeimetz <bzed@debian.org>  Sun, 18 Aug 2013 12:26:59 +0200
+
+zbar (0.10+doc-8) unstable; urgency=low
+
+  * [5c38da40] Use [linux-any] instead of [!kfreebsd-*].
+    Thanks to Robert Millan (Closes: #634774)
+  * [1f15f52e] Add sentinel to PyGetSetDef imagescanner_getset[].
+    Ensure that the loop is terminated which reads the
+    imagescanner_getset[] array on import - otherwise we'll run into
+    a segfault, at least on arm.
+    Thanks to Anton Gladky and Peter Green (Closes: #702499)
+
+ -- Bernd Zeimetz <bzed@debian.org>  Sun, 17 Mar 2013 22:46:47 +0100
+
+zbar (0.10+doc-7) unstable; urgency=low
+
+  * [48425c37] Ack'ing NMU.
+    Thanks to Mehdi Dogguy (Closes: #625584)
+  * [ce18efe2] Don't install .la files. (Closes: #633271)
+
+ -- Bernd Zeimetz <bzed@debian.org>  Sun, 10 Jul 2011 14:17:11 +0200
+
+zbar (0.10+doc-6.1) unstable; urgency=high
+
+  * Non-maintainer upload.
+  * libzbar-dev depend on libmagick++-dev instead of libmagick++9-dev.
+    (Closes: #625584).
+
+ -- Mehdi Dogguy <mehdi@debian.org>  Sun, 26 Jun 2011 15:04:36 +0200
+
+zbar (0.10+doc-6) unstable; urgency=low
+
+  * [3b98a217] Require v4l as build-dependency on linux only.
+  * [5f635649] Migrate to dh_python2 instead of python-support.
+
+ -- Bernd Zeimetz <bzed@debian.org>  Wed, 27 Apr 2011 22:34:12 +0200
+
+zbar (0.10+doc-5) unstable; urgency=low
+
+  * [2801e55f] Use the new dh_authtoolsdev-* helper to update config.*
+  * [906f5a10] Use dh-autoreconf to rebuild configure and friends.
+    Thanks to Peter Fritzsche (Closes: #558539)
+  * [a3042424] Use quilt to apply patches.
+  * [35182c3a] Description: Linux 2.6.38 and later do not support the v4l1 API.
+    Add patch to migrate to using the libv4l library to abstract the
+    access to Linux video devices, instead.
+    Patch taken from the upstream bug tracker.
+    Also add libv4l-dev as build-dependency.
+    Thanks to Steve Langasek (Closes: #620220)
+  * [425b9ce6] Fixing typo in the long description of python-zbar.
+    Thanks to Davide Prina (Closes: #617942)
+
+ -- Bernd Zeimetz <bzed@debian.org>  Fri, 01 Apr 2011 01:05:18 +0200
+
+zbar (0.10+doc-4) unstable; urgency=low
+
+  * [abdd6f9f] Use better dependencies for zbar-dbg.
+  * [5c639854] Remove conflicts of libzbar-dev. libzbar replaced zebra
+    in directory names by zbar, so clashes with quagga and libpacklib1-
+    dev are avoided. So there is no need to conflict against the
+    packages anymore.
+  * [75f615f2] Use Breaks instead of Conflicts as suggested by lintian.
+
+ -- Bernd Zeimetz <bzed@debian.org>  Sat, 28 Aug 2010 15:01:46 +0200
+
+zbar (0.10+doc-3) unstable; urgency=low
+
+  * [6b190c39] Enable VfL only on Linux instead of excluding kfreebsd
+    only. (Closes: #585082) - thanks to Samuel Thibault
+  * [da42c117] Update libzbarqt0 symbol files to newer dpkg-dev
+    features. As symbols seem to appear/disappear depending on the
+    version of QT and/or the compiler, I've relaxed the check for
+    changed symbols to stop complaining at all for libzbarqt0. I'll
+    update the symbols files manually when needed. (Closes: #584773) -
+    thanks to Loïc Minier
+  * [94ac49b6] Add missing dependency to the perl/Makefile target in
+    debian/rules. This should allow to build with -j again. (Closes:
+    #584758) - thanks to Loïc Minier
+
+ -- Bernd Zeimetz <bzed@debian.org>  Wed, 09 Jun 2010 17:08:07 +0200
+
+zbar (0.10+doc-2build1) maverick; urgency=low
+
+  * Release for Ubuntu. 0.10+doc-2 FTBFS there due to default LDFLAGS
+    which were passed on to Perl's MakeMaker.
+  * [b0066775] Fix spelling error in changelog. Thanks lintian.
+  * [6ddbfe0d] Ensure only -L options are passed as LIBS to Perl's
+    MakeMaker.
+
+ -- Bernd Zeimetz <bzed@debian.org>  Tue, 25 May 2010 22:25:18 +0200
+
+zbar (0.10+doc-2) unstable; urgency=low
+
+  * [1806e6cd] Copy libzbarqt0.symbols for each architecture.
+  * [8d172f95] Disable video support on kfreebsd.
+  * [63b87cf4] Don't list binaries for zbar-tools explicitly. zbarvideo
+    is not being built on kfreebsd, so we should not try to install it
+    there.
+  * [14e36c30] Don't rename debug extensions if they were renamed
+    already.
+  * [650fa88e] Fix libzbarqt0.symbols for various architectures - thanks
+    C++.
+
+ -- Bernd Zeimetz <bzed@debian.org>  Tue, 25 May 2010 17:37:52 +0200
+
+zbar (0.10+doc-1) unstable; urgency=low
+
+  * Import full upstream source including the doc folder and drop
+    the dfsg part in the version (using +doc now as we need a version
+    greater than 0.10+dfsg. See the changelog below and debian/copyright
+    for details
+
+  * [1f9232b1] Add missing dependencies to libzbar-dev.
+  * [577bae53] Tidy .docs files - one debian/docs is enough.
+  * [b77a29e5] Python-related packages: Fix dependencies and build
+    python-zbar.
+  * [6a336b40] Adopt package (Closes: #543881)
+  * [d3e7838d] gbp.conf: Remove filter option for git-import-orig.
+    Upstream clarified the license for the doc folder, the documentation
+    is (and was) under the same license as the rest of the zbar project.
+    The former package maintainer just did not bother to ask.
+    (http://zbar.hg.sourceforge.net/hgweb/zbar/zbar/rev/a400dd46fb4a)
+  * [d9f0f3bd] Remove quilt - no patches necessary anymore.
+  * [8e9b2f81] Adding watch file.
+  * [ddfdb3db] Merge commit 'upstream/0.10+doc'
+  * [4c547f3a] Build zbar for all supported Python versions. Also build
+    debug extensions.
+  * [c6dbc26d] Ensure proper sonames while installing libraries.
+  * [74e55643] Update supported codes in descriptions.
+  * [54969382] Install README file into docs.
+  * [3d97e382] Updating copyright file.
+  * [71bfc1fe] Install manpages for zbar-tools.
+  * [9de7a34a] Remove --fail-missing from dh_install call.
+  * [39a37679] Add symbol files for libraries.
+  * [418ee09b] Be paranoid about symbol files - pass -c4 to dpkg-
+    gensymbols.
+  * [a1527ed7] Use -L to link against previously built libs.
+  * [c672ecc8] Don't include symbols, which are removed by strip, in
+    symbols file.
+  * [9b93453e] Build Perl bindings into libbarcode-zbar-perl.
+  * [76b32218] According to lintian zbar-dbg needs to Depend on all
+    packages.
+  * [2cb6d478] python-zbar needs to conflict/replace older versions of
+    python-zbarpygtk.
+  * [bca1a7dc] Better wording for short description.
+  * [4f6fdf16] Ensure perl bindings are built without rpath.
+  * [df98e89f] Add missing dh_perl call.
+  * [18539f50] Add comment about licenses of doc/* to debian/copyright.
+  * [2bb4fb29] zbar-dbg needs to depend on python-gtk2-dbg.
+  * [3da1a01e] Add VCS information.
+
+ -- Bernd Zeimetz <bzed@debian.org>  Tue, 25 May 2010 02:09:41 +0200
+
+zbar (0.10+dfsg-1) unstable; urgency=low
+
+  * QA Upload.
+
+    I might adopt the package later, but for now an update to the
+    latest upstream version is more important. Also I do not want to
+    set myself as maintainer without bringing the packaging into
+    a good shape.
+
+  * [154213cf] Adding git-buildpackage config.
+  * [c89b1ccb] Merge commit 'upstream/0.10+dfsg'
+  * [5565931e] Adding debian/source/format, format 1.0.
+  * [9080fcb7] Updating patch.
+
+ -- Bernd Zeimetz <bzed@debian.org>  Thu, 20 May 2010 01:58:52 +0200
+
+zbar (0.8+dfsg-4) unstable; urgency=low
+
+  * QA upload.
+  * Build-depend on python-support and call dh_pysupport in debian/rules
+    to allow byte-compilation (Closes: #571484).
+  * Bump Standards-Version to 3.8.4, no changes required.
+  * Add ${misc:Depends} dependency where needed.
+  * Remove duplicate section fields from some binary packages.
+  * Really remove Vcs-* fields.
+
+ -- Luca Falavigna <dktrkranz@debian.org>  Sun, 28 Feb 2010 15:59:51 +0100
+
+zbar (0.8+dfsg-3) unstable; urgency=low
+
+  * Updating package to standards version 3.8.3.
+  * Removing vcs fields.
+  * Orphaning package.
+
+ -- Daniel Baumann <daniel@debian.org>  Thu, 27 Aug 2009 10:04:11 +0200
+
+zbar (0.8+dfsg-2) unstable; urgency=low
+
+  * Correcting spelling of Qt in package descriptions (Closes: #534426).
+
+ -- Daniel Baumann <daniel@debian.org>  Sun, 26 Jul 2009 21:03:26 +0200
+
+zbar (0.8+dfsg-1) unstable; urgency=low
+
+  * Merging upstream version 0.8+dfsg.
+  * Updating dfsg.patch.
+  * Updating package to standards version 3.8.2.
+  * Updating year in copyright file.
+
+ -- Daniel Baumann <daniel@debian.org>  Tue, 07 Jul 2009 16:17:32 +0200
+
+zbar (0.7+dfsg-1) unstable; urgency=low
+
+  * Merging upstream version 0.7+dfsg.
+  * Adding upstream target in rules file.
+  * Adding patch to ignore stripped out documentation during build.
+  * Renaming binary and source package from zebra to zbar to match
+    upstream.
+  * Removing manpages from zbar-tools debhelper install file, manpages
+    are stripped out in dfsg tarball.
+  * Updating section of the debug package.
+  * Using correct rfc-2822 date formats in changelog.
+
+ -- Daniel Baumann <daniel@debian.org>  Sun, 17 May 2009 12:50:49 +0200
+
+zebra (0.7-1) unstable; urgency=low
+
+  * Merging upstream version 0.7.
+  * Updating debhelper install files to cope with upstreams zebra to zbar
+    rename.
+
+ -- Daniel Baumann <daniel@debian.org>  Sun, 26 Apr 2009 16:43:00 +0200
+
+zebra (0.6-1) unstable; urgency=low
+
+  * Updating imagemagick build-depends.
+  * Updating standards to 3.8.1.
+  * Merging upstream version 0.6.
+  * Unsetting LDFLAGS (which are exported to the environment by newer dpkg),
+    otherwise python modules fail to build.
+  * Tidy rules file.
+  * Updating year in copyright file.
+
+ -- Daniel Baumann <daniel@debian.org>  Sun, 26 Apr 2009 16:30:00 +0200
+
+zebra (0.5+debian-4) unstable; urgency=low
+
+  * Sorting config.guess/config.sub handling in rules.
+  * Passing flags to configure as arguments.
+  * Removing unnecessary passing of sourcedir to dh_install.
+
+ -- Daniel Baumann <daniel@debian.org>  Wed, 17 Dec 2008 21:21:00 +0100
+
+zebra (0.5+debian-3) unstable; urgency=low
+
+  * Replacing obsolete dh_clean -k with dh_prep.
+  * Adding conflicts against quagga to avoid /usr/lib/libzebra.a clash
+    (Closes: #505268).
+
+ -- Daniel Baumann <daniel@debian.org>  Tue, 11 Nov 2008 12:07:00 +0100
+
+zebra (0.5+debian-2) unstable; urgency=low
+
+  * Adding conflicts against libpacklib1-dev to avoid
+    /usr/include/zebra.h clash, unlikely that there is another solution
+    possible (Closes: #504526).
+
+ -- Daniel Baumann <daniel@debian.org>  Tue, 04 Nov 2008 21:07:00 +0100
+
+zebra (0.5+debian-1) unstable; urgency=low
+
+  * Initial release (Closes: #502992).
+  * Rebuild upstream tarball without debian directory.
+
+ -- Daniel Baumann <daniel@debian.org>  Thu, 23 Oct 2008 12:29:00 +0200
