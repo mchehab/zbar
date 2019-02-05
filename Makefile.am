@@ -95,4 +95,10 @@ archive:
 	git archive --format=tar --prefix=zbar-$(VERSION)/ -o zbar-$(VERSION).tar $(VERSION)
 	bzip2 zbar-$(VERSION).tar
 
-.PHONY : $(PHONY)
+gen_checksum: all
+	for i in examples/*.png; do j=`basename $$i`; ./zbarimg/zbarimg $$i 2>/dev/null|sha1sum|sed "s,-,zbarimg $$j,"; done >examples/sha1sum
+
+test: all
+	@examples/test_examples.sh
+
+.PHONY : $(PHONY) archive test gen_checksum

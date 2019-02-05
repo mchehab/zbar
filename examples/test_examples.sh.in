@@ -1,0 +1,65 @@
+#!/bin/bash
+
+unset ERR
+
+DIR=`dirname $0`
+
+test()
+{
+	i=$1
+	j=`basename $i`
+	CK=`$DIR/../zbarimg/zbarimg $i 2>/dev/null|sha1sum|cut -d" " -f1`
+	ORG=`grep $j $DIR/sha1sum|cut -d " " -f1`
+
+	if [ "$CK" != "$ORG" ]; then
+		echo "FAILED: $i ($CK instead of $ORG)"
+		ERR=1
+	fi
+}
+
+if [ "@ENABLE_CODE128@" != "" ]; then
+	test code-128.png
+fi
+
+if [ "@ENABLE_CODE93@" != "" ]; then
+        test code-93.png
+fi
+
+if [ "@ENABLE_CODE39@" != "" ]; then
+        test code-39.png
+fi
+
+#if [ "@ENABLE_CODABAR@" != "" ]; then
+#        test code-codabar.png
+#fi
+#
+#if [ "@ENABLE_PDF417@" != "" ]; then
+#        test code-pdf417.png
+#fi
+
+if [ "@ENABLE_DATABAR@" != "" ]; then
+        test code-128.png
+fi
+
+if [ "@ENABLE_EAN@" != "" ]; then
+        test ean-13.png
+        test ean-8.png
+fi
+
+if [ "@ENABLE_I25@" != "" ]; then
+        test i2-5.png
+fi
+
+if [ "@ENABLE_QRCODE@" != "" ]; then
+        test qr-code.png
+fi
+
+if [ "@ENABLE_SQCODE@" != "" ]; then
+        test sqcode1-generated.png
+	test sqcode1-scanned.png
+fi
+
+if [ "$ERR" == "" ]; then
+	echo "PASSED."
+fi
+

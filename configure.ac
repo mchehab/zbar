@@ -119,6 +119,10 @@ AC_ARG_ENABLE([codes],
   [],
   [enable_codes="ean,databar,code128,code93,code39,codabar,i25,qrcode"])
 
+AC_DEFUN([AC_DEFINE_SUBST],
+   [AC_DEFINE($1,$2,$3)
+    AC_SUBST($1,$2)])
+
 AC_DEFUN([ZBAR_CHK_CODE], [
   AC_MSG_CHECKING([whether to build $2])
   enable_$1="no"
@@ -128,10 +132,11 @@ AC_DEFUN([ZBAR_CHK_CODE], [
     [*$1* | *all*],
     [enable_$1="yes"
      enabled_codes="$enabled_codes $1"
-     AC_DEFINE([ENABLE_]translit($1, a-z, A-Z), [1])
-    ],
-    disabled_codes="$disabled_codes $1"
-  )
+     AC_DEFINE_SUBST([ENABLE_]translit($1, a-z, A-Z), [1])
+    ], [
+     disabled_codes="$disabled_codes $1"
+     AC_DEFINE_SUBST([ENABLE_]translit($1, a-z, A-Z), [])
+  ])
   AM_CONDITIONAL([ENABLE_]translit($1, a-z, A-Z),
     [test "x$enable_$1" = "xyes"])
   AC_MSG_RESULT([$enable_$1])
@@ -606,6 +611,7 @@ zbar.pc
 zbar-gtk.pc
 zbar-qt.pc
 doc/doxygen.conf
+examples/test_examples.sh
 ])
 AC_OUTPUT
 
