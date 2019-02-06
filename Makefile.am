@@ -99,7 +99,6 @@ gen_checksum: all
 	for i in examples/*.png; do j=`basename $$i`; ./zbarimg/zbarimg $$i 2>/dev/null|sha1sum|sed "s,-,zbarimg $$j,"; done >examples/sha1sum
 
 test: all
-	@chmod 755 examples/test_examples.sh
 	@examples/test_examples.sh
 
 .PHONY : $(PHONY) archive test gen_checksum
