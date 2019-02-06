@@ -37,7 +37,7 @@ int main (int argc, char **argv)
     try {
         proc.user_wait();
     }
-    catch(zbar::ClosedError) { }
+    catch(zbar::ClosedError&) { }
     
     return(0);
 }

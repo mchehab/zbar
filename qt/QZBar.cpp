@@ -241,7 +241,7 @@ void QZBar::paintEvent (QPaintEvent *event)
         if(thread)
             thread->window.redraw();
     }
-    catch(Exception) {
+    catch(Exception&) {
         // sometimes Qt attempts to paint the widget before it's parented(?)
         // just ignore this (can't throw from event anyway)
     }
@@ -254,7 +254,7 @@ void QZBar::resizeEvent (QResizeEvent *event)
         if(thread)
             thread->window.resize(size.rwidth(), size.rheight());
     }
-    catch(Exception) { /* ignore */ }
+    catch(Exception&) { /* ignore */ }
 }
 
 void QZBar::changeEvent(QEvent *event)
@@ -269,7 +269,7 @@ void QZBar::changeEvent(QEvent *event)
 #endif
 
     }
-    catch(Exception) { /* ignore (FIXME do something w/error) */ }
+    catch(Exception&) { /* ignore (FIXME do something w/error) */ }
 }
 
 void QZBar::attach ()
@@ -290,7 +290,7 @@ void QZBar::attach ()
         if(_videoEnabled)
             thread->pushEvent(new QZBarThread::VideoDeviceEvent(_videoDevice));
     }
-    catch(Exception) { /* ignore (FIXME do something w/error) */ }
+    catch(Exception&) { /* ignore (FIXME do something w/error) */ }
 }
 
 void QZBar::showEvent (QShowEvent *event)
