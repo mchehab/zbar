@@ -55,7 +55,7 @@ build-nopython/configure-stamp: autotools-dev-stamp
 	cd build-nopython && $(CONFIGURE) --without-python2 LDFLAGS="$(LDFLAGS_DEFAULT)"
 	touch $@
 
-build-python%/configure-stamp: autotools-dev-stamp
+build-python%/configure-stamp: autotools-dev-stamp build-nopython/build-stamp
 	dh_testdir
 	mkdir -p build-python$*
 	set -e ;\
@@ -77,6 +77,10 @@ build-arch: build-nopython/build-stamp $(PYVERS:%=build-python%/build-stamp) $(P
 build-nopython/build-stamp: build-nopython/configure-stamp
 	dh_testdir
 	$(MAKE) -C build-nopython
+ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+	xvfb-run -a $(MAKE) -C build-nopython check
+	$(MAKE) -C build-nopython test
+endif
 	touch $@
 
 build-python%/build-stamp: build-python%/configure-stamp build-nopython/build-stamp

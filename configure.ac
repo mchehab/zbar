@@ -115,9 +115,9 @@ dnl symbologies
 
 AC_ARG_ENABLE([codes],
   [AS_HELP_STRING([--enable-codes=SYMS],
-    [select symbologies to compile [default=ean,databar,code128,code93,code39,codabar,i25,qrcode]])],
+    [select symbologies to compile [default=ean,databar,code128,code93,code39,codabar,i25,qrcode,sqcode]])],
   [],
-  [enable_codes="ean,databar,code128,code93,code39,codabar,i25,qrcode"])
+  [enable_codes="ean,databar,code128,code93,code39,codabar,i25,qrcode,sqcode"])
 
 AC_DEFUN([AC_DEFINE_SUBST],
    [AC_DEFINE($1,$2,$3)
