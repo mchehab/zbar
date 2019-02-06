@@ -662,6 +662,7 @@ echo "Java              --with-java=$with_java"
 AS_IF([test "x$have_GM" = "xyes"],
   [echo "GraphicsMagick    --with-graphicsmagick=yes"],
   [echo "ImageMagick       --with-imagemagick=$with_imagemagick"])
+echo "dbus              --with-dbus=$with_dbus"
 echo "Enabled codes:   $enabled_codes"
 echo "Disabled codes:  $disabled_codes"
 echo ""
@@ -672,7 +673,6 @@ AS_IF([test "x$enable_video" != "xyes"],
   [echo "        => zbarcam video scanner will *NOT* be built"])
 AS_IF([test "x$have_libv4l" != "xyes"],
   [echo "        => libv4l will *NOT* be used"])
-echo "dbus              --with-dbus=$with_dbus"
 AS_IF([test "x$with_jpeg" != "xyes"],
   [echo "        => JPEG image conversions will *NOT* be supported"])
 AS_IF([test "x$have_IM" != "xyes" && test "x$have_GM" != "xyes"],

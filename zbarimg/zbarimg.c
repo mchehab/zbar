@@ -337,9 +337,11 @@ int main (int argc, const char *argv[])
             zbar_increase_verbosity();
         else if(!strncmp(arg, "--verbose=", 10))
             zbar_set_verbosity(strtol(argv[i] + 10, NULL, 0));
-#ifdef HAVE_DBUS
         else if(!strcmp(arg, "--nodbus"))
+#ifdef HAVE_DBUS
             dbus = 0;
+#else
+           ; /* silently ignore the option */
 #endif
         else if(!strcmp(arg, "--display"))
             display++;

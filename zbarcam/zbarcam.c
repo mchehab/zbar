@@ -209,9 +209,11 @@ int main (int argc, const char *argv[])
             format = XML;
         else if(!strcmp(argv[i], "--raw"))
             format = RAW;
-#ifdef HAVE_DBUS
         else if(!strcmp(argv[i], "--nodbus"))
+#ifdef HAVE_DBUS
             dbus = 0;
+#else
+           ; /* silently ignore the option */
 #endif
         else if(!strcmp(argv[i], "--nodisplay"))
             display = 0;
