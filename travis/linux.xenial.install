@@ -5,6 +5,7 @@ sudo apt-get install -y \
 	autotools-dev \
 	libgtk2.0-dev \
 	libmagick++-dev \
+	libpython2.7-dev \
 	libqt5x11extras5-dev \
 	libv4l-dev \
 	libx11-dev \
