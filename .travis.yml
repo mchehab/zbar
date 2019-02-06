@@ -1,0 +1,21 @@
+language: cpp
+compiler: gcc
+dist: xenial
+sudo: required
+cache:
+  directories:
+  - $HOME/.ccache
+  - $HOME/pbuilder-bases
+matrix:
+  include:
+  - env: TARGET_OS=debian-sid
+  - compiler: clang
+    env: TARGET_OS=debian-sid
+before_install:
+- "${TRAVIS_BUILD_DIR}/travis/${TRAVIS_OS_NAME}.${TARGET_OS}.before_install"
+install:
+- "${TRAVIS_BUILD_DIR}/travis/${TRAVIS_OS_NAME}.${TARGET_OS}.install"
+script:
+- "${TRAVIS_BUILD_DIR}/travis/${TRAVIS_OS_NAME}.${TARGET_OS}.script"
+after_script:
+- ccache -s
