@@ -52,7 +52,17 @@ int main(void)
       }
 
       // check if the message is a signal from the correct interface and with the correct name
-      if (dbus_message_is_signal(msg, ZBAR_INTERFACE, ZBAR_SIGNAL_CODE)) {
+      if (dbus_message_is_signal(msg, ZBAR_INTERFACE, ZBAR_SIGNAL_TYPE)) {
+         // read the parameters
+         if (!dbus_message_iter_init(msg, &args))
+            fprintf(stderr, "Message has no arguments!\n");
+         else if (DBUS_TYPE_STRING != dbus_message_iter_get_arg_type(&args))
+            fprintf(stderr, "Argument is not string!\n");
+         else {
+            dbus_message_iter_get_basic(&args, &str);
+	    printf("Type = %s\n", str);
+         }
+      } else if (dbus_message_is_signal(msg, ZBAR_INTERFACE, ZBAR_SIGNAL_CODE)) {
          // read the parameters
          if (!dbus_message_iter_init(msg, &args))
             fprintf(stderr, "Message has no arguments!\n");

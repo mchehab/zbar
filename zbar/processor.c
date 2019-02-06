@@ -54,11 +54,12 @@ static inline int proc_open (zbar_processor_t *proc)
 }
 
 #ifdef HAVE_DBUS
-static void zbar_send_dbus(const char* sigvalue)
+static void zbar_send_dbus(int type, const char* sigvalue)
 {
     DBusMessage* msg;
     DBusMessageIter args;
     DBusConnection* conn;
+    const char *type_name;
     DBusError err;
     int ret;
     dbus_uint32_t serial = 0;
@@ -88,6 +89,32 @@ static void zbar_send_dbus(const char* sigvalue)
     }
 
     // create a signal & check for errors
+    type_name = zbar_get_symbol_name(type);
+    msg = dbus_message_new_signal("/org/linuxtv/Zbar1/Code", // object name of the signal
+                                 "org.linuxtv.Zbar1.Code", // interface name of the signal
+                                 "Type"); // name of the signal
+    if (NULL == msg)
+    {
+        fprintf(stderr, "Message Null\n");
+        return;
+    }
+
+    // append arguments onto signal
+    dbus_message_iter_init_append(msg, &args);
+    if (!dbus_message_iter_append_basic(&args, DBUS_TYPE_STRING, &type_name)) {
+        fprintf(stderr, "Out Of Memory!\n");
+        dbus_message_unref(msg);
+        return;
+    }
+
+    // send the message and flush the connection
+    if (!dbus_connection_send(conn, msg, &serial)) {
+        fprintf(stderr, "Out Of Memory!\n");
+        dbus_message_unref(msg);
+        return;
+    }
+
+    // create a signal & check for errors
     msg = dbus_message_new_signal("/org/linuxtv/Zbar1/Code", // object name of the signal
                                  "org.linuxtv.Zbar1.Code", // interface name of the signal
                                  "Code"); // name of the signal
@@ -111,6 +138,7 @@ static void zbar_send_dbus(const char* sigvalue)
         dbus_message_unref(msg);
         return;
     }
+
     dbus_connection_flush(conn);
     dbus_bus_release_name(conn, "org.linuxtv.Zbar", &err);
     if (dbus_error_is_set(&err)) {
@@ -134,7 +162,7 @@ static void zbar_send_code_via_dbus (zbar_image_t *img)
         if(type == ZBAR_PARTIAL)
             continue;
 
-        zbar_send_dbus(zbar_symbol_get_data(sym));
+        zbar_send_dbus(type, zbar_symbol_get_data(sym));
     }
 }
 #endif
