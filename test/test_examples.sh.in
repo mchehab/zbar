@@ -2,8 +2,8 @@
 
 unset ERR
 
-DIR="@abs_srcdir@/.."
-ZBARIMG="@abs_builddir@/../zbarimg/zbarimg --nodbus"
+DIR="@abs_top_srcdir@"
+ZBARIMG="@abs_top_builddir@/zbarimg/zbarimg --nodbus"
 
 test()
 {
