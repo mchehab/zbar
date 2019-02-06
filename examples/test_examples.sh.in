@@ -2,18 +2,14 @@
 
 unset ERR
 
-if [ "`basename $(pwd)`" == "examples" ]; then
-	DIR=".."
-else
-	DIR="@srcdir@"
-fi
+DIR="@abs_srcdir@"
 
 test()
 {
         j=$1
-        i="$DIR/examples/$j"
-	CK=`$DIR/zbarimg/zbarimg "$i" 2>/dev/null|sha1sum|cut -d" " -f1`
-	ORG=`grep $j "$DIR/examples/sha1sum"|cut -d " " -f1`
+        i="$DIR/$j"
+	CK=`$DIR/../zbarimg/zbarimg "$i" 2>/dev/null|sha1sum|cut -d" " -f1`
+	ORG=`grep $j "$DIR/sha1sum"|cut -d " " -f1`
 
 	if [ "$CK" != "$ORG" ]; then
 		echo "FAILED: $i ($CK instead of $ORG)"
