@@ -2,6 +2,11 @@ language: cpp
 compiler: gcc
 dist: xenial
 sudo: required
+email:
+  recipients:
+    - mchehab@kernel.org
+    on_success: change
+    on_failure: always
 cache:
   directories:
   - $HOME/.ccache
