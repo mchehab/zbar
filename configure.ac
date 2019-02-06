@@ -646,6 +646,8 @@ AS_IF([test "x$with_jpeg" != "xyes"],
   [echo "        => JPEG image conversions will *NOT* be supported"])
 AS_IF([test "x$have_IM" != "xyes" && test "x$have_GM" != "xyes"],
   [echo "        => the zbarimg file scanner will *NOT* be built"])
+AS_IF([test "x$have_GM" = "xyes"],
+  [echo "        => ImageMagick is preferred, as GraphicsMagick doesn't support https"])
 AS_IF([test "x$with_gtk" != "xyes"],
   [echo "        => the GTK+ widget will *NOT* be built"],
   [AS_IF([test "x$with_python2" != "xyes"],

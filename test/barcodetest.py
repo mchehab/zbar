@@ -164,15 +164,15 @@ class BuiltinTestCase(TestCase):
     def __init__(self, methodName='runTest'):
         TestCase.__init__(self, methodName)
 
-        href = distdir_search('examples', 'barcode.png')
+        href = distdir_search('examples', 'ean-13.png')
         if not href:
-            href = 'http://zbar.sf.net/test/barcode.png'
+            href = 'https://git.linuxtv.org/zbar.git/plain/examples/ean-13.png'
 
         self.source = src = ET.Element(ET.QName(BC, 'source'), href=href)
         sym = ET.SubElement(src, ET.QName(BC, 'symbol'), type='EAN-13',
                             orientation='UP')
         data = ET.SubElement(sym, ET.QName(BC, 'data'))
-        data.text = '9876543210128'
+        data.text = '9876543210289'
 
 
 def compare_maps(expect, actual, compare_func):
