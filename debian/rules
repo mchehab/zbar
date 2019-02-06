@@ -77,6 +77,9 @@ build-arch: build-nopython/build-stamp $(PYVERS:%=build-python%/build-stamp) $(P
 build-nopython/build-stamp: build-nopython/configure-stamp
 	dh_testdir
 	$(MAKE) -C build-nopython
+ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+	$(MAKE) -C build-nopython check test
+endif
 	touch $@
 
 build-python%/build-stamp: build-python%/configure-stamp build-nopython/build-stamp

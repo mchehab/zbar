@@ -7,9 +7,9 @@ DIR=`dirname $0`
 test()
 {
         j=$1
-        i=$DIR/$j
-	CK=`$DIR/../zbarimg/zbarimg $i 2>/dev/null|sha1sum|cut -d" " -f1`
-	ORG=`grep $j $DIR/sha1sum|cut -d " " -f1`
+        i="@srcdir@/$j"
+	CK=`$DIR/../zbarimg/zbarimg "$i" 2>/dev/null|sha1sum|cut -d" " -f1`
+	ORG=`grep $j "@srcdir@/sha1sum"|cut -d " " -f1`
 
 	if [ "$CK" != "$ORG" ]; then
 		echo "FAILED: $i ($CK instead of $ORG)"
@@ -63,5 +63,7 @@ fi
 
 if [ "$ERR" == "" ]; then
 	echo "PASSED."
+else
+	exit 1
 fi
 
