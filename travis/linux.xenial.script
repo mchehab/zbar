@@ -1,0 +1,8 @@
+#!/bin/sh
+set -e
+
+autoreconf
+./configure
+make
+make test
+sudo make install
