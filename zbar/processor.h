@@ -69,6 +69,10 @@ struct zbar_processor_s {
 
     zbar_image_data_handler_t *handler; /* application data handler */
 
+#ifdef HAVE_DBUS
+    int is_dbus_enabled;                /* dbus enabled flag */
+#endif
+
     unsigned req_width, req_height;     /* application requested video size */
     int req_intf, req_iomode;           /* application requested interface */
     uint32_t force_input;               /* force input format (debug) */

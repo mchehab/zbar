@@ -25,6 +25,10 @@
 #include "window.h"
 #include "image.h"
 
+#ifdef HAVE_DBUS
+#include <dbus/dbus.h>
+#endif
+
 static inline int proc_enter (zbar_processor_t *proc)
 {
     _zbar_mutex_lock(&proc->mutex);
@@ -48,6 +52,92 @@ static inline int proc_open (zbar_processor_t *proc)
     }
     return(_zbar_processor_open(proc, "zbar barcode reader", width, height));
 }
+
+#ifdef HAVE_DBUS
+static void zbar_send_dbus(const char* sigvalue)
+{
+    DBusMessage* msg;
+    DBusMessageIter args;
+    DBusConnection* conn;
+    DBusError err;
+    int ret;
+    dbus_uint32_t serial = 0;
+
+    // initialise the error value
+    dbus_error_init(&err);
+
+    // connect to the DBUS system bus, and check for errors
+    conn = dbus_bus_get(DBUS_BUS_SYSTEM, &err);
+    if (dbus_error_is_set(&err)) {
+        fprintf(stderr, "Connection Error (%s)\n", err.message);
+        dbus_error_free(&err);
+    }
+    if (NULL == conn) {
+        fprintf(stderr, "Connection Null\n");
+        return;
+    }
+
+    // register our name on the bus, and check for errors
+    ret = dbus_bus_request_name(conn, "org.linuxtv.Zbar", DBUS_NAME_FLAG_REPLACE_EXISTING, &err);
+    if (dbus_error_is_set(&err)) {
+        fprintf(stderr, "Name Error (%s)\n", err.message);
+        dbus_error_free(&err);
+    }
+    if (DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER != ret) {
+        return;
+    }
+
+    // create a signal & check for errors
+    msg = dbus_message_new_signal("/org/linuxtv/Zbar1/Code", // object name of the signal
+                                 "org.linuxtv.Zbar1.Code", // interface name of the signal
+                                 "Code"); // name of the signal
+    if (NULL == msg)
+    {
+        fprintf(stderr, "Message Null\n");
+        return;
+    }
+
+    // append arguments onto signal
+    dbus_message_iter_init_append(msg, &args);
+    if (!dbus_message_iter_append_basic(&args, DBUS_TYPE_STRING, &sigvalue)) {
+        fprintf(stderr, "Out Of Memory!\n");
+        dbus_message_unref(msg);
+        return;
+    }
+
+    // send the message and flush the connection
+    if (!dbus_connection_send(conn, msg, &serial)) {
+        fprintf(stderr, "Out Of Memory!\n");
+        dbus_message_unref(msg);
+        return;
+    }
+    dbus_connection_flush(conn);
+    dbus_bus_release_name(conn, "org.linuxtv.Zbar", &err);
+    if (dbus_error_is_set(&err)) {
+        fprintf(stderr, "Name Release Error (%s)\n", err.message);
+        dbus_error_free(&err);
+    }
+
+    // free the message
+    dbus_message_unref(msg);
+}
+
+static void zbar_send_code_via_dbus (zbar_image_t *img)
+{
+    const zbar_symbol_t *sym = zbar_image_first_symbol(img);
+    assert(sym);
+    for(; sym; sym = zbar_symbol_next(sym)) {
+        if(zbar_symbol_get_count(sym))
+            continue;
+
+        zbar_symbol_type_t type = zbar_symbol_get_type(sym);
+        if(type == ZBAR_PARTIAL)
+            continue;
+
+        zbar_send_dbus(zbar_symbol_get_data(sym));
+    }
+}
+#endif
 
 /* API lock is already held */
 int _zbar_process_image (zbar_processor_t *proc,
@@ -114,6 +204,10 @@ int _zbar_process_image (zbar_processor_t *proc,
             _zbar_mutex_unlock(&proc->mutex);
             if(proc->handler)
                 proc->handler(img, proc->userdata);
+#ifdef HAVE_DBUS
+            if(proc->is_dbus_enabled)
+                zbar_send_code_via_dbus(img);
+#endif
         }
 
         if(force_fmt) {
@@ -711,3 +805,14 @@ int zbar_process_image (zbar_processor_t *proc,
     proc_leave(proc);
     return(rc);
 }
+
+#ifdef HAVE_DBUS
+int zbar_processor_request_dbus (zbar_processor_t *proc,
+                                 int req_dbus_enabled)
+{
+    proc_enter(proc);
+    proc->is_dbus_enabled = req_dbus_enabled;
+    proc_leave(proc);
+    return(0);
+}
+#endif
