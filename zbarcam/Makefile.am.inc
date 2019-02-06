@@ -6,7 +6,6 @@ CLEANFILES += zbarcam/.libs/zbarcam zbarcam/moc_zbarcam_qt.h
 
 if HAVE_GTK
 bin_PROGRAMS += zbarcam/zbarcam-gtk
-check_PROGRAMS += zbarcam/zbarcam-gtk
 zbarcam_zbarcam_gtk_SOURCES = zbarcam/zbarcam-gtk.c zbarcam/scan_video.c
 zbarcam_zbarcam_gtk_CPPFLAGS = $(GTK_CFLAGS) $(AM_CPPFLAGS)
 zbarcam_zbarcam_gtk_LDADD = $(GTK_LIBS) gtk/libzbargtk.la zbar/libzbar.la \
@@ -15,7 +14,6 @@ endif
 
 if HAVE_QT
 bin_PROGRAMS += zbarcam/zbarcam-qt
-check_PROGRAMS += zbarcam/zbarcam-qt
 
 zbarcam_zbarcam_qt_SOURCES = zbarcam/zbarcam-qt.cpp zbarcam/scan_video.c
 nodist_zbarcam_zbarcam_qt_SOURCES = zbarcam/moc_zbarcam_qt.h

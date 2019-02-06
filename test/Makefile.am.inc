@@ -45,6 +45,12 @@ test_dbg_scan_CPPFLAGS = $(MAGICK_CFLAGS) $(AM_CPPFLAGS)
 test_dbg_scan_LDADD = $(MAGICK_LIBS) -lMagick++ zbar/libzbar.la $(AM_LDADD)
 endif
 
+if HAVE_DBUS
+check_PROGRAMS += test/test_dbus
+test_test_dbus_SOURCES = test/test_dbus.c
+test_test_dbus_LDFLAGS = $(DBUS_LIBS)
+endif
+
 EXTRA_DIST += test/test_pygtk.py test/test_perl.pl
 
 # automake bug in "monolithic mode"?
