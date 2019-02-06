@@ -14,6 +14,9 @@ test()
 
 	if [ "$CK" != "$ORG" ]; then
 		echo "FAILED: $i ($CK instead of $ORG)"
+		echo -e "\tcmd: $DIR/zbarimg/zbarimg '$i'"
+		echo -en "\tresults: "
+		$DIR/zbarimg/zbarimg "$i" 2>/dev/null
 		ERR=1
 	fi
 }
