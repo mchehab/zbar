@@ -11,6 +11,9 @@ code images and using a video device (eg, webcam) as a bar code scanner.
 For application developers, language bindings are included for C, C++,
 Python 2 and Perl as well as GUI widgets for Qt, GTK and PyGTK 2.0.
 
+Zbar also supports sending the scaned codes via dbus, allowing its
+integration with other applications.
+
 Check the ZBar home page for the latest release, mailing lists, etc.:
 
 - <https://github.com/mchehab/zbar>
@@ -94,6 +97,12 @@ to decode a saved image file.
 
 Check the manual to find specific options for each program.
 
+DBUS TESTING
+============
+
+In order to test if dbus is working, you could use:
+
+	dbus-monitor --system interface=org.linuxtv.Zbar1.Code
 
 REPORTING BUGS
 ==============
