@@ -50,6 +50,12 @@ if HAVE_DOC
 include $(srcdir)/doc/Makefile.am.inc
 endif
 
+if HAVE_DBUS
+dbusconfdir = @DBUS_CONFDIR@
+dbusconf_DATA = $(srcdir)/dbus/org.linuxtv.Zbar.conf
+EXTRA_DIST += $(dbusconf_DATA)
+endif
+
 EXTRA_DIST += zbar.ico zbar.nsi
 
 EXTRA_DIST += examples/barcode.png examples/upcrpc.py examples/upcrpc.pl \

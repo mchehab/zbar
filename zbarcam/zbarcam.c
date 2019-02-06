@@ -48,6 +48,9 @@ static const char *note_usage =
     "    --verbose=N     set specific debug output level\n"
     "    --xml           use XML output format\n"
     "    --raw           output decoded symbol data without symbology prefix\n"
+#ifdef HAVE_DBUS
+    "    --nodbus        disable dbus message\n"
+#endif
     "    --nodisplay     disable video display window\n"
     "    --prescale=<W>x<H>\n"
     "                    request alternate video image size from driver\n"
@@ -150,6 +153,9 @@ int main (int argc, const char *argv[])
     zbar_processor_set_data_handler(proc, data_handler, NULL);
 
     const char *video_device = "";
+#ifdef HAVE_DBUS
+    int dbus = 1;
+#endif
     int display = 1;
     unsigned long infmt = 0, outfmt = 0;
     int i;
@@ -203,6 +209,10 @@ int main (int argc, const char *argv[])
             format = XML;
         else if(!strcmp(argv[i], "--raw"))
             format = RAW;
+#ifdef HAVE_DBUS
+        else if(!strcmp(argv[i], "--nodbus"))
+            dbus = 0;
+#endif
         else if(!strcmp(argv[i], "--nodisplay"))
             display = 0;
         else if(!strcmp(argv[i], "--verbose"))
@@ -246,6 +256,10 @@ int main (int argc, const char *argv[])
 
     if(infmt || outfmt)
         zbar_processor_force_format(proc, infmt, outfmt);
+
+#ifdef HAVE_DBUS
+    zbar_processor_request_dbus(proc, dbus);
+#endif
 
     /* open video device, open window */
     if(zbar_processor_init(proc, video_device, display) ||
