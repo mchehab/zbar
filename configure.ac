@@ -640,8 +640,8 @@ zbar.pc
 zbar-gtk.pc
 zbar-qt.pc
 doc/doxygen.conf
-examples/test_examples.sh
-],[chmod 755 examples/test_examples.sh])
+test/test_examples.sh
+],[chmod 755 test/test_examples.sh])
 
 AC_OUTPUT
 

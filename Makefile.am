@@ -58,7 +58,7 @@ endif
 
 EXTRA_DIST += zbar.ico zbar.nsi
 
-EXTRA_DIST += examples/barcode.png examples/upcrpc.py examples/upcrpc.pl \
+EXTRA_DIST += examples/*.png examples/upcrpc.py examples/upcrpc.pl \
     examples/scan_image.c examples/scan_image.cpp examples/scan_image.vcproj
 
 EXTRA_DIST += perl/MANIFEST perl/README perl/Changes perl/COPYING.LIB \
@@ -108,6 +108,6 @@ test_progs: all
 	$(MAKE) test/test_decode test/test_convert test/test_video test/test_proc test/test_cpp test/test_cpp_img test/test_jpeg
 
 test: all
-	@examples/test_examples.sh
+	@test/test_examples.sh
 
 .PHONY : $(PHONY) archive test gen_checksum test_progs
