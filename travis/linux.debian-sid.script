@@ -15,7 +15,8 @@ fi
 
 if [ "$CC" = clang ]
 then
-	sudo sh -c "echo EXTRAPACKAGES='clang libomp-dev' >> /etc/pbuilderrc"
+	sudo sh -c \
+	"echo EXTRAPACKAGES='\"clang libomp-dev\"' >> /etc/pbuilderrc"
 fi
 
 if [ ! -e "$BASETGZ.stamp" ]
