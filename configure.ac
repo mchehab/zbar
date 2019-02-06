@@ -639,9 +639,9 @@ java/Makefile
 zbar.pc
 zbar-gtk.pc
 zbar-qt.pc
-doc/doxygen.conf
-test/test_examples.sh
-],[chmod 755 test/test_examples.sh])
+doc/doxygen.conf])
+
+AC_CONFIG_FILES([test/test_examples.sh],[chmod 755 test/test_examples.sh])
 
 AC_OUTPUT
 
