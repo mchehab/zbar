@@ -78,7 +78,8 @@ build-nopython/build-stamp: build-nopython/configure-stamp
 	dh_testdir
 	$(MAKE) -C build-nopython
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
-	$(MAKE) -C build-nopython check test
+	xvfb-run -a $(MAKE) -C build-nopython check
+	$(MAKE) -C build-nopython test
 endif
 	touch $@
 
