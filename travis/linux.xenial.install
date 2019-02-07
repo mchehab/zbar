@@ -14,4 +14,5 @@ sudo apt-get install -y \
 	python-all-dev \
 	python-all-dbg \
 	python-gtk2-dev \
+	python2.7-dev \
 	xmlto
