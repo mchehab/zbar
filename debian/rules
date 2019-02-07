@@ -2,6 +2,7 @@
 
 DEB_HOST_GNU_TYPE	?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE	?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+DEB_HOST_ARCH		?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
 DEB_HOST_ARCH_OS	?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
 
 VERSION:=$(strip $(shell dpkg-parsechangelog| grep '^Version' | awk '{print $$2}'))
@@ -25,6 +26,7 @@ endif
 
 PYVERS = $(shell pyversions -rv)
 
+export JAVA_HOME := /usr/lib/jvm/java-8-openjdk-$(DEB_HOST_ARCH)
 export QT_SELECT := 5
 
 LDFLAGS_DEFAULT = $(LDFLAGS) -Wl,-z,defs
