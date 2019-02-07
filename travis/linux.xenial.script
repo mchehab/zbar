@@ -2,6 +2,7 @@
 set -e
 
 autoreconf -vfi
+export PYTHON=/usr/bin/python2.7
 ./configure
 make
 make test
