@@ -91,7 +91,7 @@ class MenuControl : public QComboBox
 private:
     char *name;
     zbar::QZBar *zbar;
-    QVector< QPair< int , QString >> vector;
+    QVector< QPair< int , QString > > vector;
 
 private slots:
     void updateControl(int value);
@@ -99,7 +99,7 @@ private slots:
 public:
 
     MenuControl(QGroupBox *parent, zbar::QZBar *_zbar, char *_name,
-                QVector< QPair< int , QString >> _vector)
+                QVector< QPair< int , QString > > _vector)
         : QComboBox(parent)
     {
         int val;
@@ -354,7 +354,7 @@ public Q_SLOTS:
 
                     QLabel *label = new QLabel(QString::fromUtf8(name));
 
-                    QVector< QPair< int , QString >> vector;
+                    QVector< QPair< int , QString > > vector;
                     vector = zbar->get_menu(i);
                     ctrl= new MenuControl(controlGroup, zbar, name, vector);
 
