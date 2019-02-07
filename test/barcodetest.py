@@ -14,7 +14,7 @@ debug = False
 # program to run - None means we still need to search for it
 zbarimg = None
 # arguments to said program
-zbarimg_args = [ '-q', '--xml' ]
+zbarimg_args = [ '-q', '--xml', '--nodbus' ]
 
 
 # namespace support
