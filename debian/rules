@@ -26,6 +26,7 @@ endif
 
 PYVERS = $(shell pyversions -rv)
 
+export CLASSPATH := .:/usr/share/java/junit4.jar
 export JAVA_HOME := /usr/lib/jvm/java-8-openjdk-$(DEB_HOST_ARCH)
 export QT_SELECT := 5
 
