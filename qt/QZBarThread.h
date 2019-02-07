@@ -106,7 +106,7 @@ public:
                      enum QZBar::ControlType *type = NULL,
                      int *min = NULL, int *max = NULL,
                      int *def = NULL, int *step = NULL);
-    QVector< QPair< int , QString >> get_menu(int index);
+    QVector< QPair< int , QString > > get_menu(int index);
     int set_control(char *name, bool value);
     int set_control(char *name, int value);
     int get_control(char *name, bool *value);

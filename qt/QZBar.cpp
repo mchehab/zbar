@@ -112,10 +112,10 @@ int QZBar::get_controls(int index, char **name, char **group,
                                 min, max, def, step);
 }
 
-QVector< QPair< int , QString >> QZBar::get_menu(int index)
+QVector< QPair< int , QString > > QZBar::get_menu(int index)
 {
     if(!thread) {
-        QVector< QPair< int , QString >> empty;
+        QVector< QPair< int , QString > > empty;
         return empty;
     }
 

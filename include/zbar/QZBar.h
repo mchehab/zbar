@@ -146,7 +146,7 @@ public Q_SLOTS:
                      int *def = NULL, int *step = NULL);
 
     /// Get items for control menus
-    QVector< QPair< int , QString >> get_menu(int index);
+    QVector< QPair< int , QString > > get_menu(int index);
 
     // get/set controls from the camera device
     int set_control(char *name, bool value);
