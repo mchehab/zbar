@@ -233,9 +233,9 @@ void QZBarThread::run ()
     openVideo("");
 }
 
-QVector< QPair< int , QString >> QZBarThread::get_menu(int index)
+QVector< QPair< int , QString > > QZBarThread::get_menu(int index)
 {
-    QVector< QPair< int , QString >> vector;
+    QVector< QPair< int , QString > > vector;
     struct video_controls_s *ctrl;
 
     if(!video)
