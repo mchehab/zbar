@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+
+autoreconf -vfi
+
+# Travis CI sets wrong value
+unset PYTHON_CFLAGS
+
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export QT_SELECT=5
+./configure
+make
+make test
+sudo make install

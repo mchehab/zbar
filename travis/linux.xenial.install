@@ -1,0 +1,17 @@
+#!/bin/sh
+sudo apt-get install -y \
+	autoconf \
+	automake \
+	autotools-dev \
+	libgtk2.0-dev \
+	libmagick++-dev \
+	libqt5x11extras5-dev \
+	libv4l-dev \
+	libx11-dev \
+	openjdk-8-jdk-headless \
+	perl \
+	pkg-config \
+	python-all-dev \
+	python-all-dbg \
+	python-gtk2-dev \
+	xmlto
