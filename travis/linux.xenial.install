@@ -8,6 +8,7 @@ sudo apt-get install -y \
 	libqt5x11extras5-dev \
 	libv4l-dev \
 	libx11-dev \
+	openjdk-8-jdk-headless \
 	perl \
 	pkg-config \
 	python-all-dev \
