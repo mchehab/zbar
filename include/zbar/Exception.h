@@ -30,6 +30,7 @@
 # error "include zbar.h in your application, **not** zbar/Exception.h"
 #endif
 
+#include <cstddef>
 #include <exception>
 #include <new>
 
