@@ -70,6 +70,7 @@ libzbar.so.0 libzbar0 #MINVER#
  zbar_processor_get_userdata@Base 0.10
  zbar_processor_init@Base 0.10
  zbar_processor_is_visible@Base 0.10
+ zbar_processor_request_dbus@Base 0.20.2
  zbar_processor_request_interface@Base 0.10
  zbar_processor_request_iomode@Base 0.10
  zbar_processor_request_size@Base 0.10
