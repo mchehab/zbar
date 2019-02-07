@@ -2,7 +2,11 @@
 set -e
 
 autoreconf -vfi
-export PYTHON=/usr/bin/python2.7
+
+# Travis CI sets wrong value
+unset PYTHON_CFLAGS
+
+export QT_SELECT=5
 ./configure
 make
 make test
