@@ -35,6 +35,7 @@ test/test_examples.sh
 test/test_convert
 test/test_cpp
 test/test_cpp_img
+test/test_dbus
 test/test_decode
 test/test_jpeg
 test/test_proc
