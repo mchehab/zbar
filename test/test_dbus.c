@@ -32,19 +32,24 @@
 static const char doc[] = "\nTest if ZBar is sending codes via D-Bus\n";
 
 static const struct argp_option options[] = {
-    {"count", 'c', "#codes", 0, "Stop after received #codes", 0},
-    {"help",  '?', 0,        0, "Give this help list",       -1},
-    {"usage",  -3, 0,        0, "Give a short usage message", 0},
+    {"count", 'c', "#codes",   0, "Stop after received #codes", 0},
+    {"time",  't', "#seconds", 0, "Stop after #seconds",        0},
+    {"help",  '?', 0,          0, "Give this help list",       -1},
+    {"usage",  -3, 0,          0, "Give a short usage message", 0},
     { 0 }
 };
 
 static int max_msg = 0;
+static int timeout = 0;
 
 static error_t parse_opt(int k, char *optarg, struct argp_state *state)
 {
     switch (k) {
     case 'c':
         max_msg = strtoul(optarg, NULL, 0);
+        break;
+    case 't':
+        timeout = strtoul(optarg, NULL, 0);
         break;
     case '?':
         argp_state_help(state, state->out_stream,
@@ -102,7 +107,11 @@ int main(int argc, char *argv[])
       fprintf(stderr, "Match Error (%s)\n", err.message);
       exit(1);
    }
-// loop listening for signals being emmitted
+
+   if (timeout)
+       alarm(timeout);
+
+   /* loop listening for signals being emitted */
    printf("Waiting for Zbar events\n");
    while (true) {
       // non blocking read of the next available message
