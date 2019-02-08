@@ -89,6 +89,13 @@ check-convert: test/test_convert
 	   echo "convert FAILED"; else echo "convert PASSED."; fi
 	@rm /tmp/base.I420.zimg 2>/dev/null
 
+# Require a camera device for it to work
+check-video: test/test_video
+	@abs_top_srcdir@/test/test_video -q
+
+check-jpeg: test/test_jpeg
+	@abs_top_srcdir@/test/test_jpeg -q
+
 if HAVE_DBUS
 # Require a working D-Bus - may fail with containers
 check-dbus: test/test_dbus
@@ -101,7 +108,7 @@ check-local: check-images-py check-decoder check-images
 
 regress: regress-decoder regress-images-py
 
-other_tests: check-cpp check-convert test_jpeg test_video
+other_tests: check-cpp check-convert check-video check-jpeg
 
 tests: check-local check-dbus regress
 

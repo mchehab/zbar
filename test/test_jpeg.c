@@ -22,6 +22,7 @@
  *------------------------------------------------------------------------*/
 
 #include <config.h>
+#include <argp.h>
 #ifdef HAVE_INTTYPES_H
 # include <inttypes.h>
 #endif
@@ -106,9 +107,55 @@ unsigned char rgb[8*8*3] = {
      60, 213,  60,   94, 220,  94,  176, 238, 176,  255, 255, 255,
 };
 
+#define PROGRAM_NAME	"test_video"
+
+static const char doc[] = "\nTest if ZBar is able to handle a video input (camera)\n";
+
+static const struct argp_option options[] = {
+    {"quiet", 'q', 0,         0, "Don't be verbose",           0},
+    {"help",  '?', 0,         0, "Give this help list",       -1},
+    {"usage",  -3, 0,         0, "Give a short usage message", 0},
+    { 0 }
+};
+
+static int quiet = 0;
+
+static error_t parse_opt(int k, char *optarg, struct argp_state *state)
+{
+    switch (k) {
+    case 'q':
+        quiet = 1;
+        break;
+    case '?':
+        argp_state_help(state, state->out_stream,
+                        ARGP_HELP_SHORT_USAGE | ARGP_HELP_LONG |
+                        ARGP_HELP_DOC);
+        exit(0);
+    case -3:
+        argp_state_help(state, state->out_stream, ARGP_HELP_USAGE);
+        exit(0);
+    default:
+        return ARGP_ERR_UNKNOWN;
+    };
+    return 0;
+}
+
+static const struct argp argp = {
+	.options = options,
+	.parser = parse_opt,
+	.doc = doc,
+};
+
 int main (int argc, char **argv)
 {
-    zbar_set_verbosity(32);
+    if (argp_parse(&argp, argc, argv, ARGP_NO_HELP | ARGP_NO_EXIT, 0, 0)) {
+        argp_help(&argp, stderr, ARGP_HELP_SHORT_USAGE, PROGRAM_NAME);
+        return -1;
+    }
+    if (!quiet)
+        zbar_set_verbosity(32);
+    else
+        zbar_set_verbosity(0);
 
     zbar_processor_t *proc = zbar_processor_create(0);
     assert(proc);
@@ -123,17 +170,18 @@ int main (int argc, char **argv)
     zbar_image_t *test = zbar_image_convert(img, fourcc('Y','8','0','0'));
     if(!test)
         return(2);
-    printf("converted: %d x %d (%lx) %08lx\n",
-           zbar_image_get_width(test),
-           zbar_image_get_height(test),
-           zbar_image_get_data_length(test),
-           zbar_image_get_format(test));
+    if (!quiet)
+        printf("converted: %d x %d (%lx) %08lx\n",
+               zbar_image_get_width(test),
+               zbar_image_get_height(test),
+               zbar_image_get_data_length(test),
+               zbar_image_get_format(test));
 
     if(zbar_process_image(proc, test) < 0)
         return(3);
     if(zbar_processor_set_visible(proc, 1))
         return(4);
 
-    zbar_processor_user_wait(proc, -1);
+    printf("jpeg PASSED.\n");
     return(0);
 }
