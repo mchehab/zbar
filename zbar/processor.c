@@ -54,10 +54,43 @@ static inline int proc_open (zbar_processor_t *proc)
 }
 
 #ifdef HAVE_DBUS
+static int dict_add_property (DBusMessageIter *property,
+                              const char *key,
+                              const char *value)
+{
+
+    DBusMessageIter dict_entry, dict_val;
+    DBusError err;
+    dbus_error_init(&err);
+    dbus_message_iter_open_container(property, DBUS_TYPE_DICT_ENTRY, NULL, &dict_entry);
+    if (!dbus_message_iter_append_basic(&dict_entry, DBUS_TYPE_STRING, &key)){
+        fprintf(stderr, "Key Error\n");
+        dbus_message_iter_close_container(property, &dict_entry);
+        goto error;
+    }
+    dbus_message_iter_open_container(&dict_entry, DBUS_TYPE_VARIANT, DBUS_TYPE_STRING_AS_STRING, &dict_val);
+    if (!dbus_message_iter_append_basic(&dict_val, DBUS_TYPE_STRING, &value)){
+        fprintf(stderr, "Value Error\n");
+        dbus_message_iter_close_container(&dict_entry, &dict_val);
+        dbus_message_iter_close_container(property, &dict_entry);
+        goto error;
+    }
+    dbus_message_iter_close_container(&dict_entry, &dict_val);
+    dbus_message_iter_close_container(property, &dict_entry);
+    return(1);
+
+error:
+    if (dbus_error_is_set(&err)) {
+        fprintf(stderr, "Name Error (%s)\n", err.message);
+        dbus_error_free(&err);
+    }
+    return(0);
+}
+
 static void zbar_send_dbus(int type, const char* sigvalue)
 {
     DBusMessage* msg;
-    DBusMessageIter args;
+    DBusMessageIter args, dict;
     DBusConnection* conn;
     const char *type_name;
     DBusError err;
@@ -89,32 +122,6 @@ static void zbar_send_dbus(int type, const char* sigvalue)
     }
 
     // create a signal & check for errors
-    type_name = zbar_get_symbol_name(type);
-    msg = dbus_message_new_signal("/org/linuxtv/Zbar1/Code", // object name of the signal
-                                 "org.linuxtv.Zbar1.Code", // interface name of the signal
-                                 "Type"); // name of the signal
-    if (NULL == msg)
-    {
-        fprintf(stderr, "Message Null\n");
-        return;
-    }
-
-    // append arguments onto signal
-    dbus_message_iter_init_append(msg, &args);
-    if (!dbus_message_iter_append_basic(&args, DBUS_TYPE_STRING, &type_name)) {
-        fprintf(stderr, "Out Of Memory!\n");
-        dbus_message_unref(msg);
-        return;
-    }
-
-    // send the message and flush the connection
-    if (!dbus_connection_send(conn, msg, &serial)) {
-        fprintf(stderr, "Out Of Memory!\n");
-        dbus_message_unref(msg);
-        return;
-    }
-
-    // create a signal & check for errors
     msg = dbus_message_new_signal("/org/linuxtv/Zbar1/Code", // object name of the signal
                                  "org.linuxtv.Zbar1.Code", // interface name of the signal
                                  "Code"); // name of the signal
@@ -126,11 +133,26 @@ static void zbar_send_dbus(int type, const char* sigvalue)
 
     // append arguments onto signal
     dbus_message_iter_init_append(msg, &args);
-    if (!dbus_message_iter_append_basic(&args, DBUS_TYPE_STRING, &sigvalue)) {
-        fprintf(stderr, "Out Of Memory!\n");
+    if (!dbus_message_iter_open_container(&args, DBUS_TYPE_ARRAY, "{sv}", &dict)) {
+        fprintf(stderr, "Out Of Dict Container Memory!\n");
         dbus_message_unref(msg);
         return;
     }
+
+    type_name = zbar_get_symbol_name(type);
+    if (!dict_add_property(&dict, "Type", type_name)) {
+        fprintf(stderr, "Out Of Property Memory!\n");
+        dbus_message_unref(msg);
+        return;
+    }
+
+    if (!dict_add_property(&dict, "Data", sigvalue)) {
+        fprintf(stderr, "Out Of Property Memory!\n");
+        dbus_message_unref(msg);
+        return;
+    }
+
+    dbus_message_iter_close_container(&args, &dict);
 
     // send the message and flush the connection
     if (!dbus_connection_send(conn, msg, &serial)) {
