@@ -14,9 +14,10 @@
  *  GNU Lesser Public License for more details.
  *------------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <argp.h>
+#include <stdarg.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <dbus/dbus.h>
@@ -26,13 +27,58 @@
 #define ZBAR_SIGNAL_TYPE "Type"
 #define ZBAR_SIGNAL_DATA "Data"
 
-int main(void)
+#define PROGRAM_NAME	"test_dbus"
+
+static const char doc[] = "\nTest if ZBar is sending codes via D-Bus\n";
+
+static const struct argp_option options[] = {
+    {"count", 'c', "#codes", 0, "Stop after received #codes", 0},
+    {"help",  '?', 0,        0, "Give this help list",       -1},
+    {"usage",  -3, 0,        0, "Give a short usage message", 0},
+    { 0 }
+};
+
+static int max_msg = 0;
+
+static error_t parse_opt(int k, char *optarg, struct argp_state *state)
+{
+    switch (k) {
+    case 'c':
+        max_msg = strtoul(optarg, NULL, 0);
+        break;
+    case '?':
+        argp_state_help(state, state->out_stream,
+                        ARGP_HELP_SHORT_USAGE | ARGP_HELP_LONG |
+                        ARGP_HELP_DOC);
+        exit(0);
+    case -3:
+        argp_state_help(state, state->out_stream, ARGP_HELP_USAGE);
+        exit(0);
+    default:
+        return ARGP_ERR_UNKNOWN;
+    };
+    return 0;
+}
+
+static const struct argp argp = {
+	.options = options,
+	.parser = parse_opt,
+	.doc = doc,
+};
+
+int main(int argc, char *argv[])
 {
     DBusMessage* msg;
     DBusMessageIter args, entry, dict, val;
     DBusConnection* conn;
     DBusError err;
     char *str, *property;
+    int count = 0;
+
+    if (argp_parse(&argp, argc, argv, ARGP_NO_HELP | ARGP_NO_EXIT, 0, 0)) {
+        argp_help(&argp, stderr, ARGP_HELP_SHORT_USAGE, PROGRAM_NAME);
+        return -1;
+    }
 
     // initialise the error value
     dbus_error_init(&err);
@@ -102,13 +148,16 @@ int main(void)
                   }
                   dbus_message_iter_next(&entry);
                 }
+                /* If max_msg > 0, stops after receiving 'count' messages */
+                if (++count == max_msg) {
+                    dbus_message_unref(msg);
+                    return 0;
+                }
               }
               dbus_message_iter_next(&args);
             }
          }
       }
-
-
       // free the message
       dbus_message_unref(msg);
    }
