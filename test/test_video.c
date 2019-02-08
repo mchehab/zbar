@@ -22,6 +22,7 @@
  *------------------------------------------------------------------------*/
 
 #include <config.h>
+#include <argp.h>
 #ifdef HAVE_INTTYPES_H
 # include <inttypes.h>
 #endif
@@ -46,24 +47,72 @@ struct timespec {
 
 zbar_video_t *video;
 
+#define PROGRAM_NAME	"test_video"
+
+static const char doc[] = "\nTest if ZBar is able to handle a video input (camera)\n";
+
+static const struct argp_option options[] = {
+    {"quiet", 'q', 0,         0, "Don't be verbose",           0},
+    {"dev",   'd', "devnode", 0, "open devnode for video in",  0},
+    {"format",'f', "fourcc",  0, "Stop after #seconds",        0},
+    {"help",  '?', 0,         0, "Give this help list",       -1},
+    {"usage",  -3, 0,         0, "Give a short usage message", 0},
+    { 0 }
+};
+
+static int quiet = 0;
+uint32_t vidfmt = fourcc('B','G','R','3');
+char *dev = "";
+
+static error_t parse_opt(int k, char *optarg, struct argp_state *state)
+{
+    switch (k) {
+    case 'q':
+        quiet = 1;
+        break;
+    case 'f': {
+        int len = strlen(optarg);
+        if (len > 4)
+            len = 4;
+        memcpy((char*)&vidfmt, optarg, len);
+        if (len < 4)
+            memset(len + (char*)&vidfmt, 0, 4 - len);
+        break;
+    }
+    case 'd':
+        dev = optarg;
+        break;
+    case '?':
+        argp_state_help(state, state->out_stream,
+                        ARGP_HELP_SHORT_USAGE | ARGP_HELP_LONG |
+                        ARGP_HELP_DOC);
+        exit(0);
+    case -3:
+        argp_state_help(state, state->out_stream, ARGP_HELP_USAGE);
+        exit(0);
+    default:
+        return ARGP_ERR_UNKNOWN;
+    };
+    return 0;
+}
+
+static const struct argp argp = {
+	.options = options,
+	.parser = parse_opt,
+	.doc = doc,
+};
+
 int main (int argc, char *argv[])
 {
-    zbar_set_verbosity(31);
 
-    const char *dev = "";
-    uint32_t vidfmt = 0;
-    if(argc > 1) {
-        dev = argv[1];
-
-        if(argc > 2) {
-            int n = strlen(argv[2]);
-            if(n > 4)
-                n = 4;
-            memcpy((char*)&vidfmt, argv[2], n);
-        }
+    if (argp_parse(&argp, argc, argv, ARGP_NO_HELP | ARGP_NO_EXIT, 0, 0)) {
+        argp_help(&argp, stderr, ARGP_HELP_SHORT_USAGE, PROGRAM_NAME);
+        return -1;
     }
-    if(!vidfmt)
-        vidfmt = fourcc('B','G','R','3');
+    if (!quiet)
+        zbar_set_verbosity(31);
+    else
+        zbar_set_verbosity(0);
 
     video = zbar_video_create();
     if(!video) {
@@ -89,9 +138,11 @@ int main (int argc, char *argv[])
                 dev);
         return(1);
     }
-    fprintf(stderr, "opened video device: %s (fd=%d)\n",
-            dev, zbar_video_get_fd(video));
-    fflush(stderr);
+    if (!quiet) {
+        fprintf(stderr, "opened video device: %s (fd=%d)\n",
+                dev, zbar_video_get_fd(video));
+        fflush(stderr);
+    }
 
     if(zbar_video_init(video, vidfmt)) {
         fprintf(stderr, "ERROR: failed to set format: %.4s(%08x)\n",
@@ -103,8 +154,10 @@ int main (int argc, char *argv[])
         fprintf(stderr, "ERROR: starting video stream\n");
         return(zbar_video_error_spew(video, 0));
     }
-    fprintf(stderr, "started video stream...\n");
-    fflush(stderr);
+    if (!quiet) {
+        fprintf(stderr, "started video stream...\n");
+        fflush(stderr);
+    }
 
     zbar_image_t *image = zbar_video_next_image(video);
     if(!image) {
@@ -115,14 +168,18 @@ int main (int argc, char *argv[])
     unsigned width = zbar_image_get_width(image);
     unsigned height = zbar_image_get_height(image);
     const uint8_t *data = zbar_image_get_data(image);
-    fprintf(stderr, "captured image: %d x %d %.4s @%p\n",
-            width, height, (char*)&format, data);
-    fflush(stderr);
+    if (!quiet) {
+        fprintf(stderr, "captured image: %d x %d %.4s @%p\n",
+                width, height, (char*)&format, data);
+        fflush(stderr);
+    }
 
     zbar_image_destroy(image);
 
-    fprintf(stderr, "\nstreaming 100 frames...\n");
-    fflush(stderr);
+    if (!quiet) {
+        fprintf(stderr, "\nstreaming 100 frames...\n");
+        fflush(stderr);
+    }
 
     struct timespec start, end;
 #if _POSIX_TIMERS > 0
@@ -154,22 +211,26 @@ int main (int argc, char *argv[])
     double ms = (end.tv_sec - start.tv_sec +
                  (end.tv_nsec - start.tv_nsec) / 1000000000.);
     double fps = i / ms;
-    fprintf(stderr, "\nprocessed %d images in %gs @%gfps\n", i, ms, fps);
-    fflush(stderr);
+    if (!quiet) {
+        fprintf(stderr, "\nprocessed %d images in %gs @%gfps\n", i, ms, fps);
+        fflush(stderr);
+    }
 
     if(zbar_video_enable(video, 0)) {
         fprintf(stderr, "ERROR: while stopping video stream\n");
         return(zbar_video_error_spew(video, 0));
     }
 
-    fprintf(stderr, "\ncleaning up...\n");
-    fflush(stderr);
+    if (!quiet) {
+        fprintf(stderr, "\ncleaning up...\n");
+        fflush(stderr);
+    }
 
     zbar_video_destroy(video);
 
     if(test_image_check_cleanup())
         return(32);
 
-    fprintf(stderr, "\nvideo support verified\n\n");
+    fprintf(stderr, "video PASSED.\n");
     return(0);
 }
