@@ -76,11 +76,18 @@ check-images-py: zbarimg/zbarimg
 
 regress-images-py: zbarimg/zbarimg
 	suite='$(ZBAR_TESTS)'; \
-	if test "x$$suite" = "x"; then suite='http://zbar.sf.net/test'; fi ; \
+	@if test "x$$suite" = "x"; then suite='http://zbar.sf.net/test'; fi ; \
 	@abs_top_srcdir@/test/barcodetest.py $$suite
 
 check-images: zbarimg/zbarimg
 	@abs_top_builddir@/test/test_examples.sh
+
+check-convert: test/test_convert
+	@abs_top_srcdir@/test/test_convert
+	@if [ "`sha1sum /tmp/base.I420.zimg |cut -d' ' -f 1`" != \
+	     "d697b0bb84617bef0f6413b3e5537ee38ba92312" ]; then \
+	   echo "convert FAILED"; else echo "convert PASSED."; fi
+	@rm /tmp/base.I420.zimg 2>/dev/null
 
 if HAVE_DBUS
 # Require a working D-Bus - may fail with containers
@@ -94,7 +101,7 @@ check-local: check-images-py check-decoder check-images
 
 regress: regress-decoder regress-images-py
 
-other_tests: check-cpp test_convert test_jpeg test_video
+other_tests: check-cpp check-convert test_jpeg test_video
 
 tests: check-local check-dbus regress
 

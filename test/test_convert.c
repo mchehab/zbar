@@ -54,7 +54,7 @@ int main (int argc, char *argv[])
     if(test_image_bars(img))
         return(2);
 
-    if(zbar_image_write(img, "base"))
+    if(zbar_image_write(img, "/tmp/base"))
         return(1);
     return(0);
 }
