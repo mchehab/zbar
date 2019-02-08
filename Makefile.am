@@ -109,4 +109,9 @@ test_progs: $(check_PROGRAMS)
 test: all
 	@test/test_examples.sh
 
+if HAVE_DBUS
+test_dbus: test_progs
+	@test/check_dbus.sh
+endif
+
 .PHONY : $(PHONY) archive test gen_checksum test_progs

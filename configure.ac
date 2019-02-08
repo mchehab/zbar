@@ -642,6 +642,7 @@ zbar-qt.pc
 doc/doxygen.conf])
 
 AC_CONFIG_FILES([test/test_examples.sh],[chmod 755 test/test_examples.sh])
+AC_CONFIG_FILES([test/check_dbus.sh],[chmod 755 test/check_dbus.sh])
 
 AC_OUTPUT
 

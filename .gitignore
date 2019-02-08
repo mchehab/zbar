@@ -31,6 +31,7 @@ Makefile.in
 pygtk/zbarpygtk.c
 pygtk/zbarpygtk.defs
 qt/moc_*.cpp
+test/check_dbus.sh
 test/test_examples.sh
 test/test_convert
 test/test_cpp
