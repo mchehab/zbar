@@ -113,21 +113,31 @@ AS_IF([test "x$CLASSPATH" = "x"], [CLASSPATH="."])
 
 dnl Search for Java unit test library
 if test -z "$JUNIT_HOME"; then
-    if test -f "/usr/share/java/junit.jar"; then
-        CLASSPATH="/usr/share/java/junit.jar:$CLASSPATH"
-        AC_SUBST(CLASSPATH)
-    fi
+    JUNIT_HOME="/usr/share/java"
+fi
+
+if test -f "$JUNIT_HOME/junit4.jar"; then
+    JUNIT="$JUNIT_HOME/junit4.jar"
 else
-    if -f "$JUNIT_HOME/junit.jar"; then
-        CLASSPATH="$JUNIT_HOME/junit.jar:$CLASSPATH"
-        AC_SUBST(CLASSPATH)
+    if test -f "$JUNIT_HOME/junit.jar"; then
+        JUNIT="$JUNIT_HOME/junit.jar"
     fi
 fi
 
-if test -f "/usr/share/java/hamcrest/all.jar"; then
-    CLASSPATH="/usr/share/java/hamcrest/all.jar:$CLASSPATH"
-    AC_SUBST(CLASSPATH)
+if test "x$JUNIT" != "x"; then
+    if test -f "/usr/share/java/hamcrest/all.jar"; then
+        CLASSPATH="$JUNIT:/usr/share/java/hamcrest/all.jar:$CLASSPATH"
+        AC_SUBST(CLASSPATH)
+        with_java_unit="yes"
+    else
+        if test -f "/usr/share/java/hamcrest-all.jar"; then
+            CLASSPATH="$JUNIT:/usr/share/java/hamcrest-all.jar:$CLASSPATH"
+            AC_SUBST(CLASSPATH)
+            with_java_unit="yes"
+        fi
+    fi
 fi
+AM_CONDITIONAL([HAVE_JAVA_UNIT], [test "x$with_java_unit" = "xyes"])
 
 dnl symbologies
 
@@ -714,6 +724,8 @@ AS_IF([test "x$with_qt" != "xyes"],
   [echo "        => the Qt widget will *NOT* be built"])
 AS_IF([test "x$with_java" != "xyes"],
   [echo "        => the Java interface will *NOT* be built"])
+AS_IF([test "x$with_java_unit" != "xyes"],
+  [echo "        => the Java unit test will *NOT* be enabled"])
 #echo "NPAPI Plugin     --with-npapi=$with_npapi"
 #AS_IF([test "x$with_mozilla" != "xyes"],
 #  [echo "       => the Mozilla/Firefox/OpenOffice plugin will *NOT* be built"])

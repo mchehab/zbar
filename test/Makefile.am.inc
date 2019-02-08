@@ -99,14 +99,14 @@ else
 check-dbus:
 endif
 
-if HAVE_JAVA
+if HAVE_JAVA_UNIT
 check-java:
 	$(MAKE) -C java check-java
 else
 check-java:
 endif
 
-check-local: check-images-py check-decoder check-images
+check-local: check-images-py check-decoder check-images check-java
 
 regress: regress-decoder
 
