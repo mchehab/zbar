@@ -74,11 +74,6 @@ regress-decoder: test/test_decode
 check-images-py: zbarimg/zbarimg
 	@abs_top_srcdir@/test/barcodetest.py
 
-regress-images-py: zbarimg/zbarimg
-	suite='$(ZBAR_TESTS)'; \
-	@if test "x$$suite" = "x"; then suite='http://zbar.sf.net/test'; fi ; \
-	@abs_top_srcdir@/test/barcodetest.py $$suite
-
 check-images: zbarimg/zbarimg
 	@abs_top_builddir@/test/test_examples.sh
 
@@ -106,11 +101,11 @@ endif
 
 check-local: check-images-py check-decoder check-images
 
-regress: regress-decoder regress-images-py
+regress: regress-decoder
 
-other_tests: check-cpp check-convert check-video check-jpeg
+other-tests: check-cpp check-convert check-video check-jpeg
 
-tests: check-local check-dbus regress
+tests: check-local check-dbus other-tests regress
 
 .NOTPARALLEL: check-local regress tests
 
