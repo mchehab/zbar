@@ -95,6 +95,8 @@ dist-nsis: html-local
 	cd _nsis && \
 	  makensis -NOCD -V2 -DVERSION=$(VERSION) $(abs_srcdir)/zbar.nsi
 	@ls -l _nsis/zbar-$(VERSION)-setup.exe
+
+PHONY += dist-nsis
 endif
 
 archive:
@@ -104,14 +106,4 @@ archive:
 gen_checksum: all
 	for i in examples/*.png; do j=`basename $$i`; ./zbarimg/zbarimg $$i 2>/dev/null|sha1sum|sed "s,-,zbarimg $$j,"; done >examples/sha1sum
 
-test_progs: $(check_PROGRAMS)
-	@$(MAKE) $(check_PROGRAMS)
-test: all
-	@test/test_examples.sh
-
-if HAVE_DBUS
-test_dbus: test_progs
-	@test/check_dbus.sh
-endif
-
-.PHONY : $(PHONY) archive test gen_checksum test_progs
+.PHONY : $(PHONY) archive gen_checksum

@@ -58,16 +58,46 @@ CLEANFILES += test/.libs/test_decode test/.libs/test_proc \
     test/.libs/test_convert test/.libs/test_window \
     test/.libs/test_video test/.libs/dbg_scan test/.libs/test_gtk
 
+test_progs: $(check_PROGRAMS)
+	@$(MAKE) $(check_PROGRAMS)
+
+# Require X11 to work
 check-cpp: test/test_cpp_img
-	test/test_cpp_img
+	@abs_top_builddir@/test/test_cpp_img
 
 check-decoder: test/test_decode
-	test/test_decode -q
+	@abs_top_builddir@/test/test_decode -q
 
 regress-decoder: test/test_decode
-	test/test_decode -n 100000
+	@abs_top_builddir@/test/test_decode -q -n 100000
 
-check-local: check-cpp check-decoder check-images
-regress: regress-decoder regress-images
+check-images-py: zbarimg/zbarimg
+	@abs_top_srcdir@/test/barcodetest.py
 
-PHONY += check-cpp check-decoder check-images regress-decoder regress-images regress
+regress-images-py: zbarimg/zbarimg
+	suite='$(ZBAR_TESTS)'; \
+	if test "x$$suite" = "x"; then suite='http://zbar.sf.net/test'; fi ; \
+	@abs_top_srcdir@/test/barcodetest.py $$suite
+
+check-images: zbarimg/zbarimg
+	@abs_top_builddir@/test/test_examples.sh
+
+if HAVE_DBUS
+# Require a working D-Bus - may fail with containers
+check-dbus: test/test_dbus
+	@abs_top_builddir@/test/check_dbus.sh
+else
+check-dbus:
+endif
+
+check-local: check-images-py check-decoder check-images
+
+regress: regress-decoder regress-images-py
+
+other_tests: check-cpp test_convert test_jpeg test_video
+
+tests: check-local check-dbus regress
+
+.NOTPARALLEL: check-local regress tests
+
+PHONY += check-cpp check-decoder check-images check-dbus regress-decoder regress-images regress

@@ -73,7 +73,7 @@ static void symbol_handler (zbar_decoder_t *decoder)
         zprintf(pass, "expect %s:%s\n", zbar_get_symbol_name(expect_sym),
                 expect_data);
     if(!pass) {
-        zprintf(0, "SEED=%d\n", seed);
+        zprintf(0, "[%d] SEED=%d: didn't pass\n", iter, seed);
         abort();
     }
 
@@ -1319,5 +1319,7 @@ int main (int argc, char **argv)
     /* FIXME "Ran %d iterations in %gs\n\nOK\n" */
 
     zbar_decoder_destroy(decoder);
+
+    printf("decoder PASSED.\n");
     return(0);
 }

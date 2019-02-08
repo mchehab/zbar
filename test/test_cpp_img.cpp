@@ -225,11 +225,11 @@ int main (int argc, char **argv)
         error("cleanup failed");
 
     if(errors) {
-        std::cout << "FAIL" << std::endl;
+        std::cout << "processor FAILED" << std::endl;
         return(2);
     }
     else {
-        std::cout << "OK" << std::endl;
+        std::cout << "processor PASSED." << std::endl;
         return(0);
     }
 }

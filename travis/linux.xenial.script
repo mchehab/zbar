@@ -10,5 +10,5 @@ export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 export QT_SELECT=5
 ./configure
 make
-make test
+make check-local
 sudo make install
