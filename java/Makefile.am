@@ -27,13 +27,14 @@ CLEANFILES = zbar.jar $(zbar_jar_CLASSES) $(test_CLASSES:=.class)
 zbarjni.h: $(zbar_jar_SRCS)
 	$(MAKE) $(AM_MAKEFLAGS) zbar.jar
 	classes=`echo $(zbar_jar_CLASSES:.class=) | tr / .` ; \
-	    $(JAVAH) -o $@ $$classes
+		$(JAVAH) -o $@ $$classes
 
 zbar.jar: $(zbar_jar_SRCS)
 	cd $(abs_srcdir); $(JAVAC) -d $(abs_builddir) $(zbar_jar_SRCS)
 	$(JAR) cf $@ $(zbar_jar_CLASSES) || $(RM) $@
 
-check-local:
+#require junit java package
+check-java:
 	echo "making check in java"
 	cd $(abs_srcdir); $(JAVAC) -classpath $(abs_builddir)/zbar.jar:.:$(CLASSPATH) -d $(abs_builddir) $(test_SRCS)
-	$(top_builddir)/libtool -dlopen $(top_builddir)/zbar/libzbar.la -dlopen libzbarjni.la --mode=execute $(JAVA) -Xcheck:jni -classpath zbar.jar:.:$(CLASSPATH) org.junit.runner.JUnitCore $(test_CLASSES)
+	$(abs_top_builddir)/libtool -dlopen $(abs_top_builddir)/zbar/libzbar.la -dlopen $(abs_builddir)/libzbarjni.la --mode=execute $(JAVA) -Xcheck:jni -classpath zbar.jar:.:$(CLASSPATH) org.junit.runner.JUnitCore $(test_CLASSES)

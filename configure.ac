@@ -111,6 +111,24 @@ AC_PATH_PROGS([JAVA], [java], [/bin/false], [$JAVA_PATH])
 AC_ARG_VAR([CLASSPATH], [Java class path (include JUnit to run java tests)])
 AS_IF([test "x$CLASSPATH" = "x"], [CLASSPATH="."])
 
+dnl Search for Java unit test library
+if test -z "$JUNIT_HOME"; then
+    if test -f "/usr/share/java/junit.jar"; then
+        CLASSPATH="/usr/share/java/junit.jar:$CLASSPATH"
+        AC_SUBST(CLASSPATH)
+    fi
+else
+    if -f "$JUNIT_HOME/junit.jar"; then
+        CLASSPATH="$JUNIT_HOME/junit.jar:$CLASSPATH"
+        AC_SUBST(CLASSPATH)
+    fi
+fi
+
+if test -f "/usr/share/java/hamcrest/all.jar"; then
+    CLASSPATH="/usr/share/java/hamcrest/all.jar:$CLASSPATH"
+    AC_SUBST(CLASSPATH)
+fi
+
 dnl symbologies
 
 AC_ARG_ENABLE([codes],
@@ -562,6 +580,14 @@ AS_IF([test "x$with_qt" != "xno"],
 AM_CONDITIONAL([HAVE_QT], [test "x$with_qt" = "xyes"])
 
 dnl Java
+if test -z "$JAVA_HOME"; then
+    AC_PATH_PROG([JAVAC], javac,, $PATH)
+    if test ! -z "$JAVAC"; then
+        JAVA_HOME=$( readlink -f ${JAVAC} | rev | cut -d/ -f3- | rev )
+        AC_SUBST(JAVA_HOME)
+    fi
+fi
+
 AC_ARG_WITH([java],
   [AS_HELP_STRING([--without-java],
     [disable support for Java interface])],
