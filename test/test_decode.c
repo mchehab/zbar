@@ -1369,6 +1369,7 @@ int main (int argc, char *argv[])
                    wrong, percent(wrong, num_iter),
                    spurious, percent(spurious, num_iter),
                    missing, percent(missing, num_iter));
+            return 1;
     }
     return(0);
 }
