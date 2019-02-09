@@ -39,7 +39,7 @@ zbar_symbol_type_t expect_sym;
 char *expect_data = NULL;
 
 int rnd_size = 9;  /* NB should be odd */
-int err = 0, warn = 0;
+int wrong = 0, spurious = 0, missing = 0;
 
 #define zprintf(level, format, ...) do {                                \
         if(verbosity >= (level)) {                                      \
@@ -122,7 +122,7 @@ static void symbol_handler (zbar_decoder_t *decoder)
                 iter, seed,
                 zbar_get_symbol_name(expect_sym),
                 zbar_get_symbol_name(sym));
-        warn++;
+        spurious++;
        return;
     }
 
@@ -142,7 +142,7 @@ static void symbol_handler (zbar_decoder_t *decoder)
 		iter, seed,
 		expect_data, zbar_get_symbol_name(expect_sym),
 		data, zbar_get_symbol_name(sym));
-	  err++;
+	  wrong++;
     }
 
     expect_sym = ZBAR_NONE;
@@ -154,10 +154,10 @@ static void expect (zbar_symbol_type_t sym,
                     const char *data)
 {
     if(expect_sym) {
-        zprintf(0, "[%d] SEED=%d: ERROR: MISSING %s (%s)\n",
+        zprintf(0, "[%d] SEED=%d: missing decode: %s (%s)\n",
 		iter, seed,
                 zbar_get_symbol_name(expect_sym), expect_data);
-	err++;
+	missing++;
     }
     expect_sym = sym;
     expect_data = (data) ? strdup(data) : NULL;
@@ -1306,6 +1306,17 @@ int test1 ()
  *   - inject parity errors
  */
 
+float percent(int count, int iter)
+{
+    if (iter <= 1) {
+        if (count)
+            return 100.0;
+        else
+            return 0.0;
+    }
+    return (count * 100.0) / iter;
+}
+
 int main (int argc, char *argv[])
 {
     if (argp_parse(&argp, argc, argv, ARGP_NO_HELP | ARGP_NO_EXIT, 0, 0)) {
@@ -1344,14 +1355,20 @@ int main (int argc, char *argv[])
 
     zbar_decoder_destroy(decoder);
 
-    if (!err) {
-        if (warn)
-            printf("decoder PASSED with %d warning(s).\n", warn);
+    if (!wrong &&
+        percent(spurious, num_iter) <= 0.01 &&
+        percent(missing, num_iter) <= 0.01) {
+        if (spurious || missing)
+            printf("decoder PASSED with %d spurious (%02.4f%%) and %d missing(%02.4f%%).\n",
+                   spurious, percent(spurious, num_iter),
+                   missing, percent(missing, num_iter));
         else
             printf("decoder PASSED.\n");
     } else {
-        printf("decoder FAILED with %d error(s) and %d warning(s).\n",
-               err, warn);
+            printf("decoder FAILED with %d wrong decoding(%02.4f%%), %d spurious (%02.4f%%) and %d missing(%02.4f%%).\n",
+                   wrong, percent(wrong, num_iter),
+                   spurious, percent(spurious, num_iter),
+                   missing, percent(missing, num_iter));
     }
     return(0);
 }
