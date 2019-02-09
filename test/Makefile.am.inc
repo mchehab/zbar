@@ -100,7 +100,7 @@ check-dbus:
 endif
 
 if HAVE_JAVA_UNIT
-check-java:
+check-java: zbar/libzbar.la
 	$(MAKE) -C java check-java
 else
 check-java:

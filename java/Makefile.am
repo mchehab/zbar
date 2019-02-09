@@ -24,8 +24,7 @@ test_CLASSES = TestImage TestImageScanner TestScanImage
 
 CLEANFILES = zbar.jar $(zbar_jar_CLASSES) $(test_CLASSES:=.class)
 
-zbarjni.h: $(zbar_jar_SRCS)
-	$(MAKE) $(AM_MAKEFLAGS) zbar.jar
+zbarjni.h: $(zbar_jar_SRCS) zbar.jar
 	classes=`echo $(zbar_jar_CLASSES:.class=) | tr / .` ; \
 		$(JAVAH) -o $@ $$classes
 
@@ -34,7 +33,7 @@ zbar.jar: $(zbar_jar_SRCS)
 	$(JAR) cf $@ $(zbar_jar_CLASSES) || $(RM) $@
 
 #require junit java package
-check-java: zbar.jar
+check-java: zbar.jar libzbarjni.la
 	echo "making check in java"
 	cd $(abs_srcdir); $(JAVAC) -classpath $(abs_builddir)/zbar.jar:.:$(CLASSPATH) -d $(abs_builddir) $(test_SRCS)
 	$(abs_top_builddir)/libtool -dlopen $(abs_top_builddir)/zbar/libzbar.la -dlopen $(abs_builddir)/libzbarjni.la --mode=execute $(JAVA) -Xcheck:jni -classpath zbar.jar:.:$(CLASSPATH) org.junit.runner.JUnitCore $(test_CLASSES)
