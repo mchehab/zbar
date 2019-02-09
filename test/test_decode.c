@@ -21,14 +21,15 @@
  *  http://sourceforge.net/projects/zbar
  *------------------------------------------------------------------------*/
 
+#include <argp.h>
+#include <assert.h>
+#include <ctype.h>
 #include <inttypes.h>
 #include <limits.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
-#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
-#include <assert.h>
 
 #include <zbar.h>
 
@@ -37,10 +38,7 @@ zbar_decoder_t *decoder;
 zbar_symbol_type_t expect_sym;
 char *expect_data = NULL;
 
-unsigned seed = 0;
-int verbosity = 1;
 int rnd_size = 9;  /* NB should be odd */
-int iter = 0;      /* test iteration */
 int err = 0;
 
 #define zprintf(level, format, ...) do {                                \
@@ -48,6 +46,63 @@ int err = 0;
             fprintf(stderr, format , ##__VA_ARGS__); \
         }                                                               \
     } while(0)
+
+#define PROGRAM_NAME	"test_video"
+
+static const char doc[] = "\nGenerate barcodes and decode them with ZBar decoding logic\n";
+
+static const struct argp_option options[] = {
+    {"quiet",   'q', 0,         0, "Don't be verbose",                0},
+    {"verbose", 'v', 0,         0, "Increases verbosity level",       0},
+    {"random",  'r', 0,         0, "use a random seed",               0},
+    {"seed",    's', "seed",    0, "sets the random seed",            0},
+    {"number",  'n', "count",   0, "sets the number of interactions", 0},
+    {"help",    '?', 0,         0, "Give this help list",            -1},
+    {"usage",    -3, 0,         0, "Give a short usage message",      0},
+    { 0 }
+};
+
+unsigned seed = 0, rand_seed = 0;
+int verbosity = 1;
+int iter = 0, num_iter = 0;      /* test iteration */
+
+static error_t parse_opt(int k, char *optarg, struct argp_state *state)
+{
+    switch (k) {
+    case 'q':
+        verbosity = 0;
+        break;
+    case 'v':
+        verbosity++;
+        break;
+    case 'r':
+        rand_seed = 1;
+        break;
+    case 's':
+        seed = strtol(optarg, NULL, 0);
+        break;
+    case 'n':
+        num_iter = strtol(optarg, NULL, 0);
+        break;
+    case '?':
+        argp_state_help(state, state->out_stream,
+                        ARGP_HELP_SHORT_USAGE | ARGP_HELP_LONG |
+                        ARGP_HELP_DOC);
+        exit(0);
+    case -3:
+        argp_state_help(state, state->out_stream, ARGP_HELP_USAGE);
+        exit(0);
+    default:
+        return ARGP_ERR_UNKNOWN;
+    };
+    return 0;
+}
+
+static const struct argp argp = {
+	.options = options,
+	.parser = parse_opt,
+	.doc = doc,
+};
 
 static inline void print_sep (int level)
 {
@@ -1250,10 +1305,22 @@ int test1 ()
  *   - inject parity errors
  */
 
-int main (int argc, char **argv)
+int main (int argc, char *argv[])
 {
     int n, i, j;
     char *end;
+
+    if (argp_parse(&argp, argc, argv, ARGP_NO_HELP | ARGP_NO_EXIT, 0, 0)) {
+        argp_help(&argp, stderr, ARGP_HELP_SHORT_USAGE, PROGRAM_NAME);
+        return -1;
+    }
+
+    if (rand_seed) {
+        seed = time(NULL);
+        srand(seed);
+        seed = (rand() << 8) ^ rand();
+        zprintf(0, "Random SEED=%d\n", seed);
+    }
 
     decoder = zbar_decoder_create();
     /* allow empty CODE39 symbologies */
@@ -1265,63 +1332,14 @@ int main (int argc, char **argv)
 
     encode_junk(rnd_size + 1);
 
-    for(i = 1; i < argc; i++) {
-        if(argv[i][0] != '-') {
-            fprintf(stderr, "ERROR: unknown argument: %s\n", argv[i]);
-            return(2);
+    if (num_iter) {
+        n = num_iter;
+        while(n--) {
+            test1();
+            iter++;
+            seed = (rand() << 8) ^ rand();
         }
-        for(j = 1; argv[i][j]; j++) {
-            switch(argv[i][j])
-            {
-            case 'q': verbosity = 0; break;
-            case 'v': verbosity++; break;
-            case 'r':
-                seed = time(NULL);
-                srand(seed);
-                seed = (rand() << 8) ^ rand();
-                zprintf(0, "-r SEED=%d\n", seed);
-                break;
-
-            case 's':
-                if(!argv[i][++j] && !(j = 0) && ++i >= argc) {
-                    fprintf(stderr, "ERROR: -s needs <seed> argument\n");
-                    return(2);
-                }
-                long s = strtol(argv[i] + j, &end, 0);
-                seed = s;
-                if((!isdigit(argv[i][j]) && argv[i][j] != '-') ||
-                   !s || s == LONG_MAX || s == LONG_MIN) {
-                    fprintf(stderr, "ERROR: invalid <seed>: \"%s\"\n",
-                            argv[i] + j);
-                    return(2);
-                }
-                j = end - argv[i] - 1;
-                break;
-
-            case 'n':
-                if(!argv[i][++j] && !(j = 0) && ++i >= argc) {
-                    fprintf(stderr, "ERROR: -n needs <num> argument\n");
-                    return(2);
-                }
-                n = strtol(argv[i] + j, &end, 0);
-                if(!isdigit(argv[i][j]) || !n) {
-                    fprintf(stderr, "ERROR: invalid <num>: \"%s\"\n",
-                            argv[i] + j);
-                    return(2);
-                }
-                j = end - argv[i] - 1;
-
-                while(n--) {
-                    test1();
-		    iter++;
-                    seed = (rand() << 8) ^ rand();
-                }
-                break;
-            }
-        }
-    }
-
-    if(!iter) {
+    } else {
         test_databar_F_1();
         test_databar_F_3();
         test_orange();
