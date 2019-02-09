@@ -113,7 +113,7 @@ libzbar.so.0 libzbar0 #MINVER#
  zbar_symbol_set_get_size@Base 0.10
  zbar_symbol_set_ref@Base 0.10
  zbar_symbol_xml@Base 0.10
- zbar_version@Base 0.10
+ zbar_version@Base 0.20.1
  zbar_video_create@Base 0.10
  zbar_video_destroy@Base 0.10
  zbar_video_enable@Base 0.10
