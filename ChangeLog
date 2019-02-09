@@ -1,3 +1,33 @@
+0.21 release candidate:
+
+  * ZBar is now using Travis CI for continuous integration tests
+  * Convert INSTALL and README to markdown and update them
+  * improve ZBar testing code and make easier to run the tests
+  * Fix build with Clang
+  * Add simple dbus IPC API to zbarcam.
+  * zbarimg: display only the compiled symbologies
+  * v4l2: make ZBar build and run on Kernels < 3.16
+  * configure.ac: The pdf417 code is incomplete. Warn about that
+  * Add Debian packaging and Travis CI configuration
+  * Add barcode examples for different supported symbologies
+  * Several improvements at the building system
+  * Add support for SQ code symbology
+  * v4l2: add fallback for systems without v4l2_ext_controls which field
+  * v4l2: use device_caps instead of capabilities
+  * v4l2: make v4l2_request_buffers() more generic
+  * release video buffers after probing and request them again when needed
+  * Ignore ENOTTY errors when calling VIDIOC_S_CROP
+  * doc/Makefile.am.inc: clean html generated files
+  * Add --disable-doc configure option to disable building docs
+  * Fix function protoype to be compatible with recent libjpeg
+  * Wrap logical not operations into parentheses
+  * INSTALL: warn that autoconf should be called before configure
+  * code128: fix error logic
+  * convert: ensure that it will not use a freed value
+  * zbar: use g_thread_new() instead of g_tread_create()
+  * zbargtk: add a missing break
+  * gtk/zbargtk: add a missing check if zbar->window is not null
+
 0.20.1:
   * Be sure to use python2, as /usr/bin/python is being removed
     (or made non-functional) on some distributions
