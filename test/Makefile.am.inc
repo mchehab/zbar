@@ -106,13 +106,13 @@ else
 check-java:
 endif
 
-check-local: check-images-py check-decoder check-images check-java
-
 regress: regress-decoder
+
+check-local: check-images-py check-decoder check-images check-java regress
 
 other-tests: check-cpp check-convert check-video check-jpeg
 
-tests: check-local check-dbus other-tests regress
+tests: check-local check-dbus other-tests
 
 .NOTPARALLEL: check-local regress tests
 
