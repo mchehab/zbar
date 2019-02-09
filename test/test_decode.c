@@ -41,6 +41,7 @@ unsigned seed = 0;
 int verbosity = 1;
 int rnd_size = 9;  /* NB should be odd */
 int iter = 0;      /* test iteration */
+int err = 0;
 
 #define zprintf(level, format, ...) do {                                \
         if(verbosity >= (level)) {                                      \
@@ -61,6 +62,14 @@ static void symbol_handler (zbar_decoder_t *decoder)
         return;
     const char *data = zbar_decoder_get_data(decoder);
 
+    if (sym != expect_sym) {
+        zprintf(0, "[%d] SEED=%d: warning: expecting %s, got %s\n",
+		iter, seed,
+		zbar_get_symbol_name(expect_sym),
+		zbar_get_symbol_name(sym));
+       return;
+    }
+
     int pass = (sym == expect_sym) && !strcmp(data, expect_data) &&
         zbar_decoder_get_data_length(decoder) == strlen(data);
     pass *= 3;
@@ -73,8 +82,11 @@ static void symbol_handler (zbar_decoder_t *decoder)
         zprintf(pass, "expect %s:%s\n", zbar_get_symbol_name(expect_sym),
                 expect_data);
     if(!pass) {
-        zprintf(0, "[%d] SEED=%d: didn't pass\n", iter, seed);
-        abort();
+        zprintf(0, "[%d] SEED=%d: ERROR: expecting %s (%s), got %s (%s)\n",
+		iter, seed,
+		expect_data, zbar_get_symbol_name(expect_sym),
+		data, zbar_get_symbol_name(sym));
+	  err++;
     }
 
     expect_sym = ZBAR_NONE;
@@ -86,10 +98,10 @@ static void expect (zbar_symbol_type_t sym,
                     const char *data)
 {
     if(expect_sym) {
-        zprintf(0, "MISSING %s:%s\n"
-                "SEED=%d\n",
-                zbar_get_symbol_name(expect_sym), expect_data, seed);
-        abort();
+        zprintf(0, "[%d] SEED=%d: ERROR: MISSING %s (%s)\n",
+		iter, seed,
+                zbar_get_symbol_name(expect_sym), expect_data);
+	err++;
     }
     expect_sym = sym;
     expect_data = (data) ? strdup(data) : NULL;
@@ -1098,6 +1110,7 @@ int test_numeric (char *data)
 {
     char tmp[32] = "01";
     strncpy(tmp + 2, data + 1, 13);
+    tmp[15]='\0';
     calc_ean_parity(tmp + 2, 13);
     expect(ZBAR_DATABAR, tmp);
 
@@ -1206,27 +1219,25 @@ int test1 ()
     print_sep(2);
     if(!seed)
         seed = 0xbabeface;
-    zprintf(1, "[%d] SEED=%d\n", iter++, seed);
+    zprintf(1, "[%d] SEED=%d\n", iter, seed);
     srand(seed);
-    if(/* EAN-2 within DataBar (020596539169270)
-        * (FIXME require COMPOSITE for addons)
-        */
-       seed == -862734747)
-    {
-        zprintf(2, "    FIXME known failure\n");
-        return(2);
-    }
 
     int i;
-    char data[32] = { 0, };
-    for(i = 0; i < 14; i++)
+    char data[32];
+    for(i = 0; i < 14; i++) {
         data[i] = (rand() % 10) + '0';
+    }
+    data[i] = 0;
+
+    zprintf(1, "testing data: %s\n", data);
 
     test_numeric(data);
 
     for(i = 0; i < 10; i++)
         data[i] = (rand() % 0x5f) + 0x20;
     data[i] = 0;
+
+    zprintf(1, "testing alpha: %s\n", data);
 
     test_alpha(data);
     return(0);
@@ -1302,6 +1313,7 @@ int main (int argc, char **argv)
 
                 while(n--) {
                     test1();
+		    iter++;
                     seed = (rand() << 8) ^ rand();
                 }
                 break;
@@ -1320,6 +1332,9 @@ int main (int argc, char **argv)
 
     zbar_decoder_destroy(decoder);
 
-    printf("decoder PASSED.\n");
+    if (!err)
+        printf("decoder PASSED.\n");
+    else
+        printf("decoder FAILED (%d errors).\n", err);
     return(0);
 }
