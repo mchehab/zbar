@@ -39,7 +39,7 @@ zbar_symbol_type_t expect_sym;
 char *expect_data = NULL;
 
 int rnd_size = 9;  /* NB should be odd */
-int err = 0;
+int err = 0, warn = 0;
 
 #define zprintf(level, format, ...) do {                                \
         if(verbosity >= (level)) {                                      \
@@ -118,10 +118,11 @@ static void symbol_handler (zbar_decoder_t *decoder)
     const char *data = zbar_decoder_get_data(decoder);
 
     if (sym != expect_sym) {
-        zprintf(0, "[%d] SEED=%d: warning: expecting %s, got %s\n",
-		iter, seed,
-		zbar_get_symbol_name(expect_sym),
-		zbar_get_symbol_name(sym));
+        zprintf(0, "[%d] SEED=%d: warning: expecting %s, got spurious %s\n",
+                iter, seed,
+                zbar_get_symbol_name(expect_sym),
+                zbar_get_symbol_name(sym));
+        warn++;
        return;
     }
 
@@ -1307,9 +1308,6 @@ int test1 ()
 
 int main (int argc, char *argv[])
 {
-    int n, i, j;
-    char *end;
-
     if (argp_parse(&argp, argc, argv, ARGP_NO_HELP | ARGP_NO_EXIT, 0, 0)) {
         argp_help(&argp, stderr, ARGP_HELP_SHORT_USAGE, PROGRAM_NAME);
         return -1;
@@ -1333,10 +1331,8 @@ int main (int argc, char *argv[])
     encode_junk(rnd_size + 1);
 
     if (num_iter) {
-        n = num_iter;
-        while(n--) {
+        for (iter == 0; iter < num_iter; iter++) {
             test1();
-            iter++;
             seed = (rand() << 8) ^ rand();
         }
     } else {
@@ -1346,13 +1342,16 @@ int main (int argc, char *argv[])
         test1();
     }
 
-    /* FIXME "Ran %d iterations in %gs\n\nOK\n" */
-
     zbar_decoder_destroy(decoder);
 
-    if (!err)
-        printf("decoder PASSED.\n");
-    else
-        printf("decoder FAILED (%d errors).\n", err);
+    if (!err) {
+        if (warn)
+            printf("decoder PASSED with %d warning(s).\n", warn);
+        else
+            printf("decoder PASSED.\n");
+    } else {
+        printf("decoder FAILED with %d error(s) and %d warning(s).\n",
+               err, warn);
+    }
     return(0);
 }
