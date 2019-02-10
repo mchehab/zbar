@@ -219,6 +219,11 @@ int _zbar_process_image (zbar_processor_t *proc,
         }
         zbar_image_scanner_recycle_image(proc->scanner, img);
         int nsyms = zbar_scan_image(proc->scanner, tmp);
+        if (nsyms == 0)
+        {
+            zbar_image_invert(tmp);
+            int nsyms = zbar_scan_image(proc->scanner, tmp);
+        }
         _zbar_image_swap_symbols(img, tmp);
 
         zbar_image_destroy(tmp);
