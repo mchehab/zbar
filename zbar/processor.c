@@ -222,7 +222,7 @@ int _zbar_process_image (zbar_processor_t *proc,
         if (nsyms == 0)
         {
             zbar_image_invert(tmp);
-            int nsyms = zbar_scan_image(proc->scanner, tmp);
+            nsyms = zbar_scan_image(proc->scanner, tmp);
         }
         _zbar_image_swap_symbols(img, tmp);
 

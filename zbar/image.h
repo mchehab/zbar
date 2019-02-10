@@ -100,10 +100,7 @@ typedef struct zbar_format_def_s {
 
 
 extern int _zbar_best_format(uint32_t, uint32_t*, const uint32_t*);
-<<<<<<< HEAD
-=======
 extern void zbar_image_invert(const zbar_image_t *src);
->>>>>>> Try inversion in image_processor not scan_image
 extern const zbar_format_def_t *_zbar_format_lookup(uint32_t);
 extern void _zbar_image_free(zbar_image_t*);
 
