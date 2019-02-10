@@ -65,6 +65,7 @@ struct zbar_image_s {
     unsigned crop_x, crop_y;    /* crop rectangle */
     unsigned crop_w, crop_h;
     void *userdata;             /* user specified data associated w/image */
+    int inverted;               /* is the picture inverted? */
 
     /* cleanup handler */
     zbar_image_cleanup_handler_t *cleanup;

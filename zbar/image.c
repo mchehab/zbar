@@ -207,9 +207,25 @@ zbar_image_t *zbar_image_copy (const zbar_image_t *src)
     dst->datalen = src->datalen;
     dst->data = malloc(src->datalen);
     assert(dst->data);
+    dst->inverted = src->inverted;
     memcpy((void*)dst->data, src->data, src->datalen);
     dst->cleanup = zbar_image_free_data;
     return(dst);
+}
+
+ 
+void zbar_image_invert(const zbar_image_t *img)
+{
+    zbar_image_t *rw = (zbar_image_t *) img;
+    uint8_t *rwdata = (uint8_t *)img->data;
+    const uint8_t *input = (const uint8_t *)img->data;
+    int i;
+    assert(
+        img->format == fourcc('Y','8','0','0') ||
+        img->format == fourcc('G','R','E','Y') );
+    rw->inverted = ! img->inverted;
+    for (i=0; i<img->datalen; i++)
+        rwdata[i] = ~ input[i];
 }
 
 const zbar_symbol_set_t *zbar_image_get_symbols (const zbar_image_t *img)
