@@ -925,15 +925,6 @@ int zbar_scan_image (zbar_image_scanner_t *iscn,
         iscn->handler(img, iscn->userdata);
 
     svg_close();
-    if ( (syms->nsyms==0) && (! img->inverted) )
-        {
-            int r;
-            // zbar_image_t *img_inverted = zbar_image_copy(img, 1);
-            zbar_image_invert(img);
-            r = zbar_scan_image (iscn, img);
-            //zbar_image_free_data( img_inverted );
-            return(r);
-        }
     return(syms->nsyms);
 }
 
