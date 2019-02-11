@@ -125,6 +125,12 @@ static const char *warning_not_found =
     "  - is the barcode large enough in the image?\n"
     "  - is the barcode mostly in focus?\n"
     "  - is there sufficient contrast/illumination?\n"
+    "  - Did you enable the barcode type?\n"
+    "    some EAN/UPC codes are disabled by default. To enable all, use:\n"
+    "    $ zbarimg -S*.enable <files>\n"
+    "    Please also notice that some variants take precedence over others.\n"
+    "    Due to that, if you want, for example, ISBN-10, you shoud do:\n"
+    "    $ zbarimg -Sisbn10.enable <files>\n"
     "\n";
 
 static const char *xml_head =
