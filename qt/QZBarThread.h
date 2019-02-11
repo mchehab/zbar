@@ -112,6 +112,18 @@ public:
     int get_control(char *name, bool *value);
     int get_control(char *name, int *value);
 
+    int set_config (std::string cfgstr)
+    {
+        return scanner.set_config(cfgstr);
+    }
+
+    int set_config (zbar_symbol_type_t symbology,
+                    zbar_config_t config,
+                    int value)
+    {
+        return scanner.set_config(symbology, config, value);
+    }
+
     void pushEvent (QEvent *e)
     {
         QMutexLocker locker(&mutex);

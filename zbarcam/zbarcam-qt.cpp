@@ -21,6 +21,7 @@
 //  http://sourceforge.net/projects/zbar
 //------------------------------------------------------------------------
 
+#include <config.h>
 #include <QApplication>
 #include <QtGlobal>
 #include <QWidget>
@@ -32,6 +33,7 @@
 #include <QFileDialog>
 #include <QImage>
 #include <zbar/QZBar.h>
+#include <zbar.h>
 
 #define TEST_IMAGE_FORMATS \
     "Image Files (*.png *.jpg *.jpeg *.bmp *.gif *.ppm *.pgm *.pbm *.tiff *.xpm *.xbm)"
@@ -41,6 +43,55 @@ int scan_video(void *add_device,
                void *userdata,
                const char *default_device);
 }
+
+struct configs_s {
+    QString name;
+    zbar::zbar_symbol_type_t sym;
+    bool enabled;
+};
+
+static const struct configs_s configs[] = {
+#if ENABLE_CODABAR == 1
+    { "Codabar", zbar::ZBAR_CODABAR, true },
+#endif
+#if ENABLE_CODE128 == 1
+    { "Code-128", zbar::ZBAR_CODE128, true },
+#endif
+#if ENABLE_CODE39 == 1
+    { "Code-39", zbar::ZBAR_CODE39, true },
+#endif
+#if ENABLE_CODE93 == 1
+    { "Code-93", zbar::ZBAR_CODE93, true },
+#endif
+#if ENABLE_DATABAR == 1
+    { "DataBar", zbar::ZBAR_DATABAR, true },
+    { "DataBar expanded", zbar::ZBAR_DATABAR_EXP, true },
+#endif
+#if ENABLE_EAN == 1
+    { "EAN-2", zbar::ZBAR_EAN2, false },
+    { "EAN-5", zbar::ZBAR_EAN5, false },
+    { "EAN-8", zbar::ZBAR_EAN8, true },
+    { "EAN-13", zbar::ZBAR_EAN13, true },
+    { "ISBN-10", zbar::ZBAR_ISBN10, false },
+    { "ISBN-13", zbar::ZBAR_ISBN13, true },
+    { "UPC-A", zbar::ZBAR_UPCA, false },
+    { "UPC-E", zbar::ZBAR_UPCE, true },
+#endif
+#if ENABLE_I25 == 1
+    { "Code 2 of 5 interlaced", zbar::ZBAR_I25, true },
+#endif
+#if ENABLE_PDF417 == 1
+    { "PDF417", zbar::ZBAR_PDF417, false },
+#endif
+#if ENABLE_QRCODE == 1
+    { "QR code", zbar::ZBAR_QRCODE, true },
+#endif
+#if ENABLE_SQCODE == 1
+    { "SQ code", zbar::ZBAR_SQCODE, true },
+#endif
+};
+
+#define CONFIGS_SIZE (sizeof(configs)/sizeof(*configs))
 
 // Represents an integer control
 
@@ -226,7 +277,7 @@ public Q_SLOTS:
             zbar->scanImage(QImage(file));
     }
 
-    void clicked()
+    void control_clicked()
     {
         QCheckBox *button = qobject_cast<QCheckBox*>(sender());
         if (!button)
@@ -236,6 +287,25 @@ public Q_SLOTS:
         bool val = button->isChecked();
 
         zbar->set_control(name.toUtf8().data(), val);
+    }
+
+    void code_clicked()
+    {
+        QCheckBox *button = qobject_cast<QCheckBox*>(sender());
+        if (!button)
+            return;
+
+        QString name = button->text();
+        bool val = button->isChecked();
+
+        for (unsigned i = 0; i < CONFIGS_SIZE; i++) {
+            if (configs[i].name == name) {
+               zbar->set_config(configs[i].sym, zbar::ZBAR_CFG_ENABLE,
+                                val);
+               return;
+
+            }
+        }
     }
 
     void clearLayout(QLayout *layout)
@@ -267,9 +337,24 @@ public Q_SLOTS:
         if (!videoEnabled)
             return;
 
+        int pos = 2;
+        QLabel *label = new QLabel("Options");
+        controlBoxLayout->addWidget(label, pos++, 2, 1, 2,
+                                    Qt::AlignTop | Qt::AlignHCenter);
+
+        for (unsigned i = 0; i < CONFIGS_SIZE; i++) {
+            QCheckBox *button = new QCheckBox(configs[i].name, this);
+            button->setChecked(configs[i].enabled);
+            zbar->set_config(configs[i].sym, zbar::ZBAR_CFG_ENABLE,
+                             configs[i].enabled);
+            controlBoxLayout->addWidget(button, ++pos, 2, 1, 2,
+                                        Qt::AlignTop | Qt::AlignHCenter);
+            connect(button, SIGNAL(clicked()), this, SLOT(code_clicked()));
+        }
+
         // get_controls
 
-        int pos = 2;
+        pos = 2;
         QString oldGroup;
         for (int i = 0;; i++) {
             char *name, *group;
@@ -310,7 +395,7 @@ public Q_SLOTS:
                     else
                         button->setChecked(def);
                     connect(button, SIGNAL(clicked()),
-                            this, SLOT(clicked()));
+                            this, SLOT(control_clicked()));
                     break;
                 }
                 case zbar::QZBar::Integer: {

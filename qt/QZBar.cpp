@@ -155,6 +155,24 @@ int QZBar::get_control(char *name, int *value)
     return thread->get_control(name, value);
 }
 
+int QZBar::set_config(std::string cfgstr)
+{
+    if(!thread)
+        return 0;
+
+    return thread->set_config(cfgstr);
+}
+
+int QZBar::set_config(zbar_symbol_type_t symbology,
+                      zbar_config_t config,
+                      int value)
+{
+    if(!thread)
+        return 0;
+
+    return thread->set_config(symbology, config, value);
+}
+
 bool QZBar::isVideoEnabled () const
 {
     return(_videoEnabled);

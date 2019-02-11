@@ -32,6 +32,7 @@
 #else
 #  include <qwidget.h>
 #endif
+#include <zbar.h>
 
 namespace zbar {
 
@@ -154,6 +155,10 @@ public Q_SLOTS:
     int get_control(char *name, bool *value);
     int get_control(char *name, int *value);
 
+    int set_config (std::string cfgstr);
+    int set_config (zbar_symbol_type_t symbology,
+                    zbar_config_t config,
+                    int value);
 
 Q_SIGNALS:
     /// emitted when when a video device is opened or closed.
