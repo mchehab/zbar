@@ -172,7 +172,7 @@ class BuiltinTestCase(TestCase):
         sym = ET.SubElement(src, ET.QName(BC, 'symbol'), type='EAN-13',
                             orientation='UP')
         data = ET.SubElement(sym, ET.QName(BC, 'data'))
-        data.text = '9876543210289'
+        data.text = '9789876543217'
 
 
 def compare_maps(expect, actual, compare_func):

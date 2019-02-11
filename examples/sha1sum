@@ -3,9 +3,11 @@ cc53bf34878f769fc3611020c11e572f2853bd2a  zbarimg code-128.png
 7537d593ea42393a43bc0eda0a896c0e31017dd8  zbarimg code-39.png
 f8f55b828eb7d0400f300be021d29293bd4a3191  zbarimg code-93.png
 aebbdbed0b32d7fd72f1245e3fb384822d492062  zbarimg databar.png
-d02280a7fe632b4b9823f0bcff54906f28d3e2ec  zbarimg ean-13.png
+53429fc04dfcf674349e2db6cfbaf73e301fc3dc  zbarimg ean-13.png
 4095418b74efbb026dd730543558fefdda46f5b9  zbarimg ean-8.png
 5501245dbba21c153f690787fc97ab50c973b846  zbarimg i2-5.png
 b350ca7efad7a50c5ac082d5c683a8e8d8d380a7  zbarimg qr-code.png
 84c0ce7072e2227073dc8bd1e5f4518d8f42ae3d  zbarimg sqcode1-generated.png
 84c0ce7072e2227073dc8bd1e5f4518d8f42ae3d  zbarimg sqcode1-scanned.png
+b567e550216fe24f7652f683146365a9fe7ee867  zbarimg isbn10 ean-13.png
+d0f37aa076d42c270f7231c5490beea5605e2ba0  zbarimg isbn13 ean-13.png

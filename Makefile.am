@@ -105,5 +105,7 @@ archive:
 
 gen_checksum: all
 	for i in examples/*.png; do j=`basename $$i`; ./zbarimg/zbarimg $$i 2>/dev/null|sha1sum|sed "s,-,zbarimg $$j,"; done >examples/sha1sum
+	./zbarimg/zbarimg -Sisbn10.enable examples/ean-13.png 2>/dev/null|sha1sum|sed "s,-,zbarimg isbn10 ean-13.png," >>examples/sha1sum
+	./zbarimg/zbarimg -Sisbn13.enable examples/ean-13.png 2>/dev/null|sha1sum|sed "s,-,zbarimg isbn13 ean-13.png," >>examples/sha1sum
 
 .PHONY : $(PHONY) archive gen_checksum

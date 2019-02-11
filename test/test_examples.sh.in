@@ -7,16 +7,26 @@ ZBARIMG="@abs_top_builddir@/zbarimg/zbarimg --nodbus"
 
 test()
 {
-        j=$1
-        i="$DIR/examples/$j"
-	CK=`$ZBARIMG "$i" 2>/dev/null|sha1sum|cut -d" " -f1`
-	ORG=`grep $j "$DIR/examples/sha1sum"|cut -d " " -f1`
+	if [ "$2" != "" ]; then
+	        i="$DIR/examples/$2"
+		j="$1 $2"
+	else
+	        i="$DIR/examples/$1"
+		j="$1"
+	fi;
+	if [ "$2" != "" ]; then
+		CMD="$ZBARIMG -S$1.enable"
+	else
+		CMD="$ZBARIMG"
+	fi
+	CK=`$CMD "$i" 2>/dev/null|sha1sum|cut -d" " -f1`
+	ORG=`grep "zbarimg $j" "$DIR/examples/sha1sum"|cut -d " " -f1`
 
 	if [ "$CK" != "$ORG" ]; then
 		echo "FAILED: $i ($CK instead of $ORG)"
-		echo -e "\tcmd: $DIR/zbarimg/zbarimg '$i'"
+		echo -e "\tcmd: $CMD '$i'"
 		echo -en "\tresults: "
-		$DIR/zbarimg/zbarimg "$i" 2>/dev/null
+		$CMD "$i" 2>/dev/null
 		ERR=1
 	fi
 }
@@ -43,6 +53,8 @@ fi
 
 if [ "@ENABLE_EAN@" == "1" ]; then
         test ean-13.png
+        test isbn10 ean-13.png
+        test isbn13 ean-13.png
         test ean-8.png
 fi
 
