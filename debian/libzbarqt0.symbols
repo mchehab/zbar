@@ -96,6 +96,7 @@ libzbarqt.so.0 libzbarqt0 #MINVER#
  (c++)"zbar::QZBar::scanImage(QImage const&)@Base" 0.10
  (c++)"zbar::QZBar::setVideoDevice(QString const&)@Base" 0.10
  (c++)"zbar::QZBar::setVideoEnabled(bool)@Base" 0.10
+ (c++)"zbar::QZBar::request_dbus(bool)@Base" 0.21
  (c++)"zbar::QZBar::set_control(char*, bool)@Base" 0.20.1
  (c++)"zbar::QZBar::set_control(char*, int)@Base" 0.20.1
  (c++)"zbar::QZBar::set_config(zbar::zbar_symbol_type_e, zbar::zbar_config_e, int)@Base" 0.21

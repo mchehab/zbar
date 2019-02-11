@@ -38,6 +38,8 @@
 #define TEST_IMAGE_FORMATS \
     "Image Files (*.png *.jpg *.jpeg *.bmp *.gif *.ppm *.pgm *.pbm *.tiff *.xpm *.xbm)"
 
+#define DBUS_NAME "D-Bus"
+
 extern "C" {
 int scan_video(void *add_device,
                void *userdata,
@@ -298,6 +300,11 @@ public Q_SLOTS:
         QString name = button->text();
         bool val = button->isChecked();
 
+        if (name == DBUS_NAME) {
+            zbar->request_dbus(val);
+            return;
+        }
+
         for (unsigned i = 0; i < CONFIGS_SIZE; i++) {
             if (configs[i].name == name) {
                zbar->set_config(configs[i].sym, zbar::ZBAR_CFG_ENABLE,
@@ -341,6 +348,15 @@ public Q_SLOTS:
         QLabel *label = new QLabel("Options");
         controlBoxLayout->addWidget(label, pos++, 2, 1, 2,
                                     Qt::AlignTop | Qt::AlignHCenter);
+
+#ifdef HAVE_DBUS
+        QCheckBox *button = new QCheckBox(DBUS_NAME, this);
+        button->setChecked(false);
+        controlBoxLayout->addWidget(button, ++pos, 2, 1, 2,
+                                    Qt::AlignTop | Qt::AlignHCenter);
+        connect(button, SIGNAL(clicked()), this, SLOT(code_clicked()));
+        zbar->request_dbus(0);
+#endif
 
         for (unsigned i = 0; i < CONFIGS_SIZE; i++) {
             QCheckBox *button = new QCheckBox(configs[i].name, this);

@@ -46,6 +46,7 @@ libzbar.so.0 libzbar0 #MINVER#
  zbar_image_scanner_enable_cache@Base 0.10
  zbar_image_scanner_get_results@Base 0.10
  zbar_image_scanner_recycle_image@Base 0.10
+ zbar_image_scanner_request_dbus@Base 0.21
  zbar_image_scanner_set_config@Base 0.10
  zbar_image_scanner_set_data_handler@Base 0.10
  zbar_image_set_crop@Base 0.20.1

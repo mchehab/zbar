@@ -65,6 +65,14 @@ public:
         zbar_image_scanner_set_data_handler(_scanner, handler, &handler);
     }
 
+    /// request sending decoded codes via D-Bus
+    /// @see zbar_processor_parse_config()
+    /// @since 0.21
+    int request_dbus(bool enabled)
+    {
+        return zbar_image_scanner_request_dbus(_scanner, enabled);
+    }
+
     /// set config for indicated symbology (0 for all) to specified value.
     /// @see zbar_image_scanner_set_config()
     /// @since 0.4

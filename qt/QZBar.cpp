@@ -173,6 +173,15 @@ int QZBar::set_config(zbar_symbol_type_t symbology,
     return thread->set_config(symbology, config, value);
 }
 
+int QZBar::request_dbus(bool enabled)
+{
+    if(!thread)
+        return 0;
+
+    return thread->request_dbus(enabled);
+}
+
+
 bool QZBar::isVideoEnabled () const
 {
     return(_videoEnabled);
