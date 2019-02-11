@@ -103,10 +103,4 @@ archive:
 	git archive --format=tar --prefix=zbar-$(VERSION)/ -o zbar-$(VERSION).tar $(VERSION)
 	bzip2 zbar-$(VERSION).tar
 
-gen_checksum: all
-	for i in $$(ls examples/*.png|grep -v code-upc-a); do j=`basename $$i`; ./zbarimg/zbarimg $$i 2>/dev/null|sha1sum|sed "s,-,zbarimg $$j,"; done >examples/sha1sum
-	./zbarimg/zbarimg -Sisbn10.enable examples/ean-13.png 2>/dev/null|sha1sum|sed "s,-,zbarimg isbn10 ean-13.png," >>examples/sha1sum
-	./zbarimg/zbarimg -Sisbn13.enable examples/ean-13.png 2>/dev/null|sha1sum|sed "s,-,zbarimg isbn13 ean-13.png," >>examples/sha1sum
-	./zbarimg/zbarimg -Supca.enable examples/code-upc-a.png 2>/dev/null|sha1sum|sed "s,-,zbarimg upca code-upc-a.png," >>examples/sha1sum
-
-.PHONY : $(PHONY) archive gen_checksum
+.PHONY : $(PHONY) archive

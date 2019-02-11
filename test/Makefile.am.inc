@@ -58,6 +58,24 @@ CLEANFILES += test/.libs/test_decode test/.libs/test_proc \
     test/.libs/test_convert test/.libs/test_window \
     test/.libs/test_video test/.libs/dbg_scan test/.libs/test_gtk
 
+
+# Images that work out of the box without needing to enable
+# an specific symbology
+NORMAL_IMAGES = codabar.png code-128.png code-39.png code-93.png \
+		databar.png ean-13.png ean-8.png i2-5.png \
+		qr-code.png sqcode1-generated.png sqcode1-scanned.png
+
+EXAMPLES = @abs_top_builddir@/examples
+ZBARIMG = @abs_top_builddir@/zbarimg/zbarimg --nodbus
+
+gen_checksum: all
+	for i in $(NORMAL_IMAGES); do $(ZBARIMG) $(EXAMPLES)/$$i 2>/dev/null|sha1sum|sed "s,-,zbarimg $$i,"; done >$(EXAMPLES)/sha1sum
+	$(ZBARIMG) -Sean2.enable $(EXAMPLES)/ean-2.png 2>/dev/null|sha1sum|sed "s,-,zbarimg ean2 ean-2.png," >>$(EXAMPLES)/sha1sum
+	$(ZBARIMG) -Sean5.enable $(EXAMPLES)/ean-5.png 2>/dev/null|sha1sum|sed "s,-,zbarimg ean5 ean-5.png," >>$(EXAMPLES)/sha1sum
+	$(ZBARIMG) -Sisbn10.enable $(EXAMPLES)/ean-13.png 2>/dev/null|sha1sum|sed "s,-,zbarimg isbn10 ean-13.png," >>$(EXAMPLES)/sha1sum
+	$(ZBARIMG) -Sisbn13.enable $(EXAMPLES)/ean-13.png 2>/dev/null|sha1sum|sed "s,-,zbarimg isbn13 ean-13.png,"  >>$(EXAMPLES)/sha1sum
+	$(ZBARIMG) -Supca.enable $(EXAMPLES)/code-upc-a.png 2>/dev/null|sha1sum|sed "s,-,zbarimg upca code-upc-a.png,"  >>$(EXAMPLES)/sha1sum
+
 test_progs: $(check_PROGRAMS)
 	@$(MAKE) $(check_PROGRAMS)
 
@@ -116,4 +134,4 @@ tests: check-local check-dbus other-tests
 
 .NOTPARALLEL: check-local regress tests
 
-PHONY += check-cpp check-decoder check-images check-dbus regress-decoder regress-images regress
+PHONY += gen_checksum check-cpp check-decoder check-images check-dbus regress-decoder regress-images regress
