@@ -49,6 +49,7 @@ fi
 
 if [ "@ENABLE_DATABAR@" == "1" ]; then
         test databar.png
+        test databar-exp.png
 fi
 
 if [ "@ENABLE_EAN@" == "1" ]; then

@@ -62,7 +62,7 @@ CLEANFILES += test/.libs/test_decode test/.libs/test_proc \
 # Images that work out of the box without needing to enable
 # an specific symbology
 NORMAL_IMAGES = codabar.png code-128.png code-39.png code-93.png \
-		databar.png ean-13.png ean-8.png i2-5.png \
+		databar.png databar-exp.png ean-13.png ean-8.png i2-5.png \
 		qr-code.png sqcode1-generated.png sqcode1-scanned.png
 
 EXAMPLES = @abs_top_builddir@/examples
