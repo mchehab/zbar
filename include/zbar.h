@@ -989,10 +989,8 @@ extern int zbar_process_image(zbar_processor_t *processor,
 /** enable dbus IPC API.
  * @returns 0 succesful
  */
-#ifdef HAVE_DBUS
-int zbar_processor_request_dbus (zbar_processor_t *proc,
-                                 int req_dbus_enabled);
-#endif
+int zbar_processor_request_dbus(zbar_processor_t *proc,
+                                int req_dbus_enabled);
 
 /** display detail for last processor error to stderr.
  * @returns a non-zero value suitable for passing to exit()
@@ -1294,6 +1292,13 @@ zbar_image_scanner_set_data_handler(zbar_image_scanner_t *scanner,
                                     zbar_image_data_handler_t *handler,
                                     const void *userdata);
 
+
+/** request sending decoded codes via D-Bus
+ * @see zbar_processor_parse_config()
+ * @since 0.21
+ */
+extern int zbar_image_scanner_request_dbus(zbar_image_scanner_t *scanner,
+                                           int req_dbus_enabled);
 
 /** set config for indicated symbology (0 for all) to specified value.
  * @returns 0 for success, non-0 for failure (config does not apply to

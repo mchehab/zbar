@@ -28,6 +28,10 @@
 #ifdef HAVE_INTTYPES_H
 # include <inttypes.h>
 #endif
+#ifdef HAVE_DBUS
+#include <dbus/dbus.h>
+#endif
+
 #include <stdlib.h>     /* malloc, free */
 #include <string.h>     /* memcmp, memset, memcpy */
 #include <assert.h>
@@ -123,6 +127,10 @@ struct zbar_image_scanner_s {
     int stat_img_syms_inuse, stat_img_syms_recycle;
     int stat_sym_new;
     int stat_sym_recycle[RECYCLE_BUCKETS];
+#endif
+
+#ifdef HAVE_DBUS
+    int is_dbus_enabled;        /* dbus enabled flag */
 #endif
 };
 
@@ -661,6 +669,145 @@ static inline void quiet_border (zbar_image_scanner_t *iscn)
     zbar_scanner_new_scan(scn);
 }
 
+
+#ifdef HAVE_DBUS
+static int dict_add_property (DBusMessageIter *property,
+                              const char *key,
+                              const char *value)
+{
+
+    DBusMessageIter dict_entry, dict_val;
+    DBusError err;
+    dbus_error_init(&err);
+    dbus_message_iter_open_container(property, DBUS_TYPE_DICT_ENTRY, NULL, &dict_entry);
+    if (!dbus_message_iter_append_basic(&dict_entry, DBUS_TYPE_STRING, &key)){
+        fprintf(stderr, "Key Error\n");
+        dbus_message_iter_close_container(property, &dict_entry);
+        goto error;
+    }
+    dbus_message_iter_open_container(&dict_entry, DBUS_TYPE_VARIANT, DBUS_TYPE_STRING_AS_STRING, &dict_val);
+    if (!dbus_message_iter_append_basic(&dict_val, DBUS_TYPE_STRING, &value)){
+        fprintf(stderr, "Value Error\n");
+        dbus_message_iter_close_container(&dict_entry, &dict_val);
+        dbus_message_iter_close_container(property, &dict_entry);
+        goto error;
+    }
+    dbus_message_iter_close_container(&dict_entry, &dict_val);
+    dbus_message_iter_close_container(property, &dict_entry);
+    return(1);
+
+error:
+    if (dbus_error_is_set(&err)) {
+        fprintf(stderr, "Name Error (%s)\n", err.message);
+        dbus_error_free(&err);
+    }
+    return(0);
+}
+
+static void zbar_send_dbus(int type, const char* sigvalue)
+{
+    DBusMessage* msg;
+    DBusMessageIter args, dict;
+    DBusConnection* conn;
+    const char *type_name;
+    DBusError err;
+    int ret;
+    dbus_uint32_t serial = 0;
+
+    // initialise the error value
+    dbus_error_init(&err);
+
+    // connect to the DBUS system bus, and check for errors
+    conn = dbus_bus_get(DBUS_BUS_SYSTEM, &err);
+    if (dbus_error_is_set(&err)) {
+        fprintf(stderr, "Connection Error (%s)\n", err.message);
+        dbus_error_free(&err);
+    }
+    if (NULL == conn) {
+        fprintf(stderr, "Connection Null\n");
+        return;
+    }
+
+    // register our name on the bus, and check for errors
+    ret = dbus_bus_request_name(conn, "org.linuxtv.Zbar", DBUS_NAME_FLAG_REPLACE_EXISTING, &err);
+    if (dbus_error_is_set(&err)) {
+        fprintf(stderr, "Name Error (%s)\n", err.message);
+        dbus_error_free(&err);
+    }
+    if (DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER != ret) {
+        return;
+    }
+
+    // create a signal & check for errors
+    msg = dbus_message_new_signal("/org/linuxtv/Zbar1/Code", // object name of the signal
+                                 "org.linuxtv.Zbar1.Code", // interface name of the signal
+                                 "Code"); // name of the signal
+    if (NULL == msg)
+    {
+        fprintf(stderr, "Message Null\n");
+        return;
+    }
+
+    // append arguments onto signal
+    dbus_message_iter_init_append(msg, &args);
+    if (!dbus_message_iter_open_container(&args, DBUS_TYPE_ARRAY, "{sv}", &dict)) {
+        fprintf(stderr, "Out Of Dict Container Memory!\n");
+        dbus_message_unref(msg);
+        return;
+    }
+
+    type_name = zbar_get_symbol_name(type);
+    if (!dict_add_property(&dict, "Type", type_name)) {
+        fprintf(stderr, "Out Of Property Memory!\n");
+        dbus_message_unref(msg);
+        return;
+    }
+
+    if (!dict_add_property(&dict, "Data", sigvalue)) {
+        fprintf(stderr, "Out Of Property Memory!\n");
+        dbus_message_unref(msg);
+        return;
+    }
+
+    dbus_message_iter_close_container(&args, &dict);
+
+    // send the message and flush the connection
+    if (!dbus_connection_send(conn, msg, &serial)) {
+        fprintf(stderr, "Out Of Memory!\n");
+        dbus_message_unref(msg);
+        return;
+    }
+
+    dbus_connection_flush(conn);
+    dbus_bus_release_name(conn, "org.linuxtv.Zbar", &err);
+    if (dbus_error_is_set(&err)) {
+        fprintf(stderr, "Name Release Error (%s)\n", err.message);
+        dbus_error_free(&err);
+    }
+
+    // free the message
+    dbus_message_unref(msg);
+}
+
+static void zbar_send_code_via_dbus(zbar_image_t *img)
+{
+    const zbar_symbol_t *sym = zbar_image_first_symbol(img);
+
+    if (!sym)
+        return;
+    for(; sym; sym = zbar_symbol_next(sym)) {
+        if(zbar_symbol_get_count(sym))
+            continue;
+
+        zbar_symbol_type_t type = zbar_symbol_get_type(sym);
+        if(type == ZBAR_PARTIAL)
+            continue;
+
+        zbar_send_dbus(type, zbar_symbol_get_data(sym));
+    }
+}
+#endif
+
 #define movedelta(dx, dy) do {                  \
         x += (dx);                              \
         y += (dy);                              \
@@ -923,9 +1070,24 @@ int zbar_scan_image (zbar_image_scanner_t *iscn,
 
     if(syms->nsyms && iscn->handler)
         iscn->handler(img, iscn->userdata);
+#ifdef HAVE_DBUS
+    if(iscn->is_dbus_enabled)
+        zbar_send_code_via_dbus(img);
+#endif
 
     svg_close();
     return(syms->nsyms);
+}
+
+int zbar_image_scanner_request_dbus(zbar_image_scanner_t *scanner,
+                                    int req_dbus_enabled)
+{
+#ifdef HAVE_DBUS
+    scanner->is_dbus_enabled = req_dbus_enabled;
+    return 0;
+#else
+    return 1;
+#endif
 }
 
 #ifdef DEBUG_SVG
