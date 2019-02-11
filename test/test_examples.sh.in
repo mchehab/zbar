@@ -55,6 +55,7 @@ if [ "@ENABLE_EAN@" == "1" ]; then
         test ean-13.png
         test isbn10 ean-13.png
         test isbn13 ean-13.png
+        test upca code-upc-a.png
         test ean-8.png
 fi
 
