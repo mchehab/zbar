@@ -345,7 +345,10 @@ public Q_SLOTS:
             return;
 
         int pos = 2;
-        QLabel *label = new QLabel("Options");
+        controlBoxLayout->addItem(new QSpacerItem(0, 12),
+                                    pos++, 0, 1, 2,
+                                    Qt::AlignLeft);
+        QLabel *label = new QLabel("<strong>Options</strong>");
         controlBoxLayout->addWidget(label, pos++, 2, 1, 2,
                                     Qt::AlignTop | Qt::AlignHCenter);
 
@@ -353,7 +356,7 @@ public Q_SLOTS:
         QCheckBox *button = new QCheckBox(DBUS_NAME, this);
         button->setChecked(false);
         controlBoxLayout->addWidget(button, ++pos, 2, 1, 2,
-                                    Qt::AlignTop | Qt::AlignHCenter);
+                                    Qt::AlignTop | Qt::AlignLeft);
         connect(button, SIGNAL(clicked()), this, SLOT(code_clicked()));
         zbar->request_dbus(0);
 #endif
@@ -364,7 +367,7 @@ public Q_SLOTS:
             zbar->set_config(configs[i].sym, zbar::ZBAR_CFG_ENABLE,
                              configs[i].enabled);
             controlBoxLayout->addWidget(button, ++pos, 2, 1, 2,
-                                        Qt::AlignTop | Qt::AlignHCenter);
+                                        Qt::AlignTop | Qt::AlignLeft);
             connect(button, SIGNAL(clicked()), this, SLOT(code_clicked()));
         }
 
