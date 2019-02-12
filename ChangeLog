@@ -1,8 +1,10 @@
-0.21 release candidate:
+0.21:
 
+  * zbarcam-qt: allow selecting codes via GUI interface
+  * When both enabled, ISBN-13 has precedence over ISBN-10
   * ZBar is now using Travis CI for continuous integration tests
   * Convert INSTALL and README to markdown and update them
-  * improve ZBar testing code and make easier to run the tests
+  * Improve ZBar testing code and make easier to run the tests
   * Fix build with Clang
   * Add simple dbus IPC API to zbarcam.
   * zbarimg: display only the compiled symbologies
