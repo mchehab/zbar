@@ -96,6 +96,25 @@ static const struct configs_s configs[] = {
 
 #define CONFIGS_SIZE (sizeof(configs)/sizeof(*configs))
 
+struct settings_s {
+    QString name;
+    zbar::zbar_config_t ctrl;
+    bool is_bool;
+};
+
+static const struct settings_s settings[] = {
+    { "x-density",   zbar::ZBAR_CFG_Y_DENSITY,   false },
+    { "y-density",   zbar::ZBAR_CFG_Y_DENSITY,   false },
+    { "min-length",  zbar::ZBAR_CFG_MIN_LEN,     false },
+    { "max-length",  zbar::ZBAR_CFG_MAX_LEN,     false },
+    { "uncertainty", zbar::ZBAR_CFG_UNCERTAINTY, false },
+    { "ascii",       zbar::ZBAR_CFG_ASCII,       true },
+    { "add-check",   zbar::ZBAR_CFG_ADD_CHECK,   true },
+    { "emit-check",  zbar::ZBAR_CFG_EMIT_CHECK,  true },
+    { "position",    zbar::ZBAR_CFG_POSITION,    true },
+};
+#define SETTINGS_SIZE (sizeof(settings)/sizeof(*settings))
+
 // Represents an integer control
 
 class IntegerControl : public QSpinBox
@@ -181,6 +200,136 @@ void MenuControl::updateControl(int index)
 
     zbar->set_control(name, vector.at(index).first);
 }
+
+class IntegerSetting : public QSpinBox
+{
+    Q_OBJECT
+
+public:
+    QString name;
+
+    IntegerSetting(QString _name, int val = 0) : name(_name) {
+        setValue(val);
+    }
+};
+
+// FIXME: should be able to read the config defaults
+
+class SettingsDialog : public QDialog
+{
+    Q_OBJECT
+
+private:
+    QVector<int> val;
+    zbar::QZBar *zbar;
+    zbar::zbar_symbol_type_t sym;
+
+private slots:
+
+    void accept() {
+        for (unsigned i = 0; i < SETTINGS_SIZE; i++)
+            zbar->set_config(sym, settings[i].ctrl, val[i]);
+        QDialog::accept();
+    };
+    void reject() {
+        QDialog::reject();
+    };
+    void clicked() {
+        QCheckBox *button = qobject_cast<QCheckBox*>(sender());
+        if (!button)
+            return;
+
+        QString name = button->text();
+
+        for (unsigned i = 0; i < SETTINGS_SIZE; i++) {
+            if (settings[i].name == name) {
+                val[i] = button->isChecked();
+                return;
+            }
+        }
+        // ERROR!
+    };
+    void update(int value) {
+        IntegerSetting *setting = qobject_cast<IntegerSetting*>(sender());
+        if (!setting)
+            return;
+
+        for (unsigned i = 0; i < SETTINGS_SIZE; i++) {
+            if (settings[i].name == setting->name) {
+                val[i] = value;
+                return;
+
+            }
+        }
+        // ERROR!
+    };
+
+public:
+    SettingsDialog(zbar::QZBar *_zbar, QString &name, zbar::zbar_symbol_type_t _sym)
+                  : zbar(_zbar), sym(_sym) {
+        val = QVector<int>(SETTINGS_SIZE);
+
+        QGridLayout *layout = new QGridLayout(this);
+
+        this->setWindowTitle(name);
+
+        for (unsigned i = 0; i < SETTINGS_SIZE; i++) {
+            if (settings[i].is_bool) {
+                QCheckBox *button = new QCheckBox(settings[i].name, this);
+                layout->addWidget(button, i, 0, 1, 2,
+                                  Qt::AlignTop | Qt::AlignLeft);
+                connect(button, SIGNAL(clicked()),
+                        this, SLOT(clicked()));
+            } else {
+                QLabel *label = new QLabel(settings[i].name);
+
+                layout->addWidget(label, i, 0, 1, 1,
+                                  Qt::AlignTop | Qt::AlignLeft);
+                IntegerSetting *spin = new IntegerSetting(settings[i].name);
+                layout->addWidget(spin, i, 1, 1, 1,
+                                  Qt::AlignTop | Qt::AlignLeft);
+                connect(spin, SIGNAL(valueChanged(int)),
+                        this, SLOT(update(int)));
+            }
+
+        }
+        QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+        connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+        layout->addWidget(buttonBox);
+    }
+};
+
+class SettingsButton : public QPushButton
+{
+    Q_OBJECT
+
+private:
+    QString name;
+    zbar::QZBar *zbar;
+    zbar::zbar_symbol_type_t sym;
+
+public:
+    SettingsButton(zbar::QZBar *_zbar, const QIcon &_icon, QString _name,
+                   zbar::zbar_symbol_type_t _sym)
+                  : QPushButton(_icon, ""),
+                    name(_name), zbar(_zbar), sym(_sym) {};
+
+public Q_SLOTS:
+    void button_clicked()
+    {
+
+        SettingsButton *button = qobject_cast<SettingsButton*>(sender());
+        if (!button)
+            return;
+
+        QString name = button->name;
+
+        SettingsDialog *dialog = new SettingsDialog(zbar, name, sym);
+        dialog->setModal(true);
+        dialog->show();
+    }
+};
 
 class ZbarcamQZBar : public QWidget
 {
@@ -356,7 +505,7 @@ public Q_SLOTS:
 #ifdef HAVE_DBUS
         QCheckBox *button = new QCheckBox(DBUS_NAME, this);
         button->setChecked(false);
-        controlBoxLayout->addWidget(button, ++pos, 2, 1, 2,
+        controlBoxLayout->addWidget(button, ++pos, 2, 1, 1,
                                     Qt::AlignTop | Qt::AlignLeft);
         connect(button, SIGNAL(clicked()), this, SLOT(code_clicked()));
         zbar->request_dbus(0);
@@ -367,9 +516,22 @@ public Q_SLOTS:
             button->setChecked(configs[i].enabled);
             zbar->set_config(configs[i].sym, zbar::ZBAR_CFG_ENABLE,
                              configs[i].enabled);
-            controlBoxLayout->addWidget(button, ++pos, 2, 1, 2,
+            controlBoxLayout->addWidget(button, ++pos, 2, 1, 1,
                                         Qt::AlignTop | Qt::AlignLeft);
             connect(button, SIGNAL(clicked()), this, SLOT(code_clicked()));
+
+            /* Composite doesn't have configuration */
+            if (configs[i].sym == zbar::ZBAR_COMPOSITE)
+                continue;
+
+            SettingsButton *settings = new SettingsButton(zbar,
+                                                          QIcon::fromTheme(QLatin1String("configure-toolbars")), configs[i].name,
+                                                          configs[i].sym);
+            controlBoxLayout->addWidget(settings, pos, 3, 1, 1,
+                                        Qt::AlignTop | Qt::AlignLeft);
+
+            connect(settings, &SettingsButton::clicked,
+                    settings, &SettingsButton::button_clicked);
         }
 
         // get_controls
