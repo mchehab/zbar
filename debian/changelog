@@ -4,6 +4,30 @@ zbar (0.21) unstable; urgency=low
 
  -- Javier Serrano Polo <javier@jasp.net>  Mon, 04 Feb 2019 07:17:57 +0100
 
+zbar (0.10+doc-11) unstable; urgency=medium
+
+  * QA upload.
+  * Orphan the package and set maintainer to Debian QA Group.
+  * debian/control:
+    + Build-depend on debhelper-compat (= 12) instead of using
+      debian/compat file.
+    + Bump Standards-Version to 4.3.0.
+    + Use Rules-Requires-Root: no.
+    + Replace obsoleted Priority: extra with optional.
+    - Do not build Qt4 library anymore. (Closes: #875246)
+  * debian/symbols: Add Build-Depends-Package field. (lintian)
+  * debian/rules:
+    + Enable full hardening.
+    + Minor adjust to debhelper sequences to suit debhelper compat
+      v12.
+  * debian/gbp.conf: Update instructions to fit current git repo
+    setup.
+  * debian/patches:
+    + Add a patch to rename custom dprintf macro to zbar_dprintf
+      to prevent naming conflict.
+
+ -- Boyuan Yang <byang@debian.org>  Sun, 10 Feb 2019 14:26:34 -0500
+
 zbar (0.10+doc-10.1) unstable; urgency=low
 
   * Non-maintainer upload with maintainer permission.

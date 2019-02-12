@@ -1,4 +1,5 @@
 libzbargtk.so.0 libzbargtk0 #MINVER#
+* Build-Depends-Package: libzbargtk-dev
  zbar_gtk_get_type@Base 0.10
  zbar_gtk_get_video_device@Base 0.10
  zbar_gtk_get_video_enabled@Base 0.10

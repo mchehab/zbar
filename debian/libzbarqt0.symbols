@@ -1,4 +1,5 @@
 libzbarqt.so.0 libzbarqt0 #MINVER#
+* Build-Depends-Package: libzbarqt-dev
  (c++)"QList<QEvent*>::append(QEvent* const&)@Base" 0.20.1
  (c++)"QList<QEvent*>::detach_helper(int)@Base" 0.20.1
  (c++)"QList<QEvent*>::detach_helper_grow(int, int)@Base" 0.20.1

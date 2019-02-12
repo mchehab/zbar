@@ -1,11 +1,19 @@
 #!/usr/bin/make -f
+# See debhelper(7) (uncomment to enable)
+# output every command that modifies files on the build system.
+#export DH_VERBOSE = 1
 
-DEB_HOST_GNU_TYPE	?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
-DEB_BUILD_GNU_TYPE	?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
-DEB_HOST_ARCH		?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
-DEB_HOST_ARCH_OS	?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
+# see FEATURE AREAS in dpkg-buildflags(1)
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
-VERSION:=$(strip $(shell dpkg-parsechangelog| grep '^Version' | awk '{print $$2}'))
+# see ENVIRONMENT in dpkg-buildflags(1)
+# package maintainers to append CFLAGS
+#export DEB_CFLAGS_MAINT_APPEND  = -Wall -pedantic
+# package maintainers to append LDFLAGS
+export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
+
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/default.mk
 
 ifneq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
 	CROSS= --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
@@ -37,8 +45,7 @@ LDFLAGS_BINDINGS = $(strip $(LDFLAGS) $(LDFLAGS_LIB_SEARCHPATH))
 clean:
 	dh_testdir
 	dh_testroot
-	dh_autoreconf_clean
-	dh_autotools-dev_restoreconfig
+	dh_auto_clean
 	rm -rf $(CURDIR)/build-python* $(CURDIR)/build-nopython
 	rm -rf $(CURDIR)/debian/tmp_*
 	[ ! -f $(CURDIR)/perl/Makefile ] || $(MAKE) -C perl realclean
@@ -46,7 +53,7 @@ clean:
 
 autotools-dev: autotools-dev-stamp
 autotools-dev-stamp:
-	dh_autotools-dev_updateconfig
+	dh_update_autotools_config
 	dh_autoreconf
 	touch $@
 
@@ -135,18 +142,18 @@ endif
 	dh_installman
 	dh_python2
 	dh_perl
+	dh_strip_nondeterminism
+	dh_compress
+	dh_fixperms
 ifneq (,$(filter zbar-dbg,$(PACKAGES)))
 	dh_strip --dbg-package=zbar-dbg
 else
 	dh_strip
 endif
-	dh_compress
-	dh_fixperms
 	dh_makeshlibs -Nlibzbarqt0 -- -c4
 	dh_makeshlibs -plibzbarqt0 -- -c0
-	sed -i 's,$(VERSION),$(VERSION)~,' debian/libzbarqt0/DEBIAN/symbols
-	dh_installdeb
 	dh_shlibdeps
+	dh_installdeb
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
