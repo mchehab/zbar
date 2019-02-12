@@ -53,11 +53,15 @@ struct configs_s {
 };
 
 static const struct configs_s configs[] = {
+    { "Composite codes", zbar::ZBAR_COMPOSITE, false },
 #if ENABLE_CODABAR == 1
     { "Codabar", zbar::ZBAR_CODABAR, true },
 #endif
 #if ENABLE_CODE128 == 1
     { "Code-128", zbar::ZBAR_CODE128, true },
+#endif
+#if ENABLE_I25 == 1
+    { "Code 2 of 5 interlaced", zbar::ZBAR_I25, true },
 #endif
 #if ENABLE_CODE39 == 1
     { "Code-39", zbar::ZBAR_CODE39, true },
@@ -78,9 +82,6 @@ static const struct configs_s configs[] = {
     { "ISBN-13", zbar::ZBAR_ISBN13, true },
     { "UPC-A", zbar::ZBAR_UPCA, false },
     { "UPC-E", zbar::ZBAR_UPCE, true },
-#endif
-#if ENABLE_I25 == 1
-    { "Code 2 of 5 interlaced", zbar::ZBAR_I25, true },
 #endif
 #if ENABLE_PDF417 == 1
     { "PDF417", zbar::ZBAR_PDF417, false },
