@@ -454,8 +454,12 @@ int qr_code_data_list_extract_text(const qr_code_data_list *_qrlist,
                   }
               syms->data = sa_text + syms->datalen;
               next = (syms->next) ? syms->next->datalen : sa_ntext;
-              assert(next > syms->datalen);
-              syms->datalen = next - syms->datalen - 1;
+              if (next > syms->datalen)
+                  syms->datalen = next - syms->datalen - 1;
+              else {
+                  zprintf(1, "Assertion `next > syms->datalen' failed\n");
+                  syms->datalen = 0;
+              }
           }
           if(xmax >= -1) {
               sym_add_point(sa_sym, xmin, ymin);
