@@ -7,6 +7,7 @@ libzbar.so.0 libzbar0 #MINVER#
  zbar_decoder_create@Base 0.10
  zbar_decoder_destroy@Base 0.10
  zbar_decoder_get_color@Base 0.10
+ zbar_decoder_get_config@Base 0.22
  zbar_decoder_get_configs@Base 0.20.1
  zbar_decoder_get_data@Base 0.10
  zbar_decoder_get_data_length@Base 0.10
@@ -45,6 +46,7 @@ libzbar.so.0 libzbar0 #MINVER#
  zbar_image_scanner_create@Base 0.10
  zbar_image_scanner_destroy@Base 0.10
  zbar_image_scanner_enable_cache@Base 0.10
+ zbar_image_scanner_get_config@Base 0.22
  zbar_image_scanner_get_results@Base 0.10
  zbar_image_scanner_recycle_image@Base 0.10
  zbar_image_scanner_request_dbus@Base 0.21

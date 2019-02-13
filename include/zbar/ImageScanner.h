@@ -84,6 +84,17 @@ public:
                                               config, value));
     }
 
+    /// set config for indicated symbology (0 for all) to specified value.
+    /// @see zbar_image_scanner_set_config()
+    /// @since 0.22
+    int get_config (zbar_symbol_type_t symbology,
+                    zbar_config_t config,
+                    int &value)
+    {
+        return(zbar_image_scanner_get_config(_scanner, symbology,
+                                              config, &value));
+    }
+
     /// set config parsed from configuration string.
     /// @see zbar_image_scanner_parse_config()
     /// @since 0.4

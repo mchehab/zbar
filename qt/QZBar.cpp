@@ -173,6 +173,16 @@ int QZBar::set_config(zbar_symbol_type_t symbology,
     return thread->set_config(symbology, config, value);
 }
 
+int QZBar::get_config(zbar_symbol_type_t symbology,
+                      zbar_config_t config,
+                      int &value)
+{
+    if(!thread)
+        return 0;
+
+    return thread->get_config(symbology, config, value);
+}
+
 int QZBar::request_dbus(bool enabled)
 {
     if(!thread)

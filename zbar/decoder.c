@@ -488,6 +488,63 @@ static inline int decoder_set_config_int (zbar_decoder_t *dcode,
     return(0);
 }
 
+int zbar_decoder_get_config(zbar_decoder_t *dcode,
+                            zbar_symbol_type_t sym,
+                            zbar_config_t cfg,
+                            int *val)
+{
+    const unsigned *config = decoder_get_configp(dcode, sym);
+
+    /* Return error if symbol doesn't have config */
+    if(sym <= ZBAR_PARTIAL || sym > ZBAR_CODE128 || sym == ZBAR_COMPOSITE)
+        return 1;
+
+    /* Return decoder boolean configs */
+    if (cfg < ZBAR_CFG_NUM) {
+        *val = (*config & (1 << cfg)) != 0;
+        return 0;
+    }
+
+    /* Return decoder integer configs */
+    if(cfg >= ZBAR_CFG_MIN_LEN && cfg <= ZBAR_CFG_MAX_LEN) {
+        switch(sym) {
+#if ENABLE_I25 == 1
+        case ZBAR_I25:
+            *val = CFG(dcode->i25, cfg);
+            return 0;
+#endif
+    #if ENABLE_CODABAR == 1
+        case ZBAR_CODABAR:
+            *val = CFG(dcode->codabar, cfg);
+            return 0;
+    #endif
+    #if ENABLE_CODE39 == 1
+        case ZBAR_CODE39:
+            *val = CFG(dcode->code39, cfg);
+            return 0;
+    #endif
+    #if ENABLE_CODE93 == 1
+        case ZBAR_CODE93:
+            *val = CFG(dcode->code93, cfg);
+            return 0;
+    #endif
+    #if ENABLE_CODE128 == 1
+        case ZBAR_CODE128:
+            *val = CFG(dcode->code128, cfg);
+            return 0;
+    #endif
+    #if ENABLE_PDF417 == 1
+        case ZBAR_PDF417:
+            *val = CFG(dcode->pdf417, cfg);
+            return 0;
+    #endif
+        default:
+            return 1;
+        }
+    }
+    return 1;
+}
+
 int zbar_decoder_set_config (zbar_decoder_t *dcode,
                              zbar_symbol_type_t sym,
                              zbar_config_t cfg,

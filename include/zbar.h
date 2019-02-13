@@ -1311,6 +1311,16 @@ extern int zbar_image_scanner_set_config(zbar_image_scanner_t *scanner,
                                          zbar_config_t config,
                                          int value);
 
+/** get config for indicated symbology
+ * @returns 0 for success, non-0 for failure (config does not apply to
+ * specified symbology, or value out of range). On success, *value is filled.
+ * @since 0.22
+ */
+extern int zbar_image_scanner_get_config(zbar_image_scanner_t *scanner,
+                                         zbar_symbol_type_t symbology,
+                                         zbar_config_t config,
+                                         int *value);
+
 /** parse configuration string using zbar_parse_config()
  * and apply to image scanner using zbar_image_scanner_set_config().
  * @returns 0 for success, non-0 for failure
@@ -1402,6 +1412,17 @@ extern int zbar_decoder_set_config(zbar_decoder_t *decoder,
                                    zbar_symbol_type_t symbology,
                                    zbar_config_t config,
                                    int value);
+
+
+/** get config for indicated symbology
+ * @returns 0 for success, non-0 for failure (config does not apply to
+ * specified symbology, or value out of range). On success, *value is filled.
+ * @since 0.22
+ */
+extern int zbar_decoder_get_config(zbar_decoder_t *decoder,
+                                   zbar_symbol_type_t symbology,
+                                   zbar_config_t config,
+                                   int *value);
 
 /** parse configuration string using zbar_parse_config()
  * and apply to decoder using zbar_decoder_set_config().

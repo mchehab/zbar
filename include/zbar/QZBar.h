@@ -159,6 +159,9 @@ public Q_SLOTS:
     int set_config(zbar_symbol_type_t symbology,
                    zbar_config_t config,
                    int value);
+    int get_config(zbar_symbol_type_t symbology,
+                   zbar_config_t config,
+                   int &value);
     int request_dbus(bool enabled);
 
 Q_SIGNALS:

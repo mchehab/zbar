@@ -643,6 +643,38 @@ int zbar_image_scanner_set_config (zbar_image_scanner_t *iscn,
     return(0);
 }
 
+int zbar_image_scanner_get_config(zbar_image_scanner_t *iscn,
+                                  zbar_symbol_type_t sym,
+                                  zbar_config_t cfg,
+                                  int *val)
+{
+    /* Return error if symbol doesn't have config */
+    if(sym <= ZBAR_PARTIAL || sym > ZBAR_CODE128 || sym == ZBAR_COMPOSITE)
+        return 1;
+
+    if (cfg < ZBAR_CFG_UNCERTAINTY)
+        return zbar_decoder_get_config(iscn->dcode, sym, cfg, val);
+
+    if(cfg < ZBAR_CFG_POSITION) {
+        int i = _zbar_get_symbol_hash(sym);
+
+        *val = iscn->sym_configs[cfg - ZBAR_CFG_UNCERTAINTY][i];
+        return 0;
+    }
+
+    if(cfg < ZBAR_CFG_X_DENSITY) {
+        *val = (iscn->config & (1 << (cfg - ZBAR_CFG_POSITION))) != 0;
+        return 0;
+    }
+
+    if(cfg <= ZBAR_CFG_Y_DENSITY) {
+        *val = CFG(iscn, cfg);
+        return 0;
+    }
+
+    return 1;
+}
+
 void zbar_image_scanner_enable_cache (zbar_image_scanner_t *iscn,
                                       int enable)
 {

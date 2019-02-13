@@ -80,6 +80,7 @@ libzbarqt.so.0 libzbarqt0 #MINVER#
  (c++)"zbar::QZBar::decodedText(QString const&)@Base" 0.10
  (c++)"zbar::QZBar::dragEnterEvent(QDragEnterEvent*)@Base" 0.10
  (c++)"zbar::QZBar::dropEvent(QDropEvent*)@Base" 0.10
+ (c++)"zbar::QZBar::get_config(zbar::zbar_symbol_type_e, zbar::zbar_config_e, int&)@Base" 0.22
  (c++)"zbar::QZBar::get_control(char*, bool*)@Base" 0.20.1
  (c++)"zbar::QZBar::get_control(char*, int*)@Base" 0.20.1
  (c++)"zbar::QZBar::get_controls(int, char**, char**, zbar::QZBar::ControlType*, int*, int*, int*, int*)@Base" 0.20.1
@@ -100,6 +101,7 @@ libzbarqt.so.0 libzbarqt0 #MINVER#
  (c++)"zbar::QZBar::request_dbus(bool)@Base" 0.21
  (c++)"zbar::QZBar::set_control(char*, bool)@Base" 0.20.1
  (c++)"zbar::QZBar::set_control(char*, int)@Base" 0.20.1
+ (c++)"zbar::QZBar::get_config(zbar::zbar_symbol_type_e, zbar::zbar_config_e, int&)@Base" 0.22
  (c++)"zbar::QZBar::set_config(zbar::zbar_symbol_type_e, zbar::zbar_config_e, int)@Base" 0.21
  (c++)"zbar::QZBar::set_config(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >)@Base" 0.21
  (c++)"void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char*>(char*, char*, std::forward_iterator_tag)@Base" 0.21

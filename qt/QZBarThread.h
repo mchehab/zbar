@@ -124,6 +124,13 @@ public:
         return scanner.set_config(symbology, config, value);
     }
 
+    int get_config(zbar_symbol_type_t symbology,
+                   zbar_config_t config,
+                   int &value)
+    {
+        return scanner.get_config(symbology, config, value);
+    }
+
     int request_dbus(bool enabled)
     {
         return scanner.request_dbus(enabled);
