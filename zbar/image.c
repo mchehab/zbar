@@ -212,6 +212,25 @@ zbar_image_t *zbar_image_copy (const zbar_image_t *src)
     return(dst);
 }
 
+zbar_image_t *zbar_image_copy_invert(const zbar_image_t *img)
+{
+    zbar_image_t *rw = zbar_image_copy(img);
+    uint8_t *rwdata = (uint8_t *)rw->data;
+    const uint8_t *input = (const uint8_t *)rw->data;
+    int i;
+
+    if ( !(rw->format == fourcc('Y','8','0','0') ||
+           rw->format == fourcc('G','R','E','Y') ) ) {
+        zprintf(1, "ERROR: Cannot invert non-greyscale image");
+        zbar_image_destroy(rw);
+        return(NULL);
+    }
+    for (i=0; i<rw->datalen; i++)
+        rwdata[i] = ~ input[i];
+
+    return(rw);
+}
+
 const zbar_symbol_set_t *zbar_image_get_symbols (const zbar_image_t *img)
 {
     return(img->syms);

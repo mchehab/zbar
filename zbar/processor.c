@@ -219,7 +219,14 @@ int _zbar_process_image (zbar_processor_t *proc,
         }
         zbar_image_scanner_recycle_image(proc->scanner, img);
         int nsyms = zbar_scan_image(proc->scanner, tmp);
-        _zbar_image_swap_symbols(img, tmp);
+        if ( (nsyms == 0) && (1) ) //( proc->try_inversion ) )
+        {
+            zbar_image_t *tmp_inverted = zbar_image_copy_invert(tmp);
+            nsyms = zbar_scan_image(proc->scanner, tmp_inverted);
+            _zbar_image_swap_symbols(img, tmp_inverted);
+            zbar_image_destroy(tmp_inverted);
+        } else
+            _zbar_image_swap_symbols(img, tmp);
 
         zbar_image_destroy(tmp);
         tmp = NULL;

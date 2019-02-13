@@ -571,6 +571,11 @@ typedef void (zbar_image_data_handler_t)(zbar_image_t *image,
  */
 extern zbar_image_t *zbar_image_create(void);
 
+/** Create an inverted copy of an image.
+ * @returns a new image object with inverted content from source image
+ * @note This currently is only supported for 8bit greyscale images
+ */
+extern zbar_image_t *zbar_image_copy_invert(const zbar_image_t *);
 /** image destructor.  all images created by or returned to the
  * application should be destroyed using this function.  when an image
  * is destroyed, the associated data cleanup handler will be invoked
