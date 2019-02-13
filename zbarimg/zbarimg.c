@@ -125,6 +125,8 @@ static const char *warning_not_found =
     "  - is the barcode large enough in the image?\n"
     "  - is the barcode mostly in focus?\n"
     "  - is there sufficient contrast/illumination?\n"
+    "  - If the symbol is split in several barcodes, are they combined in one "
+    "image?\n"
     "  - Did you enable the barcode type?\n"
     "    some EAN/UPC codes are disabled by default. To enable all, use:\n"
     "    $ zbarimg -S*.enable <files>\n"
