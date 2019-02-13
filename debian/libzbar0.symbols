@@ -26,6 +26,7 @@ libzbar.so.0 libzbar0 #MINVER#
  zbar_image_convert@Base 0.10
  zbar_image_convert_resize@Base 0.10
  zbar_image_copy@Base 0.10
+ zbar_image_copy_invert@Base 0.21.1
  zbar_image_create@Base 0.10
  zbar_image_destroy@Base 0.10
  zbar_image_first_symbol@Base 0.10
