@@ -49,48 +49,47 @@ int scan_video(void *add_device,
 struct configs_s {
     QString name;
     zbar::zbar_symbol_type_t sym;
-    bool enabled;
 };
 
 static const struct configs_s configs[] = {
-    { "Composite codes", zbar::ZBAR_COMPOSITE, false },
+    { "Composite codes", zbar::ZBAR_COMPOSITE },
 #if ENABLE_CODABAR == 1
-    { "Codabar", zbar::ZBAR_CODABAR, true },
+    { "Codabar", zbar::ZBAR_CODABAR },
 #endif
 #if ENABLE_CODE128 == 1
-    { "Code-128", zbar::ZBAR_CODE128, true },
+    { "Code-128", zbar::ZBAR_CODE128 },
 #endif
 #if ENABLE_I25 == 1
-    { "Code 2 of 5 interlaced", zbar::ZBAR_I25, true },
+    { "Code 2 of 5 interlaced", zbar::ZBAR_I25 },
 #endif
 #if ENABLE_CODE39 == 1
-    { "Code-39", zbar::ZBAR_CODE39, true },
+    { "Code-39", zbar::ZBAR_CODE39 },
 #endif
 #if ENABLE_CODE93 == 1
-    { "Code-93", zbar::ZBAR_CODE93, true },
+    { "Code-93", zbar::ZBAR_CODE93 },
 #endif
 #if ENABLE_DATABAR == 1
-    { "DataBar", zbar::ZBAR_DATABAR, true },
-    { "DataBar expanded", zbar::ZBAR_DATABAR_EXP, true },
+    { "DataBar", zbar::ZBAR_DATABAR },
+    { "DataBar expanded", zbar::ZBAR_DATABAR_EXP },
 #endif
 #if ENABLE_EAN == 1
-    { "EAN-2", zbar::ZBAR_EAN2, false },
-    { "EAN-5", zbar::ZBAR_EAN5, false },
-    { "EAN-8", zbar::ZBAR_EAN8, true },
-    { "EAN-13", zbar::ZBAR_EAN13, true },
-    { "ISBN-10", zbar::ZBAR_ISBN10, false },
-    { "ISBN-13", zbar::ZBAR_ISBN13, true },
-    { "UPC-A", zbar::ZBAR_UPCA, false },
-    { "UPC-E", zbar::ZBAR_UPCE, true },
+    { "EAN-2", zbar::ZBAR_EAN2 },
+    { "EAN-5", zbar::ZBAR_EAN5 },
+    { "EAN-8", zbar::ZBAR_EAN8 },
+    { "EAN-13", zbar::ZBAR_EAN13 },
+    { "ISBN-10", zbar::ZBAR_ISBN10 },
+    { "ISBN-13", zbar::ZBAR_ISBN13 },
+    { "UPC-A", zbar::ZBAR_UPCA },
+    { "UPC-E", zbar::ZBAR_UPCE },
 #endif
 #if ENABLE_PDF417 == 1
-    { "PDF417", zbar::ZBAR_PDF417, false },
+    { "PDF417", zbar::ZBAR_PDF417 },
 #endif
 #if ENABLE_QRCODE == 1
-    { "QR code", zbar::ZBAR_QRCODE, true },
+    { "QR code", zbar::ZBAR_QRCODE },
 #endif
 #if ENABLE_SQCODE == 1
-    { "SQ code", zbar::ZBAR_SQCODE, true },
+    { "SQ code", zbar::ZBAR_SQCODE },
 #endif
 };
 
@@ -213,8 +212,6 @@ public:
     }
 };
 
-// FIXME: should be able to read the config defaults
-
 class SettingsDialog : public QDialog
 {
     Q_OBJECT
@@ -274,8 +271,16 @@ public:
         this->setWindowTitle(name);
 
         for (unsigned i = 0; i < SETTINGS_SIZE; i++) {
+            int value = 0;
+
+            zbar->get_config(sym, settings[i].ctrl, value);
+            val[i] = value;
+
             if (settings[i].is_bool) {
                 QCheckBox *button = new QCheckBox(settings[i].name, this);
+
+                button->setChecked(value);
+
                 layout->addWidget(button, i, 0, 1, 2,
                                   Qt::AlignTop | Qt::AlignLeft);
                 connect(button, SIGNAL(clicked()),
@@ -285,7 +290,7 @@ public:
 
                 layout->addWidget(label, i, 0, 1, 1,
                                   Qt::AlignTop | Qt::AlignLeft);
-                IntegerSetting *spin = new IntegerSetting(settings[i].name);
+                IntegerSetting *spin = new IntegerSetting(settings[i].name, value);
                 layout->addWidget(spin, i, 1, 1, 1,
                                   Qt::AlignTop | Qt::AlignLeft);
                 connect(spin, SIGNAL(valueChanged(int)),
@@ -512,10 +517,12 @@ public Q_SLOTS:
 #endif
 
         for (unsigned i = 0; i < CONFIGS_SIZE; i++) {
+            int val = 0;
             QCheckBox *button = new QCheckBox(configs[i].name, this);
-            button->setChecked(configs[i].enabled);
-            zbar->set_config(configs[i].sym, zbar::ZBAR_CFG_ENABLE,
-                             configs[i].enabled);
+
+            zbar->get_config(configs[i].sym, zbar::ZBAR_CFG_ENABLE, val);
+
+            button->setChecked(val);
             controlBoxLayout->addWidget(button, ++pos, 2, 1, 1,
                                         Qt::AlignTop | Qt::AlignLeft);
             connect(button, SIGNAL(clicked()), this, SLOT(code_clicked()));
