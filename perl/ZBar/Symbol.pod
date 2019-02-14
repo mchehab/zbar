@@ -91,7 +91,7 @@ A negative value indicates that this result is still uncertain
 
 =item *
 
-A zero value indicates the first occurance of this result with high
+A zero value indicates the first occurrence of this result with high
 confidence
 
 =item *

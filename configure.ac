@@ -14,7 +14,7 @@ LT_INIT([dlopen win32-dll])
 LT_LANG([Windows Resource])
 AM_SILENT_RULES([yes])
 
-dnl update these just before each release (along w/pacakge version above)
+dnl update these just before each release (along w/package version above)
 dnl   LIB_VERSION update instructions copied from libtool docs:
 dnl   library version follows the form current:revision:age
 dnl   - If the library source code has changed at all since the last update,
@@ -404,7 +404,7 @@ AS_IF([test "x$with_imagemagick" = "xno"], [],
      [MAGICK_VERSION=`$PKG_CONFIG MagickWand --modversion`],
      [dnl
 dnl Wand is deprecated in favor of MagickWand,
-dnl but the latter doesn't exist in older verisons (bug #2848437)
+dnl but the latter doesn't exist in older versions (bug #2848437)
       saved_error=$MAGICK_PKG_ERRORS
       PKG_CHECK_MODULES([MAGICK], [Wand >= 6.2.6],
         [MAGICK_VERSION=`$PKG_CONFIG Wand --modversion`],

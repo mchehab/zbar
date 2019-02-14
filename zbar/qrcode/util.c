@@ -32,7 +32,7 @@ unsigned qr_isqrt(unsigned _val){
 /*Computes sqrt(_x*_x+_y*_y) using CORDIC.
   This implementation is valid for all 32-bit inputs and returns a result
    accurate to about 27 bits of precision.
-  It has been tested for all postiive 16-bit inputs, where it returns correctly
+  It has been tested for all positive 16-bit inputs, where it returns correctly
    rounded results in 99.998% of cases and the maximum error is
    0.500137134862598032 (for _x=48140, _y=63018).
   Very nearly all results less than (1<<16) are correctly rounded.

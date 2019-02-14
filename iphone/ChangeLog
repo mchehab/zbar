@@ -8,7 +8,7 @@ version 1.3.1:
   * Lion and Xcode updates
     - fix new warnings/errors
     - find missing buddy
-    - fix SDK bg image: force resoution to 72dpi
+    - fix SDK bg image: force resolution to 72dpi
   * Fix EmbedReader example rotation interaction
 
 version 1.2.2:

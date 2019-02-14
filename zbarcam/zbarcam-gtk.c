@@ -52,7 +52,7 @@ static void decoded (GtkWidget *widget,
 }
 
 
-/* update botton state when video state changes
+/* update button state when video state changes
  */
 static void video_enabled (GObject *object,
                            GParamSpec *param,

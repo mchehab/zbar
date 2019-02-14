@@ -244,7 +244,7 @@ static int vfw_set_format (zbar_video_t *vdo,
     bih->biClrUsed = bih->biClrImportant = 0;
     bih->biCompression = fmt;
 
-    zprintf(8, "seting format: %.4s(%08x) " BIH_FMT "\n",
+    zprintf(8, "setting format: %.4s(%08x) " BIH_FMT "\n",
             (char*)&fmt, fmt, BIH_FIELDS(bih));
 
     if(!capSetVideoFormat(vdo->state->hwnd, bih, vdo->state->bi_size))

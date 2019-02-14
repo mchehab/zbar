@@ -57,7 +57,7 @@ video and to optionally display a video/image preview to a window.
 This interface is not well suited for integration with an existing
 GUI, as the library manages the optional preview window and any user
 interaction.  Use a Barcode::ZBar::ImageScanner or Investigate the
-avilable widget interfaces for GUI applications.
+available widget interfaces for GUI applications.
 
 =head1 REFERENCE
 
