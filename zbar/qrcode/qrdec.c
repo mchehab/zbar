@@ -531,7 +531,7 @@ static void qr_line_fit(qr_line _l,int _x0,int _y0,
   v=-_sxy<<1;
   w=qr_ihypot(u,v);
   /*Computations in later stages can easily overflow with moderate sizes, so we
-     compute a shift factor to scale things down into a managable range.
+     compute a shift factor to scale things down into a manageable range.
     We ensure that the product of any two of _l[0] and _l[1] fits within _res
      bits, which allows computation of line intersections without overflow.*/
   dshift=QR_MAXI(0,QR_MAXI(qr_ilog(u),qr_ilog(abs(v)))+1-(_res+1>>1));
