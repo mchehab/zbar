@@ -101,7 +101,7 @@ class Processor {
         return(zbar_processor_parse_config(_processor, cfgstr.c_str()));
     }
 
-    /// retrieve the current state of the ouput window.
+    /// retrieve the current state of the output window.
     /// see zbar_processor_is_visible()
     bool is_visible ()
     {

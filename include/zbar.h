@@ -924,7 +924,7 @@ static inline int zbar_processor_parse_config (zbar_processor_t *processor,
            zbar_processor_set_config(processor, sym, cfg, val));
 }
 
-/** retrieve the current state of the ouput window.
+/** retrieve the current state of the output window.
  * @returns 1 if the output window is currently displayed, 0 if not.
  * @returns -1 if an error occurs
  */
@@ -987,7 +987,7 @@ extern int zbar_process_image(zbar_processor_t *processor,
                               zbar_image_t *image);
 
 /** enable dbus IPC API.
- * @returns 0 succesful
+ * @returns 0 successful
  */
 int zbar_processor_request_dbus(zbar_processor_t *proc,
                                 int req_dbus_enabled);

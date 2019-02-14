@@ -131,7 +131,7 @@ static const char *warning_not_found =
     "    some EAN/UPC codes are disabled by default. To enable all, use:\n"
     "    $ zbarimg -S*.enable <files>\n"
     "    Please also notice that some variants take precedence over others.\n"
-    "    Due to that, if you want, for example, ISBN-10, you shoud do:\n"
+    "    Due to that, if you want, for example, ISBN-10, you should do:\n"
     "    $ zbarimg -Sisbn10.enable <files>\n"
     "\n";
 
