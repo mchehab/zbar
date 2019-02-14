@@ -392,7 +392,7 @@ static void rs_calc_syndrome(const rs_gf256 *_gf,int _m0,
   Error correction is done using the error-evaluator equation on p. 207.
   @BOOK{CC81,
     author="George C. Clark, Jr and J. Bibb Cain",
-    title="Error-Correction Coding for Digitial Communications",
+    title="Error-Correction Coding for Digital Communications",
     series="Applications of Communications Theory",
     publisher="Springer",
     address="New York, NY",

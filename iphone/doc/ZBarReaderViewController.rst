@@ -152,7 +152,7 @@ Class Methods
 
       Returns an array with the single element
       ``UIImagePickerControllerCameraCaptureModeVideo`` if the device is
-      avilable, otherwise returns an empty array.
+      available, otherwise returns an empty array.
 
 
 Instance Methods

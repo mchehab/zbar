@@ -161,7 +161,7 @@ default setting.
 
 For some devices, the "torch" can be enabled to provide additional
 illumination for the camera in low-light conditions.  The reader sets the
-torch to automatic by default, so it should turn on only when needeed...
+torch to automatic by default, so it should turn on only when needed...
 There have been some reports that the torch turns on inappropriately, washing
 out the image.  If you find that this occurs, you should instead set the
 :member:`~ZBarReaderView::torchMode` property of the :class:`ZBarReaderView`
@@ -244,7 +244,7 @@ the image.  The density of the passes is configured at the scanner as a pixel
 stride for each axis.  ``ZBAR_CFG_Y_DENSITY`` (``ZBAR_CFG_X_DENSITY``)
 controls the number of pixel rows (columns) that are skipped between
 successive horizontal (vertical) scan passes.  (Note that "density" is really
-not a good name for the configuation settings... "stride" might be more
+not a good name for the configuration settings... "stride" might be more
 appropriate.)
 
 Decreasing the scan density (by increasing the stride setting) is a great way

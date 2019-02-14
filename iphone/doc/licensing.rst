@@ -144,7 +144,7 @@ Additionally, to avoid "casual requests" from nefarious types that just want
 to inconvenience you, also consider charging a fee for the distribution of
 this material (as permitted by the license); just add up the cost of burning
 and shipping a disk.  If this cost is "large" compared to the price of your
-app, the likelyhood of a request is reduced even further.
+app, the likelihood of a request is reduced even further.
 
 
 Using the Unmodified Library

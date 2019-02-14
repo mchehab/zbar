@@ -114,7 +114,7 @@ incpaths, each preceded by '-I'.
 =head2 check_lib_or_exit
 
 This behaves exactly the same as C<assert_lib()> except that instead of
-dieing, it warns (with exactly the same error message) and exits.
+dying, it warns (with exactly the same error message) and exits.
 This is intended for use in Makefile.PL / Build.PL
 when you might want to prompt the user for various paths and
 things before checking that what they've told you is sane.

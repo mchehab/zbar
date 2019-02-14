@@ -11,7 +11,7 @@ code images and using a video device (eg, webcam) as a bar code scanner.
 For application developers, language bindings are included for C, C++,
 Python 2 and Perl as well as GUI widgets for Qt, GTK and PyGTK 2.0.
 
-Zbar also supports sending the scaned codes via dbus, allowing its
+Zbar also supports sending the scanned codes via dbus, allowing its
 integration with other applications.
 
 Check the ZBar home page for the latest release, mailing lists, etc.:
@@ -27,7 +27,7 @@ BUILDING
 See `INSTALL.md` for generic configuration and build instructions.
 
 The scanner/decoder library itself only requires a few standard
-library functions which should be avilable almost anywhere.
+library functions which should be available almost anywhere.
 
 The zbarcam program uses the video4linux API (v4l1 or v4l2) to access
 the video device.  This interface is part of the linux kernel, a 3.16
