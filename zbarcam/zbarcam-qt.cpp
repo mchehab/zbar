@@ -38,6 +38,7 @@
 #define TEST_IMAGE_FORMATS \
     "Image Files (*.png *.jpg *.jpeg *.bmp *.gif *.ppm *.pgm *.pbm *.tiff *.xpm *.xbm)"
 
+#define SYM_GROUP "Symbology"
 #define DBUS_NAME "D-Bus"
 
 extern "C" {
@@ -348,6 +349,9 @@ protected:
     }
 
 public:
+    ~ZbarcamQZBar () {
+        saveSettings();
+    }
     ZbarcamQZBar (const char *default_device, int verbose = 0)
     {
         // drop-down list of video devices
@@ -457,6 +461,7 @@ public Q_SLOTS:
 
         if (name == DBUS_NAME) {
             zbar->request_dbus(val);
+            dbus_enabled = val;
             return;
         }
 
@@ -499,6 +504,8 @@ public Q_SLOTS:
         if (!videoEnabled)
             return;
 
+        loadSettings();
+
         int pos = 2;
         controlBoxLayout->addItem(new QSpacerItem(0, 12),
                                     pos++, 0, 1, 2,
@@ -509,7 +516,7 @@ public Q_SLOTS:
 
 #ifdef HAVE_DBUS
         QCheckBox *button = new QCheckBox(DBUS_NAME, this);
-        button->setChecked(false);
+        button->setChecked(dbus_enabled);
         controlBoxLayout->addWidget(button, ++pos, 2, 1, 1,
                                     Qt::AlignTop | Qt::AlignLeft);
         connect(button, SIGNAL(clicked()), this, SLOT(code_clicked()));
@@ -650,6 +657,86 @@ private:
     QGroupBox *controlGroup;
     QGridLayout *controlBoxLayout;
     QSignalMapper *signalMapper;
+    bool dbus_enabled;
+
+    void loadSettings()
+    {
+         QSettings qSettings(QCoreApplication::organizationName(),
+                             QCoreApplication::applicationName());
+         QString key;
+         QVariant qVal;
+
+#ifdef HAVE_DBUS
+        key = DBUS_NAME ".enable";
+        qVal = qSettings.value(key, 0);
+        dbus_enabled = qVal.toBool();
+#endif
+
+        qSettings.beginGroup(SYM_GROUP);
+
+        for (unsigned i = 0; i < CONFIGS_SIZE; i++) {
+            int val = 0;
+            if (zbar->get_config(configs[i].sym, zbar::ZBAR_CFG_ENABLE, val))
+                continue;
+            key = QString(configs[i].name) + QString(".enable");
+            key.replace(" ","_");
+            qVal = qSettings.value(key, val);
+            zbar->set_config(configs[i].sym, zbar::ZBAR_CFG_ENABLE, qVal.toInt());
+
+            if (configs[i].sym == zbar::ZBAR_COMPOSITE)
+                continue;
+
+            for (unsigned j = 0; j < SETTINGS_SIZE; j++) {
+                int val = 0;
+
+                if (zbar->get_config(configs[i].sym, settings[j].ctrl, val))
+                    continue;
+                key = QString(configs[i].name) + QString(".") + QString(settings[j].name);
+                key.replace(" ","_");
+
+                qVal = qSettings.value(key, val);
+                zbar->set_config(configs[i].sym, settings[j].ctrl, qVal.toInt());
+            }
+        }
+        qSettings.endGroup();
+    }
+    void saveSettings()
+    {
+         QSettings qSettings(QCoreApplication::organizationName(),
+                             QCoreApplication::applicationName());
+         QString key;
+
+#ifdef HAVE_DBUS
+        // FIXME: track dbus enable-disable and store last state
+        key = DBUS_NAME ".enable";
+        qSettings.setValue(key, dbus_enabled);
+#endif
+
+        qSettings.beginGroup(SYM_GROUP);
+        for (unsigned i = 0; i < CONFIGS_SIZE; i++) {
+            int val = 0;
+
+            if (zbar->get_config(configs[i].sym, zbar::ZBAR_CFG_ENABLE, val))
+                continue;
+            key = QString(configs[i].name) + QString(".enable");
+            key.replace(" ","_");
+            qSettings.setValue(key, val);
+
+            if (configs[i].sym == zbar::ZBAR_COMPOSITE)
+                continue;
+
+            for (unsigned j = 0; j < SETTINGS_SIZE; j++) {
+                int val = 0;
+
+                if (zbar->get_config(configs[i].sym, settings[j].ctrl, val))
+                    continue;
+                key = QString(configs[i].name) + QString(".") + QString(settings[j].name);
+                key.replace(" ","_");
+                qSettings.setValue(key, val);
+            }
+        }
+        qSettings.endGroup();
+    }
 };
 
 #include "moc_zbarcam_qt.h"
@@ -658,6 +745,10 @@ int main (int argc, char *argv[])
 {
     int verbose = 0;
     QApplication app(argc, argv);
+    app.setApplicationName("zbarcam_qt");
+    app.setOrganizationName("LinuxTV");
+    app.setOrganizationDomain("linuxtv.org");
+    app.setAttribute(Qt::AA_UseHighDpiPixmaps, true);
 
     const char *dev = NULL;
 
