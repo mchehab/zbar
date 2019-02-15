@@ -1,6 +1,6 @@
 zbar (0.21.1) unstable; urgency=low
 
-  * New upstream release. (Closes: #762114)
+  * New upstream release. (Closes: #762114, #762209)
   * Exit gracefully when decoding split QR codes. (Closes: #719013)
 
  -- Javier Serrano Polo <javier@jasp.net>  Wed, 13 Feb 2019 10:03:35 +0100
