@@ -241,18 +241,19 @@ AS_IF([test "x$enable_video" = "xno"],
    AC_CHECK_HEADERS([linux/videodev2.h], [have_v4l2="yes"])
    AC_CHECK_HEADERS([libv4l2.h], [have_libv4l="yes"])
    AS_IF([test "x$have_v4l2" = "xno" && test "x$have_v4l1" = "xno"],
-     [AC_MSG_FAILURE([test for video support failed!
+         [AC_MSG_FAILURE([test for video support failed!
 rebuild your kernel to include video4linux support or
 configure --disable-video to skip building video support.])],
-     [test "x$have_v4l2" = "xno"],
-     [AC_MSG_WARN([v4l2 API not detected, upgrade your kernel!])])],
+         [AS_IF([test "x$have_v4l2" = "xno"],
+               [AC_MSG_WARN([v4l2 API not detected, upgrade your kernel!])])]
+        )],
   [AC_CHECK_HEADERS([vfw.h], [with_video="vfw"],
     [AC_MSG_FAILURE([test for VfW video support failed!
 configure --disable-video to skip building video support.])])])
 
 AS_IF([test "x$have_libv4l" = "xyes"],
-   PKG_CHECK_MODULES([V4L2], [libv4l2], [],
-     [AC_MSG_FAILURE([unable to find libv4l.so])]),
+   [PKG_CHECK_MODULES([V4L2], [libv4l2], [],
+     [AC_MSG_FAILURE([unable to find libv4l2.so])])],
   [AC_MSG_WARN([libv4l not detected. Install it to support more cameras!])])
 
 AM_CONDITIONAL([HAVE_VIDEO], [test "x$enable_video" != "xno"])
