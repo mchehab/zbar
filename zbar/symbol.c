@@ -99,18 +99,40 @@ const char *zbar_get_orientation_name (zbar_orientation_t orient)
 
 int _zbar_get_symbol_hash (zbar_symbol_type_t sym)
 {
-    static const signed char hash[0x20] = {
-        0x00, 0x01, 0x10, 0x11,   -1, 0x11, 0x16, 0x0c,
-	0x05, 0x06, 0x08,   -1, 0x04, 0x03, 0x07, 0x12,
-	  -1,   -1,   -1,   -1,   -1,   -1,   -1, 0x02,
-	  -1, 0x00, 0x12, 0x0c, 0x0b, 0x1d, 0x0a, 0x00,
-     };
-    int g0 = hash[sym & 0x1f];
-    int g1 = hash[~(sym >> 4) & 0x1f];
-    assert(g0 >= 0 && g1 >= 0);
-    if(g0 < 0 || g1 < 0)
-        return(0);
-    return((g0 + g1) & 0x1f);
+    static const signed char hash[ZBAR_CODE128 + 1] = {
+        [0 ... ZBAR_CODE128] = -1,
+
+        /* [ZBAR_FOO] = 0, is empty */
+        [ZBAR_SQCODE]      = 1,
+        [ZBAR_CODE128]     = 2,
+        [ZBAR_EAN13]       = 3,
+        [ZBAR_UPCA]        = 4,
+        [ZBAR_EAN8]        = 5,
+        [ZBAR_UPCE]        = 6,
+        [ZBAR_ISBN13]      = 7,
+        [ZBAR_ISBN10]      = 8,
+        [ZBAR_CODE39]      = 9,
+        [ZBAR_I25]         = 10,
+        [ZBAR_PDF417]      = 11,
+        [ZBAR_QRCODE]      = 12,
+        [ZBAR_DATABAR]     = 13,
+        [ZBAR_DATABAR_EXP] = 14,
+        [ZBAR_CODE93]      = 15,
+        [ZBAR_EAN2]        = 16,
+        [ZBAR_EAN5]        = 17,
+        [ZBAR_COMPOSITE]   = 18,
+        [ZBAR_CODABAR]     = 19,
+
+        /* Please update NUM_SYMS accordingly */
+    };
+    int h;
+
+    assert (sym >= ZBAR_PARTIAL && sym <= ZBAR_CODE128);
+
+    h = hash[sym];
+    assert (h >= 0 && h < NUM_SYMS);
+
+    return h;
 }
 
 void _zbar_symbol_free (zbar_symbol_t *sym)
