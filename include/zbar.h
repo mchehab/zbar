@@ -108,6 +108,11 @@ typedef enum zbar_symbol_type_e {
     ZBAR_CODE93      =     93,  /**< Code 93. @since 0.11 */
     ZBAR_CODE128     =    128,  /**< Code 128 */
 
+    /*
+     * Please see _zbar_get_symbol_hash() if adding
+     * anything after 128
+     */
+
     /** mask for base symbol type.
      * @deprecated in 0.11, remove this from existing code
      */
