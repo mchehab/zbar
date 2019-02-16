@@ -39,6 +39,7 @@
     "Image Files (*.png *.jpg *.jpeg *.bmp *.gif *.ppm *.pgm *.pbm *.tiff *.xpm *.xbm)"
 
 #define SYM_GROUP "Symbology"
+#define CAM_GROUP "Camera"
 #define DBUS_NAME "D-Bus"
 
 extern "C" {
@@ -699,12 +700,49 @@ private:
             }
         }
         qSettings.endGroup();
+
+        qSettings.beginGroup(CAM_GROUP);
+        for (unsigned i = 0;; i++) {
+            char *name, *group;
+            enum zbar::QZBar::ControlType type;
+            int min, max, def, step, val;
+
+            int ret = zbar->get_controls(i, &name, &group, &type,
+                                         &min, &max, &def, &step);
+            if (!ret)
+                break;
+
+            switch (type) {
+                case zbar::QZBar::Button:
+                case zbar::QZBar::Boolean:
+                case zbar::QZBar::Menu:
+                case zbar::QZBar::Integer: {
+                    key = QString::fromUtf8(name);
+
+                    if (zbar->get_control(name, &val))
+                        continue;
+
+                    key.replace(QRegularExpression("[^\\w\\d]+"),"_");
+                    key.replace(QRegularExpression("_$"),"");
+
+                    qVal = qSettings.value(key, val);
+                    zbar->set_control(name, qVal.toInt());
+                    break;
+                }
+                default:
+                    // Just ignore other types
+                    break;
+            }
+        }
+        qSettings.endGroup();
     }
+
     void saveSettings()
     {
          QSettings qSettings(QCoreApplication::organizationName(),
                              QCoreApplication::applicationName());
          QString key;
+         unsigned int i;
 
 #ifdef HAVE_DBUS
         // FIXME: track dbus enable-disable and store last state
@@ -713,7 +751,7 @@ private:
 #endif
 
         qSettings.beginGroup(SYM_GROUP);
-        for (unsigned i = 0; i < CONFIGS_SIZE; i++) {
+        for (i = 0; i < CONFIGS_SIZE; i++) {
             int val = 0;
 
             if (zbar->get_config(configs[i].sym, zbar::ZBAR_CFG_ENABLE, val))
@@ -736,6 +774,42 @@ private:
             }
         }
         qSettings.endGroup();
+
+        for (i = 0;; i++) {
+            char *name, *group;
+            enum zbar::QZBar::ControlType type;
+            int min, max, def, step, val;
+
+            int ret = zbar->get_controls(i, &name, &group, &type,
+                                         &min, &max, &def, &step);
+            if (!ret)
+                break;
+
+            if (i == 0)
+                qSettings.beginGroup(CAM_GROUP);
+
+            switch (type) {
+                case zbar::QZBar::Button:
+                case zbar::QZBar::Boolean:
+                case zbar::QZBar::Menu:
+                case zbar::QZBar::Integer: {
+                    key = QString::fromUtf8(name);
+
+                    if (zbar->get_control(name, &val))
+                        continue;
+
+                    key.replace(QRegularExpression("[^\\w\\d]+"),"_");
+                    key.replace(QRegularExpression("_$"),"");
+                    qSettings.setValue(key, val);
+                    break;
+                }
+                default:
+                    // Just ignore other types
+                    break;
+            }
+        }
+        if (i > 0)
+            qSettings.endGroup();
     }
 };
 
