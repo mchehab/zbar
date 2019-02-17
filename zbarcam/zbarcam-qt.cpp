@@ -320,7 +320,16 @@ public:
     SettingsButton(zbar::QZBar *_zbar, const QIcon &_icon, QString _name,
                    zbar::zbar_symbol_type_t _sym)
                   : QPushButton(_icon, ""),
-                    name(_name), zbar(_zbar), sym(_sym) {};
+                    name(_name), zbar(_zbar), sym(_sym)
+    {
+        int size = font().pointSize();
+
+        if (size < 0)
+            size = font().pixelSize();
+
+        if (size > 0)
+            setIconSize(QSize(size, size));
+    };
 
 public Q_SLOTS:
     void button_clicked()
@@ -393,28 +402,26 @@ public:
         results->setReadOnly(true);
 
         QGridLayout *grid = new QGridLayout;
-        grid->addLayout(hbox, 0, 0, 1, 1);
+        grid->addLayout(hbox, 0, 0, 1, 2);
         grid->addWidget(zbar, 1, 0, 1, 1);
         grid->addWidget(results, 2, 0, 1, 1);
 
         // Group box where controls will be added
-        QGroupBox *optionsGroup = new QGroupBox;
+        QGroupBox *optionsGroup = new QGroupBox(tr("Options"));
         QGridLayout *optionsBoxLayout = new QGridLayout(optionsGroup);
-        grid->addWidget(optionsGroup, 0, 1, -1, 1, Qt::AlignTop);
+        optionsGroup->setAlignment(Qt::AlignHCenter);
+        optionsBoxLayout->setContentsMargins(0, 0, 16, 0);
+        grid->addWidget(optionsGroup, 1, 1, -1, 1, Qt::AlignTop);
 
         controlGroup = new QGroupBox;
         controlBoxLayout = new QGridLayout(controlGroup);
+        controlBoxLayout->setContentsMargins(0, 0, 0, 0);
         grid->addWidget(controlGroup, 0, 2, -1, 1, Qt::AlignTop);
 
         loadSettings();
 
-        int pos = 2;
-        optionsBoxLayout->addItem(new QSpacerItem(0, 12),
-                                    pos++, 0, 1, 2,
-                                    Qt::AlignLeft);
-        QLabel *label = new QLabel("<strong>Options</strong>");
-        optionsBoxLayout->addWidget(label, pos++, 0, 1, 2,
-                                    Qt::AlignTop | Qt::AlignHCenter);
+        int pos = 0;
+
 #ifdef HAVE_DBUS
         QCheckBox *button = new QCheckBox(DBUS_NAME, this);
         button->setChecked(dbus_enabled);
@@ -439,8 +446,9 @@ public:
             if (configs[i].sym == zbar::ZBAR_COMPOSITE)
                 continue;
 
-            SettingsButton *settings = new SettingsButton(zbar,
-                                                          QIcon::fromTheme(QLatin1String("configure-toolbars")), configs[i].name,
+            QIcon icon = QIcon::fromTheme(QLatin1String("configure-toolbars"));
+            SettingsButton *settings = new SettingsButton(zbar, icon,
+                                                          configs[i].name,
                                                           configs[i].sym);
             optionsBoxLayout->addWidget(settings, pos, 1, 1, 1,
                                         Qt::AlignTop | Qt::AlignLeft);
@@ -555,8 +563,8 @@ public Q_SLOTS:
         // get_controls
         loadSettings();
 
-        int pos = 2;
-        QString oldGroup;
+        int pos = 0;
+        QString oldGroup = "";
         for (int i = 0;; i++) {
             char *name, *group;
             enum zbar::QZBar::ControlType type;
@@ -571,9 +579,10 @@ public Q_SLOTS:
                                " Controls</strong>";
 
             if (newGroup != oldGroup) {
-                controlBoxLayout->addItem(new QSpacerItem(0, 12),
-                                            pos++, 2, 1, 2,
-                                            Qt::AlignLeft);
+                if (oldGroup != "")
+                    controlBoxLayout->addItem(new QSpacerItem(0, 12),
+                                              pos++, 2, 1, 2,
+                                              Qt::AlignLeft);
                 QLabel *label = new QLabel(newGroup);
                 controlBoxLayout->addWidget(label, pos++, 0, 1, 2,
                                             Qt::AlignTop |
