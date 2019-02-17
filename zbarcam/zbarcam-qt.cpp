@@ -442,13 +442,13 @@ public:
         grid->addWidget(results, 2, 0, 1, 1);
 
         // Group box where controls will be added
-        optionsGroup = new QGroupBox(tr("Options"));
+        optionsGroup = new QGroupBox(tr("Options"), this);
         QGridLayout *optionsBoxLayout = new QGridLayout(optionsGroup);
         optionsGroup->setAlignment(Qt::AlignHCenter);
         optionsBoxLayout->setContentsMargins(0, 0, 16, 0);
         grid->addWidget(optionsGroup, 1, 1, -1, 1, Qt::AlignTop);
 
-        controlGroup = new QGroupBox;
+        controlGroup = new QGroupBox(this);
         controlBoxLayout = new QGridLayout(controlGroup);
         controlBoxLayout->setContentsMargins(0, 0, 0, 0);
         grid->addWidget(controlGroup, 0, 2, -1, 1, Qt::AlignTop);
@@ -514,6 +514,9 @@ public:
         }
         hbox->addWidget(showControlsButton);
         connect(showControlsButton, SIGNAL(clicked()), this, SLOT(turn_show_controls()));
+
+        if (!geometry.isEmpty())
+            restoreGeometry(geometry);
 
         setLayout(grid);
 
@@ -705,6 +708,7 @@ private:
     QGridLayout *controlBoxLayout;
     QSignalMapper *signalMapper;
     bool dbus_enabled, show_options, show_controls;
+    QByteArray geometry;
 
     void loadSettings()
     {
@@ -712,6 +716,8 @@ private:
                             QCoreApplication::applicationName());
         QString key;
         QVariant qVal;
+
+        geometry = qSettings.value("geometry").toByteArray();
 
         key = OPTION_BAR;
         qVal = qSettings.value(key, true);
@@ -793,10 +799,12 @@ private:
 
     void saveSettings()
     {
-         QSettings qSettings(QCoreApplication::organizationName(),
-                             QCoreApplication::applicationName());
-         QString key;
-         unsigned int i;
+        QSettings qSettings(QCoreApplication::organizationName(),
+                            QCoreApplication::applicationName());
+        QString key;
+        unsigned int i;
+
+        qSettings.setValue("geometry", saveGeometry());
 
         key = OPTION_BAR;
         qSettings.setValue(key, show_options);
