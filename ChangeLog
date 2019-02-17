@@ -1,3 +1,16 @@
+0.22:
+
+  * zbarcam-qt: do several visual improvements
+  * zbarcam-qt: make it remember the geometry
+  * zbarcam-qt: allow show/hide control and options bars
+  * zbarcam-qt: remember lastly used settings and camera controls
+  * zbarcam-qt: allow changing ZBar decode options via GUI
+  * scan_video: improve logic to remove duplicated/invalid devnodes
+  * symbol.c: fix symbol hash logic (prevents crash with QR options)
+  * configure.ac: fix an error at libv4l2 package check
+  * fix some typos
+  * exit gracefully when decoding split QR codes
+
 0.21:
 
   * zbarcam-qt: allow selecting codes via GUI interface
