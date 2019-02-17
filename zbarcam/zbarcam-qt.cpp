@@ -41,6 +41,8 @@
 #define SYM_GROUP "Symbology"
 #define CAM_GROUP "Camera"
 #define DBUS_NAME "D-Bus"
+#define OPTION_BAR "option_bar.enable"
+#define CONTROL_BAR "control_bar.enable"
 
 extern "C" {
 int scan_video(void *add_device,
@@ -358,6 +360,39 @@ protected:
         list->addItem(QString(device));
     }
 
+public Q_SLOTS:
+    void turn_show_options()
+    {
+        QPushButton *button = qobject_cast<QPushButton*>(sender());
+        if (!button)
+            return;
+
+        show_options = !show_options;
+        if (show_options) {
+            button->setText("Hide Options");
+            optionsGroup->show();
+        } else {
+            button->setText("Show Options");
+            optionsGroup->hide();
+        }
+    }
+
+    void turn_show_controls()
+    {
+        QPushButton *button = qobject_cast<QPushButton*>(sender());
+        if (!button)
+            return;
+
+        show_controls = !show_controls;
+        if (show_controls) {
+            button->setText("Hide Controls");
+            controlGroup->show();
+        } else {
+            button->setText("Show Controls");
+            controlGroup->hide();
+        }
+    }
+
 public:
     ~ZbarcamQZBar () {
         saveSettings();
@@ -407,7 +442,7 @@ public:
         grid->addWidget(results, 2, 0, 1, 1);
 
         // Group box where controls will be added
-        QGroupBox *optionsGroup = new QGroupBox(tr("Options"));
+        optionsGroup = new QGroupBox(tr("Options"));
         QGridLayout *optionsBoxLayout = new QGridLayout(optionsGroup);
         optionsGroup->setAlignment(Qt::AlignHCenter);
         optionsBoxLayout->setContentsMargins(0, 0, 16, 0);
@@ -456,6 +491,29 @@ public:
             connect(settings, &SettingsButton::clicked,
                     settings, &SettingsButton::button_clicked);
         }
+
+        // Allow showing/hiding options/controls menus
+        QPushButton *showOptionsButton, *showControlsButton;
+
+        if (show_options) {
+            showOptionsButton = new QPushButton("Hide Options");
+            optionsGroup->show();
+        } else {
+            showOptionsButton = new QPushButton("Show Options");
+            optionsGroup->hide();
+        }
+        hbox->addWidget(showOptionsButton);
+        connect(showOptionsButton, SIGNAL(clicked()), this, SLOT(turn_show_options()));
+
+        if (show_controls) {
+            showControlsButton = new QPushButton("Hide Controls");
+            controlGroup->show();
+        } else {
+            showControlsButton = new QPushButton("Show Controls");
+            controlGroup->hide();
+        }
+        hbox->addWidget(showControlsButton);
+        connect(showControlsButton, SIGNAL(clicked()), this, SLOT(turn_show_controls()));
 
         setLayout(grid);
 
@@ -643,21 +701,29 @@ private:
     QString file;
     zbar::QZBar *zbar;
     QPushButton *statusButton;
-    QGroupBox *controlGroup;
+    QGroupBox *controlGroup, *optionsGroup;
     QGridLayout *controlBoxLayout;
     QSignalMapper *signalMapper;
-    bool dbus_enabled;
+    bool dbus_enabled, show_options, show_controls;
 
     void loadSettings()
     {
-         QSettings qSettings(QCoreApplication::organizationName(),
-                             QCoreApplication::applicationName());
-         QString key;
-         QVariant qVal;
+        QSettings qSettings(QCoreApplication::organizationName(),
+                            QCoreApplication::applicationName());
+        QString key;
+        QVariant qVal;
+
+        key = OPTION_BAR;
+        qVal = qSettings.value(key, true);
+        show_options = qVal.toBool();
+
+        key = CONTROL_BAR;
+        qVal = qSettings.value(key, true);
+        show_controls = qVal.toBool();
 
 #ifdef HAVE_DBUS
         key = DBUS_NAME ".enable";
-        qVal = qSettings.value(key, 0);
+        qVal = qSettings.value(key, false);
         dbus_enabled = qVal.toBool();
 #endif
 
@@ -731,6 +797,12 @@ private:
                              QCoreApplication::applicationName());
          QString key;
          unsigned int i;
+
+        key = OPTION_BAR;
+        qSettings.setValue(key, show_options);
+
+        key = CONTROL_BAR;
+        qSettings.setValue(key, show_controls);
 
 #ifdef HAVE_DBUS
         // FIXME: track dbus enable-disable and store last state
