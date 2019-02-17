@@ -512,13 +512,13 @@ public Q_SLOTS:
                                     pos++, 0, 1, 2,
                                     Qt::AlignLeft);
         QLabel *label = new QLabel("<strong>Options</strong>");
-        controlBoxLayout->addWidget(label, pos++, 2, 1, 2,
+        controlBoxLayout->addWidget(label, pos++, 0, 1, 2,
                                     Qt::AlignTop | Qt::AlignHCenter);
 
 #ifdef HAVE_DBUS
         QCheckBox *button = new QCheckBox(DBUS_NAME, this);
         button->setChecked(dbus_enabled);
-        controlBoxLayout->addWidget(button, ++pos, 2, 1, 1,
+        controlBoxLayout->addWidget(button, ++pos, 0, 1, 1,
                                     Qt::AlignTop | Qt::AlignLeft);
         connect(button, SIGNAL(clicked()), this, SLOT(code_clicked()));
         zbar->request_dbus(0);
@@ -531,7 +531,7 @@ public Q_SLOTS:
             zbar->get_config(configs[i].sym, zbar::ZBAR_CFG_ENABLE, val);
 
             button->setChecked(val);
-            controlBoxLayout->addWidget(button, ++pos, 2, 1, 1,
+            controlBoxLayout->addWidget(button, ++pos, 0, 1, 1,
                                         Qt::AlignTop | Qt::AlignLeft);
             connect(button, SIGNAL(clicked()), this, SLOT(code_clicked()));
 
@@ -542,7 +542,7 @@ public Q_SLOTS:
             SettingsButton *settings = new SettingsButton(zbar,
                                                           QIcon::fromTheme(QLatin1String("configure-toolbars")), configs[i].name,
                                                           configs[i].sym);
-            controlBoxLayout->addWidget(settings, pos, 3, 1, 1,
+            controlBoxLayout->addWidget(settings, pos, 1, 1, 1,
                                         Qt::AlignTop | Qt::AlignLeft);
 
             connect(settings, &SettingsButton::clicked,
@@ -566,25 +566,25 @@ public Q_SLOTS:
             QString newGroup = "<strong>" + QString::fromUtf8(group) +
                                " Controls</strong>";
 
+            if (newGroup != oldGroup) {
+                controlBoxLayout->addItem(new QSpacerItem(0, 12),
+                                            pos++, 2, 1, 2,
+                                            Qt::AlignLeft);
+                QLabel *label = new QLabel(newGroup);
+                controlBoxLayout->addWidget(label, pos++, 2, 1, 2,
+                                            Qt::AlignTop |
+                                            Qt::AlignHCenter);
+                pos++;
+                oldGroup = newGroup;
+            }
+
             switch (type) {
                 case zbar::QZBar::Button:
                 case zbar::QZBar::Boolean: {
                     bool val;
 
-                    if (newGroup != oldGroup) {
-                        controlBoxLayout->addItem(new QSpacerItem(0, 12),
-                                                  pos++, 0, 1, 2,
-                                                  Qt::AlignLeft);
-                        QLabel *label = new QLabel(newGroup);
-                        controlBoxLayout->addWidget(label, pos++, 0, 1, 2,
-                                                    Qt::AlignTop |
-                                                    Qt::AlignHCenter);
-                        pos++;
-                        oldGroup = newGroup;
-                    }
-
                     QCheckBox *button = new QCheckBox(name, controlGroup);
-                    controlBoxLayout->addWidget(button, pos++, 0, 1, 2,
+                    controlBoxLayout->addWidget(button, pos++, 2, 1, 2,
                                                 Qt::AlignLeft);
 
                     if (!zbar->get_control(name, &val))
@@ -598,41 +598,16 @@ public Q_SLOTS:
                 case zbar::QZBar::Integer: {
                     IntegerControl *ctrl;
 
-                    if (newGroup != oldGroup) {
-                        controlBoxLayout->addItem(new QSpacerItem(0, 12),
-                                                  pos++, 0, 1, 2,
-                                                  Qt::AlignLeft);
-                        QLabel *label = new QLabel(newGroup);
-                        controlBoxLayout->addWidget(label, pos++, 0, 1, 2,
-                                                    Qt::AlignTop |
-                                                    Qt::AlignHCenter);
-                        pos++;
-                        oldGroup = newGroup;
-                    }
-
                     QLabel *label = new QLabel(QString::fromUtf8(name));
                     ctrl= new IntegerControl(controlGroup, zbar, name,
                                              min, max, def, step);
 
-                    controlBoxLayout->addWidget(label, pos, 0, Qt::AlignLeft);
-                    controlBoxLayout->addWidget(ctrl, pos++, 1, Qt::AlignLeft);
+                    controlBoxLayout->addWidget(label, pos, 2, Qt::AlignLeft);
+                    controlBoxLayout->addWidget(ctrl, pos++, 3, Qt::AlignLeft);
                     break;
                 }
                 case zbar::QZBar::Menu: {
                     MenuControl *ctrl;
-
-
-                    if (newGroup != oldGroup) {
-                        controlBoxLayout->addItem(new QSpacerItem(0, 12),
-                                                  pos++, 0, 1, 2,
-                                                  Qt::AlignLeft);
-                        QLabel *label = new QLabel(newGroup);
-                        controlBoxLayout->addWidget(label, pos++, 0, 1, 2,
-                                                    Qt::AlignTop |
-                                                    Qt::AlignHCenter);
-                        pos++;
-                        oldGroup = newGroup;
-                    }
 
                     QLabel *label = new QLabel(QString::fromUtf8(name));
 
@@ -640,8 +615,8 @@ public Q_SLOTS:
                     vector = zbar->get_menu(i);
                     ctrl= new MenuControl(controlGroup, zbar, name, vector);
 
-                    controlBoxLayout->addWidget(label, pos, 0, Qt::AlignLeft);
-                    controlBoxLayout->addWidget(ctrl, pos++, 1, Qt::AlignLeft);
+                    controlBoxLayout->addWidget(label, pos, 2, Qt::AlignLeft);
+                    controlBoxLayout->addWidget(ctrl, pos++, 3, Qt::AlignLeft);
                     break;
                 }
                 default:
