@@ -398,9 +398,56 @@ public:
         grid->addWidget(results, 2, 0, 1, 1);
 
         // Group box where controls will be added
+        QGroupBox *optionsGroup = new QGroupBox;
+        QGridLayout *optionsBoxLayout = new QGridLayout(optionsGroup);
+        grid->addWidget(optionsGroup, 0, 1, -1, 1, Qt::AlignTop);
+
         controlGroup = new QGroupBox;
         controlBoxLayout = new QGridLayout(controlGroup);
-        grid->addWidget(controlGroup, 0, 1, -1, 1, Qt::AlignTop);
+        grid->addWidget(controlGroup, 0, 2, -1, 1, Qt::AlignTop);
+
+        loadSettings();
+
+        int pos = 2;
+        optionsBoxLayout->addItem(new QSpacerItem(0, 12),
+                                    pos++, 0, 1, 2,
+                                    Qt::AlignLeft);
+        QLabel *label = new QLabel("<strong>Options</strong>");
+        optionsBoxLayout->addWidget(label, pos++, 0, 1, 2,
+                                    Qt::AlignTop | Qt::AlignHCenter);
+#ifdef HAVE_DBUS
+        QCheckBox *button = new QCheckBox(DBUS_NAME, this);
+        button->setChecked(dbus_enabled);
+        optionsBoxLayout->addWidget(button, ++pos, 0, 1, 1,
+                                    Qt::AlignTop | Qt::AlignLeft);
+        connect(button, SIGNAL(clicked()), this, SLOT(code_clicked()));
+        zbar->request_dbus(0);
+#endif
+
+        for (unsigned i = 0; i < CONFIGS_SIZE; i++) {
+            int val = 0;
+            QCheckBox *button = new QCheckBox(configs[i].name, this);
+
+            zbar->get_config(configs[i].sym, zbar::ZBAR_CFG_ENABLE, val);
+
+            button->setChecked(val);
+            optionsBoxLayout->addWidget(button, ++pos, 0, 1, 1,
+                                        Qt::AlignTop | Qt::AlignLeft);
+            connect(button, SIGNAL(clicked()), this, SLOT(code_clicked()));
+
+            /* Composite doesn't have configuration */
+            if (configs[i].sym == zbar::ZBAR_COMPOSITE)
+                continue;
+
+            SettingsButton *settings = new SettingsButton(zbar,
+                                                          QIcon::fromTheme(QLatin1String("configure-toolbars")), configs[i].name,
+                                                          configs[i].sym);
+            optionsBoxLayout->addWidget(settings, pos, 1, 1, 1,
+                                        Qt::AlignTop | Qt::AlignLeft);
+
+            connect(settings, &SettingsButton::clicked,
+                    settings, &SettingsButton::button_clicked);
+        }
 
         setLayout(grid);
 
@@ -505,53 +552,10 @@ public Q_SLOTS:
         if (!videoEnabled)
             return;
 
+        // get_controls
         loadSettings();
 
         int pos = 2;
-        controlBoxLayout->addItem(new QSpacerItem(0, 12),
-                                    pos++, 0, 1, 2,
-                                    Qt::AlignLeft);
-        QLabel *label = new QLabel("<strong>Options</strong>");
-        controlBoxLayout->addWidget(label, pos++, 0, 1, 2,
-                                    Qt::AlignTop | Qt::AlignHCenter);
-
-#ifdef HAVE_DBUS
-        QCheckBox *button = new QCheckBox(DBUS_NAME, this);
-        button->setChecked(dbus_enabled);
-        controlBoxLayout->addWidget(button, ++pos, 0, 1, 1,
-                                    Qt::AlignTop | Qt::AlignLeft);
-        connect(button, SIGNAL(clicked()), this, SLOT(code_clicked()));
-        zbar->request_dbus(0);
-#endif
-
-        for (unsigned i = 0; i < CONFIGS_SIZE; i++) {
-            int val = 0;
-            QCheckBox *button = new QCheckBox(configs[i].name, this);
-
-            zbar->get_config(configs[i].sym, zbar::ZBAR_CFG_ENABLE, val);
-
-            button->setChecked(val);
-            controlBoxLayout->addWidget(button, ++pos, 0, 1, 1,
-                                        Qt::AlignTop | Qt::AlignLeft);
-            connect(button, SIGNAL(clicked()), this, SLOT(code_clicked()));
-
-            /* Composite doesn't have configuration */
-            if (configs[i].sym == zbar::ZBAR_COMPOSITE)
-                continue;
-
-            SettingsButton *settings = new SettingsButton(zbar,
-                                                          QIcon::fromTheme(QLatin1String("configure-toolbars")), configs[i].name,
-                                                          configs[i].sym);
-            controlBoxLayout->addWidget(settings, pos, 1, 1, 1,
-                                        Qt::AlignTop | Qt::AlignLeft);
-
-            connect(settings, &SettingsButton::clicked,
-                    settings, &SettingsButton::button_clicked);
-        }
-
-        // get_controls
-
-        pos = 2;
         QString oldGroup;
         for (int i = 0;; i++) {
             char *name, *group;
@@ -571,7 +575,7 @@ public Q_SLOTS:
                                             pos++, 2, 1, 2,
                                             Qt::AlignLeft);
                 QLabel *label = new QLabel(newGroup);
-                controlBoxLayout->addWidget(label, pos++, 2, 1, 2,
+                controlBoxLayout->addWidget(label, pos++, 0, 1, 2,
                                             Qt::AlignTop |
                                             Qt::AlignHCenter);
                 pos++;
@@ -584,7 +588,7 @@ public Q_SLOTS:
                     bool val;
 
                     QCheckBox *button = new QCheckBox(name, controlGroup);
-                    controlBoxLayout->addWidget(button, pos++, 2, 1, 2,
+                    controlBoxLayout->addWidget(button, pos++, 0, 1, 2,
                                                 Qt::AlignLeft);
 
                     if (!zbar->get_control(name, &val))
@@ -602,8 +606,8 @@ public Q_SLOTS:
                     ctrl= new IntegerControl(controlGroup, zbar, name,
                                              min, max, def, step);
 
-                    controlBoxLayout->addWidget(label, pos, 2, Qt::AlignLeft);
-                    controlBoxLayout->addWidget(ctrl, pos++, 3, Qt::AlignLeft);
+                    controlBoxLayout->addWidget(label, pos, 0, Qt::AlignLeft);
+                    controlBoxLayout->addWidget(ctrl, pos++, 1, Qt::AlignLeft);
                     break;
                 }
                 case zbar::QZBar::Menu: {
@@ -615,8 +619,8 @@ public Q_SLOTS:
                     vector = zbar->get_menu(i);
                     ctrl= new MenuControl(controlGroup, zbar, name, vector);
 
-                    controlBoxLayout->addWidget(label, pos, 2, Qt::AlignLeft);
-                    controlBoxLayout->addWidget(ctrl, pos++, 3, Qt::AlignLeft);
+                    controlBoxLayout->addWidget(label, pos, 0, Qt::AlignLeft);
+                    controlBoxLayout->addWidget(ctrl, pos++, 1, Qt::AlignLeft);
                     break;
                 }
                 default:
