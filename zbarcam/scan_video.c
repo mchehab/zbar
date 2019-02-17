@@ -21,43 +21,163 @@
  *  http://sourceforge.net/projects/zbar
  *------------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <string.h>
+#include <fcntl.h>
 #include <ftw.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#include <linux/videodev2.h>
+
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <sys/sysmacros.h>
 
 typedef void (cb_t) (void *userdata, const char *device);
 
-static cb_t *add_dev;
-static void *userdata;
-static int idx;
-static const char *default_dev;
-static int default_idx;
+struct devnodes {
+    char *fname;
+    int minor;
+    int is_valid;
+};
 
+static unsigned int n_devices = 0;
+static struct devnodes *devices = NULL;
 
-static int video_filter (const char *fpath,
-                         const struct stat *sb,
-                         int typeflag)
+/*
+ * Sort order:
+ *
+ *  - Valid devices comes first
+ *  - Lowest minors comes first
+ *
+ * For devnode names, it sorts on this order:
+ *  - custom udev given names
+ *  - /dev/v4l/by-id/
+ *  - /dev/v4l/by-path/
+ *  - /dev/video
+ *  - /dev/char/
+ *
+ *  - Device name is sorted alphabetically if follows same pattern
+ */
+static int sort_devices(const void *__a, const void *__b)
 {
-    if(S_ISCHR(sb->st_mode) && (sb->st_rdev >> 8) == 81 && fpath) {
-        int active = default_dev && !strcmp(default_dev, fpath);
-        if(strncmp(fpath, "/dev/", 5)) {
-            char abs[strlen(fpath) + 6];
-            strcpy(abs, "/dev/");
-            if(fpath[0] == '/')
-                abs[4] = '\0';
-            strcat(abs, fpath);
-            add_dev(userdata, abs);
-            active |= default_dev && !strcmp(default_dev, abs);
-        }
-        else
-            add_dev(userdata, fpath);
+    const struct devnodes *a = __a;
+    const struct devnodes *b = __b;
+    int val_a, val_b;
 
-        if(active) {
-            default_idx = idx + 1;
-            default_dev = NULL;
+    if (a->is_valid != b->is_valid)
+        return !a->is_valid - !b->is_valid;
+
+    if (a->minor != b->minor)
+        return a->minor - b->minor;
+
+    /* Ensure that /dev/video* devices will stay at the top */
+
+    if (strstr(a->fname, "by-id"))
+        val_a = 1;
+    if (strstr(a->fname, "by-path"))
+        val_a = 2;
+    else if (strstr(a->fname, "/dev/video"))
+        val_a = 3;
+    else if (strstr(a->fname, "char"))
+        val_a = 4;
+    else    /* Customized names comes first */
+        val_a = 0;
+
+    if (strstr(b->fname, "by-id"))
+        val_b = 1;
+    if (strstr(b->fname, "by-path"))
+        val_b = 2;
+    else if (strstr(b->fname, "/dev/video"))
+        val_b = 3;
+    else if (strstr(b->fname, "char"))
+        val_b = 4;
+    else   /* Customized names comes first */
+        val_b = 0;
+
+    if (val_a != val_b)
+        return val_a - val_b;
+
+    /* Finally, just use alphabetic order */
+    return strcmp(a->fname, b->fname);
+}
+
+static int handle_video_devs(const char *file,
+                             const struct stat *st,
+                             int flag)
+{
+    int dev_minor, first_device = -1, fd;
+    unsigned int i;
+    struct v4l2_capability vid_cap = { 0 };
+
+    /* Discard  devices that can't be a videodev */
+    if (!S_ISCHR(st->st_mode) || major(st->st_rdev) != 81)
+        return 0;
+
+    dev_minor = minor(st->st_rdev);
+
+    /* check if it is an already existing device */
+    if (devices) {
+        for (i = 0; i < n_devices; i++) {
+            if (dev_minor == devices[i].minor) {
+                first_device = i;
+                break;
+            }
         }
-        idx++;
     }
+
+    devices = realloc(devices, (n_devices + 1) * sizeof(struct devnodes));
+    if (!devices) {
+        perror("Can't allocate memory to store devices");
+        exit(1);
+    }
+    memset(&devices[n_devices], 0, sizeof(struct devnodes));
+
+    if (first_device < 0) {
+        fd = open(file, O_RDWR);
+        if (fd < 0) {
+            devices[n_devices].is_valid = 0;
+        } else {
+            if (ioctl(fd, VIDIOC_QUERYCAP, &vid_cap) == -1) {
+                devices[n_devices].is_valid = 0;
+            } else {
+#ifdef V4L2_CID_ALPHA_COMPONENT
+                /*
+                 * device_caps was added on Kernel 3.3. The preferred
+                 * way to handle such compat stuff would be to include
+                 * a recent videodev2.h at ZBar's source and check the
+                 * V4L2 API returned by VIDIOC_QUERYCAP.
+                 * However, doing that require some care, as other
+                 * compat code should be checked to see if they would work.
+                 * Also, it is painful to keep updating the Kernel headers.
+                 * Thankfully, V4L2_CID_ALPHA_COMPONENT was also added on
+                 * Kernel 3.3, so just checking if this is defined should
+                 * be enough to do the right thing.
+                 */
+                if (!(vid_cap.device_caps & V4L2_CAP_VIDEO_CAPTURE))
+                    devices[n_devices].is_valid = 0;
+                else
+                    devices[n_devices].is_valid = 1;
+#else
+                if (!(vid_cap.device_caps & V4L2_CAP_VIDEO_CAPTURE))
+                    devices[n_devices].is_valid = 0;
+                else
+                    devices[n_devices].is_valid = 1;
+#endif
+            }
+        }
+
+        close(fd);
+    } else {
+        devices[n_devices].is_valid = devices[first_device].is_valid;
+    }
+
+    devices[n_devices].fname = strdup(file);
+    devices[n_devices].minor = dev_minor;
+
+    n_devices++;
+
     return(0);
 }
 
@@ -67,28 +187,42 @@ static int video_filter (const char *fpath,
  * returns the index+1 of the default_device, or 0 if the default
  * was not specified.  NB *not* reentrant
  */
-int scan_video (cb_t add_device,
-                void *_userdata,
-                const char *default_device)
+int scan_video (cb_t add_dev,
+                void *userdata,
+                const char *default_dev)
 {
-    add_dev = add_device;
-    userdata = _userdata;
-    default_dev = default_device;
-    idx = default_idx = 0;
+    unsigned int i, idx = 0;
+    int default_idx = -1, last_minor = -1;
 
-    if(ftw("/dev", video_filter, 4)) {
+    if(ftw("/dev", handle_video_devs, 4)) {
         perror("search for video devices failed");
-        default_dev = NULL;
-        default_idx = -1;
+        return -1;
+    }
+    qsort(devices, n_devices, sizeof(struct devnodes), sort_devices);
+
+    for (i = 0; i < n_devices; i++) {
+        if (!devices[i].is_valid)
+            continue;
+
+        if (devices[i].minor == last_minor)
+            continue;
+
+        add_dev(userdata, devices[i].fname);
+        last_minor = devices[i].minor;
+        idx++;
+
+        if (default_dev && !strcmp(default_dev, devices[i].fname))
+            default_idx = idx;
+        else if (!default_dev && default_idx < 0)
+            default_idx = idx;
     }
 
-    if(default_dev) {
-        /* default not found in list, add explicitly */
-        add_dev(userdata, default_dev);
-        default_idx = ++idx;
-        default_dev = NULL;
-    }
+    for (i = 0; i < n_devices; i++)
+        free(devices[i].fname);
+    free(devices);
 
-    add_dev = userdata = NULL;
+    n_devices = 0;
+    devices = NULL;
+
     return(default_idx);
 }
