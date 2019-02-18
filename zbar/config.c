@@ -149,6 +149,8 @@ int zbar_parse_config (const char *cfgstr,
         *cfg = ZBAR_CFG_EMIT_CHECK;
     else if(!strncmp(cfgstr, "uncertainty", len))
         *cfg = ZBAR_CFG_UNCERTAINTY;
+    else if(!strncmp(cfgstr, "test-inverted", len))
+        *cfg = ZBAR_CFG_TEST_INVERTED;
     else if(!strncmp(cfgstr, "position", len))
         *cfg = ZBAR_CFG_POSITION;
     else 

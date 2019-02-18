@@ -517,6 +517,7 @@ zbar_image_scanner_t *zbar_image_scanner_create ()
     CFG(iscn, ZBAR_CFG_Y_DENSITY) = 1;
     zbar_image_scanner_set_config(iscn, 0, ZBAR_CFG_POSITION, 1);
     zbar_image_scanner_set_config(iscn, 0, ZBAR_CFG_UNCERTAINTY, 2);
+    zbar_image_scanner_set_config(iscn, 0, ZBAR_CFG_TEST_INVERTED, 0);
     zbar_image_scanner_set_config(iscn, ZBAR_QRCODE, ZBAR_CFG_UNCERTAINTY, 0);
     zbar_image_scanner_set_config(iscn, ZBAR_CODE128, ZBAR_CFG_UNCERTAINTY, 0);
     zbar_image_scanner_set_config(iscn, ZBAR_CODE93, ZBAR_CFG_UNCERTAINTY, 0);
@@ -852,8 +853,8 @@ static void zbar_send_code_via_dbus(zbar_image_t *img)
         p += (dx) + ((uintptr_t)(dy) * w);       \
     } while(0);
 
-int zbar_scan_image (zbar_image_scanner_t *iscn,
-                     zbar_image_t *img)
+static void *_zbar_scan_image(zbar_image_scanner_t *iscn,
+                              zbar_image_t *img)
 {
     zbar_symbol_set_t *syms;
     const uint8_t *data;
@@ -877,7 +878,7 @@ int zbar_scan_image (zbar_image_scanner_t *iscn,
     /* image must be in grayscale format */
     if(img->format != fourcc('Y','8','0','0') &&
        img->format != fourcc('G','R','E','Y'))
-        return(-1);
+        return NULL;
     iscn->img = img;
 
     /* recycle previous scanner and image results */
@@ -1105,6 +1106,31 @@ int zbar_scan_image (zbar_image_scanner_t *iscn,
             _zbar_image_scanner_add_sym(iscn, ean_sym);
         }
     }
+    return syms;
+}
+
+int zbar_scan_image(zbar_image_scanner_t *iscn,
+                    zbar_image_t *img)
+{
+    zbar_symbol_set_t *syms;
+    zbar_image_t *inv = NULL;
+
+    syms = _zbar_scan_image(iscn, img);
+    if (!syms)
+        return -1;
+
+    if(!syms->nsyms && TEST_CFG(iscn, ZBAR_CFG_TEST_INVERTED)) {
+        inv = _zbar_image_copy (img, 1);
+        if (inv) {
+            if(iscn->cache) {
+                /* recycle all cached syms, if any */
+                _zbar_image_scanner_recycle_syms(iscn, iscn->cache);
+                iscn->cache = NULL;
+            }
+            syms = _zbar_scan_image(iscn, inv);
+            _zbar_image_swap_symbols(img, inv);
+        }
+    }
 
     if(syms->nsyms && iscn->handler)
         iscn->handler(img, iscn->userdata);
@@ -1114,6 +1140,10 @@ int zbar_scan_image (zbar_image_scanner_t *iscn,
 #endif
 
     svg_close();
+
+    if (inv)
+        zbar_image_destroy(inv);
+
     return(syms->nsyms);
 }
 

@@ -139,4 +139,42 @@ static inline void _zbar_image_copy_size (zbar_image_t *dst,
     dst->crop_h = src->crop_h;
 }
 
+static inline zbar_image_t *_zbar_image_copy (const zbar_image_t *src,
+                                              int inverted)
+{
+    zbar_image_t *dst;
+
+    if (inverted && (src->format != fourcc('Y','8','0','0'))
+                 && (src->format != fourcc('G','R','E','Y')) )
+       return NULL;
+
+    dst = zbar_image_create();
+    dst->format = src->format;
+    _zbar_image_copy_size(dst, src);
+    dst->datalen = src->datalen;
+    dst->data = malloc(src->datalen);
+    assert(dst->data);
+
+    if (!inverted) {
+        memcpy((void*)dst->data, src->data, src->datalen);
+    } else {
+        int i, len = src->datalen;
+        long *sp = (void *)src->data, *dp = (void *)dst->data;
+        char *spc, *dpc;
+
+        /* Do it word per word, in order to speedup */
+        for (i = 0; i < len; i+= sizeof(long))
+            *dp++ = ~(*sp++);
+
+        /* Deal with non-aligned remains, if any */
+        len -= i;
+        spc = (char *)sp;
+        dpc = (char *)dp;
+        for (i = 0; i < len; i++)
+            *dpc++ = ~(*spc++);
+    }
+    dst->cleanup = zbar_image_free_data;
+    return(dst);
+}
+
 #endif

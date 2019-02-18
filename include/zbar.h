@@ -179,6 +179,7 @@ typedef enum zbar_config_e {
     ZBAR_CFG_UNCERTAINTY = 0x40,/**< required video consistency frames */
 
     ZBAR_CFG_POSITION = 0x80,   /**< enable scanner to collect position data */
+    ZBAR_CFG_TEST_INVERTED,     /**< if fails to decode, test inverted */
 
     ZBAR_CFG_X_DENSITY = 0x100, /**< image scanner vertical scan density */
     ZBAR_CFG_Y_DENSITY,         /**< image scanner horizontal scan density */

@@ -201,15 +201,7 @@ void *zbar_image_get_userdata (const zbar_image_t *img)
 
 zbar_image_t *zbar_image_copy (const zbar_image_t *src)
 {
-    zbar_image_t *dst = zbar_image_create();
-    dst->format = src->format;
-    _zbar_image_copy_size(dst, src);
-    dst->datalen = src->datalen;
-    dst->data = malloc(src->datalen);
-    assert(dst->data);
-    memcpy((void*)dst->data, src->data, src->datalen);
-    dst->cleanup = zbar_image_free_data;
-    return(dst);
+    return _zbar_image_copy(src, 0);
 }
 
 const zbar_symbol_set_t *zbar_image_get_symbols (const zbar_image_t *img)

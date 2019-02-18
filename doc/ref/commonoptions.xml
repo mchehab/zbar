@@ -122,6 +122,17 @@
       </varlistentry>
 
       <varlistentry>
+        <term><option>test-inverted</option></term>
+        <listitem>
+          <simpara>Specially for QR code images, sometimes the image
+          is inverted, e. g. lines are written in white instead of black.
+          This option makes ZBar to invert the image and parse again, in
+          case it fails using the normal order. Enabling it affects all
+          decoders.</simpara>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
         <term><option>min-length=<replaceable class="parameter">n</replaceable></option></term>
         <term><option>max-length=<replaceable class="parameter">n</replaceable></option></term>
         <listitem>

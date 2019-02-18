@@ -107,15 +107,16 @@ struct settings_s {
 };
 
 static const struct settings_s settings[] = {
-    { "x-density",   zbar::ZBAR_CFG_Y_DENSITY,   false },
-    { "y-density",   zbar::ZBAR_CFG_Y_DENSITY,   false },
-    { "min-length",  zbar::ZBAR_CFG_MIN_LEN,     false },
-    { "max-length",  zbar::ZBAR_CFG_MAX_LEN,     false },
-    { "uncertainty", zbar::ZBAR_CFG_UNCERTAINTY, false },
-    { "ascii",       zbar::ZBAR_CFG_ASCII,       true },
-    { "add-check",   zbar::ZBAR_CFG_ADD_CHECK,   true },
-    { "emit-check",  zbar::ZBAR_CFG_EMIT_CHECK,  true },
-    { "position",    zbar::ZBAR_CFG_POSITION,    true },
+    { "x-density",     zbar::ZBAR_CFG_Y_DENSITY,     false },
+    { "y-density",     zbar::ZBAR_CFG_Y_DENSITY,     false },
+    { "min-length",    zbar::ZBAR_CFG_MIN_LEN,       false },
+    { "max-length",    zbar::ZBAR_CFG_MAX_LEN,       false },
+    { "uncertainty",   zbar::ZBAR_CFG_UNCERTAINTY,   false },
+    { "ascii",         zbar::ZBAR_CFG_ASCII,         true },
+    { "add-check",     zbar::ZBAR_CFG_ADD_CHECK,     true },
+    { "emit-check",    zbar::ZBAR_CFG_EMIT_CHECK,    true },
+    { "position",      zbar::ZBAR_CFG_POSITION,      true },
+    { "test-inverted", zbar::ZBAR_CFG_TEST_INVERTED, true },
 };
 #define SETTINGS_SIZE (sizeof(settings)/sizeof(*settings))
 
