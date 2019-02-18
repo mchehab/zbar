@@ -10,8 +10,9 @@ aebbdbed0b32d7fd72f1245e3fb384822d492062  zbarimg databar.png
 b350ca7efad7a50c5ac082d5c683a8e8d8d380a7  zbarimg qr-code.png
 84c0ce7072e2227073dc8bd1e5f4518d8f42ae3d  zbarimg sqcode1-generated.png
 84c0ce7072e2227073dc8bd1e5f4518d8f42ae3d  zbarimg sqcode1-scanned.png
-5ab2b518e2c9d827cedc5825d2e3c9646d43713a  zbarimg ean2 ean-2.png
-668fef8cb9caac34df8cb8564c2cde62e4af5e65  zbarimg ean5 ean-5.png
-b567e550216fe24f7652f683146365a9fe7ee867  zbarimg isbn10 ean-13.png
-d0f37aa076d42c270f7231c5490beea5605e2ba0  zbarimg isbn13 ean-13.png
-3f041225df3b8364b5fd0daf9cf402e8a4731f9b  zbarimg upca code-upc-a.png
+5ab2b518e2c9d827cedc5825d2e3c9646d43713a  zbarimg -Sean2.enable ean-2.png
+668fef8cb9caac34df8cb8564c2cde62e4af5e65  zbarimg -Sean5.enable ean-5.png
+b567e550216fe24f7652f683146365a9fe7ee867  zbarimg -Sisbn10.enable ean-13.png
+d0f37aa076d42c270f7231c5490beea5605e2ba0  zbarimg -Sisbn13.enable ean-13.png
+3f041225df3b8364b5fd0daf9cf402e8a4731f9b  zbarimg -Supca.enable code-upc-a.png
+b350ca7efad7a50c5ac082d5c683a8e8d8d380a7  zbarimg -Stest-inverted qr-code-inverted.png

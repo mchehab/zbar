@@ -15,7 +15,7 @@ test()
 		j="$1"
 	fi;
 	if [ "$2" != "" ]; then
-		CMD="$ZBARIMG -S$1.enable"
+		CMD="$ZBARIMG $1"
 	else
 		CMD="$ZBARIMG"
 	fi
@@ -53,13 +53,13 @@ if [ "@ENABLE_DATABAR@" == "1" ]; then
 fi
 
 if [ "@ENABLE_EAN@" == "1" ]; then
-        test ean2 ean-2.png
-        test ean5 ean-5.png
+        test -Sean2.enable ean-2.png
+        test -Sean5.enable ean-5.png
         test ean-8.png
         test ean-13.png
-        test isbn10 ean-13.png
-        test isbn13 ean-13.png
-        test upca code-upc-a.png
+        test -Sisbn10.enable ean-13.png
+        test -Sisbn13.enable ean-13.png
+        test -Supca.enable code-upc-a.png
 fi
 
 if [ "@ENABLE_I25@" == "1" ]; then
@@ -68,11 +68,12 @@ fi
 
 if [ "@ENABLE_QRCODE@" == "1" ]; then
         test qr-code.png
+        test -Stest-inverted qr-code-inverted.png
 fi
 
 if [ "@ENABLE_SQCODE@" == "1" ]; then
         test sqcode1-generated.png
-	test sqcode1-scanned.png
+        test sqcode1-scanned.png
 fi
 
 # The pdf417 code is incomplete: it doesn't output any results

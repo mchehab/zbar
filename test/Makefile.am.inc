@@ -70,11 +70,12 @@ ZBARIMG = @abs_top_builddir@/zbarimg/zbarimg --nodbus
 
 gen_checksum: all
 	for i in $(NORMAL_IMAGES); do $(ZBARIMG) $(EXAMPLES)/$$i 2>/dev/null|sha1sum|sed "s,-,zbarimg $$i,"; done >$(EXAMPLES)/sha1sum
-	$(ZBARIMG) -Sean2.enable $(EXAMPLES)/ean-2.png 2>/dev/null|sha1sum|sed "s,-,zbarimg ean2 ean-2.png," >>$(EXAMPLES)/sha1sum
-	$(ZBARIMG) -Sean5.enable $(EXAMPLES)/ean-5.png 2>/dev/null|sha1sum|sed "s,-,zbarimg ean5 ean-5.png," >>$(EXAMPLES)/sha1sum
-	$(ZBARIMG) -Sisbn10.enable $(EXAMPLES)/ean-13.png 2>/dev/null|sha1sum|sed "s,-,zbarimg isbn10 ean-13.png," >>$(EXAMPLES)/sha1sum
-	$(ZBARIMG) -Sisbn13.enable $(EXAMPLES)/ean-13.png 2>/dev/null|sha1sum|sed "s,-,zbarimg isbn13 ean-13.png,"  >>$(EXAMPLES)/sha1sum
-	$(ZBARIMG) -Supca.enable $(EXAMPLES)/code-upc-a.png 2>/dev/null|sha1sum|sed "s,-,zbarimg upca code-upc-a.png,"  >>$(EXAMPLES)/sha1sum
+	$(ZBARIMG) -Sean2.enable $(EXAMPLES)/ean-2.png 2>/dev/null|sha1sum|sed "s,-,zbarimg -Sean2.enable ean-2.png," >>$(EXAMPLES)/sha1sum
+	$(ZBARIMG) -Sean5.enable $(EXAMPLES)/ean-5.png 2>/dev/null|sha1sum|sed "s,-,zbarimg -Sean5.enable ean-5.png," >>$(EXAMPLES)/sha1sum
+	$(ZBARIMG) -Sisbn10.enable $(EXAMPLES)/ean-13.png 2>/dev/null|sha1sum|sed "s,-,zbarimg -Sisbn10.enable ean-13.png," >>$(EXAMPLES)/sha1sum
+	$(ZBARIMG) -Sisbn13.enable $(EXAMPLES)/ean-13.png 2>/dev/null|sha1sum|sed "s,-,zbarimg -Sisbn13.enable ean-13.png,"  >>$(EXAMPLES)/sha1sum
+	$(ZBARIMG) -Supca.enable $(EXAMPLES)/code-upc-a.png 2>/dev/null|sha1sum|sed "s,-,zbarimg -Supca.enable code-upc-a.png,"  >>$(EXAMPLES)/sha1sum
+	$(ZBARIMG) -Stest-inverted $(EXAMPLES)/qr-code-inverted.png 2>/dev/null|sha1sum|sed "s,-,zbarimg -Stest-inverted qr-code-inverted.png,"  >>$(EXAMPLES)/sha1sum
 
 test_progs: $(check_PROGRAMS)
 	@$(MAKE) $(check_PROGRAMS)
