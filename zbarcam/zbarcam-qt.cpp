@@ -277,7 +277,8 @@ public:
         for (unsigned i = 0; i < SETTINGS_SIZE; i++) {
             int value = 0;
 
-            zbar->get_config(sym, settings[i].ctrl, value);
+            if (zbar->get_config(sym, settings[i].ctrl, value))
+                continue;
             val[i] = value;
 
             if (settings[i].is_bool) {
