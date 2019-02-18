@@ -57,6 +57,7 @@ struct configs_s {
 
 static const struct configs_s configs[] = {
     { "Composite codes", zbar::ZBAR_COMPOSITE },
+    { "Image Scanner", zbar::ZBAR_PARTIAL },
 #if ENABLE_CODABAR == 1
     { "Codabar", zbar::ZBAR_CODABAR },
 #endif
@@ -469,14 +470,21 @@ public:
 
         for (unsigned i = 0; i < CONFIGS_SIZE; i++) {
             int val = 0;
-            QCheckBox *button = new QCheckBox(configs[i].name, this);
 
-            zbar->get_config(configs[i].sym, zbar::ZBAR_CFG_ENABLE, val);
+            if (configs[i].sym == zbar::ZBAR_PARTIAL) {
+                QLabel *label = new QLabel(configs[i].name, this);
+                optionsBoxLayout->addWidget(label, ++pos, 0, 1, 1,
+                                            Qt::AlignTop | Qt::AlignLeft);
+            } else {
+                QCheckBox *button = new QCheckBox(configs[i].name, this);
 
-            button->setChecked(val);
-            optionsBoxLayout->addWidget(button, ++pos, 0, 1, 1,
-                                        Qt::AlignTop | Qt::AlignLeft);
-            connect(button, SIGNAL(clicked()), this, SLOT(code_clicked()));
+                zbar->get_config(configs[i].sym, zbar::ZBAR_CFG_ENABLE, val);
+
+                button->setChecked(val);
+                optionsBoxLayout->addWidget(button, ++pos, 0, 1, 1,
+                                            Qt::AlignTop | Qt::AlignLeft);
+                connect(button, SIGNAL(clicked()), this, SLOT(code_clicked()));
+            }
 
             /* Composite doesn't have configuration */
             if (configs[i].sym == zbar::ZBAR_COMPOSITE)
