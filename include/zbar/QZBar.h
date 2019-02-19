@@ -162,7 +162,7 @@ public Q_SLOTS:
     int get_config(zbar_symbol_type_t symbology,
                    zbar_config_t config,
                    int &value);
-    void request_size(unsigned width, unsigned height);
+    void request_size(unsigned width, unsigned height, bool trigger = true);
     int get_resolution(int index, unsigned &width, unsigned &height, float &max_fps);
     unsigned videoWidth();
     unsigned videoHeight();

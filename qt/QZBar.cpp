@@ -112,13 +112,14 @@ int QZBar::get_controls(int index, char **name, char **group,
                                 min, max, def, step);
 }
 
-void QZBar::request_size(unsigned width, unsigned height)
+void QZBar::request_size(unsigned width, unsigned height, bool trigger)
 {
     if(!thread)
         return;
 
     thread->request_size(width, height);
-    thread->pushEvent(new QEvent((QEvent::Type)QZBarThread::ReOpen));
+    if (trigger)
+        thread->pushEvent(new QEvent((QEvent::Type)QZBarThread::ReOpen));
 }
 
 int QZBar::get_resolution(int index, unsigned &width, unsigned &height, float &max_fps)

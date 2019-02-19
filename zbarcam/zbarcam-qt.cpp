@@ -464,6 +464,7 @@ public:
         grid->addWidget(controlGroup, 0, 2, -1, 1, Qt::AlignTop);
 
         loadSettings();
+        zbar->request_size(curWidth, curHeight, false);
 
         int pos = 0;
 
@@ -640,6 +641,9 @@ public Q_SLOTS:
             return;
 
         zbar->request_size(cur_res->width, cur_res->height);
+
+        curWidth = cur_res->width;
+        curHeight = cur_res->height;
     }
 
     void setEnabled(bool videoEnabled)
@@ -657,7 +661,7 @@ public Q_SLOTS:
             return;
 
         // get_controls
-        loadSettings();
+        loadSettings(false);
 
         // FIXME: clear a previous resolutions box
 
@@ -668,9 +672,7 @@ public Q_SLOTS:
             isNewResolutions = true;
         }
 
-        unsigned width = zbar->videoWidth();
-        unsigned height = zbar->videoHeight();
-
+        resolutions->blockSignals(true);
         res.clear();
         resolutions->clear();
 
@@ -688,7 +690,7 @@ public Q_SLOTS:
             resolutions->addItem(new_res);
             res.append(cur_res);
 
-            if (width == cur_res.width && height == cur_res.height)
+            if (curWidth == cur_res.width && curHeight == cur_res.height)
                 resolutions->setCurrentIndex(i);
         }
 
@@ -696,6 +698,21 @@ public Q_SLOTS:
             ZBarMenu->addWidget(resolutions);
             connect(resolutions, SIGNAL(currentIndexChanged(int)),
                     this, SLOT(setVideoResolution(int)));
+        }
+        resolutions->blockSignals(false);
+
+        // Restore saved resolution
+        unsigned width = zbar->videoWidth();
+        unsigned height = zbar->videoHeight();
+
+        if (width != curWidth || height != curHeight)
+        {
+            for (int i = 0; i < res.size(); i++) {
+                if (res[i].width == curWidth && res[i].height == curHeight) {
+                    resolutions->setCurrentIndex(i);
+                    break;
+                }
+            }
         }
 
         int pos = 0;
@@ -786,8 +803,9 @@ private:
     bool dbus_enabled, show_options, show_controls;
     QByteArray geometry;
     QVector < struct CamRes > res;
+    unsigned curWidth, curHeight;
 
-    void loadSettings()
+    void loadSettings(bool getRes = true)
     {
         QSettings qSettings(QCoreApplication::organizationName(),
                             QCoreApplication::applicationName());
@@ -803,6 +821,13 @@ private:
         key = CONTROL_BAR;
         qVal = qSettings.value(key, true);
         show_controls = qVal.toBool();
+
+        if (getRes) {
+            qVal = qSettings.value("width");
+            curWidth = qVal.toUInt();
+            qVal = qSettings.value("height");
+            curHeight = qVal.toUInt();
+        }
 
 #ifdef HAVE_DBUS
         key = DBUS_NAME ".enable";
@@ -888,6 +913,11 @@ private:
 
         key = CONTROL_BAR;
         qSettings.setValue(key, show_controls);
+
+        curWidth = zbar->videoWidth();
+        curHeight = zbar->videoHeight();
+        qSettings.setValue("width", curWidth);
+        qSettings.setValue("height", curHeight);
 
 #ifdef HAVE_DBUS
         // FIXME: track dbus enable-disable and store last state
