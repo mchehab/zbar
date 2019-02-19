@@ -352,6 +352,12 @@ public Q_SLOTS:
     }
 };
 
+struct CamRes {
+    unsigned width;
+    unsigned height;
+    float max_fps;
+};
+
 class ZbarcamQZBar : public QWidget
 {
     Q_OBJECT
@@ -401,6 +407,7 @@ public:
         saveSettings();
     }
     ZbarcamQZBar (const char *default_device, int verbose = 0)
+                 : resolutions(NULL)
     {
         // drop-down list of video devices
         QComboBox *videoList = new QComboBox;
@@ -426,10 +433,10 @@ public:
         openButton->setIcon(openIcon);
 
         // collect video list and buttons horizontally
-        QHBoxLayout *hbox = new QHBoxLayout;
-        hbox->addWidget(videoList, 5);
-        hbox->addWidget(statusButton, 1);
-        hbox->addWidget(openButton, 1);
+        ZBarMenu = new QHBoxLayout;
+        ZBarMenu->addWidget(videoList, 5);
+        ZBarMenu->addWidget(statusButton, 1);
+        ZBarMenu->addWidget(openButton, 1);
 
         // video barcode scanner
         zbar = new zbar::QZBar(NULL, verbose);
@@ -440,7 +447,7 @@ public:
         results->setReadOnly(true);
 
         QGridLayout *grid = new QGridLayout;
-        grid->addLayout(hbox, 0, 0, 1, 2);
+        grid->addLayout(ZBarMenu, 0, 0, 1, 2);
         grid->addWidget(zbar, 1, 0, 1, 1);
         grid->addWidget(results, 2, 0, 1, 1);
 
@@ -512,7 +519,7 @@ public:
             showOptionsButton = new QPushButton("Show Options");
             optionsGroup->hide();
         }
-        hbox->addWidget(showOptionsButton);
+        ZBarMenu->addWidget(showOptionsButton);
         connect(showOptionsButton, SIGNAL(clicked()), this, SLOT(turn_show_options()));
 
         if (show_controls) {
@@ -522,7 +529,7 @@ public:
             showControlsButton = new QPushButton("Show Controls");
             controlGroup->hide();
         }
-        hbox->addWidget(showControlsButton);
+        ZBarMenu->addWidget(showControlsButton);
         connect(showControlsButton, SIGNAL(clicked()), this, SLOT(turn_show_controls()));
 
         if (!geometry.isEmpty())
@@ -617,6 +624,24 @@ public Q_SLOTS:
         }
     }
 
+    void setVideoResolution(int index)
+    {
+        struct CamRes *cur_res;
+
+        if (index < 0 || res.isEmpty())
+            return;
+
+        cur_res = &res[index];
+
+        unsigned width = zbar->videoWidth();
+        unsigned height = zbar->videoHeight();
+
+        if (width == cur_res->width && height == cur_res->height)
+            return;
+
+        zbar->request_size(cur_res->width, cur_res->height);
+    }
+
     void setEnabled(bool videoEnabled)
     {
         zbar->setVideoEnabled(videoEnabled);
@@ -633,6 +658,45 @@ public Q_SLOTS:
 
         // get_controls
         loadSettings();
+
+        // FIXME: clear a previous resolutions box
+
+        bool isNewResolutions = false;
+
+        if (!resolutions) {
+            resolutions = new QComboBox;
+            isNewResolutions = true;
+        }
+
+        unsigned width = zbar->videoWidth();
+        unsigned height = zbar->videoHeight();
+
+        res.clear();
+        resolutions->clear();
+
+        for (int i = 0;; i++) {
+            QString new_res;
+            struct CamRes cur_res;
+
+            if (!zbar->get_resolution(i, cur_res.width, cur_res.height, cur_res.max_fps))
+                break;
+
+            new_res.sprintf("%dx%d - %.2f fps (max)",
+                            cur_res.width, cur_res.height,
+                            cur_res.max_fps);
+
+            resolutions->addItem(new_res);
+            res.append(cur_res);
+
+            if (width == cur_res.width && height == cur_res.height)
+                resolutions->setCurrentIndex(i);
+        }
+
+        if (isNewResolutions) {
+            ZBarMenu->addWidget(resolutions);
+            connect(resolutions, SIGNAL(currentIndexChanged(int)),
+                    this, SLOT(setVideoResolution(int)));
+        }
 
         int pos = 0;
         QString oldGroup = "";
@@ -713,12 +777,15 @@ public Q_SLOTS:
 private:
     QString file;
     zbar::QZBar *zbar;
+    QHBoxLayout *ZBarMenu;
     QPushButton *statusButton;
     QGroupBox *controlGroup, *optionsGroup;
+    QComboBox *resolutions;
     QGridLayout *controlBoxLayout;
     QSignalMapper *signalMapper;
     bool dbus_enabled, show_options, show_controls;
     QByteArray geometry;
+    QVector < struct CamRes > res;
 
     void loadSettings()
     {
