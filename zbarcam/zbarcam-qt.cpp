@@ -426,14 +426,17 @@ public:
         statusButton->setText("&Enable");
         statusButton->setCheckable(true);
         statusButton->setEnabled(false);
+        statusButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
         // command button to open image files for scanning
         QPushButton *openButton = new QPushButton("&Open");
         QIcon openIcon = style->standardIcon(QStyle::SP_DialogOpenButton);
         openButton->setIcon(openIcon);
+        openButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
         // collect video list and buttons horizontally
         ZBarMenu = new QHBoxLayout;
+        ZBarMenu->setAlignment(Qt::AlignLeft);
         ZBarMenu->addWidget(videoList, 5);
         ZBarMenu->addWidget(statusButton, 1);
         ZBarMenu->addWidget(openButton, 1);
@@ -447,7 +450,7 @@ public:
         results->setReadOnly(true);
 
         QGridLayout *grid = new QGridLayout;
-        grid->addLayout(ZBarMenu, 0, 0, 1, 2);
+        grid->addLayout(ZBarMenu, 0, 0, 1, -1);
         grid->addWidget(zbar, 1, 0, 1, 1);
         grid->addWidget(results, 2, 0, 1, 1);
 
@@ -461,7 +464,7 @@ public:
         controlGroup = new QGroupBox(this);
         controlBoxLayout = new QGridLayout(controlGroup);
         controlBoxLayout->setContentsMargins(0, 0, 0, 0);
-        grid->addWidget(controlGroup, 0, 2, -1, 1, Qt::AlignTop);
+        grid->addWidget(controlGroup, 1, 2, -1, 1, Qt::AlignTop);
 
         loadSettings();
         zbar->request_size(curWidth, curHeight, false);
@@ -520,6 +523,7 @@ public:
             showOptionsButton = new QPushButton("Show Options");
             optionsGroup->hide();
         }
+        showOptionsButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         ZBarMenu->addWidget(showOptionsButton);
         connect(showOptionsButton, SIGNAL(clicked()), this, SLOT(turn_show_options()));
 
@@ -530,6 +534,7 @@ public:
             showControlsButton = new QPushButton("Show Controls");
             controlGroup->hide();
         }
+        showControlsButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         ZBarMenu->addWidget(showControlsButton);
         connect(showControlsButton, SIGNAL(clicked()), this, SLOT(turn_show_controls()));
 
@@ -669,6 +674,7 @@ public Q_SLOTS:
 
         if (!resolutions) {
             resolutions = new QComboBox;
+            resolutions->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
             isNewResolutions = true;
         }
 
