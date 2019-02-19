@@ -112,6 +112,39 @@ int QZBar::get_controls(int index, char **name, char **group,
                                 min, max, def, step);
 }
 
+void QZBar::request_size(unsigned width, unsigned height)
+{
+    if(!thread)
+        return;
+
+    thread->request_size(width, height);
+    thread->pushEvent(new QEvent((QEvent::Type)QZBarThread::ReOpen));
+}
+
+int QZBar::get_resolution(int index, unsigned &width, unsigned &height, float &max_fps)
+{
+    if(!thread)
+        return 0;
+
+    return thread->get_resolution(index, width, height, max_fps);
+}
+
+unsigned QZBar::videoWidth()
+{
+    if(!thread)
+        return 0;
+
+    return thread->reqWidth;
+}
+
+unsigned QZBar::videoHeight()
+{
+    if(!thread)
+        return 0;
+
+    return thread->reqHeight;
+}
+
 QVector< QPair< int , QString > > QZBar::get_menu(int index)
 {
     if(!thread) {

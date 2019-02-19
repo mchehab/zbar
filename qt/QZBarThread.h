@@ -47,6 +47,7 @@ public:
         VideoDevice = QEvent::User,
         VideoEnabled,
         ScanImage,
+        ReOpen,
         Exit = QEvent::MaxUser
     };
 
@@ -131,6 +132,10 @@ public:
         return scanner.get_config(symbology, config, value);
     }
 
+    void request_size(unsigned width, unsigned height);
+
+    int get_resolution(int index, unsigned &width, unsigned &height, float &max_fps);
+
     int request_dbus(bool enabled)
     {
         return scanner.request_dbus(enabled);
@@ -176,6 +181,7 @@ private:
     Video *video;
     ImageScanner scanner;
     QZBarImage *image;
+    QString currentDevice;
     bool running;
     bool videoRunning;
     bool videoEnabled;

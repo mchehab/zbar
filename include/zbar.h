@@ -250,6 +250,17 @@ typedef struct video_controls_s {
     // video drivers may add extra private data in the end of this struct
 } video_controls_t;
 
+/** store a video resolution
+ * @param width width of the video window
+ * @param height length of the video window
+ * @param max_fps maximum streaming speed, in frames per second
+ * @since 0.22
+ */
+struct video_resolution_s {
+    unsigned int width, height;
+    float max_fps;
+};
+
 /** retrieve runtime library version information.
  * @param major set to the running major version (unless NULL)
  * @param minor set to the running minor version (unless NULL)
@@ -1146,6 +1157,14 @@ extern int zbar_video_get_control (zbar_video_t *video,
 extern struct video_controls_s
 *zbar_video_get_controls (const zbar_video_t *video,
                           int index);
+
+/** get available video resolutions from video source
+ * @returns 0 for success, non-0 for failure
+ * @since 0.22
+ */
+extern struct video_resolution_s
+*zbar_video_get_resolutions (const zbar_video_t *vdo,
+                             int index);
 
 /** display detail for last video error to stderr.
  * @returns a non-zero value suitable for passing to exit()

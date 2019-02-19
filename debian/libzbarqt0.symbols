@@ -84,6 +84,9 @@ libzbarqt.so.0 libzbarqt0 #MINVER#
  (c++)"zbar::QZBar::get_control(char*, bool*)@Base" 0.20.1
  (c++)"zbar::QZBar::get_control(char*, int*)@Base" 0.20.1
  (c++)"zbar::QZBar::get_controls(int, char**, char**, zbar::QZBar::ControlType*, int*, int*, int*, int*)@Base" 0.20.1
+ (c++)"zbar::QZBar::videoWidth()@Base" 0.22
+ (c++)"zbar::QZBar::videoHeight()@Base" 0.22
+ (c++)"zbar::QZBar::request_size(unsigned int, unsigned int, bool)@Base" 0.22
  (c++)"zbar::QZBar::get_menu(int)@Base" 0.20.1
  (c++)"zbar::QZBar::heightForWidth(int) const@Base" 0.10
  (c++)"zbar::QZBar::isVideoEnabled() const@Base" 0.10
@@ -118,6 +121,8 @@ libzbarqt.so.0 libzbarqt0 #MINVER#
  (c++)"zbar::QZBarThread::get_control(char*, bool*)@Base" 0.20.1
  (c++)"zbar::QZBarThread::get_control(char*, int*)@Base" 0.20.1
  (c++)"zbar::QZBarThread::get_controls(int, char**, char**, zbar::QZBar::ControlType*, int*, int*, int*, int*)@Base" 0.20.1
+ (c++)"zbar::QZBarThread::request_size(unsigned int, unsigned int)@Base" 0.22
+ (c++)"zbar::QZBarThread::get_resolution(int, unsigned int&, unsigned int&, float&)@Base" 0.22
  (c++)"zbar::QZBarThread::get_menu(int)@Base" 0.20.1
  (c++)"zbar::QZBarThread::image_callback(zbar::Image&)@Base" 0.10
  (c++)"zbar::QZBarThread::metaObject() const@Base" 0.10

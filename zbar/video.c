@@ -438,3 +438,22 @@ struct video_controls_s *zbar_video_get_controls (const zbar_video_t *vdo,
 
     return p;
 }
+
+struct video_resolution_s *zbar_video_get_resolutions (const zbar_video_t *vdo,
+                                                       int index)
+{
+    int i = 0;
+    struct video_resolution_s *p = vdo->res;
+
+    while (i != index) {
+        if (!p->width || !p->height)
+            return NULL;
+        i++;
+        p++;
+    }
+
+    if (!p->width || !p->height)
+       return NULL;
+
+    return p;
+}

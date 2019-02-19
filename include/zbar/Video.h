@@ -210,6 +210,14 @@ public:
         return ret;
     }
 
+    /// get the information about a control at a given index
+    /// see zbar_video_get_resolutions()
+    /// @since 0.22
+    struct video_resolution_s *get_resolution(int index)
+    {
+        return(zbar_video_get_resolutions(_video, index));
+    }
+
 private:
     zbar_video_t *_video;
 };

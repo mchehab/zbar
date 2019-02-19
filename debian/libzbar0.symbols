@@ -37,6 +37,7 @@ libzbar.so.0 libzbar0 #MINVER#
  zbar_image_get_data_length@Base 0.10
  zbar_image_get_format@Base 0.10
  zbar_image_get_height@Base 0.10
+ zbar_video_get_resolutions@Base 0.22
  zbar_image_get_sequence@Base 0.10
  zbar_image_get_size@Base 0.20.1
  zbar_image_get_symbols@Base 0.10

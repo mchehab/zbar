@@ -102,8 +102,6 @@ void QZBarThread::openVideo (const QString &device)
     {
         QMutexLocker locker(&mutex);
         videoEnabled = _videoOpened = false;
-        reqWidth = DEFAULT_WIDTH;
-        reqHeight = DEFAULT_HEIGHT;
     }
 
     // ensure old video doesn't have image ref
@@ -123,6 +121,10 @@ void QZBarThread::openVideo (const QString &device)
     try {
         std::string devstr = device.toStdString();
         video = new Video(devstr);
+
+        if (reqWidth != DEFAULT_WIDTH || reqHeight != DEFAULT_HEIGHT)
+            video->request_size(reqWidth, reqHeight);
+
         negotiate_format(*video, window);
         {
             QMutexLocker locker(&mutex);
@@ -130,6 +132,8 @@ void QZBarThread::openVideo (const QString &device)
             reqWidth = video->get_width();
             reqHeight = video->get_height();
         }
+        currentDevice = device;
+
         emit videoOpened(true);
     }
     catch(std::exception &e) {
@@ -137,7 +141,6 @@ void QZBarThread::openVideo (const QString &device)
         emit videoOpened(false);
     }
 }
-
 
 void QZBarThread::videoDeviceEvent (VideoDeviceEvent *e)
 {
@@ -182,6 +185,9 @@ bool QZBarThread::event (QEvent *e)
         if(videoRunning)
             enableVideo(false);
         running = false;
+        break;
+    case ReOpen:
+        openVideo(currentDevice);
         break;
     default:
         return(false);
@@ -337,4 +343,28 @@ int QZBarThread::get_control(char *name, int *value)
         return 0;
 
     return video->get_control(name, value);
+}
+
+void QZBarThread::request_size(unsigned width, unsigned height)
+{
+    reqWidth = width;
+    reqHeight = height;
+}
+
+int QZBarThread::get_resolution(int index, unsigned &width, unsigned &height, float &max_fps)
+{
+    struct video_resolution_s *res;
+
+    if(!video)
+        return 0;
+
+    res = video->get_resolution(index);
+    if (!res)
+        return 0;
+
+    width = res->width;
+    height = res->height;
+    max_fps = res->max_fps;
+
+    return 1;
 }
