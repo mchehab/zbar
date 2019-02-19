@@ -1,10 +1,15 @@
 0.22:
 
+  * zbarcam-qt: allow changing resolutions in real time
+  * zbarcam-qt: better support ZBar options
   * zbarcam-qt: do several visual improvements
   * zbarcam-qt: make it remember the geometry
   * zbarcam-qt: allow show/hide control and options bars
   * zbarcam-qt: remember lastly used settings and camera controls
   * zbarcam-qt: allow changing ZBar decode options via GUI
+  * Add API to allow get/set resolutions
+  * img_scanner: add handler for color-inverted codes
+  * img_scanner: fix get_config parameter validation
   * scan_video: improve logic to remove duplicated/invalid devnodes
   * symbol.c: fix symbol hash logic (prevents crash with QR options)
   * configure.ac: fix an error at libv4l2 package check
