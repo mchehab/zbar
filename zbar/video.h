@@ -56,6 +56,11 @@ typedef enum video_iomode_e {
 
 typedef struct video_state_s video_state_t;
 
+struct video_resolution_s {
+    unsigned int width, height;
+    float max_fps;
+};
+
 struct zbar_video_s {
     errinfo_t err;              /* error reporting */
     int fd;                     /* open camera device */
@@ -70,6 +75,9 @@ struct zbar_video_s {
     unsigned palette;           /* v4l1 format index corresponding to format */
     uint32_t *formats;          /* 0 terminated list of supported formats */
     uint32_t *emu_formats;      /* 0 terminated list of emulated formats */
+
+    uint32_t num_res;           /* Number of possible video resolutions */
+    struct video_resolution_s *res; /* list of resolutions with size num_res */
 
     struct video_controls_s *controls;  /* linked list of controls */
 

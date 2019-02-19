@@ -1090,6 +1090,113 @@ static int v4l2_g_control(zbar_video_t *vdo,
 }
 #endif /* VIDIOC_QUERY_EXT_CTRL */
 
+static int v4l2_sort_resolutions(const void *__a, const void *__b)
+{
+    const struct video_resolution_s *a = __a;
+    const struct video_resolution_s *b = __b;
+    int r;
+
+    r = (int)b->width - a->width;
+    if (!r)
+         r = (int)b->height - a->height;
+
+    return r;
+}
+
+static float v4l2_get_max_fps_discrete(zbar_video_t *vdo,
+                                       struct v4l2_frmsizeenum *frmsize)
+{
+    struct v4l2_frmivalenum frmival = { 0 };
+    float fps, max_fps = -1;
+
+    frmival.width = frmsize->discrete.width;
+    frmival.height = frmsize->discrete.height;
+    frmival.pixel_format = frmsize->pixel_format;
+    frmival.index = 0;
+
+    for (frmival.index = 0;
+         !v4l2_ioctl(vdo->fd, VIDIOC_ENUM_FRAMEINTERVALS, &frmival);
+         frmival.index++) {
+            fps = ((float)frmival.discrete.denominator)/frmival.discrete.numerator;
+            if (fps > max_fps)
+                max_fps = fps;
+    }
+    return max_fps;
+}
+
+static void v4l2_insert_resolution(zbar_video_t *vdo,
+                                   unsigned int *n_res,
+                                   unsigned int width, unsigned int height,
+                                   float max_fps)
+{
+    unsigned int i;
+
+    for (i = 0; i < *n_res; i++) {
+        if (vdo->res[i].width == width && vdo->res[i].height == height)
+        return;
+    }
+
+    vdo->res = realloc(vdo->res, (*n_res + 1) * sizeof(struct video_resolution_s));
+
+    vdo->res[*n_res].width = width;
+    vdo->res[*n_res].height = height;
+    vdo->res[*n_res].max_fps = max_fps;
+
+    (*n_res)++;
+}
+
+static int v4l2_get_supported_resolutions(zbar_video_t *vdo)
+{
+    struct v4l2_fmtdesc fmt = { 0 };
+    struct v4l2_frmsizeenum frmsize = { 0 };
+    int i;
+    unsigned int width, height, n_res = 0;
+
+    vdo->res = NULL;
+
+    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    for (fmt.index = 0;
+         !v4l2_ioctl(vdo->fd, VIDIOC_ENUM_FMT, &fmt);
+         fmt.index++) {
+        if (vdo->format != fmt.pixelformat)
+            continue;
+
+        frmsize.pixel_format = fmt.pixelformat;
+        frmsize.index = 0;
+
+        while (!v4l2_ioctl(vdo->fd, VIDIOC_ENUM_FRAMESIZES, &frmsize)) {
+            if (frmsize.type == V4L2_FRMSIZE_TYPE_DISCRETE) {
+                    v4l2_insert_resolution(vdo, &n_res, frmsize.discrete.width,
+                                           frmsize.discrete.height,
+                                           v4l2_get_max_fps_discrete(vdo, &frmsize));
+            } else if (frmsize.type == V4L2_FRMSIZE_TYPE_STEPWISE) {
+                    for (i = 0; i <= 4; i++) {
+                        width = frmsize.stepwise.min_width +
+                            i * (frmsize.stepwise.max_width -
+                                 frmsize.stepwise.min_width) / 4;
+                        height = frmsize.stepwise.min_height +
+                            i * (frmsize.stepwise.max_height -
+                                 frmsize.stepwise.min_height) / 4;
+                        v4l2_insert_resolution(vdo, &n_res, width, height, -1);
+                    }
+            }
+            frmsize.index++;
+        }
+    }
+    qsort(vdo->res, n_res, sizeof(struct video_resolution_s),
+          v4l2_sort_resolutions);
+
+    for (i = 0; i < n_res; i++) {
+        zprintf(1, "%dx%d (%0.2f fps)\n",
+                vdo->res[i].width, vdo->res[i].height, vdo->res[i].max_fps);
+    }
+
+    /* Make the list zero-terminated */
+    v4l2_insert_resolution(vdo, &n_res, 0, 0, 0);
+
+    return 0;
+}
+
 int _zbar_v4l2_probe (zbar_video_t *vdo)
 {
     /* check capabilities */
@@ -1122,6 +1229,9 @@ int _zbar_v4l2_probe (zbar_video_t *vdo)
         return(-1);
 
     if (v4l2_query_controls(vdo))
+        return(-1);
+
+    if (v4l2_get_supported_resolutions(vdo))
         return(-1);
 
     /* FIXME report error and fallback to readwrite? (if supported...) */
