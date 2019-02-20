@@ -186,6 +186,14 @@ dnl libraries
 AC_SEARCH_LIBS([clock_gettime], [rt])
 AM_ICONV()
 
+dnl libraries linkage
+AC_ARG_ENABLE([static_qt],
+  [AS_HELP_STRING([--enable-static-qt],
+    [Produce a static library for libzbarcam-qt])])
+
+AS_IF([test x$enable_static_qt = xyes], [AC_SUBST([LIBQT_EXTRA_LDFLAGS], ["-static"])])
+
+
 dnl poll support
 
 AC_CHECK_HEADERS([poll.h], [have_poll="yes"], [have_poll="no"])
@@ -723,6 +731,8 @@ AS_IF([test "x$with_gtk" != "xyes"],
      [echo "        => the PyGTK widget wrapper will *NOT* be built"])])
 AS_IF([test "x$with_qt" != "xyes"],
   [echo "        => the Qt widget will *NOT* be built"])
+AS_IF([test "x$with_qt" == "xyes" && test "x$enable_static_qt" == "xyes" ],
+  [echo "        => Building a static Qt library"])
 AS_IF([test "x$with_java" != "xyes"],
   [echo "        => the Java interface will *NOT* be built"])
 AS_IF([test "x$with_java_unit" != "xyes"],
