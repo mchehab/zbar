@@ -58,7 +58,8 @@ endif
 
 EXTRA_DIST += zbar.ico zbar.nsi
 
-EXTRA_DIST += examples/*.png examples/upcrpc.py examples/upcrpc.pl \
+EXTRA_DIST += examples/*.png examples/sha1sum \
+    examples/upcrpc.py examples/upcrpc.pl \
     examples/scan_image.c examples/scan_image.cpp examples/scan_image.vcproj
 
 EXTRA_DIST += perl/MANIFEST perl/README perl/Changes perl/COPYING.LIB \
