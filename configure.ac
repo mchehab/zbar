@@ -257,7 +257,7 @@ configure --disable-video to skip building video support.])],
         )],
   [AC_CHECK_HEADERS([vfw.h], [with_video="vfw"],
     [AC_MSG_FAILURE([test for VfW video support failed!
-configure --disable-video to skip building video support.])])])
+configure --disable-video to skip building video support.])],[#include <windows.h>])])
 
 AS_IF([test "x$have_libv4l" = "xyes"],
    [PKG_CHECK_MODULES([V4L2], [libv4l2], [],
