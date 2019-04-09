@@ -22,7 +22,11 @@
  *------------------------------------------------------------------------*/
 
 #include <gtk/gtksignal.h>
+#ifdef HAVE_X
 #include <gdk/gdkx.h>
+#elif defined(_WIN32)
+#include <gdk/gdkwin32.h>
+#endif
 
 #include <zbar/zbargtk.h>
 #include "zbargtkprivate.h"
@@ -380,9 +384,15 @@ static void zbar_gtk_realize (GtkWidget *widget)
     gdk_window_set_back_pixmap(widget->window, NULL, TRUE);
 
     /* attach zbar_window to underlying X window */
+#ifdef HAVE_X
     if(zbar_window_attach(zbar->window,
                            gdk_x11_drawable_get_xdisplay(widget->window),
                            gdk_x11_drawable_get_xid(widget->window)))
+#elif defined(_WIN32)
+    if(zbar_window_attach(zbar->window,
+                           GDK_WINDOW_HWND (widget->window),
+                           0))
+#endif
         zbar_window_error_spew(zbar->window, 0);
 }
 
