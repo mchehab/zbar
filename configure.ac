@@ -667,14 +667,14 @@ AC_CONFIG_COMMANDS([doc/version.xml],
   [AS_IF([test -f doc/version.xml && \
           ! echo $VERSION | diff doc/version.xml - >/dev/null 2>&1 || \
           ! echo $VERSION | diff $srcdir/doc/version.xml - >/dev/null 2>&1 ],
-    [echo "writing new doc/version.xml" ; echo $VERSION > doc/version.xml ])],
+    [echo "writing new doc/version.xml" ; echo $VERSION > $srcdir/doc/version.xml ])],
   [VERSION="$VERSION"]
 )
 AC_CONFIG_COMMANDS([doc/reldate.xml],
   [AS_IF([test -f doc/reldate.xml && \
           ! echo $RELDATE | diff doc/reldate.xml - >/dev/null 2>&1 || \
           ! echo $RELDATE | diff $srcdir/doc/reldate.xml - >/dev/null 2>&1 ],
-    [echo "writing new doc/reldate.xml" ; echo $RELDATE > doc/reldate.xml ])],
+    [echo "writing new doc/reldate.xml" ; echo $RELDATE > $srcdir/doc/reldate.xml ])],
   [RELDATE="$RELDATE"]
 )
 
