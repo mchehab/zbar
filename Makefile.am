@@ -73,7 +73,7 @@ EXTRA_DIST += perl/MANIFEST perl/README perl/Changes perl/COPYING.LIB \
 
 if WIN32
 dist_doc_DATA += README.windows
-pkgdata_DATA = $(srcdir)/examples/barcode.png \
+pkgdata_DATA = $(srcdir)/python/test/barcode.png \
     $(srcdir)/examples/scan_image.cpp $(srcdir)/examples/scan_image.vcproj
 
 %-rc.o: %.rc
