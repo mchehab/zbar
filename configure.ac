@@ -183,7 +183,7 @@ ZBAR_CHK_CODE([pdf417], [PDF417 symbology (incomplete)])
 
 dnl libraries
 
-AC_SEARCH_LIBS([clock_gettime], [rt])
+AC_SEARCH_LIBS([clock_gettime], [rt pthread])
 AM_ICONV()
 
 dnl libraries linkage
