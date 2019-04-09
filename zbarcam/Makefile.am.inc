@@ -5,11 +5,13 @@ zbarcam_zbarcam_LDADD = zbar/libzbar.la
 CLEANFILES += zbarcam/.libs/zbarcam zbarcam/moc_zbarcam_qt.h
 
 if HAVE_GTK
+if !WIN32
 bin_PROGRAMS += zbarcam/zbarcam-gtk
 zbarcam_zbarcam_gtk_SOURCES = zbarcam/zbarcam-gtk.c zbarcam/scan_video.c
 zbarcam_zbarcam_gtk_CPPFLAGS = $(GTK_CFLAGS) $(AM_CPPFLAGS)
 zbarcam_zbarcam_gtk_LDADD = $(GTK_LIBS) gtk/libzbargtk.la zbar/libzbar.la \
 	$(AM_LDADD)
+endif
 endif
 
 if HAVE_QT
