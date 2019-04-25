@@ -13,7 +13,7 @@ Build-Depends:
  libqt5x11extras5-dev,
  libv4l-dev [linux-any],
  libx11-dev,
- openjdk-8-jdk-headless,
+ openjdk-11-jdk-headless,
  perl,
  pkg-config,
  python-all-dbg (>= 2.6.6-3~),
