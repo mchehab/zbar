@@ -581,16 +581,18 @@ AC_ARG_WITH([qt5],
 
 AC_ARG_VAR([MOC], [full path to Qt moc program])
 
+PKG_CHECK_MODULES([QT],
+		  [Qt5Core >= 5 Qt5Gui >= 5 Qt5Widgets >= 5.0 Qt5X11Extras >= 5.0])
+
 AS_IF([test "x$with_qt" != "xno"],
    AS_IF([test "x$with_qt5" != "xno"],
-     [PKG_CHECK_MODULES([QT], [Qt5Core >= 5 Qt5Gui >= 5 Qt5Widgets >= 5.0 Qt5X11Extras >= 5.0])
-     AC_CHECK_PROGS(MOC, [moc-qt5 moc])
+    [AC_CHECK_PROGS(MOC, [moc-qt5 moc])
      AC_MSG_NOTICE([using moc from $MOC])
      QT_VERSION=`$PKG_CONFIG Qt5Gui --modversion`
      CPPFLAGS="$CPPFLAGS $QT_CPPFLAGS -fPIC"
      AC_MSG_NOTICE([using Qt version $QT_VERSION])],
 
-     [PKG_CHECK_MODULES([QT], [QtCore >= 4 QtGui >= 4])
+    [PKG_CHECK_MODULES([QT], [QtCore >= 4 QtGui >= 4])
      MOC=`$PKG_CONFIG QtGui --variable=moc_location`
      AC_MSG_NOTICE([using moc from $MOC])
      QT_VERSION=`$PKG_CONFIG QtGui --modversion`
