@@ -1,3 +1,16 @@
+0.22.1:
+
+  * Ensure that version.xml and reldate.xml will be placed at the source dir
+  * Make use of glib thread names
+  * Windows: Make zbargtk build
+  * Windows: Use -no-undefined for libzbargtk
+  * Windows: Disable zbarcam-gtk
+  * Windows: Check for clock_gettime on pthread library as well
+  * Windows: Specify correct path to barcode.png
+  * Windows: Include windows.h for vfw
+  * Makefile.am: Add missing extra-dist-file.
+  * configure.ac: allow building libzbar-qt as a static library
+
 0.22:
 
   * zbarcam-qt: allow changing resolutions in real time
