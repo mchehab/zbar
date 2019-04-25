@@ -12,9 +12,14 @@ BUILT_SOURCES = zbarjni.h
 MAINTAINERCLEANFILES = zbarjni.h
 
 zbar_jar_SRCS = \
-    $(PKG)/Config.java $(PKG)/Modifier.java $(PKG)/Orientation.java \
-    $(PKG)/Symbol.java $(PKG)/SymbolIterator.java $(PKG)/SymbolSet.java \
-    $(PKG)/Image.java $(PKG)/ImageScanner.java
+    $(abs_srcdir)/$(PKG)/Config.java \
+    $(abs_srcdir)/$(PKG)/Modifier.java \
+    $(abs_srcdir)/$(PKG)/Orientation.java \
+    $(abs_srcdir)/$(PKG)/Symbol.java \
+    $(abs_srcdir)/$(PKG)/SymbolIterator.java  \
+    $(abs_srcdir)/$(PKG)/SymbolSet.java \
+    $(abs_srcdir)/$(PKG)/Image.java \
+    $(abs_srcdir)/$(PKG)/ImageScanner.java
 
 zbar_jar_CLASSES = $(zbar_jar_SRCS:.java=.class)
 
@@ -24,9 +29,32 @@ test_CLASSES = TestImage TestImageScanner TestScanImage
 
 CLEANFILES = zbar.jar $(zbar_jar_CLASSES) $(test_CLASSES:=.class)
 
+if HAVE_JAVAH
+
+# Works up to Java 8
 zbarjni.h: $(zbar_jar_SRCS) zbar.jar
 	classes=`echo $(zbar_jar_CLASSES:.class=) | tr / .` ; \
 		$(JAVAH) -o $@ $$classes
+
+else
+
+# Yeah, Java > 8 really messed up with headers generation
+
+PKGH = ${shell echo ${PKG}|sed s,/,_,g}
+
+# Should be in sync with the files at zbar_jar_SRCS with generate headers
+HDRS = \
+	$(abs_builddir)/$(PKGH)_ImageScanner.h \
+	$(abs_builddir)/$(PKGH)_Symbol.h \
+	$(abs_builddir)/$(PKGH)_SymbolSet.h
+
+zbarjni.h: $(zbar_jar_SRCS)
+	$(JAVAC) -h $(abs_builddir) $(zbar_jar_SRCS)
+	cat $(HDRS) > $(abs_builddir)/zbarjni.h
+
+CLEANFILES += $(HDRS)
+
+endif
 
 zbar.jar: $(zbar_jar_SRCS)
 	cd $(abs_srcdir); $(JAVAC) -d $(abs_builddir) $(zbar_jar_SRCS)

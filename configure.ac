@@ -87,58 +87,6 @@ documentation generation])
 AC_ARG_VAR([XMLTOFLAGS], [additional arguments for xmlto])
 AC_CHECK_PROGS([XMLTO], [xmlto], [:])
 
-have_java="maybe"
-AC_ARG_VAR([JAVA_HOME], [root location of JDK])
-AS_IF([test "x$JAVA_HOME" = "x"],
-  [JAVA_PATH="$PATH"],
-  [JAVA_PATH="$JAVA_HOME/bin$PATH_SEPARATOR$PATH"])
-
-AC_ARG_VAR([JAVAC], [location of Java language compiler])
-AC_PATH_PROGS([JAVAC], [javac jikes ecj gcj], [:], [$JAVA_PATH])
-JAVAC=${JAVAC/ecj/ecj -1.5}
-AS_IF([test "x$JAVAC" = "x:"], [have_java="no"])
-
-AC_ARG_VAR([JAVAH], [location of Java header generator])
-AC_PATH_PROGS([JAVAH], [javah], [/bin/false], [$JAVA_PATH])
-
-AC_ARG_VAR([JAR], [location of Java archive tool])
-AC_PATH_PROGS([JAR], [jar], [:], [$JAVA_PATH])
-AS_IF([test "x$JAR" = "x:"], [have_java="no"])
-
-AC_ARG_VAR([JAVA], [location of Java application launcher])
-AC_PATH_PROGS([JAVA], [java], [/bin/false], [$JAVA_PATH])
-
-AC_ARG_VAR([CLASSPATH], [Java class path (include JUnit to run java tests)])
-AS_IF([test "x$CLASSPATH" = "x"], [CLASSPATH="."])
-
-dnl Search for Java unit test library
-if test -z "$JUNIT_HOME"; then
-    JUNIT_HOME="/usr/share/java"
-fi
-
-if test -f "$JUNIT_HOME/junit4.jar"; then
-    JUNIT="$JUNIT_HOME/junit4.jar"
-else
-    if test -f "$JUNIT_HOME/junit.jar"; then
-        JUNIT="$JUNIT_HOME/junit.jar"
-    fi
-fi
-
-if test "x$JUNIT" != "x"; then
-    if test -f "/usr/share/java/hamcrest/all.jar"; then
-        CLASSPATH="$JUNIT:/usr/share/java/hamcrest/all.jar:$CLASSPATH"
-        AC_SUBST(CLASSPATH)
-        with_java_unit="yes"
-    else
-        if test -f "/usr/share/java/hamcrest-all.jar"; then
-            CLASSPATH="$JUNIT:/usr/share/java/hamcrest-all.jar:$CLASSPATH"
-            AC_SUBST(CLASSPATH)
-            with_java_unit="yes"
-        fi
-    fi
-fi
-AM_CONDITIONAL([HAVE_JAVA_UNIT], [test "x$with_java_unit" = "xyes"])
-
 dnl symbologies
 
 AC_ARG_ENABLE([codes],
@@ -601,19 +549,71 @@ AS_IF([test "x$with_qt" != "xno"],
 AM_CONDITIONAL([HAVE_QT], [test "x$with_qt" = "xyes"])
 
 dnl Java
-if test -z "$JAVA_HOME"; then
-    AC_PATH_PROG([JAVAC], javac,, $PATH)
-    if test ! -z "$JAVAC"; then
-        JAVA_HOME=$( readlink -f ${JAVAC} | rev | cut -d/ -f3- | rev )
-        AC_SUBST(JAVA_HOME)
-    fi
-fi
+have_java="maybe"
+
+AC_ARG_VAR([JAVA_HOME], [root location of JDK])
+
+AC_ARG_VAR([JAVAC], [location of Java language compiler])
+AC_ARG_VAR([JAVAH], [location of Java header generator])
+
+# If $JAVA_HOME not defined, try to autodetect it
+AS_IF([test -z "$JAVA_HOME"],
+      [AC_PATH_PROGS([JAVAC], [javac jikes ecj gcj], [:], [$PATH])
+       AS_IF([test ! -z "$JAVAC"],
+	     [JAVA_HOME=$( readlink -f ${JAVAC} | rev | cut -d/ -f3- | rev )])])
+
+# If $JAVA_HOME is defined, set JAVA_PATH and JAVAC
+AS_IF([test ! -z "$JAVA_HOME"],
+      [JAVA_PATH="$JAVA_HOME/bin$PATH_SEPARATOR$PATH"
+       echo "seeking JAVAC at $JAVA_PATH"
+       AS_IF([test -z "$JAVAC"],
+             [AC_PATH_PROGS([JAVAC], [javac jikes ecj gcj], [:], [$JAVA_PATH])])])
 
 AC_ARG_WITH([java],
   [AS_HELP_STRING([--without-java],
     [disable support for Java interface])],
   [],
   [with_java="check"])
+
+JAVAC=${JAVAC/ecj/ecj -1.5}
+
+# Javah was obsoleted on Java 8 and removed on Java 11. So, we need to
+# look strictly at the $JAVA_HOME in order to avoid mixing different versions
+AS_IF([test -z "$JAVAH"],
+      [AC_PATH_PROGS([JAVAH], [javah], [], [$JAVA_HOME/bin])])
+
+AM_CONDITIONAL([HAVE_JAVAH], [test "x$JAVAH" != "x"])
+
+AC_ARG_VAR([JAR], [location of Java archive tool])
+AC_PATH_PROGS([JAR], [jar], [:], [$JAVA_PATH])
+AS_IF([test "x$JAR" == "x:"], [have_java="no"])
+
+AC_ARG_VAR([JAVA], [location of Java application launcher])
+AC_PATH_PROGS([JAVA], [java], [/bin/false], [$JAVA_PATH])
+
+AC_ARG_VAR([CLASSPATH], [Java class path (include JUnit to run java tests)])
+AS_IF([test "x$CLASSPATH" == "x"], [CLASSPATH="."])
+
+dnl Search for Java unit test library
+AS_IF([test -z "$JUNIT_HOME"],
+      [JUNIT_HOME="/usr/share/java"])
+
+AS_IF([test -f "$JUNIT_HOME/junit4.jar"],
+      [JUNIT="$JUNIT_HOME/junit4.jar"],
+      [AS_IF([test -f "$JUNIT_HOME/junit.jar"],
+	    [JUNIT="$JUNIT_HOME/junit.jar"])])
+
+AS_IF([test "x$JUNIT" != "x"],
+      [AS_IF([test -f "/usr/share/java/hamcrest/all.jar"],
+	     [CLASSPATH="$JUNIT:/usr/share/java/hamcrest/all.jar:$CLASSPATH"
+              AC_SUBST(CLASSPATH)
+              with_java_unit="yes"])],
+      [AS_IF([test -f "/usr/share/java/hamcrest-all.jar"],
+             [CLASSPATH="$JUNIT:/usr/share/java/hamcrest-all.jar:$CLASSPATH"
+              AC_SUBST(CLASSPATH)
+              with_java_unit="yes"])])
+
+AM_CONDITIONAL([HAVE_JAVA_UNIT], [test "x$with_java_unit" = "xyes"])
 
 AC_ARG_VAR([JAVA_CFLAGS], [compiler flags for building JNI extensions])
 AS_IF([test "x$JAVA_CFLAGS" = "x" && test "x$JAVA_HOME" != "x"],
@@ -630,8 +630,7 @@ AS_IF([test "x$with_java" != "xno"],
    AS_IF([test "x$have_java" != "xno"],
      [with_java="yes"],
      [test "x$with_java" = "xyes"],
-     [AC_MSG_FAILURE([unable to find Java JNI! ensure CFLAGS are set
-appropriately or configure --without-java])],
+     [AC_MSG_FAILURE([unable to find Java JNI! ensure CFLAGS are set appropriately or configure --without-java])],
      [with_java="no"])
 ])
 AM_CONDITIONAL([HAVE_JAVA], [test "x$with_java" = "xyes"])
@@ -707,6 +706,8 @@ echo "Python ${PYTHON_VERSION}        --with-python2=$with_python2"
 echo "GTK+${GTK_VERSION}       --with-gtk=$with_gtk"
 echo "Qt${QT_VERSION}           --with-qt=$with_qt"
 echo "Java              --with-java=$with_java"
+AS_IF([test "x$with_java" = "xyes"],
+  [echo "    JAVA_HOME     $JAVA_HOME"])
 AS_IF([test "x$have_GM" = "xyes"],
   [echo "GraphicsMagick    --with-graphicsmagick=yes"],
   [echo "ImageMagick       --with-imagemagick=$with_imagemagick"])

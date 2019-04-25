@@ -120,7 +120,7 @@ endif
 
 if HAVE_JAVA_UNIT
 check-java: zbar/libzbar.la
-	$(MAKE) -C java check-java
+	JAVA_HOME=${JAVA_HOME} $(MAKE) -C java check-java
 else
 check-java:
 endif
