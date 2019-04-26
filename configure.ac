@@ -544,8 +544,13 @@ AS_IF([test "x$have_x" = "xyes"],
       [qt_extra="Qt5X11Extras >= 5.0"],
       [qt_extra=""])
 
-PKG_CHECK_MODULES([QT],
-		  [Qt5Core >= 5 Qt5Gui >= 5 Qt5Widgets >= 5.0 $qt_extra])
+AS_IF([test "x$with_qt" != "xno"],
+      [PKG_CHECK_MODULES([QT],
+		         [Qt5Core >= 5 Qt5Gui >= 5 Qt5Widgets >= 5.0 $qt_extra],,
+		         [with_qt5 = "no"
+		          PKG_CHECK_MODULES([QT],
+					    [QtCore >= 4 QtGui >= 4],,
+					    [with_qt="no"])])])
 
 AS_IF([test "x$with_qt" != "xno"],
    AS_IF([test "x$with_qt5" != "xno"],
@@ -557,8 +562,7 @@ dnl -fPIC has no effect on Windows and breaks windres
      AS_IF([test "x$win32" = "xno"], [CPPFLAGS="$CPPFLAGS -fPIC"])
      AC_MSG_NOTICE([using Qt version $QT_VERSION])],
 
-    [PKG_CHECK_MODULES([QT], [QtCore >= 4 QtGui >= 4])
-     MOC=`$PKG_CONFIG QtGui --variable=moc_location`
+    [MOC=`$PKG_CONFIG QtGui --variable=moc_location`
      AC_MSG_NOTICE([using moc from $MOC])
      QT_VERSION=`$PKG_CONFIG QtGui --modversion`
      AC_MSG_NOTICE([using Qt version $QT_VERSION])]))
