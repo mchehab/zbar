@@ -551,7 +551,9 @@ AS_IF([test "x$with_qt" != "xno"],
     [AC_CHECK_PROGS(MOC, [moc-qt5 moc])
      AC_MSG_NOTICE([using moc from $MOC])
      QT_VERSION=`$PKG_CONFIG Qt5Gui --modversion`
-     CPPFLAGS="$CPPFLAGS $QT_CPPFLAGS -fPIC"
+     CPPFLAGS="$CPPFLAGS $QT_CPPFLAGS"
+dnl -fPIC has no effect on Windows and breaks windres
+     AS_IF([test "x$win32" = "xno"], [CPPFLAGS="$CPPFLAGS -fPIC"])
      AC_MSG_NOTICE([using Qt version $QT_VERSION])],
 
     [PKG_CHECK_MODULES([QT], [QtCore >= 4 QtGui >= 4])
