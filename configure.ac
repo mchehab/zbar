@@ -529,8 +529,12 @@ AC_ARG_WITH([qt5],
 
 AC_ARG_VAR([MOC], [full path to Qt moc program])
 
+AS_IF([test "x$have_x" = "xyes"],
+      [qt_extra="Qt5X11Extras >= 5.0"],
+      [qt_extra=""])
+
 PKG_CHECK_MODULES([QT],
-		  [Qt5Core >= 5 Qt5Gui >= 5 Qt5Widgets >= 5.0 Qt5X11Extras >= 5.0])
+		  [Qt5Core >= 5 Qt5Gui >= 5 Qt5Widgets >= 5.0 $qt_extra])
 
 AS_IF([test "x$with_qt" != "xno"],
    AS_IF([test "x$with_qt5" != "xno"],
