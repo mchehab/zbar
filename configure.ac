@@ -588,7 +588,6 @@ AS_IF([test -z "$JAVA_HOME"],
 # If $JAVA_HOME is defined, set JAVA_PATH and JAVAC
 AS_IF([test ! -z "$JAVA_HOME"],
       [JAVA_PATH="$JAVA_HOME/bin$PATH_SEPARATOR$PATH"
-       echo "seeking JAVAC at $JAVA_PATH"
        AS_IF([test -z "$JAVAC"],
              [AC_PATH_PROGS([JAVAC], [javac jikes ecj gcj], [:], [$JAVA_PATH])])])
 
