@@ -394,9 +394,11 @@ AS_IF([test "x$have_IM" = "xyes"], [],
   [AS_IF([test "x$looked_for" = "x"],
      [looked_for="GraphicsMagick"],
      [looked_for="$looked_for or GraphicsMagick"])
-   PKG_CHECK_MODULES([MAGICK], [GraphicsMagickWand],
+   PKG_CHECK_MODULES([GM], [GraphicsMagickWand],
      [have_GM="yes"
       magick="GraphicsMagick"
+      MAGICK_CFLAGS="$MAGICK_CFLAGS $GM_CFLAGS"
+      MAGICK_LIBS="$MAGICK_LIBS $GM_LIBS"
       MAGICK_VERSION=`$PKG_CONFIG GraphicsMagickWand --modversion`],
      [have_GM="no"
       AS_IF([test "x$saved_error" = "x"],
