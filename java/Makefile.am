@@ -12,14 +12,9 @@ BUILT_SOURCES = zbarjni.h
 MAINTAINERCLEANFILES = zbarjni.h
 
 zbar_jar_SRCS = \
-    $(abs_srcdir)/$(PKG)/Config.java \
-    $(abs_srcdir)/$(PKG)/Modifier.java \
-    $(abs_srcdir)/$(PKG)/Orientation.java \
-    $(abs_srcdir)/$(PKG)/Symbol.java \
-    $(abs_srcdir)/$(PKG)/SymbolIterator.java  \
-    $(abs_srcdir)/$(PKG)/SymbolSet.java \
-    $(abs_srcdir)/$(PKG)/Image.java \
-    $(abs_srcdir)/$(PKG)/ImageScanner.java
+    $(PKG)/Config.java $(PKG)/Modifier.java $(PKG)/Orientation.java \
+    $(PKG)/Symbol.java $(PKG)/SymbolIterator.java $(PKG)/SymbolSet.java \
+    $(PKG)/Image.java $(PKG)/ImageScanner.java
 
 zbar_jar_CLASSES = $(zbar_jar_SRCS:.java=.class)
 
@@ -27,7 +22,7 @@ test_SRCS = test/TestImage.java test/TestImageScanner.java \
     test/TestScanImage.java
 test_CLASSES = TestImage TestImageScanner TestScanImage
 
-CLEANFILES = zbar.jar $(zbar_jar_CLASSES) $(test_CLASSES:=.class)
+CLEANFILES = zbar.jar zbarjni.h $(zbar_jar_CLASSES) $(test_CLASSES:=.class)
 
 if HAVE_JAVAH
 
@@ -38,21 +33,15 @@ zbarjni.h: $(zbar_jar_SRCS) zbar.jar
 
 else
 
-# Yeah, Java > 8 really messed up with headers generation
+# After Java 8, it is not possible anymore to build single zbarjni.h
+# As we don't want to break ABI, we need to join several .h files into one
 
 PKGH = ${shell echo ${PKG}|sed s,/,_,g}
 
-# Should be in sync with the files at zbar_jar_SRCS with generate headers
-HDRS = \
-	$(abs_builddir)/$(PKGH)_ImageScanner.h \
-	$(abs_builddir)/$(PKGH)_Symbol.h \
-	$(abs_builddir)/$(PKGH)_SymbolSet.h
-
 zbarjni.h: $(zbar_jar_SRCS)
-	$(JAVAC) -h $(abs_builddir) $(zbar_jar_SRCS)
-	cat $(HDRS) > $(abs_builddir)/zbarjni.h
-
-CLEANFILES += $(HDRS)
+	$(JAVAC) -h $(abs_builddir) $(abs_srcdir)/$(PKG)/*.java
+	cat $(abs_builddir)/$(PKGH)_*.h > $(abs_builddir)/zbarjni.h
+	rm $(abs_builddir)/$(PKGH)_*.h
 
 endif
 
