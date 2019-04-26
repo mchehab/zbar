@@ -375,6 +375,15 @@ dnl double check ImageMagick install (bug #2582232)
       AC_CHECK_HEADER([wand/MagickWand.h],
         [have_IM="yes"],
         [have_IM="broken"])
+dnl check for ImageMagick 7, see https://imagemagick.org/script/porting.php#headers
+      AS_IF([test "x$have_IM" = "xbroken"], [
+        AC_CHECK_HEADER([MagickWand/MagickWand.h],
+          [
+            have_IM="yes"
+            have_IM7="yes"
+          ],
+          [have_IM="broken"])
+      ])
       CPPFLAGS="$CPPFLAGS_save"])])
 
 have_GM="maybe"
@@ -428,6 +437,8 @@ AS_IF([test "x$have_IM" = "xyes"],
   [AC_DEFINE([HAVE_IMAGEMAGICK], [1], [Define to 1 to use ImageMagick])],
   [test "x$have_GM" = "xyes"],
   [AC_DEFINE([HAVE_GRAPHICSMAGICK], [1], [Define to 1 to use GraphicsMagick])])
+AS_IF([test "x$have_IM7" = "xyes"],
+  [AC_DEFINE([HAVE_IMAGEMAGICK7], [1], [Define to 1 to use ImageMagick 7])])
 AM_CONDITIONAL([HAVE_MAGICK],
   [test "x$have_IM" = "xyes" || test "x$have_GM" = "xyes"])
 
