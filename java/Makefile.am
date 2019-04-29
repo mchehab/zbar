@@ -7,9 +7,10 @@ java_LTLIBRARIES = libzbarjni.la
 libzbarjni_la_CPPFLAGS = $(JAVA_CFLAGS) $(AM_CPPFLAGS)
 libzbarjni_la_LIBADD = $(abs_top_builddir)/zbar/libzbar.la
 
-libzbarjni_la_SOURCES = zbarjni.c zbarjni.h
-BUILT_SOURCES = zbarjni.h
-MAINTAINERCLEANFILES = zbarjni.h
+nodist_libzbarjni_la_SOURCES = zbarjni.h
+libzbarjni_la_SOURCES = zbarjni.c $(nodist_libzbarjni_la_SOURCES)
+BUILT_SOURCES = $(nodist_libzbarjni_la_SOURCES)
+MAINTAINERCLEANFILES = $(nodist_libzbarjni_la_SOURCES)
 
 zbar_jar_SRCS = \
     $(PKG)/Config.java $(PKG)/Modifier.java $(PKG)/Orientation.java \
@@ -22,7 +23,9 @@ test_SRCS = test/TestImage.java test/TestImageScanner.java \
     test/TestScanImage.java
 test_CLASSES = TestImage TestImageScanner TestScanImage
 
-CLEANFILES = zbar.jar zbarjni.h $(zbar_jar_CLASSES) $(test_CLASSES:=.class)
+EXTRA_DIST = $(zbar_jar_SRCS) $(test_SRCS)
+
+CLEANFILES = zbar.jar $(nodist_libzbarjni_la_SOURCES) $(zbar_jar_CLASSES) $(test_CLASSES:=.class)
 
 if HAVE_JAVAH
 
