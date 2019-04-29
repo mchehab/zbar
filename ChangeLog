@@ -1,3 +1,14 @@
+0.22.2:
+
+  * Improve some pkg check logic, in order to solve some
+    ./configure issues
+  * Fix logic that allows disabling Qt support
+  * Add support for Java 11 detection
+  * Fix Java detection logic
+  * Fix Travis CI breakages due to the usage of Java 11 on Debian Sid
+  * Fix some issues with MinGW Windows build
+  * Search for new ImageMagick 7 header location
+
 0.22.1:
 
   * Ensure that version.xml and reldate.xml will be placed at the source dir
@@ -8,7 +19,7 @@
   * Windows: Check for clock_gettime on pthread library as well
   * Windows: Specify correct path to barcode.png
   * Windows: Include windows.h for vfw
-  * Makefile.am: Add missing extra-dist-file.
+  * Makefile.am: Add missing extra-dist-file
   * configure.ac: allow building libzbar-qt as a static library
 
 0.22:
