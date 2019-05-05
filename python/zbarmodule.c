@@ -137,12 +137,6 @@ parse_dimensions (PyObject *seq,
     return(0);
 }
 
-zbarEnumItem *color_enum[2];
-zbarEnum *config_enum;
-zbarEnum *modifier_enum;
-PyObject *symbol_enum;
-zbarEnumItem *symbol_NONE;
-zbarEnum *orient_enum;
 
 static PyObject*
 version (PyObject *self,
@@ -271,11 +265,11 @@ initzbar(void)
     struct module_state *st = GETSTATE(mod);
 
     /* initialize constant containers */
-    config_enum = zbarEnum_New();
-    modifier_enum = zbarEnum_New();
-    symbol_enum = PyDict_New();
-    orient_enum = zbarEnum_New();
-    if(!config_enum || !modifier_enum || !symbol_enum || !orient_enum) {
+    st->config_enum = zbarEnum_New();
+    st->modifier_enum = zbarEnum_New();
+    st->symbol_enum = PyDict_New();
+    st->orient_enum = zbarEnum_New();
+    if(!st->config_enum || !st->modifier_enum || !st->symbol_enum || !st->orient_enum) {
         Py_DECREF(mod);
         INITERROR;
     }
@@ -309,9 +303,9 @@ initzbar(void)
     /* add types to module */
     PyModule_AddObject(mod, "EnumItem", (PyObject*)&zbarEnumItem_Type);
     PyModule_AddObject(mod, "Image", (PyObject*)&zbarImage_Type);
-    PyModule_AddObject(mod, "Config", (PyObject*)config_enum);
-    PyModule_AddObject(mod, "Modifier", (PyObject*)modifier_enum);
-    PyModule_AddObject(mod, "Orient", (PyObject*)orient_enum);
+    PyModule_AddObject(mod, "Config", (PyObject*)st->config_enum);
+    PyModule_AddObject(mod, "Modifier", (PyObject*)st->modifier_enum);
+    PyModule_AddObject(mod, "Orient", (PyObject*)st->orient_enum);
     PyModule_AddObject(mod, "Symbol", (PyObject*)&zbarSymbol_Type);
     PyModule_AddObject(mod, "SymbolSet", (PyObject*)&zbarSymbolSet_Type);
     PyModule_AddObject(mod, "SymbolIter", (PyObject*)&zbarSymbolIter_Type);
@@ -326,23 +320,23 @@ initzbar(void)
 
     /* add constants */
     PyObject *dict = PyModule_GetDict(mod);
-    color_enum[ZBAR_SPACE] =
+    st->color_enum[ZBAR_SPACE] =
         zbarEnumItem_New(dict, NULL, ZBAR_SPACE, "SPACE");
-    color_enum[ZBAR_BAR] =
+    st->color_enum[ZBAR_BAR] =
         zbarEnumItem_New(dict, NULL, ZBAR_BAR, "BAR");
 
     const enumdef *item;
     for(item = config_defs; item->strval; item++)
-        zbarEnum_Add(config_enum, item->intval, item->strval);
+        zbarEnum_Add(st->config_enum, item->intval, item->strval);
     for(item = modifier_defs; item->strval; item++)
-        zbarEnum_Add(modifier_enum, item->intval, item->strval);
+        zbarEnum_Add(st->modifier_enum, item->intval, item->strval);
     for(item = orient_defs; item->strval; item++)
-        zbarEnum_Add(orient_enum, item->intval, item->strval);
+        zbarEnum_Add(st->orient_enum, item->intval, item->strval);
 
     PyObject *tp_dict = zbarSymbol_Type.tp_dict;
     for(item = symbol_defs; item->strval; item++)
-        zbarEnumItem_New(tp_dict, symbol_enum, item->intval, item->strval);
-    symbol_NONE = zbarSymbol_LookupEnum(ZBAR_NONE);
+        zbarEnumItem_New(tp_dict, st->symbol_enum, item->intval, item->strval);
+    st->symbol_NONE = zbarSymbol_LookupEnum(ZBAR_NONE);
 
 #if PY_MAJOR_VERSION >= 3
     return mod;

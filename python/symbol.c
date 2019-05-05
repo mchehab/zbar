@@ -85,7 +85,8 @@ symbol_get_configs (zbarSymbol *self,
                     void *closure)
 {
     unsigned int mask = zbar_symbol_get_configs(self->zsym);
-    return(zbarEnum_SetFromMask(config_enum, mask));
+    struct module_state *st = GETMODSTATE();
+    return(zbarEnum_SetFromMask(st->config_enum, mask));
 }
 
 static PyObject*
@@ -93,7 +94,8 @@ symbol_get_modifiers (zbarSymbol *self,
                       void *closure)
 {
     unsigned int mask = zbar_symbol_get_modifiers(self->zsym);
-    return(zbarEnum_SetFromMask(modifier_enum, mask));
+    struct module_state *st = GETMODSTATE();
+    return(zbarEnum_SetFromMask(st->modifier_enum, mask));
 }
 
 static PyObject*
@@ -163,7 +165,8 @@ static zbarEnumItem*
 symbol_get_orientation (zbarSymbol *self,
                         void *closure)
 {
-    return(zbarEnum_LookupValue(orient_enum,
+    struct module_state *st = GETMODSTATE();
+    return(zbarEnum_LookupValue(st->orient_enum,
                                 zbar_symbol_get_orientation(self->zsym)));
 }
 
@@ -218,8 +221,9 @@ zbarSymbol_LookupEnum (zbar_symbol_type_t type)
 #else
     PyObject *key = PyInt_FromLong(type);
 #endif
-    zbarEnumItem *e = (zbarEnumItem*)PyDict_GetItem(symbol_enum, key);
-    if(!e) 
+    struct module_state *st = GETMODSTATE();
+    zbarEnumItem *e = (zbarEnumItem*)PyDict_GetItem(st->symbol_enum, key);
+    if(!e)
         return((zbarEnumItem*)key);
     Py_INCREF((PyObject*)e);
     Py_DECREF(key);

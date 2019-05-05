@@ -28,9 +28,6 @@
 #ifndef _ZBARMODULE_H_
 #define _ZBARMODULE_H_
 
-struct module_state {
-    PyObject *zbar_exc[ZBAR_ERR_NUM];
-};
 
 #if PY_MAJOR_VERSION < 3
 typedef struct {
@@ -168,17 +165,21 @@ typedef struct {
 
 extern PyTypeObject zbarScanner_Type;
 
-extern zbarEnumItem *color_enum[2];
-extern zbarEnum *config_enum;
-extern zbarEnum *modifier_enum;
-extern PyObject *symbol_enum;
-extern zbarEnumItem *symbol_NONE;
-extern zbarEnum *orient_enum;
-
 extern int object_to_bool(PyObject *obj,
                           int *val);
 extern int parse_dimensions(PyObject *seq,
                             int *dims,
                             int n);
+
+
+struct module_state {
+    PyObject *zbar_exc[ZBAR_ERR_NUM];
+    zbarEnumItem *color_enum[2];
+    zbarEnum *config_enum;
+    zbarEnum *modifier_enum;
+    PyObject *symbol_enum;
+    zbarEnumItem *symbol_NONE;
+    zbarEnum *orient_enum;
+};
 
 #endif
