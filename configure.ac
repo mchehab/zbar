@@ -477,12 +477,12 @@ AS_IF([test "x$with_gtk" != "xno"],
 
 AM_CONDITIONAL([HAVE_GTK], [test "x$with_gtk" = "xyes"])
 
-dnl PyGTK
-AC_ARG_WITH([python2],
-  [AS_HELP_STRING([--without-python2],
-    [disable support for Python 2 bindings])],
+dnl Python
+AC_ARG_WITH([python],
+  [AS_HELP_STRING([--without-python],
+    [disable support for Python bindings])],
   [],
-  [with_python2="yes"])
+  [with_python="yes"])
 
 AC_ARG_VAR([PYTHON_CONFIG], [full path to python-config program])
 AC_ARG_VAR([PYTHON_CFLAGS], [compiler flags for building python extensions])
@@ -492,17 +492,18 @@ AC_ARG_VAR([PYGTK_H2DEF], [full path to PyGTK h2def.py module])
 AC_ARG_VAR([PYGTK_CODEGEN], [full path to pygtk-codegen program])
 AC_ARG_VAR([PYGTK_DEFS], [directory where PyGTK definitions may be found])
 
-AS_IF([test "x$with_python2" != "xno"],
+AS_IF([test "x$with_python" != "xno"],
   [AM_PATH_PYTHON(2.7.0)
+   PYTHON_VERSION_MAJOR="$PYTHON -c 'import sys; sys.stdout.write(sys.version_info[0])'"
    AS_IF([test "x$PYTHON_CFLAGS" != "x"],
      [],
      [test "x$PYTHON_CONFIG" != "x" && test -x "$PYTHON_CONFIG"],
      [PYTHON_CFLAGS=`$PYTHON_CONFIG --cflags`],
      [test -x "$PYTHON-config"],
      [PYTHON_CFLAGS=`$PYTHON-config --cflags`],
-     [PYTHON_CFLAGS=`$PYTHON -c 'import distutils.sysconfig as s; print " ".join(s.get_config_vars("CFLAGS")) + " -I"+s.get_python_inc() + " -I"+s.get_python_inc(plat_specific=True)'`])
+     [PYTHON_CFLAGS=`$PYTHON -c 'import distutils.sysconfig as s, sys; sys.stdout.write(" ".join(s.get_config_vars("CFLAGS")) + " -I"+s.get_python_inc() + " -I"+s.get_python_inc(plat_specific=True))'`])
 
-dnl check that #include <Python.h> compiles (bug #3092663)
+   dnl check that #include <Python.h> compiles (bug #3092663)
    CPPFLAGS_save="$CPPFLAGS"
    CPPFLAGS="$CPPFLAGS $PYTHON_CFLAGS"
    AC_CHECK_HEADER([Python.h], [], [AC_MSG_ERROR([dnl
@@ -512,7 +513,9 @@ Install the development package for python-$am_cv_python_version, or configure
 ])])
    CPPFLAGS="$CPPFLAGS_save"
 
-   AS_IF([test "x$with_gtk" = "xyes"],
+   dnl PyGTK
+   dnl disable pygtk when we're on Python 3
+   AS_IF([test "x$with_gtk$PYTHON_VERSION_MAJOR" = "xyes2"],
      [PKG_CHECK_MODULES([PYGTK], [pygtk-2.0])
       AC_CHECK_PROGS([PYGTK_CODEGEN], [pygobject-codegen-2.0 pygtk-codegen-2.0 pygtk-codegen], [:])
 
@@ -524,7 +527,8 @@ Install the development package for python-$am_cv_python_version, or configure
    ])
 ])
 
-AM_CONDITIONAL([HAVE_PYTHON], [test "x$with_python2" = "xyes"])
+AM_CONDITIONAL([HAVE_PYTHON], [test "x$with_python" = "xyes"])
+AM_CONDITIONAL([HAVE_PYGTK2], [test "x$with_gtk$PYTHON_VERSION_MAJOR" = "xyes2"])
 
 dnl Qt
 AC_ARG_WITH([qt],
@@ -724,7 +728,7 @@ echo "pthreads          --enable-pthread=$enable_pthread"
 echo "doc               --enable-doc=$enable_doc"
 echo "v4l               --enable-video=$enable_video"
 echo "jpeg              --with-jpeg=$with_jpeg"
-echo "Python ${PYTHON_VERSION}        --with-python2=$with_python2"
+echo "Python ${PYTHON_VERSION}        --with-python=$with_python"
 echo "GTK+${GTK_VERSION}       --with-gtk=$with_gtk"
 echo "Qt${QT_VERSION}           --with-qt=$with_qt"
 echo "Java              --with-java=$with_java"
@@ -752,7 +756,7 @@ AS_IF([test "x$have_GM" = "xyes"],
   [echo "        => ImageMagick is preferred, as GraphicsMagick doesn't support https"])
 AS_IF([test "x$with_gtk" != "xyes"],
   [echo "        => the GTK+ widget will *NOT* be built"],
-  [AS_IF([test "x$with_python2" != "xyes"],
+  [AS_IF([test "x$with_python$PYTHON_VERSION_MAJOR" != "xyes2"],
      [echo "        => the PyGTK widget wrapper will *NOT* be built"])])
 AS_IF([test "x$with_qt" != "xyes"],
   [echo "        => the Qt widget will *NOT* be built"])

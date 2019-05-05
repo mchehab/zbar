@@ -31,7 +31,7 @@ endif
 if HAVE_GTK
 include $(srcdir)/gtk/Makefile.am.inc
 pkgconfig_DATA += zbar-gtk.pc
-if HAVE_PYTHON
+if HAVE_PYGTK2
 include $(srcdir)/pygtk/Makefile.am.inc
 endif
 endif
