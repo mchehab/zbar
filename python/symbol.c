@@ -105,7 +105,11 @@ symbol_get_long (zbarSymbol *self,
         val = zbar_symbol_get_quality(self->zsym);
     else
         val = zbar_symbol_get_count(self->zsym);
+#if PY_MAJOR_VERSION >= 3
+    return(PyLong_FromLong(val));
+#else
     return(PyInt_FromLong(val));
+#endif
 }
 
 static PyObject*
@@ -113,10 +117,16 @@ symbol_get_data (zbarSymbol *self,
                  void *closure)
 {
     if(!self->data) {
+#if PY_MAJOR_VERSION >= 3
+        self->data =
+            PyBytes_FromStringAndSize(zbar_symbol_get_data(self->zsym),
+                                      zbar_symbol_get_data_length(self->zsym));
+#else
         /* FIXME this could be a buffer now */
         self->data =
             PyString_FromStringAndSize(zbar_symbol_get_data(self->zsym),
                                        zbar_symbol_get_data_length(self->zsym));
+#endif
         if(!self->data)
             return(NULL);
     }
@@ -135,8 +145,13 @@ symbol_get_location (zbarSymbol *self,
         unsigned int i;
         for(i = 0; i < n; i++) {
             PyObject *x, *y;
+#if PY_MAJOR_VERSION >= 3
+            x = PyLong_FromLong(zbar_symbol_get_loc_x(self->zsym, i));
+            y = PyLong_FromLong(zbar_symbol_get_loc_y(self->zsym, i));
+#else
             x = PyInt_FromLong(zbar_symbol_get_loc_x(self->zsym, i));
             y = PyInt_FromLong(zbar_symbol_get_loc_y(self->zsym, i));
+#endif
             PyTuple_SET_ITEM(self->loc, i, PyTuple_Pack(2, x, y));
         }
     }
@@ -198,7 +213,11 @@ zbarSymbol_FromSymbol (const zbar_symbol_t *zsym)
 zbarEnumItem*
 zbarSymbol_LookupEnum (zbar_symbol_type_t type)
 {
+#if PY_MAJOR_VERSION >= 3
+    PyObject *key = PyLong_FromLong(type);
+#else
     PyObject *key = PyInt_FromLong(type);
+#endif
     zbarEnumItem *e = (zbarEnumItem*)PyDict_GetItem(symbol_enum, key);
     if(!e) 
         return((zbarEnumItem*)key);

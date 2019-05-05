@@ -124,15 +124,24 @@ static PyObject*
 decoder_get_data (zbarDecoder *self,
                   void *closure)
 {
+#if PY_MAJOR_VERSION >= 3
+    return(PyBytes_FromStringAndSize(zbar_decoder_get_data(self->zdcode),
+                                     zbar_decoder_get_data_length(self->zdcode)));
+#else
     return(PyString_FromStringAndSize(zbar_decoder_get_data(self->zdcode),
                                       zbar_decoder_get_data_length(self->zdcode)));
+#endif
 }
 
 static PyObject*
 decoder_get_direction (zbarDecoder *self,
                        void *closure)
 {
+#if PY_MAJOR_VERSION >= 3
+    return(PyLong_FromLong(zbar_decoder_get_direction(self->zdcode)));
+#else
     return(PyInt_FromLong(zbar_decoder_get_direction(self->zdcode)));
+#endif
 }
 
 static PyGetSetDef decoder_getset[] = {

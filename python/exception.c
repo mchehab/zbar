@@ -23,6 +23,8 @@
 
 #include "zbarmodule.h"
 
+#if PY_MAJOR_VERSION < 3
+
 static inline PyObject*
 exc_get_message (zbarException *self,
                  void *closure)
@@ -126,20 +128,4 @@ PyTypeObject zbarException_Type = {
     .tp_getset      = exc_getset,
 };
 
-PyObject*
-zbarErr_Set (PyObject *self)
-{
-    const void *zobj = ((zbarProcessor*)self)->zproc;
-    zbar_error_t err = _zbar_get_error_code(zobj);
-
-    if(err == ZBAR_ERR_NOMEM)
-        PyErr_NoMemory();
-    else if(err < ZBAR_ERR_NUM) {
-        PyObject *type = zbar_exc[err];
-        assert(type);
-        PyErr_SetObject(type, self);
-    }
-    else
-        PyErr_SetObject(zbar_exc[0], self);
-    return(NULL);
-}
+#endif

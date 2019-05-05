@@ -43,7 +43,21 @@ enumitem_new (PyTypeObject *type,
     if(!self)
         return(NULL);
 
+#if PY_MAJOR_VERSION >= 3
+    PyLongObject *longval = (PyLongObject*)PyLong_FromLong(val);
+    if (!longval) {
+        Py_DECREF(self);
+        return(NULL);
+    }
+
+    /* we assume the "fast path" for a single-digit ints (see longobject.c) */
+    /* this also holds if we get a small_int preallocated long */
+    Py_SIZE(&self->val) = Py_SIZE(longval);
+    self->val.ob_digit[0] = longval->ob_digit[0];
+    Py_DECREF(longval);
+#else
     self->val.ob_ival = val;
+#endif
     self->name = name;
     return(self);
 }
@@ -76,11 +90,18 @@ enumitem_repr (zbarEnumItem *self)
     PyObject *name = PyObject_Repr(self->name);
     if(!name)
         return(NULL);
+#if PY_MAJOR_VERSION >= 3
+    PyObject *repr =
+        PyUnicode_FromFormat("%s(%ld, %U)",
+                             ((PyObject*)self)->ob_type->tp_name,
+                             PyLong_AsLong((PyObject *)self), name);
+#else
     char *namestr = PyString_AsString(name);
     PyObject *repr =
         PyString_FromFormat("%s(%ld, %s)",
                             ((PyObject*)self)->ob_type->tp_name,
                             self->val.ob_ival, namestr);
+#endif
     Py_DECREF(name);
     return((PyObject*)repr);
 }
@@ -108,8 +129,24 @@ zbarEnumItem_New (PyObject *byname,
     zbarEnumItem *self = PyObject_New(zbarEnumItem, &zbarEnumItem_Type);
     if(!self)
         return(NULL);
+#if PY_MAJOR_VERSION >= 3
+    PyLongObject *longval = (PyLongObject*)PyLong_FromLong(val);
+    if (!longval) {
+        Py_DECREF(self);
+        return(NULL);
+    }
+
+    /* we assume the "fast path" for a single-digit ints (see longobject.c) */
+    /* this also holds if we get a small_int preallocated long */
+    Py_SIZE(&self->val) = Py_SIZE(longval);
+    self->val.ob_digit[0] = longval->ob_digit[0];
+    Py_DECREF(longval);
+
+    self->name = PyUnicode_FromString(name);
+#else
     self->val.ob_ival = val;
     self->name = PyString_FromString(name);
+#endif
     if(!self->name ||
        (byname && PyDict_SetItem(byname, self->name, (PyObject*)self)) ||
        (byvalue && PyDict_SetItem(byvalue, (PyObject*)self, (PyObject*)self))) {
@@ -197,7 +234,11 @@ zbarEnumItem*
 zbarEnum_LookupValue (zbarEnum *self,
                       int val)
 {
+#if PY_MAJOR_VERSION >= 3
+    PyObject *key = PyLong_FromLong(val);
+#else
     PyObject *key = PyInt_FromLong(val);
+#endif
     zbarEnumItem *e = (zbarEnumItem*)PyDict_GetItem(self->byvalue, key);
     if(!e)
         return((zbarEnumItem*)key);
@@ -214,7 +255,11 @@ zbarEnum_SetFromMask (zbarEnum *self,
     PyObject *key, *item;
     Py_ssize_t i = 0;
     while(PyDict_Next(self->byvalue, &i, &key, &item)) {
+#if PY_MAJOR_VERSION >= 3
+        unsigned long val = (unsigned long)PyLong_AsLong(item);
+#else
         int val = PyInt_AsLong(item);
+#endif
         if(val < sizeof(mask) * 8 && ((mask >> val) & 1))
             PySet_Add(result, item);
     }

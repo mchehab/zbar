@@ -28,18 +28,40 @@
 #ifndef _ZBARMODULE_H_
 #define _ZBARMODULE_H_
 
+struct module_state {
+    PyObject *zbar_exc[ZBAR_ERR_NUM];
+};
+
+#if PY_MAJOR_VERSION < 3
 typedef struct {
     PyBaseExceptionObject base;
     PyObject *obj;
 } zbarException;
 
 extern PyTypeObject zbarException_Type;
-extern PyObject *zbar_exc[ZBAR_ERR_NUM];
+#endif
+
+
+extern struct PyModuleDef zbar_moduledef;
+
+#if PY_MAJOR_VERSION >= 3
+#define GETSTATE(m) ((struct module_state*)PyModule_GetState(m))
+#define GETMODSTATE() (GETSTATE(PyState_FindModule(&zbar_moduledef)))
+#else
+extern struct module_state zbar_state;
+#define GETSTATE(m) (&zbar_state)
+#define GETMODSTATE() (&zbar_state)
+#endif
+
 
 extern PyObject *zbarErr_Set(PyObject *self);
 
 typedef struct {
+#if PY_MAJOR_VERSION >= 3
+    PyLongObject val;           /* parent type is the long type */
+#else
     PyIntObject val;            /* integer value is super type */
+#endif
     PyObject *name;             /* associated string name */
 } zbarEnumItem;
 

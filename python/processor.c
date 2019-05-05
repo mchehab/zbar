@@ -244,11 +244,15 @@ static int
 object_to_timeout (PyObject *obj,
                    int *val)
 {
-    int tmp;
+    long tmp;
     if(PyFloat_Check(obj))
         tmp = PyFloat_AS_DOUBLE(obj) * 1000;
     else
+#if PY_MAJOR_VERSION >= 3
+        tmp = PyLong_AsLong(obj) * 1000;
+#else
         tmp = PyInt_AsLong(obj) * 1000;
+#endif
     if(tmp < 0 && PyErr_Occurred())
         return(0);
     *val = tmp;
@@ -273,7 +277,11 @@ processor_user_wait (zbarProcessor *self,
 
     if(rc < 0)
         return(zbarErr_Set((PyObject*)self));
+#if PY_MAJOR_VERSION >= 3
+    return(PyLong_FromLong(rc));
+#else
     return(PyInt_FromLong(rc));
+#endif
 }
 
 static PyObject*
@@ -294,7 +302,11 @@ processor_process_one (zbarProcessor *self,
 
     if(rc < 0)
         return(zbarErr_Set((PyObject*)self));
+#if PY_MAJOR_VERSION >= 3
+    return(PyLong_FromLong(rc));
+#else
     return(PyInt_FromLong(rc));
+#endif
 }
 
 static PyObject*
@@ -318,7 +330,11 @@ processor_process_image (zbarProcessor *self,
 
     if(n < 0)
         return(zbarErr_Set((PyObject*)self));
+#if PY_MAJOR_VERSION >= 3
+    return(PyLong_FromLong(n));
+#else
     return(PyInt_FromLong(n));
+#endif
 }
 
 void

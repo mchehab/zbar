@@ -127,7 +127,11 @@ image_get_format (zbarImage *self,
                   void *closure)
 {
     unsigned long format = zbar_image_get_format(self->zimg);
+#if PY_MAJOR_VERSION >= 3
+    return(PyBytes_FromStringAndSize((char*)&format, 4));
+#else
     return(PyString_FromStringAndSize((char*)&format, 4));
+#endif
 }
 
 static int
@@ -141,8 +145,13 @@ image_set_format (zbarImage *self,
     }
     char *format = NULL;
     Py_ssize_t len;
+#if PY_MAJOR_VERSION >= 3
+    if(PyBytes_AsStringAndSize(value, &format, &len) ||
+       !format || len != 4) {
+#else
     if(PyString_AsStringAndSize(value, &format, &len) ||
        !format || len != 4) {
+#endif
         if(!format)
             format = "(nil)";
         PyErr_Format(PyExc_ValueError,
@@ -160,7 +169,11 @@ image_get_size (zbarImage *self,
 {
     unsigned int w, h;
     zbar_image_get_size(self->zimg, &w, &h);
+#if PY_MAJOR_VERSION >= 3
+    return(PyTuple_Pack(2, PyLong_FromLong(w), PyLong_FromLong(h)));
+#else
     return(PyTuple_Pack(2, PyInt_FromLong(w), PyInt_FromLong(h)));
+#endif
 }
 
 static int
@@ -191,8 +204,13 @@ image_get_crop (zbarImage *self,
 {
     unsigned int x, y, w, h;
     zbar_image_get_crop(self->zimg, &x, &y, &w, &h);
+#if PY_MAJOR_VERSION >= 3
+    return(PyTuple_Pack(4, PyLong_FromLong(x), PyLong_FromLong(y),
+                        PyLong_FromLong(w), PyLong_FromLong(h)));
+#else
     return(PyTuple_Pack(4, PyInt_FromLong(x), PyInt_FromLong(y),
                         PyInt_FromLong(w), PyInt_FromLong(h)));
+#endif
 }
 
 static int
@@ -243,7 +261,11 @@ image_get_int (zbarImage *self,
     default:
         assert(0);
     }
+#if PY_MAJOR_VERSION >= 3
+    return(PyLong_FromLong(val));
+#else
     return(PyInt_FromLong(val));
+#endif
 }
 
 static int
@@ -251,7 +273,12 @@ image_set_int (zbarImage *self,
                PyObject *value,
                void *closure)
 {
-    unsigned int tmp, val = PyInt_AsSsize_t(value);
+    unsigned int tmp;
+#if PY_MAJOR_VERSION >= 3
+    long val = PyLong_AsLong(value);
+#else
+    unsigned int val = PyInt_AsSsize_t(value);
+#endif
     if(val == -1 && PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "expecting an integer");
         return(-1);
@@ -290,7 +317,11 @@ image_get_data (zbarImage *self,
         return(Py_None);
     }
 
+#if PY_MAJOR_VERSION >= 3
+    self->data = PyMemoryView_FromMemory((void*)data, datalen, PyBUF_READ);
+#else
     self->data = PyBuffer_FromMemory((void*)data, datalen);
+#endif
     Py_INCREF(self->data);
     return(self->data);
 }
@@ -322,8 +353,13 @@ image_set_data (zbarImage *self,
     }
     char *data;
     Py_ssize_t datalen;
+#if PY_MAJOR_VERSION >= 3
+    if(PyBytes_AsStringAndSize(value, &data, &datalen))
+        return(-1);
+#else
     if(PyString_AsStringAndSize(value, &data, &datalen))
         return(-1);
+#endif
 
     Py_INCREF(value);
     zbar_image_set_data(self->zimg, data, datalen, image_cleanup);

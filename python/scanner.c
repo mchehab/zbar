@@ -88,7 +88,11 @@ scanner_get_width (zbarScanner *self,
                    void *closure)
 {
     unsigned int width = zbar_scanner_get_width(self->zscn);
+#if PY_MAJOR_VERSION >= 3
+    return(PyLong_FromLong(width));
+#else
     return(PyInt_FromLong(width));
+#endif
 }
 
 static zbarEnumItem*
