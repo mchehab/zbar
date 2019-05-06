@@ -707,7 +707,9 @@ AC_CONFIG_COMMANDS([doc/reldate.xml],
 
 AC_CONFIG_FILES([
 Makefile
+gtk/Makefile
 java/Makefile
+zbar/Makefile
 zbar.pc
 zbar-gtk.pc
 zbar-qt.pc

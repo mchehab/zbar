@@ -9,7 +9,6 @@ DISTCLEANFILES =
 MAINTAINERCLEANFILES =
 BUILT_SOURCES =
 EXTRA_DIST =
-SUBDIRS = .
 PHONY = $(SUBDIRS)
 
 pkgconfigdir = $(libdir)/pkgconfig
@@ -18,7 +17,12 @@ pkgconfig_DATA = zbar.pc
 dist_doc_DATA = COPYING HACKING INSTALL.md LICENSE NEWS README.md TODO
 
 include $(srcdir)/include/Makefile.am.inc
-include $(srcdir)/zbar/Makefile.am.inc
+
+SUBDIRS = zbar
+
+zbar/libzbar.la:
+	$(MAKE) -C @builddir@/zbar libzbar.la
+
 if HAVE_MAGICK
 include $(srcdir)/zbarimg/Makefile.am.inc
 endif
@@ -29,8 +33,15 @@ if HAVE_PYTHON
 include $(srcdir)/python/Makefile.am.inc
 endif
 if HAVE_GTK
-include $(srcdir)/gtk/Makefile.am.inc
+SUBDIRS += gtk
 pkgconfig_DATA += zbar-gtk.pc
+
+gtk/libzbargtk.la:
+	$(MAKE) -C @builddir@/gtk libzbargtk.la
+
+gtk/zbarmarshal.h:
+	$(MAKE) -C @builddir@/gtk zbarmarshal.h
+
 if HAVE_PYGTK2
 include $(srcdir)/pygtk/Makefile.am.inc
 endif
@@ -94,11 +105,13 @@ dist-nsis: html-local
 	cp -r doc/html _nsis/share/doc/zbar/
 	$(WINEXEC) lib.exe /machine:x86 /def:_nsis/lib/libzbar-0.def /out:_nsis/lib/libzbar-0.lib
 	cd _nsis && \
-	  makensis -NOCD -V2 -DVERSION=$(VERSION) $(abs_srcdir)/zbar.nsi
+	  makensis -NOCD -V2 -DVERSION=$(VERSION) $(builddir)/zbar.nsi
 	@ls -l _nsis/zbar-$(VERSION)-setup.exe
 
 PHONY += dist-nsis
 endif
+
+SUBDIRS += .
 
 archive:
 	git archive --format=tar --prefix=zbar-$(VERSION)/ -o zbar-$(VERSION).tar $(VERSION)

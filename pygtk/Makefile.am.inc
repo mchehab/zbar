@@ -6,6 +6,7 @@ pygtk_zbarpygtk_la_LDFLAGS = -shared -module -avoid-version -export-dynamic \
 pygtk_zbarpygtk_la_LIBADD = \
     $(PYTHON_LIBS) $(PYGTK_LIBS) gtk/libzbargtk.la $(AM_LIBADD)
 
+pygtk_zbarpygtk_la_DEPENDENCIES = gtk/libzbargtk.la
 dist_pygtk_zbarpygtk_la_SOURCES = pygtk/zbarpygtkmodule.c
 nodist_pygtk_zbarpygtk_la_SOURCES = pygtk/zbarpygtk.c
 BUILT_SOURCES += pygtk/zbarpygtk.c pygtk/zbarpygtk.defs
