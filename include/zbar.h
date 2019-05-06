@@ -567,7 +567,9 @@ zbar_symbol_set_first_unfiltered(const zbar_symbol_set_t *symbols);
 /*@{*/
 
 struct zbar_image_s;
-/** opaque image object. */
+/**
+ * zbar_image_t: opaque image object.
+ */
 typedef struct zbar_image_s zbar_image_t;
 
 /** cleanup handler callback function.

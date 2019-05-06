@@ -42,6 +42,9 @@ gtk/libzbargtk.la:
 gtk/zbarmarshal.h:
 	$(MAKE) -C @builddir@/gtk zbarmarshal.h
 
+gtk/ZBar-1.0.typelib:
+	$(MAKE) -C $(srcdir)/gtk ZBar-1.0.typelib
+
 if HAVE_PYGTK2
 include $(srcdir)/pygtk/Makefile.am.inc
 endif

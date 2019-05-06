@@ -467,15 +467,22 @@ AC_ARG_WITH([gtk],
 
 AC_ARG_VAR([GLIB_GENMARSHAL], [full path to glib-genmarshal])
 
+AC_ARG_VAR([GTK_VERSION_MAJOR])
+
 AS_IF([test "x$with_gtk" != "xno"],
-  [PKG_CHECK_MODULES([GTK], [gtk+-2.0 gthread-2.0])
+  [PKG_CHECK_MODULES([GTK], [gtk+-2.0])
    GLIB_GENMARSHAL=`$PKG_CONFIG glib-2.0 --variable=glib_genmarshal`
    GTK_VERSION=`$PKG_CONFIG gtk+-2.0 --modversion`
    AC_MSG_NOTICE([using GTK+ version $GTK_VERSION])
-   GTHREAD_VERSION=`$PKG_CONFIG gthread-2.0 --modversion`
-   AC_MSG_NOTICE([using gthread-2.0 version $GTHREAD_VERSION])])
+   GTK_VERSION_MAJOR=2.0
+   AC_MSG_NOTICE([using version $GTHREAD_VERSION])])
 
 AM_CONDITIONAL([HAVE_GTK], [test "x$with_gtk" = "xyes"])
+
+AC_ARG_WITH([gir],
+  [AS_HELP_STRING([--with-gir], [enable support for GObject Introspection])],
+  [],
+  [with_gir="no"])
 
 dnl Python
 AC_ARG_WITH([python],
@@ -515,18 +522,31 @@ Install the development package for python-$am_cv_python_version, or configure
 
    dnl PyGTK
    dnl disable pygtk when we're on Python 3
-   AS_IF([test "x$with_gtk$PYTHON_VERSION_MAJOR" = "xyes2"],
-     [PKG_CHECK_MODULES([PYGTK], [pygtk-2.0], [with_pygtk2=yes], [with_pygtk2=no])
-      AC_CHECK_PROGS([PYGTK_CODEGEN], [pygobject-codegen-2.0 pygtk-codegen-2.0 pygtk-codegen], [:])
+   AS_IF([test "x$with_gtk"],
+     [AS_IF([test "x$PYTHON_VERSION_MAJOR" = "x2"],
+       [PKG_CHECK_MODULES([PYGTK], [pygtk-2.0], [with_pygtk2=yes], [with_pygtk2=no])
+        AC_CHECK_PROGS([PYGTK_CODEGEN], [pygobject-codegen-2.0 pygtk-codegen-2.0 pygtk-codegen], [:])
 
-      AS_IF([test "x$PYGTK_H2DEF" = "x"],
-        [PYGTK_H2DEF=`$PKG_CONFIG pygtk-2.0 --variable=codegendir`/h2def.py
-         AS_IF([test -f "$PYGTK_H2DEF"], [], [PYGTK_H2DEF=":"])])
-      AS_IF([test "x$PYGTK_DEFS" = "x"],
-        [PYGTK_DEFS=`$PKG_CONFIG pygtk-2.0 --variable=defsdir`])
+        AS_IF([test "x$PYGTK_H2DEF" = "x"],
+          [PYGTK_H2DEF=`$PKG_CONFIG pygtk-2.0 --variable=codegendir`/h2def.py
+           AS_IF([test -f "$PYGTK_H2DEF"], [], [PYGTK_H2DEF=":"])])
+        AS_IF([test "x$PYGTK_DEFS" = "x"],
+          [PYGTK_DEFS=`$PKG_CONFIG pygtk-2.0 --variable=defsdir`])
+     ])
+
+     AS_IF([test "x$with_gir" != "xno"],
+       [m4_ifdef([GOBJECT_INTROSPECTION_CHECK],
+         [GOBJECT_INTROSPECTION_CHECK([0.6.7])
+          AS_IF([test "x$found_introspection" = "xyes"],
+            [INTROSPECTION_TYPELIBDIR=`$PKG_CONFIG --variable=typelibdir --define-variable="libdir=${libdir}" gobject-introspection-1.0`
+             INTROSPECTION_GIRDIR=`$PKG_CONFIG --variable=girdir --define-variable="datadir=${datadir}" gobject-introspection-1.0`
+             AC_SUBST(INTROSPECTION_TYPELIBDIR)
+             AC_SUBST(INTROSPECTION_GIRDIR)])])
+      ])
    ])
 ])
 
+AM_CONDITIONAL([HAVE_INTROSPECTION], [test "x$found_introspection" = "xyes"])
 AM_CONDITIONAL([HAVE_PYTHON], [test "x$with_python" = "xyes"])
 AM_CONDITIONAL([HAVE_PYGTK2], [test "x$with_pygtk2" = "xyes"])
 
@@ -759,7 +779,10 @@ AS_IF([test "x$have_GM" = "xyes"],
 AS_IF([test "x$with_gtk" != "xyes"],
   [echo "        => the GTK+ widget will *NOT* be built"],
   [AS_IF([test "x$with_pygtk2" != "xyes"],
-     [echo "        => the Python GTK widget wrapper will *NOT* be built"])])
+     [echo "        => the Python 2 GTK widget wrapper will *NOT* be built"])
+   AS_IF([test "x$found_introspection" != "xyes"],
+     [echo "        => the GNOME GObject introspection will *NOT* be built"])])
+
 AS_IF([test "x$with_qt" != "xyes"],
   [echo "        => the Qt widget will *NOT* be built"])
 AS_IF([test "x$with_qt" == "xyes" && test "x$enable_static_qt" == "xyes" ],
