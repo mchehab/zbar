@@ -23,7 +23,8 @@
 #ifndef __ZBAR_GTK_H__
 #define __ZBAR_GTK_H__
 
-/** SECTION:ZBarGtk
+/**
+ * SECTION:ZBarGtk
  * @short_description: barcode reader GTK+ 2.x widget
  * @include: zbar/zbargtk.h
  *
@@ -58,6 +59,11 @@ G_BEGIN_DECLS
 typedef struct _ZBarGtk ZBarGtk;
 typedef struct _ZBarGtkClass ZBarGtkClass;
 
+/**
+ * _ZBarGtk:
+ * @widget: pointer to GtkWidget
+ * @_private: used internally
+ */
 struct _ZBarGtk {
     GtkWidget widget;
     gpointer *_private;
@@ -93,6 +99,9 @@ struct _ZBarGtk {
      */
 };
 
+/**
+ * _ZBarGtkClass:
+ */
 struct _ZBarGtkClass {
     GtkWidgetClass parent_class;
 
@@ -134,6 +143,9 @@ struct _ZBarGtkClass {
                         GdkPixbuf *image);
 };
 
+/**
+ * zbar_gtk_get_type:
+ */
 GType zbar_gtk_get_type(void) G_GNUC_CONST;
 
 /**
@@ -147,19 +159,26 @@ GtkWidget *zbar_gtk_new(void);
 
 /**
  * zbar_gtk_scan_image:
- * 
+ * @zbar: pointer to ZbarGtk
+ * @image: the GdkPixbuf used to store the image
+ *
  */
 void zbar_gtk_scan_image(ZBarGtk *zbar,
                          GdkPixbuf *image);
 
-/** retrieve the currently opened video device.
+/**
+ * zbar_gtk_get_video_device:
+ *	retrieve the currently opened video device.
+ * @zbar: pointer to ZbarGtk
  *
  * Returns: the current video device or NULL if no device is opened
  */
 const char *zbar_gtk_get_video_device(ZBarGtk *zbar);
 
-/** open a new video device.
- *
+/**
+ * zbar_gtk_set_video_device:
+ *	open a new video device.
+ * @zbar: pointer to ZbarGtk
  * @video_device: the platform specific name of the device to open.
  *   use NULL to close a currently opened device.
  *
@@ -169,13 +188,19 @@ const char *zbar_gtk_get_video_device(ZBarGtk *zbar);
 void zbar_gtk_set_video_device(ZBarGtk *zbar,
                                const char *video_device);
 
-/** retrieve the current video enabled state.
+/**
+ * zbar_gtk_get_video_enabled:
+ *	retrieve the current video enabled state.
+ * @zbar: pointer to ZbarGtk
  *
  * Returns: true if video scanning is currently enabled, false otherwise
  */
 gboolean zbar_gtk_get_video_enabled(ZBarGtk *zbar);
 
-/** enable/disable video scanning.
+/**
+ * zbar_gtk_set_video_enabled:
+ *	enable/disable video scanning.
+ * @zbar: pointer to ZbarGtk
  * @video_enabled: true to enable video scanning, false to disable
  *
  * has no effect unless a video device is opened
@@ -183,13 +208,19 @@ gboolean zbar_gtk_get_video_enabled(ZBarGtk *zbar);
 void zbar_gtk_set_video_enabled(ZBarGtk *zbar,
                                 gboolean video_enabled);
 
-/** retrieve the current video opened state.
+/**
+ * zbar_gtk_get_video_opened:
+ *	retrieve the current video opened state.
+ * @zbar: pointer to ZbarGtk
  *
  * Returns: true if video device is currently opened, false otherwise
  */
 gboolean zbar_gtk_get_video_opened(ZBarGtk *zbar);
 
-/** set video camera resolution.
+/**
+ * zbar_gtk_request_video_size:
+ *	set video camera resolution.
+ * @zbar: pointer to ZbarGtk
  * @width: width in pixels
  * @height: height in pixels
  *
@@ -200,7 +231,8 @@ void zbar_gtk_request_video_size(ZBarGtk *zbar,
                                  int height);
 
 /**
- * utility function to populate a zbar_image_t from a GdkPixbuf.
+ * zbar_gtk_image_from_pixbuf:
+ *	utility function to populate a zbar_image_t from a GdkPixbuf.
  * @image: the zbar library image destination to populate
  * @pixbuf: the GdkPixbuf source
  *
