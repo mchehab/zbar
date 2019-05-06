@@ -24,7 +24,7 @@ dnl     increment current, and set revision to 0.
 dnl   - If any interfaces have been added since the last public release,
 dnl     then increment age.
 dnl   - If any interfaces have been removed since the last public release,
-dnl     then set age to 0. 
+dnl     then set age to 0.
 AC_SUBST([LIB_VERSION], [3:0:3])
 AC_SUBST([RELDATE], [2017-04-11])
 
@@ -494,7 +494,7 @@ AC_ARG_VAR([PYGTK_DEFS], [directory where PyGTK definitions may be found])
 
 AS_IF([test "x$with_python" != "xno"],
   [AM_PATH_PYTHON(2.7.0)
-   PYTHON_VERSION_MAJOR="$PYTHON -c 'import sys; sys.stdout.write(sys.version_info[0])'"
+   PYTHON_VERSION_MAJOR="`echo $PYTHON_VERSION | cut -d'.' -f 1`"
    AS_IF([test "x$PYTHON_CFLAGS" != "x"],
      [],
      [test "x$PYTHON_CONFIG" != "x" && test -x "$PYTHON_CONFIG"],
@@ -516,7 +516,7 @@ Install the development package for python-$am_cv_python_version, or configure
    dnl PyGTK
    dnl disable pygtk when we're on Python 3
    AS_IF([test "x$with_gtk$PYTHON_VERSION_MAJOR" = "xyes2"],
-     [PKG_CHECK_MODULES([PYGTK], [pygtk-2.0])
+     [PKG_CHECK_MODULES([PYGTK], [pygtk-2.0], [with_pygtk2=yes], [with_pygtk2=no])
       AC_CHECK_PROGS([PYGTK_CODEGEN], [pygobject-codegen-2.0 pygtk-codegen-2.0 pygtk-codegen], [:])
 
       AS_IF([test "x$PYGTK_H2DEF" = "x"],
@@ -528,7 +528,7 @@ Install the development package for python-$am_cv_python_version, or configure
 ])
 
 AM_CONDITIONAL([HAVE_PYTHON], [test "x$with_python" = "xyes"])
-AM_CONDITIONAL([HAVE_PYGTK2], [test "x$with_gtk$PYTHON_VERSION_MAJOR" = "xyes2"])
+AM_CONDITIONAL([HAVE_PYGTK2], [test "x$with_pygtk2" = "xyes"])
 
 dnl Qt
 AC_ARG_WITH([qt],
@@ -756,8 +756,8 @@ AS_IF([test "x$have_GM" = "xyes"],
   [echo "        => ImageMagick is preferred, as GraphicsMagick doesn't support https"])
 AS_IF([test "x$with_gtk" != "xyes"],
   [echo "        => the GTK+ widget will *NOT* be built"],
-  [AS_IF([test "x$with_python$PYTHON_VERSION_MAJOR" != "xyes2"],
-     [echo "        => the PyGTK widget wrapper will *NOT* be built"])])
+  [AS_IF([test "x$with_pygtk2" != "xyes"],
+     [echo "        => the Python GTK widget wrapper will *NOT* be built"])])
 AS_IF([test "x$with_qt" != "xyes"],
   [echo "        => the Qt widget will *NOT* be built"])
 AS_IF([test "x$with_qt" == "xyes" && test "x$enable_static_qt" == "xyes" ],
