@@ -106,6 +106,9 @@ check-convert: test/test_convert
 check-pygtk: pygtk/zbarpygtk.la
 	PYTHONPATH=@abs_top_srcdir@/pygtk/.libs/ @abs_top_srcdir@/test/test_pygtk.py
 
+check-gi: gtk/ZBar-1.0.typelib
+	GI_TYPELIB_PATH=@abs_top_srcdir@/gtk/ @abs_top_srcdir@/test/test_gi.py
+
 # Require a camera device for it to work
 check-video: test/test_video
 	@abs_top_srcdir@/test/test_video -q
