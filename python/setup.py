@@ -1,9 +1,9 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 from distutils.core import setup, Extension
 
 setup(
     name = 'zbar',
-    version = '0.10',
+    version = '0.22.2',
     author = 'Jeff Brown',
     author_email = 'spadix@users.sourceforge.net',
     url = 'http://zbar.sourceforge.net',

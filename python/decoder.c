@@ -85,7 +85,9 @@ decoder_get_color (zbarDecoder *self,
 {
     zbar_color_t zcol = zbar_decoder_get_color(self->zdcode);
     assert(zcol == ZBAR_BAR || zcol == ZBAR_SPACE);
-    zbarEnumItem *color = color_enum[zcol];
+
+    struct module_state *st = GETMODSTATE();
+    zbarEnumItem *color = st->color_enum[zcol];
     Py_INCREF((PyObject*)color);
     return(color);
 }
@@ -97,8 +99,9 @@ decoder_get_type (zbarDecoder *self,
     zbar_symbol_type_t sym = zbar_decoder_get_type(self->zdcode);
     if(sym == ZBAR_NONE) {
         /* hardcode most common case */
-        Py_INCREF((PyObject*)symbol_NONE);
-        return(symbol_NONE);
+        struct module_state *st = GETMODSTATE();
+        Py_INCREF((PyObject*)st->symbol_NONE);
+        return(st->symbol_NONE);
     }
     return(zbarSymbol_LookupEnum(sym));
 }
@@ -107,9 +110,10 @@ static PyObject*
 decoder_get_configs (zbarDecoder *self,
                      void *closure)
 {
+    struct module_state *st = GETMODSTATE();
     unsigned int sym = zbar_decoder_get_type(self->zdcode);
     unsigned int mask = zbar_decoder_get_configs(self->zdcode, sym);
-    return(zbarEnum_SetFromMask(config_enum, mask));
+    return(zbarEnum_SetFromMask(st->config_enum, mask));
 }
 
 static PyObject*
@@ -117,22 +121,32 @@ decoder_get_modifiers (zbarDecoder *self,
                        void *closure)
 {
     unsigned int mask = zbar_decoder_get_modifiers(self->zdcode);
-    return(zbarEnum_SetFromMask(modifier_enum, mask));
+    struct module_state *st = GETMODSTATE();
+    return(zbarEnum_SetFromMask(st->modifier_enum, mask));
 }
 
 static PyObject*
 decoder_get_data (zbarDecoder *self,
                   void *closure)
 {
+#if PY_MAJOR_VERSION >= 3
+    return(PyBytes_FromStringAndSize(zbar_decoder_get_data(self->zdcode),
+                                     zbar_decoder_get_data_length(self->zdcode)));
+#else
     return(PyString_FromStringAndSize(zbar_decoder_get_data(self->zdcode),
                                       zbar_decoder_get_data_length(self->zdcode)));
+#endif
 }
 
 static PyObject*
 decoder_get_direction (zbarDecoder *self,
                        void *closure)
 {
+#if PY_MAJOR_VERSION >= 3
+    return(PyLong_FromLong(zbar_decoder_get_direction(self->zdcode)));
+#else
     return(PyInt_FromLong(zbar_decoder_get_direction(self->zdcode)));
+#endif
 }
 
 static PyGetSetDef decoder_getset[] = {
@@ -178,8 +192,9 @@ decoder_get_configs_meth (zbarDecoder *self,
     if(sym == ZBAR_NONE)
         sym = zbar_decoder_get_type(self->zdcode);
 
+    struct module_state *st = GETMODSTATE();
     unsigned int mask = zbar_decoder_get_configs(self->zdcode, sym);
-    return(zbarEnum_SetFromMask(config_enum, mask));
+    return(zbarEnum_SetFromMask(st->config_enum, mask));
 }
 
 static PyObject*
@@ -297,8 +312,9 @@ decoder_decode_width (zbarDecoder *self,
         return(NULL);
     if(sym == ZBAR_NONE) {
         /* hardcode most common case */
-        Py_INCREF((PyObject*)symbol_NONE);
-        return(symbol_NONE);
+        struct module_state *st = GETMODSTATE();
+        Py_INCREF((PyObject*)st->symbol_NONE);
+        return(st->symbol_NONE);
     }
     return(zbarSymbol_LookupEnum(sym));
 }

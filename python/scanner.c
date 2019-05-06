@@ -88,7 +88,11 @@ scanner_get_width (zbarScanner *self,
                    void *closure)
 {
     unsigned int width = zbar_scanner_get_width(self->zscn);
+#if PY_MAJOR_VERSION >= 3
+    return(PyLong_FromLong(width));
+#else
     return(PyInt_FromLong(width));
+#endif
 }
 
 static zbarEnumItem*
@@ -97,7 +101,8 @@ scanner_get_color (zbarScanner *self,
 {
     zbar_color_t zcol = zbar_scanner_get_color(self->zscn);
     assert(zcol == ZBAR_BAR || zcol == ZBAR_SPACE);
-    zbarEnumItem *color = color_enum[zcol];
+    struct module_state *st = GETMODSTATE();
+    zbarEnumItem *color = st->color_enum[zcol];
     Py_INCREF((PyObject*)color);
     return(color);
 }
@@ -151,8 +156,9 @@ scanner_scan_y (zbarScanner *self,
         return(NULL);
     if(sym == ZBAR_NONE) {
         /* hardcode most common case */
-        Py_INCREF((PyObject*)symbol_NONE);
-        return(symbol_NONE);
+        struct module_state *st = GETMODSTATE();
+        Py_INCREF((PyObject*)st->symbol_NONE);
+        return(st->symbol_NONE);
     }
     return(zbarSymbol_LookupEnum(sym));
 }

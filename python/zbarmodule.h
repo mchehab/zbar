@@ -28,18 +28,37 @@
 #ifndef _ZBARMODULE_H_
 #define _ZBARMODULE_H_
 
+
+#if PY_MAJOR_VERSION < 3
 typedef struct {
     PyBaseExceptionObject base;
     PyObject *obj;
 } zbarException;
 
 extern PyTypeObject zbarException_Type;
-extern PyObject *zbar_exc[ZBAR_ERR_NUM];
+#endif
+
+
+extern struct PyModuleDef zbar_moduledef;
+
+#if PY_MAJOR_VERSION >= 3
+#define GETSTATE(m) ((struct module_state*)PyModule_GetState(m))
+#define GETMODSTATE() (GETSTATE(PyState_FindModule(&zbar_moduledef)))
+#else
+extern struct module_state zbar_state;
+#define GETSTATE(m) (&zbar_state)
+#define GETMODSTATE() (&zbar_state)
+#endif
+
 
 extern PyObject *zbarErr_Set(PyObject *self);
 
 typedef struct {
+#if PY_MAJOR_VERSION >= 3
+    PyLongObject val;           /* parent type is the long type */
+#else
     PyIntObject val;            /* integer value is super type */
+#endif
     PyObject *name;             /* associated string name */
 } zbarEnumItem;
 
@@ -146,17 +165,21 @@ typedef struct {
 
 extern PyTypeObject zbarScanner_Type;
 
-extern zbarEnumItem *color_enum[2];
-extern zbarEnum *config_enum;
-extern zbarEnum *modifier_enum;
-extern PyObject *symbol_enum;
-extern zbarEnumItem *symbol_NONE;
-extern zbarEnum *orient_enum;
-
 extern int object_to_bool(PyObject *obj,
                           int *val);
 extern int parse_dimensions(PyObject *seq,
                             int *dims,
                             int n);
+
+
+struct module_state {
+    PyObject *zbar_exc[ZBAR_ERR_NUM];
+    zbarEnumItem *color_enum[2];
+    zbarEnum *config_enum;
+    zbarEnum *modifier_enum;
+    PyObject *symbol_enum;
+    zbarEnumItem *symbol_NONE;
+    zbarEnum *orient_enum;
+};
 
 #endif

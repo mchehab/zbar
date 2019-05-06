@@ -85,7 +85,8 @@ symbol_get_configs (zbarSymbol *self,
                     void *closure)
 {
     unsigned int mask = zbar_symbol_get_configs(self->zsym);
-    return(zbarEnum_SetFromMask(config_enum, mask));
+    struct module_state *st = GETMODSTATE();
+    return(zbarEnum_SetFromMask(st->config_enum, mask));
 }
 
 static PyObject*
@@ -93,7 +94,8 @@ symbol_get_modifiers (zbarSymbol *self,
                       void *closure)
 {
     unsigned int mask = zbar_symbol_get_modifiers(self->zsym);
-    return(zbarEnum_SetFromMask(modifier_enum, mask));
+    struct module_state *st = GETMODSTATE();
+    return(zbarEnum_SetFromMask(st->modifier_enum, mask));
 }
 
 static PyObject*
@@ -105,7 +107,11 @@ symbol_get_long (zbarSymbol *self,
         val = zbar_symbol_get_quality(self->zsym);
     else
         val = zbar_symbol_get_count(self->zsym);
+#if PY_MAJOR_VERSION >= 3
+    return(PyLong_FromLong(val));
+#else
     return(PyInt_FromLong(val));
+#endif
 }
 
 static PyObject*
@@ -113,10 +119,16 @@ symbol_get_data (zbarSymbol *self,
                  void *closure)
 {
     if(!self->data) {
+#if PY_MAJOR_VERSION >= 3
+        self->data =
+            PyBytes_FromStringAndSize(zbar_symbol_get_data(self->zsym),
+                                      zbar_symbol_get_data_length(self->zsym));
+#else
         /* FIXME this could be a buffer now */
         self->data =
             PyString_FromStringAndSize(zbar_symbol_get_data(self->zsym),
                                        zbar_symbol_get_data_length(self->zsym));
+#endif
         if(!self->data)
             return(NULL);
     }
@@ -135,8 +147,13 @@ symbol_get_location (zbarSymbol *self,
         unsigned int i;
         for(i = 0; i < n; i++) {
             PyObject *x, *y;
+#if PY_MAJOR_VERSION >= 3
+            x = PyLong_FromLong(zbar_symbol_get_loc_x(self->zsym, i));
+            y = PyLong_FromLong(zbar_symbol_get_loc_y(self->zsym, i));
+#else
             x = PyInt_FromLong(zbar_symbol_get_loc_x(self->zsym, i));
             y = PyInt_FromLong(zbar_symbol_get_loc_y(self->zsym, i));
+#endif
             PyTuple_SET_ITEM(self->loc, i, PyTuple_Pack(2, x, y));
         }
     }
@@ -148,7 +165,8 @@ static zbarEnumItem*
 symbol_get_orientation (zbarSymbol *self,
                         void *closure)
 {
-    return(zbarEnum_LookupValue(orient_enum,
+    struct module_state *st = GETMODSTATE();
+    return(zbarEnum_LookupValue(st->orient_enum,
                                 zbar_symbol_get_orientation(self->zsym)));
 }
 
@@ -198,9 +216,14 @@ zbarSymbol_FromSymbol (const zbar_symbol_t *zsym)
 zbarEnumItem*
 zbarSymbol_LookupEnum (zbar_symbol_type_t type)
 {
+#if PY_MAJOR_VERSION >= 3
+    PyObject *key = PyLong_FromLong(type);
+#else
     PyObject *key = PyInt_FromLong(type);
-    zbarEnumItem *e = (zbarEnumItem*)PyDict_GetItem(symbol_enum, key);
-    if(!e) 
+#endif
+    struct module_state *st = GETMODSTATE();
+    zbarEnumItem *e = (zbarEnumItem*)PyDict_GetItem(st->symbol_enum, key);
+    if(!e)
         return((zbarEnumItem*)key);
     Py_INCREF((PyObject*)e);
     Py_DECREF(key);

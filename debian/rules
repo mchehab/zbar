@@ -62,7 +62,7 @@ build-nopython/configure-stamp: autotools-dev-stamp
 	dh_testdir
 
 	mkdir -p build-nopython
-	cd build-nopython && $(CONFIGURE) --without-python2 LDFLAGS="$(LDFLAGS_DEFAULT)"
+	cd build-nopython && $(CONFIGURE) --without-python LDFLAGS="$(LDFLAGS_DEFAULT)"
 	touch $@
 
 build-python%/configure-stamp: autotools-dev-stamp build-nopython/build-stamp
