@@ -103,6 +103,9 @@ check-convert: test/test_convert
 	   echo "convert FAILED"; else echo "convert PASSED."; fi
 	@rm /tmp/base.I420.zimg 2>/dev/null
 
+check-pygtk: pygtk/zbarpygtk.la
+	PYTHONPATH=@abs_top_srcdir@/pygtk/.libs/ @abs_top_srcdir@/test/test_pygtk.py
+
 # Require a camera device for it to work
 check-video: test/test_video
 	@abs_top_srcdir@/test/test_video -q
