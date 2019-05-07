@@ -4,6 +4,10 @@ gtk_libzbargtk_la_LDFLAGS = -version-info $(ZGTK_LIB_VERSION) \
     -export-symbols-regex "^zbar_gtk_.*" $(AM_LDFLAGS) -no-undefined
 gtk_libzbargtk_la_LIBADD = $(GTK_LIBS) zbar/libzbar.la $(AM_LIBADD)
 
+if HAVE_X
+gtk_libzbargtk_la_CPPFLAGS += -DHAVE_X
+endif
+
 dist_gtk_libzbargtk_la_SOURCES = gtk/zbargtk.c gtk/zbargtkprivate.h
 nodist_gtk_libzbargtk_la_SOURCES = gtk/zbarmarshal.c gtk/zbarmarshal.h
 BUILT_SOURCES += gtk/zbarmarshal.c gtk/zbarmarshal.h
