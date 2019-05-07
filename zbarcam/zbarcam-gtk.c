@@ -86,7 +86,7 @@ static void video_changed (GtkWidget *widget,
                            gpointer data)
 {
     const char *video_device =
-        gtk_combo_box_get_active_text(GTK_COMBO_BOX(widget));
+        gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(widget));
     zbar_gtk_set_video_device(ZBAR_GTK(data),
                                ((video_device && video_device[0] != '<')
                                 ? video_device
@@ -145,7 +145,6 @@ static void open_button_clicked (GtkButton *button,
  */
 int main (int argc, char *argv[])
 {
-    g_thread_init(NULL);
     gdk_threads_init();
     gdk_threads_enter();
 
@@ -168,7 +167,7 @@ int main (int argc, char *argv[])
                      G_CALLBACK(decoded), NULL);
 
     /* video device list combo box */
-    GtkWidget *video_list = gtk_combo_box_new_text();
+    GtkWidget *video_list = gtk_combo_box_text_new();
 
     g_signal_connect(G_OBJECT(video_list), "changed",
                      G_CALLBACK(video_changed), zbar);
@@ -195,8 +194,8 @@ int main (int argc, char *argv[])
     g_signal_connect(G_OBJECT(open_button), "clicked",
                      G_CALLBACK(open_button_clicked), zbar);
 
-    gtk_combo_box_append_text(GTK_COMBO_BOX(video_list), "<none>");
-    int active = scan_video(gtk_combo_box_append_text, video_list, video_arg);
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(video_list), "<none>");
+    int active = scan_video(gtk_combo_box_text_append_text, video_list, video_arg);
     if(active >= 0)
         gtk_combo_box_set_active(GTK_COMBO_BOX(video_list), active);
 

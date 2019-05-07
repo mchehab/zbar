@@ -21,7 +21,7 @@
  *  http://sourceforge.net/projects/zbar
  *------------------------------------------------------------------------*/
 
-#include <gtk/gtksignal.h>
+#include <gtk/gtk.h>
 #ifdef HAVE_X
 #include <gdk/gdkx.h>
 #elif defined(_WIN32)
@@ -364,33 +364,41 @@ static void zbar_gtk_realize (GtkWidget *widget)
         return;
     ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
 
-    GTK_WIDGET_UNSET_FLAGS(widget, GTK_DOUBLE_BUFFERED);
-    GTK_WIDGET_SET_FLAGS(widget, GTK_REALIZED);
+    gtk_widget_set_double_buffered(widget, FALSE);
+    gtk_widget_set_realized(widget, TRUE);
 
     GdkWindowAttr attributes;
-    attributes.x = widget->allocation.x;
-    attributes.y = widget->allocation.y;
-    attributes.width = widget->allocation.width;
-    attributes.height = widget->allocation.height;
+    GtkAllocation allocation;
+
+    gtk_widget_get_allocation(widget, &allocation);
+    attributes.x = allocation.x;
+    attributes.y = allocation.y;
+    attributes.width = allocation.width;
+    attributes.height = allocation.height;
     attributes.wclass = GDK_INPUT_OUTPUT;
     attributes.window_type = GDK_WINDOW_CHILD;
     attributes.event_mask = (gtk_widget_get_events(widget) |
                              GDK_EXPOSURE_MASK);
 
-    widget->window = gdk_window_new(gtk_widget_get_parent_window(widget),
-                                    &attributes,
-                                    GDK_WA_X | GDK_WA_Y);
-    gdk_window_set_user_data(widget->window, widget);
-    gdk_window_set_back_pixmap(widget->window, NULL, TRUE);
+    GdkWindow *window = gdk_window_new(gtk_widget_get_parent_window(widget),
+                                       &attributes,
+                                       GDK_WA_X | GDK_WA_Y);
+    gtk_widget_set_window(widget, window);
+    gdk_window_set_user_data(window, widget);
+#if GTK_MAJOR_VERSION >= 3
+    gdk_window_set_background_pattern(window, NULL);
+#else
+    gdk_window_set_back_pixmap(window, NULL, TRUE);
+#endif
 
     /* attach zbar_window to underlying X window */
 #ifdef HAVE_X
     if(zbar_window_attach(zbar->window,
-                           gdk_x11_drawable_get_xdisplay(widget->window),
-                           gdk_x11_drawable_get_xid(widget->window)))
+                           GDK_DISPLAY_XDISPLAY(gdk_display_get_default()),
+                           GDK_WINDOW_XID(window)))
 #elif defined(_WIN32)
     if(zbar_window_attach(zbar->window,
-                           GDK_WINDOW_HWND (widget->window),
+                           GDK_WINDOW_HWND (window),
                            0))
 #endif
         zbar_window_error_spew(zbar->window, 0);
@@ -403,7 +411,9 @@ static inline GValue *zbar_gtk_new_value (GType type)
 
 static void zbar_gtk_unrealize (GtkWidget *widget)
 {
-    if(GTK_WIDGET_MAPPED(widget))
+    GdkWindow *window;
+
+    if(gtk_widget_get_mapped(widget))
         gtk_widget_unmap(widget);
 
     ZBarGtk *self = ZBAR_GTK(widget);
@@ -420,13 +430,67 @@ static void zbar_gtk_unrealize (GtkWidget *widget)
 
     zbar_window_attach(zbar->window, NULL, 0);
 
-    GTK_WIDGET_UNSET_FLAGS(widget, GTK_REALIZED);
+    gtk_widget_set_realized(widget, FALSE);
 
-    gdk_window_set_user_data(widget->window, NULL);
-    gdk_window_destroy(widget->window);
-    widget->window = NULL;
+    window = gtk_widget_get_window(widget);
+    gdk_window_set_user_data(window, NULL);
+    gdk_window_destroy(window);
+    gtk_widget_set_window(widget, NULL);
 }
 
+#if GTK_MAJOR_VERSION >= 3
+
+static void zbar_get_preferred_width(GtkWidget *widget,
+                                     gint      *minimum_width,
+                                     gint      *natural_width)
+{
+    ZBarGtk *self = ZBAR_GTK(widget);
+    if(!self->_private)
+        return;
+    ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
+
+    /* use native video size (max) if available,
+     * arbitrary defaults otherwise.
+     * video attributes maintained under main gui thread lock
+     */
+    *minimum_width = zbar->req_width;
+    *natural_width = zbar->req_width;
+}
+
+static void zbar_get_preferred_height(GtkWidget *widget,
+                                      gint      *minimum_height,
+                                      gint      *natural_height)
+{
+    ZBarGtk *self = ZBAR_GTK(widget);
+    if(!self->_private)
+        return;
+    ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
+
+    /* use native video size (max) if available,
+     * arbitrary defaults otherwise.
+     * video attributes maintained under main gui thread lock
+     */
+    *minimum_height = zbar->req_height;
+    *natural_height = zbar->req_height;
+}
+
+static gboolean zbar_gtk_scale_draw(GtkWidget *widget, cairo_t   *cr)
+{
+    // NOTE: should we change something here?
+
+    ZBarGtk *self = ZBAR_GTK(widget);
+    if(!self->_private)
+        return(FALSE);
+    ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
+
+    if(gtk_widget_get_visible(widget) &&
+       gtk_widget_get_mapped(widget) &&
+       zbar_window_redraw(zbar->window))
+        return(TRUE);
+    return(FALSE);
+}
+
+#else
 static void zbar_gtk_size_request (GtkWidget *widget,
                                    GtkRequisition *requisition)
 {
@@ -443,6 +507,22 @@ static void zbar_gtk_size_request (GtkWidget *widget,
     requisition->height = zbar->req_height;
 }
 
+static gboolean zbar_gtk_expose (GtkWidget *widget,
+                                 GdkEventExpose *event)
+{
+    ZBarGtk *self = ZBAR_GTK(widget);
+    if(!self->_private)
+        return(FALSE);
+    ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
+
+    if(gtk_widget_get_visible(widget) &&
+       gtk_widget_get_mapped(widget) &&
+       zbar_window_redraw(zbar->window))
+        return(TRUE);
+    return(FALSE);
+}
+#endif
+
 static void zbar_gtk_size_allocate (GtkWidget *widget,
                                     GtkAllocation *allocation)
 {
@@ -456,21 +536,6 @@ static void zbar_gtk_size_allocate (GtkWidget *widget,
     if(zbar->window)
         zbar_window_resize(zbar->window,
                             allocation->width, allocation->height);
-}
-
-static gboolean zbar_gtk_expose (GtkWidget *widget,
-                                 GdkEventExpose *event)
-{
-    ZBarGtk *self = ZBAR_GTK(widget);
-    if(!self->_private)
-        return(FALSE);
-    ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
-
-    if(GTK_WIDGET_VISIBLE(widget) &&
-       GTK_WIDGET_MAPPED(widget) &&
-       zbar_window_redraw(zbar->window))
-        return(TRUE);
-    return(FALSE);
 }
 
 void zbar_gtk_scan_image (ZBarGtk *self,
@@ -696,9 +761,16 @@ static void zbar_gtk_class_init (ZBarGtkClass *klass)
     GtkWidgetClass *widget_class = (GtkWidgetClass*)klass;
     widget_class->realize = zbar_gtk_realize;
     widget_class->unrealize = zbar_gtk_unrealize;
+#if GTK_MAJOR_VERSION >= 3
+    widget_class->get_preferred_width  = zbar_get_preferred_width;
+    widget_class->get_preferred_height = zbar_get_preferred_height;
+    widget_class->draw                 = zbar_gtk_scale_draw;
+#else
     widget_class->size_request = zbar_gtk_size_request;
-    widget_class->size_allocate = zbar_gtk_size_allocate;
     widget_class->expose_event = zbar_gtk_expose;
+#endif
+    widget_class->size_allocate = zbar_gtk_size_allocate;
+
     widget_class->unmap = NULL;
 
     zbar_gtk_signals[DECODED] =

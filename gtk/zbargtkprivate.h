@@ -25,7 +25,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
-#include <gtk/gtktable.h>
+#include <gtk/gtk.h>
 
 #include <zbar.h>
 
