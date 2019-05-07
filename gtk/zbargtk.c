@@ -453,6 +453,15 @@ static void zbar_get_preferred_width(GtkWidget *widget,
      * arbitrary defaults otherwise.
      * video attributes maintained under main gui thread lock
      */
+    unsigned int screen_width  = gdk_screen_width();
+
+    if (zbar->req_width > screen_width) {
+         float scale = screen_width * .8 / zbar->req_width;
+
+         zbar->req_width *= scale;
+         zbar->req_height *= scale;
+    }
+
     *minimum_width = zbar->req_width;
     *natural_width = zbar->req_width;
 }
@@ -470,6 +479,15 @@ static void zbar_get_preferred_height(GtkWidget *widget,
      * arbitrary defaults otherwise.
      * video attributes maintained under main gui thread lock
      */
+    unsigned int screen_height  = gdk_screen_height();
+
+    if (zbar->req_height > screen_height) {
+         float scale = screen_height * .8 / zbar->req_height;
+
+         zbar->req_width *= scale;
+         zbar->req_height *= scale;
+    }
+
     *minimum_height = zbar->req_height;
     *natural_height = zbar->req_height;
 }
