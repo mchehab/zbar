@@ -19,5 +19,5 @@ pygtk/zbarpygtk.defs: include/zbar/zbargtk.h
 
 pygtk/%.c: pygtk/%.defs $(srcdir)/pygtk/zbarpygtk.override
 	$(PYGTK_CODEGEN) --prefix zbarpygtk \
-            --register $(PYGTK_DEFS)/gdk-types.defs \
+	    --register $(PYGTK_DEFS)/gdk-types.defs \
 	    --override $(srcdir)/pygtk/zbarpygtk.override $< > $@
