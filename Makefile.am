@@ -105,3 +105,6 @@ archive:
 	bzip2 zbar-$(VERSION).tar
 
 .PHONY : $(PHONY) archive
+
+dist-hook:
+	rm -f $(distdir)/debian $(distdir)/travis
