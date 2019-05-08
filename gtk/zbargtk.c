@@ -432,7 +432,17 @@ static void zbar_get_preferred_width(GtkWidget *widget,
      * arbitrary defaults otherwise.
      * video attributes maintained under main gui idle handler
      */
+#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 22
+    GdkRectangle geo;
+
+    GdkDisplay *display = gdk_display_get_default();
+    GdkMonitor *monitor = gdk_display_get_monitor(display, 0);
+    gdk_monitor_get_geometry(monitor, &geo);
+
+    unsigned int screen_width  = geo.width;
+#else
     unsigned int screen_width  = gdk_screen_width();
+#endif
 
     if (zbar->req_width > screen_width) {
          float scale = screen_width * .8 / zbar->req_width;
@@ -458,7 +468,17 @@ static void zbar_get_preferred_height(GtkWidget *widget,
      * arbitrary defaults otherwise.
      * video attributes maintained under main gui idle handler
      */
+#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 22
+    GdkRectangle geo;
+
+    GdkDisplay *display = gdk_display_get_default();
+    GdkMonitor *monitor = gdk_display_get_monitor(display, 0);
+    gdk_monitor_get_geometry(monitor, &geo);
+
+    unsigned int screen_height  = geo.height;
+#else
     unsigned int screen_height  = gdk_screen_height();
+#endif
 
     if (zbar->req_height > screen_height) {
          float scale = screen_height * .8 / zbar->req_height;
