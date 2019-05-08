@@ -145,9 +145,6 @@ static void open_button_clicked (GtkButton *button,
  */
 int main (int argc, char *argv[])
 {
-    gdk_threads_init();
-    gdk_threads_enter();
-
     gtk_init(&argc, &argv);
     const char *video_arg = NULL;
     if(argc > 1)
@@ -229,6 +226,5 @@ int main (int argc, char *argv[])
 
     gtk_widget_show_all(window);
     gtk_main();
-    gdk_threads_leave();
     return(0);
 }

@@ -50,9 +50,9 @@ typedef struct _ZBarGtkPrivate
     GObject object;
 
     /* these are all owned by the main gui thread */
-    GThread *thread;
+    gint idle_id;
     const char *video_device;
-    gboolean video_enabled;
+    gboolean video_enabled, video_enabled_state;
 
     /* messages are queued from the gui thread to the processor thread.
      * each message is a GValue containing one of:
