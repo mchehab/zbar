@@ -54,7 +54,7 @@ enum {
 
 static guint zbar_gtk_signals[LAST_SIGNAL] = { 0 };
 
-static gpointer zbar_gtk_parent_class = NULL;
+G_DEFINE_TYPE(ZBarGtk, zbar_gtk, GTK_TYPE_WIDGET);
 
 /* FIXME what todo w/errors? OOM? */
 /* FIXME signal failure notifications to main gui thread */
@@ -831,26 +831,6 @@ static void zbar_gtk_class_init (ZBarGtkClass *klass)
         FALSE,
         G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
     g_object_class_install_property(object_class, PROP_VIDEO_OPENED, p);
-}
-
-GType zbar_gtk_get_type (void)
-{
-    static GType type = 0;
-    if(!type) {
-        static const GTypeInfo info = {
-            sizeof(ZBarGtkClass),
-            NULL, /* base_init */
-            NULL, /* base_finalize */
-            (GClassInitFunc)zbar_gtk_class_init,
-            NULL, /* class_finalize */
-            NULL, /* class_data */
-            sizeof(ZBarGtk),
-            0,
-            (GInstanceInitFunc)zbar_gtk_init,
-        };
-        type = g_type_register_static(GTK_TYPE_WIDGET, "ZBarGtk", &info, 0);
-    }
-    return(type);
 }
 
 static void zbar_gtk_private_class_init (ZBarGtkPrivateClass *klass)
