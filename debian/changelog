@@ -1,3 +1,21 @@
+zbar (0.22.2) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Mauro Carvalho Chehab <mchehab+samsung@kernel.org>  Wed, 08 May 2019 12:00:00 +0000
+
+zbar (0.22.1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Mauro Carvalho Chehab <mchehab+samsung@kernel.org>  Wed, 08 May 2019 12:00:00 +0000
+
+zbar (0.22) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Mauro Carvalho Chehab <mchehab+samsung@kernel.org>  Wed, 08 May 2019 12:00:00 +0000
+
 zbar (0.21.1) unstable; urgency=low
 
   * New upstream release. (Closes: #762114)

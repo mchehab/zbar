@@ -11,3 +11,4 @@ libzbargtk.so.0 libzbargtk0 #MINVER#
  zbar_gtk_scan_image@Base 0.10
  zbar_gtk_set_video_device@Base 0.10
  zbar_gtk_set_video_enabled@Base 0.10
+ zbar_marshal_VOID__INT_STRING@Base 0.22.2
