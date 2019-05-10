@@ -395,6 +395,7 @@ static void zbar_gtk_unrealize (GtkWidget *widget)
     if(gtk_widget_get_mapped(widget))
         gtk_widget_unmap(widget);
 
+    gtk_widget_set_mapped(widget, FALSE);
     ZBarGtk *self = ZBAR_GTK(widget);
     if(!self->_private)
         return;
