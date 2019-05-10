@@ -32,7 +32,7 @@ EXTRA_DIST = zbarmarshal.list
 
 include $(INTROSPECTION_MAKEFILE)
 
-ZBar-1.0.gir: $(lib_LTLIBRARIES) ../zbarcam/zbarcam-gtk
+ZBar-1.0.gir: $(lib_LTLIBRARIES) $(builddir)/gtk-gir-dump
 
 INTROSPECTION_SCANNER_ENV = GI_SCANNER_DISABLE_CACHE=yes
 INTROSPECTION_SCANNER_ARGS = --warn-all \
