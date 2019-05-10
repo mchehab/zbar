@@ -91,7 +91,7 @@ regress-decoder: test/test_decode
 	@abs_top_builddir@/test/test_decode -q -n 100000
 
 check-images-py: zbarimg/zbarimg
-	@abs_top_srcdir@/test/barcodetest.py
+	@PYTHON@ @abs_top_srcdir@/test/barcodetest.py
 
 check-images: zbarimg/zbarimg
 	@abs_top_builddir@/test/test_examples.sh
@@ -104,12 +104,13 @@ check-convert: test/test_convert
 	@rm /tmp/base.I420.zimg 2>/dev/null
 
 check-pygtk: pygtk/zbarpygtk.la
-	PYTHONPATH=@abs_top_srcdir@/pygtk/.libs/ @abs_top_srcdir@/test/test_pygtk.py
+	PYTHONPATH=@abs_top_srcdir@/pygtk/.libs/ \
+		@PYTHON@ @abs_top_srcdir@/test/test_pygtk.py
 
 check-gi: gtk/ZBar-1.0.typelib
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):@abs_top_srcdir@/gtk/.libs:@abs_top_srcdir@/zbar/.libs \
 		GI_TYPELIB_PATH=@abs_top_srcdir@/gtk/ \
-		@abs_top_srcdir@/test/test_gi.py
+		@PYTHON@ @abs_top_srcdir@/test/test_gi.py
 
 # Require a camera device for it to work
 check-video: test/test_video
