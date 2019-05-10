@@ -1,5 +1,5 @@
 lib_LTLIBRARIES = libzbargtk.la
-libzbargtk_la_CPPFLAGS = -I$(srcdir) $(GTK_CFLAGS) $(AM_CPPFLAGS)
+libzbargtk_la_CPPFLAGS = -I$(srcdir) -I$(top_srcdir)/include $(GTK_CFLAGS) $(AM_CPPFLAGS)
 libzbargtk_la_LDFLAGS = -version-info $(ZGTK_LIB_VERSION) \
     -export-symbols-regex "^zbar_.*" $(AM_LDFLAGS) -no-undefined
 libzbargtk_la_LIBADD = $(GTK_LIBS) ../zbar/libzbar.la $(AM_LIBADD)
@@ -47,7 +47,6 @@ ZBar_1_0_gir_PROGRAM = ../zbarcam/zbarcam-gtk
 ZBar_1_0_gir_LIBS = $(lib_LTLIBRARIES)
 ZBar_1_0_gir_FILES = ../include/zbar/zbargtk.h zbargtk.c
 ZBar_1_0_gir_INCLUDES = Gtk-@GTK_VERSION_MAJOR@ Gdk-@GTK_VERSION_MAJOR@
-ZBar_1_0_gir_C_INCLUDES = ../include/zbar.h
 ZBar_1_0_gir_CFLAGS= $(libzbargtk_la_CPPFLAGS)
 
 if HAVE_INTROSPECTION
