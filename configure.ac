@@ -725,6 +725,8 @@ AC_CONFIG_COMMANDS([doc/reldate.xml],
   [RELDATE="$RELDATE"]
 )
 
+echo "Generating config files"
+
 AC_CONFIG_FILES([
 Makefile
 gtk/Makefile
