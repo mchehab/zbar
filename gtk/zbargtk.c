@@ -343,9 +343,13 @@ static void zbar_gtk_realize (GtkWidget *widget)
         return;
     ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
 
-    gtk_widget_set_double_buffered(widget, FALSE);
     gtk_widget_set_realized(widget, TRUE);
 
+#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 14
+    // FIXME: this is deprecated after 3.14 - no idea what replaces it
+#else
+    gtk_widget_set_double_buffered(widget, FALSE);
+#endif
     GdkWindowAttr attributes;
     GtkAllocation allocation;
 
@@ -364,9 +368,9 @@ static void zbar_gtk_realize (GtkWidget *widget)
                                        GDK_WA_X | GDK_WA_Y);
     gtk_widget_set_window(widget, window);
     gdk_window_set_user_data(window, widget);
-#if GTK_MAJOR_VERSION >= 3
+#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 18
     gdk_window_set_background_pattern(window, NULL);
-#else
+#elif GTK_MAJOR_VERSION < 3
     gdk_window_set_back_pixmap(window, NULL, TRUE);
 #endif
 
