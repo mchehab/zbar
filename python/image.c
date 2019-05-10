@@ -146,7 +146,13 @@ image_set_format (zbarImage *self,
     char *format = NULL;
     Py_ssize_t len;
 #if PY_MAJOR_VERSION >= 3
-    if(PyBytes_AsStringAndSize(value, &format, &len) ||
+    PyObject *bytes;
+
+    if (PyUnicode_Check(value))
+        bytes = PyUnicode_AsEncodedString(value, "utf-8", "surrogateescape");
+    else
+        bytes = value;
+    if(PyBytes_AsStringAndSize(bytes, &format, &len) < 0 ||
        !format || len != 4) {
 #else
     if(PyString_AsStringAndSize(value, &format, &len) ||
@@ -354,7 +360,13 @@ image_set_data (zbarImage *self,
     char *data;
     Py_ssize_t datalen;
 #if PY_MAJOR_VERSION >= 3
-    if(PyBytes_AsStringAndSize(value, &data, &datalen))
+    PyObject *bytes;
+
+    if (PyUnicode_Check(value))
+        bytes = PyUnicode_AsEncodedString(value, "utf-8", "surrogateescape");
+    else
+        bytes = value;
+    if(PyBytes_AsStringAndSize(bytes, &data, &datalen))
         return(-1);
 #else
     if(PyString_AsStringAndSize(value, &data, &datalen))
