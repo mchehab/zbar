@@ -512,23 +512,48 @@ AC_ARG_WITH([gir],
   [with_gir="no"])
 
 dnl Python
+dnl For now, keep python2 as default
+dnl If both PYTHON and --with-python=foo are defined, PYTHON takes precedence
+
 AC_ARG_WITH([python],
-  [AS_HELP_STRING([--without-python],
-    [disable support for Python bindings])],
-  [],
-  [with_python="yes"])
+  [AS_HELP_STRING([--with-python],
+    [Specify support for Python. Valid values are: no, auto, python2, python3
+(default is python2).
+Please notice that PYTHON var, if especified, takes precedence.])],
+  [AS_IF([test "x$with_python" != "xno"      && test "x$with_python" != "xauto" &&
+          test "x$with_python" != "xpython2" && test "x$with_python" != "xpython3"],
+         [echo "Invalid value for --with-python. Falling back to 'no'"
+          with_python="xno"])],
+  [with_python="python2"])
 
 AC_ARG_VAR([PYTHON_CONFIG], [full path to python-config program])
 AC_ARG_VAR([PYTHON_CFLAGS], [compiler flags for building python extensions])
 AC_ARG_VAR([PYTHON_LIBS], [linker flags for building python extensions])
 
-AC_ARG_VAR([PYGTK_H2DEF], [full path to PyGTK h2def.py module])
-AC_ARG_VAR([PYGTK_CODEGEN], [full path to pygtk-codegen program])
-AC_ARG_VAR([PYGTK_DEFS], [directory where PyGTK definitions may be found])
+AC_ARG_VAR([PYGTK_H2DEF], [full path to PyGTK h2def.py module (python2 only)])
+AC_ARG_VAR([PYGTK_CODEGEN], [full path to pygtk-codegen program (python2 only)])
+AC_ARG_VAR([PYGTK_DEFS], [directory where PyGTK definitions may be found (python2 only)])
+
+AS_IF([test -z "$PYTHON"],
+      [AS_IF([test "x$with_python" == "xauto"],
+             [AC_PATH_PROGS([PYTHON], [python3 python2 python], [:], [$PATH])],
+             [AS_IF([test "x$with_python" == "xpython3"],
+                    [AC_PATH_PROGS([PYTHON], [python3 python], [:], [$PATH])],
+                    [AS_IF([test "x$with_python" == "xpython2"],
+                           [AC_PATH_PROGS([PYTHON], [python2 python], [:], [$PATH])],
+                           [with_python="no"])
+                    ])
+             ]
+      )],
+      [with_python="auto"]
+)
 
 AS_IF([test "x$with_python" != "xno"],
-  [AM_PATH_PYTHON(2.7.0)
-   PYTHON_VERSION_MAJOR="`echo $PYTHON_VERSION | cut -d'.' -f 1`"
+      [AM_PATH_PYTHON([2.7.0])])
+
+AS_IF([test "x$PYTHON_VERSION" != "x" && test "x$with_python" != "xno"],
+  [PYTHON_VERSION_MAJOR="`echo $PYTHON_VERSION | cut -d'.' -f 1`"
+
    AS_IF([test "x$PYTHON_CFLAGS" != "x"],
      [],
      [test "x$PYTHON_CONFIG" != "x" && test -x "$PYTHON_CONFIG"],
@@ -571,11 +596,12 @@ Install the development package for python-$am_cv_python_version, or configure
              AC_SUBST(INTROSPECTION_GIRDIR)])])
       ])
    ])
-])
+], [with_python="no"])
 
+AS_IF(["$with_python" = "xno"], [with_pygtk2=no])
 AM_CONDITIONAL([HAVE_INTROSPECTION], [test "x$found_introspection" = "xyes"])
-AM_CONDITIONAL([HAVE_PYTHON], [test "x$with_python" = "xyes"])
-AM_CONDITIONAL([HAVE_PYGTK2], [test "x$with_pygtk2" = "xyes"])
+AM_CONDITIONAL([HAVE_PYTHON], [test "x$with_python" != "xno"])
+AM_CONDITIONAL([HAVE_PYGTK2], [test "x$with_pygtk2" != "xno"])
 
 dnl Qt
 AC_ARG_WITH([qt],
