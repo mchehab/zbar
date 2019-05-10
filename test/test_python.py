@@ -28,7 +28,7 @@ except:
         print("No image library on python. Aborting test")
         sys.exit()
 
-if sys.argv < 2:
+if len(sys.argv) < 2:
     print("Usage: %s <file name> <expected text>")
     sys.exit(-1)
 
@@ -44,7 +44,7 @@ height = image.size[1]
 raw_data = image.tobytes()
 
 scanner = zbar.ImageScanner()
-image = zbar.Image(width, height, 'Y800', raw_data)
+image = zbar.Image(width=width, height=height, format='Y800', data=raw_data)
 scanner.scan(image)
 
 found = False
