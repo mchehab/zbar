@@ -510,7 +510,7 @@ AM_CONDITIONAL([HAVE_GTK], [test "x$with_gtk" != "xno"])
 AC_ARG_WITH([gir],
   [AS_HELP_STRING([--with-gir], [enable support for GObject Introspection])],
   [],
-  [with_gir="no"])
+  [with_gir="yes"])
 
 dnl Python
 dnl For now, keep python2 as default
@@ -595,7 +595,7 @@ AM_CONDITIONAL([HAVE_PYGTK2], [test "x$with_pygtk2" != "xno"])
 
 dnl GObject Introspection (GIR)
 
-AS_IF([test "x$with_gir" != "xno"],
+AS_IF([test "x$with_gir" == "xyes" && test "x$with_gtk" != "xno"],
   [m4_ifdef([GOBJECT_INTROSPECTION_CHECK],
     [GOBJECT_INTROSPECTION_CHECK([0.6.7])
      AS_IF([test "x$found_introspection" = "xyes"],
