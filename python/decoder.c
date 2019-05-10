@@ -130,7 +130,7 @@ decoder_get_data (zbarDecoder *self,
                   void *closure)
 {
 #if PY_MAJOR_VERSION >= 3
-    return(PyBytes_FromStringAndSize(zbar_decoder_get_data(self->zdcode),
+    return(PyUnicode_FromStringAndSize(zbar_decoder_get_data(self->zdcode),
                                      zbar_decoder_get_data_length(self->zdcode)));
 #else
     return(PyString_FromStringAndSize(zbar_decoder_get_data(self->zdcode),
