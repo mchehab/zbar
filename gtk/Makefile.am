@@ -43,13 +43,20 @@ INTROSPECTION_SCANNER_ARGS = --warn-all \
 INTROSPECTION_GIRS = ZBar-1.0.gir
 ZBar_1_0_gir_NAMESPACE = ZBar
 ZBar_1_0_gir_VERSION = 1.0
-ZBar_1_0_gir_PROGRAM = ../zbarcam/zbarcam-gtk
+ZBar_1_0_gir_PROGRAM = $(builddir)/gtk-gir-dump
 ZBar_1_0_gir_LIBS = $(lib_LTLIBRARIES)
 ZBar_1_0_gir_FILES = ../include/zbar/zbargtk.h zbargtk.c
 ZBar_1_0_gir_INCLUDES = Gtk-@GTK_VERSION_MAJOR@ Gdk-@GTK_VERSION_MAJOR@
 ZBar_1_0_gir_CFLAGS= $(libzbargtk_la_CPPFLAGS)
 
 if HAVE_INTROSPECTION
+
+noinst_bindir = @abs_builddir@
+noinst_bin_PROGRAMS = gtk-gir-dump
+gtk_gir_dump_SOURCES = gtk-gir-dump.c
+gtk_gir_dump_CPPFLAGS = $(GTK_CFLAGS) $(AM_CPPFLAGS) $(INTROSPECTION_CFLAGS)
+gtk_gir_dump_LDADD = $(GTK_LIBS) libzbargtk.la ../zbar/libzbar.la \
+	$(AM_LDADD) $(INTROSPECTION_LIBS)
 
 girdir = $(INTROSPECTION_GIRDIR)
 dist_gir_DATA = $(INTROSPECTION_GIRS)

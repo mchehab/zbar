@@ -12,14 +12,6 @@ zbarcam_zbarcam_gtk_CPPFLAGS = $(GTK_CFLAGS) $(AM_CPPFLAGS)
 zbarcam_zbarcam_gtk_LDADD = $(GTK_LIBS) gtk/libzbargtk.la zbar/libzbar.la \
 	$(AM_LDADD)
 
-if HAVE_INTROSPECTION
-
-include $(INTROSPECTION_MAKEFILE)
-
-zbarcam_zbarcam_gtk_CPPFLAGS += -DHAVE_GIR $(INTROSPECTION_CFLAGS)
-zbarcam_zbarcam_gtk_LDADD += $(INTROSPECTION_LIBS)
-endif
-
 endif
 endif
 

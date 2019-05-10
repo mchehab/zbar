@@ -24,10 +24,6 @@
 #include <gtk/gtk.h>
 #include <zbar/zbargtk.h>
 
-#if HAVE_GIR
-#include <girepository.h>
-#endif
-
 static GtkWidget *window = NULL;
 static GtkWidget *status_image = NULL;
 static GtkTextView *results = NULL;
@@ -152,20 +148,6 @@ int main (int argc, char *argv[])
     const char *video_arg = NULL;
 
     gtk_init(&argc, &argv);
-
-    /* Support for GObject Introspection */
-#if HAVE_GIR
-    GOptionContext *ctx;
-    GError *error = NULL;
-
-    ctx = g_option_context_new(NULL);
-    g_option_context_add_group(ctx, g_irepository_get_option_group());
-
-    if (!g_option_context_parse(ctx, &argc, &argv, &error)) {
-        g_print ("zbarcam-gtk: %s\n", error->message);
-        return 1;
-    }
-#endif
 
     if(argc > 1)
         video_arg = argv[1];

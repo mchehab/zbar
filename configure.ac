@@ -294,7 +294,7 @@ AC_ARG_WITH([dbus],
   [with_dbus="check"])
 
 AS_IF([test "x$with_dbus" != "xno"],
-  [PKG_CHECK_MODULES(DBUS, dbus-1 >= 1.0, have_dbus=yes, have_dbus=no)
+  [PKG_CHECK_MODULES(DBUS, dbus-1 >= 1.0, have_dbus="yes", have_dbus="no")
   AS_IF([test "x$have_dbus$with_dbus" = "xnoyes"],
     [AC_MSG_FAILURE([DBus development libraries not found])],
     [with_dbus="$have_dbus"])
@@ -482,7 +482,6 @@ AS_IF([test "x$with_gtk" == "xgtk3" || test "x$with_gtk" == "xauto"],
      with_gtk="gtk3"
      GTK_CFLAGS=$GTK3_CFLAGS
      GTK_LIBS=$GTK3_LIBS
-     AC_MSG_NOTICE([using version $GTHREAD_VERSION])
     ])
   ])
 
@@ -495,7 +494,6 @@ AS_IF([test "x$with_gtk" == "xgtk2" || test "x$with_gtk" == "xauto"],
      with_gtk="gtk2"
      GTK_CFLAGS=$GTK2_CFLAGS
      GTK_LIBS=$GTK2_LIBS
-     AC_MSG_NOTICE([using version $GTHREAD_VERSION])
     ])
   ])
 
@@ -577,7 +575,7 @@ Install the development package for python-$am_cv_python_version, or configure
    dnl disable pygtk when we're on Python 3
    AS_IF([test "x$with_gtk" != "xno"],
      [AS_IF([test "x$PYTHON_VERSION_MAJOR" = "x2"],
-       [PKG_CHECK_MODULES([PYGTK], [pygtk-2.0], [with_pygtk2=yes], [with_pygtk2=no])
+       [PKG_CHECK_MODULES([PYGTK], [pygtk-2.0], [with_pygtk2="yes"], [with_pygtk2="no"])
         AC_CHECK_PROGS([PYGTK_CODEGEN], [pygobject-codegen-2.0 pygtk-codegen-2.0 pygtk-codegen], [:])
 
         AS_IF([test "x$PYGTK_H2DEF" = "x"],
@@ -589,7 +587,7 @@ Install the development package for python-$am_cv_python_version, or configure
    ])
 ], [with_python="no"])
 
-AS_IF(["$with_python" = "xno"], [with_pygtk2=no])
+AS_IF([test "x$with_python" = "xno"], [with_pygtk2="no"])
 AM_CONDITIONAL([HAVE_PYTHON], [test "x$with_python" != "xno"])
 AM_CONDITIONAL([HAVE_PYGTK2], [test "x$with_pygtk2" != "xno"])
 
