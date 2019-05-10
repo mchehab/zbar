@@ -587,7 +587,7 @@ Install the development package for python-$am_cv_python_version, or configure
    ])
 ], [with_python="no"])
 
-AS_IF([test "x$with_python" = "xno"], [with_pygtk2="no"])
+AS_IF([test "x$PYTHON_VERSION_MAJOR" != "x2"], [with_pygtk2="no"])
 AM_CONDITIONAL([HAVE_PYTHON], [test "x$with_python" != "xno"])
 AM_CONDITIONAL([HAVE_PYGTK2], [test "x$with_pygtk2" != "xno"])
 
