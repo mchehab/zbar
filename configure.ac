@@ -604,7 +604,9 @@ AS_IF([test "x$with_gir" == "xyes" && test "x$with_gtk" != "xno"],
         AC_SUBST(INTROSPECTION_TYPELIBDIR)
         AC_SUBST(INTROSPECTION_GIRDIR)])])
  ])
-AM_CONDITIONAL([HAVE_INTROSPECTION], [test "x$found_introspection" = "xyes"])
+
+AS_IF([test "x$found_introspection" != "xyes"], [with_gir="no"])
+AM_CONDITIONAL([HAVE_INTROSPECTION], [test "x$with_gir" = "xyes"])
 
 dnl Qt
 AC_ARG_WITH([qt],
@@ -803,24 +805,26 @@ dnl summary log
 echo ""
 echo "please verify that the detected configuration matches your expectations:"
 echo "------------------------------------------------------------------------"
-echo "X                 --with-x=$have_x"
-echo "pthreads          --enable-pthread=$enable_pthread"
-echo "doc               --enable-doc=$enable_doc"
-echo "v4l               --enable-video=$enable_video"
-echo "jpeg              --with-jpeg=$with_jpeg"
-echo "Python ${PYTHON_VERSION}        --with-python=$with_python"
-echo "GTK+${GTK_VERSION}       --with-gtk=$with_gtk"
-echo "Qt${QT_VERSION}           --with-qt=$with_qt"
-echo "Java              --with-java=$with_java"
-AS_IF([test "x$with_java" = "xyes"],
-  [echo "    JAVA_HOME     $JAVA_HOME"])
+echo "X                      --with-x=$have_x"
+echo "pthreads               --enable-pthread=$enable_pthread"
+echo "doc                    --enable-doc=$enable_doc"
+echo "v4l                    --enable-video=$enable_video"
+echo "jpeg                   --with-jpeg=$with_jpeg"
+echo "Python                 --with-python=$with_python    python${PYTHON_VERSION}"
+echo "GTK                    --with-gtk=$with_gtk          Gtk${GTK_VERSION}"
+echo "GObject introspection  --with-gir=$with_gir"
+echo "Qt                     --with-qt=$with_qt            Qt${QT_VERSION}"
+echo "Java                   --with-java=$with_java"
+echo "Dbus                   --with-dbus=$with_dbus"
 AS_IF([test "x$have_GM" = "xyes"],
-  [echo "GraphicsMagick    --with-graphicsmagick=yes"],
-  [echo "ImageMagick       --with-imagemagick=$with_imagemagick"])
-echo "dbus              --with-dbus=$with_dbus"
-echo "Enabled codes:   $enabled_codes"
-echo "Disabled codes:  $disabled_codes"
+  [echo "GraphicsMagick         --with-graphicsmagick=yes"],
+  [echo "ImageMagick            --with-imagemagick=$with_imagemagick"])
+echo "Enabled codes:        $enabled_codes"
+echo "Disabled codes:       $disabled_codes"
+AS_IF([test "x$with_java" = "xyes"],
+  [echo "JAVA_HOME              $JAVA_HOME"])
 echo ""
+
 
 dnl Display "warnings" about disabled and experimental features
 
@@ -835,12 +839,9 @@ AS_IF([test "x$have_IM" != "xyes" && test "x$have_GM" != "xyes"],
 AS_IF([test "x$have_GM" = "xyes"],
   [echo "        => ImageMagick is preferred, as GraphicsMagick doesn't support https"])
 AS_IF([test "x$with_gtk" == "xno"],
-  [echo "        => the GTK+ widget will *NOT* be built"],
-  [AS_IF([test "x$with_pygtk2" != "xyes"],
-     [echo "        => the Python 2 GTK widget wrapper will *NOT* be built"])
-   AS_IF([test "x$found_introspection" != "xyes"],
-     [echo "        => the GNOME GObject introspection will *NOT* be built"])])
-
+  [echo "        => GTK support will *NOT* be built"])
+AS_IF([test "x$with_pygtk2" != "xyes" && test "xPYTHON_VERSION_MAJOR" = "x2"],
+  [echo "        => the Python 2 GTK widget wrapper will *NOT* be built"])
 AS_IF([test "x$with_qt" != "xyes"],
   [echo "        => the Qt widget will *NOT* be built"])
 AS_IF([test "x$with_qt" == "xyes" && test "x$enable_static_qt" == "xyes" ],
@@ -854,5 +855,3 @@ AS_IF([test "x$with_java_unit" != "xyes"],
 #  [echo "       => the Mozilla/Firefox/OpenOffice plugin will *NOT* be built"])
 AS_IF([test "x$enable_pdf417" == "xyes"],
   [echo "        => the pdf417 code support is incomplete!"])
-AS_IF([test "x$enable_sqcode" == "xyes"],
-  [echo "        => the sqcode support is currently experimental. Use with care!"])
