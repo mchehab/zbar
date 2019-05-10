@@ -459,25 +459,52 @@ AS_IF([test "x$with_npapi" != "xno"],
 AM_CONDITIONAL([HAVE_NPAPI], [test "x$with_npapi" = "xyes"])
 
 dnl GTK
+dnl For now, defaults to GTK version 2
+
 AC_ARG_WITH([gtk],
-  [AS_HELP_STRING([--without-gtk],
-    [disable support for GTK+ widget])],
-  [],
-  [with_gtk="yes"])
+  [AS_HELP_STRING([--with-gtk],
+    [Specify support for GTK. Valid values are: no, auto, gtk2, gtk3 (default is gtk2)])],
+  [AS_IF([test "x$with_gtk" != "xno"   && test "x$with_gtk" != "xauto" &&
+          test "x$with_gtk" != "xgtk2" && test "x$with_gtk" != "xgtk3"],
+         [echo "Invalid value for --with-gtk. Falling back to 'no'"
+          with_gtk="xno"])],
+  [with_gtk="gtk2"])
 
 AC_ARG_VAR([GLIB_GENMARSHAL], [full path to glib-genmarshal])
-
 AC_ARG_VAR([GTK_VERSION_MAJOR])
 
-AS_IF([test "x$with_gtk" != "xno"],
-  [PKG_CHECK_MODULES([GTK], [gtk+-2.0])
-   GLIB_GENMARSHAL=`$PKG_CONFIG glib-2.0 --variable=glib_genmarshal`
-   GTK_VERSION=`$PKG_CONFIG gtk+-2.0 --modversion`
-   AC_MSG_NOTICE([using GTK+ version $GTK_VERSION])
-   GTK_VERSION_MAJOR=2.0
-   AC_MSG_NOTICE([using version $GTHREAD_VERSION])])
+AS_IF([test "x$with_gtk" == "xgtk3" || test "x$with_gtk" == "xauto"],
+  [PKG_CHECK_MODULES([GTK3], [gtk+-3.0],
+    [GLIB_GENMARSHAL=`$PKG_CONFIG glib-2.0 --variable=glib_genmarshal`
+     GTK_VERSION=`$PKG_CONFIG gtk+-3.0 --modversion`
+     AC_MSG_NOTICE([using GTK+ version $GTK_VERSION])
+     GTK_VERSION_MAJOR=3.0
+     with_gtk="gtk3"
+     GTK_CFLAGS=$GTK3_CFLAGS
+     GTK_LIBS=$GTK3_LIBS
+     AC_MSG_NOTICE([using version $GTHREAD_VERSION])
+    ])
+  ])
 
-AM_CONDITIONAL([HAVE_GTK], [test "x$with_gtk" = "xyes"])
+AS_IF([test "x$with_gtk" == "xgtk2" || test "x$with_gtk" == "xauto"],
+  [PKG_CHECK_MODULES([GTK2], [gtk+-2.0],
+    [GLIB_GENMARSHAL=`$PKG_CONFIG glib-2.0 --variable=glib_genmarshal`
+     GTK_VERSION=`$PKG_CONFIG gtk+-2.0 --modversion`
+     AC_MSG_NOTICE([using GTK+ version $GTK_VERSION])
+     GTK_VERSION_MAJOR=2.0
+     with_gtk="gtk2"
+     GTK_CFLAGS=$GTK2_CFLAGS
+     GTK_LIBS=$GTK2_LIBS
+     AC_MSG_NOTICE([using version $GTHREAD_VERSION])
+    ])
+  ])
+
+# GTK not found
+AS_IF(test "x$with_gtk" = "xauto"],[with_gtk="no"])
+AC_SUBST(GTK_LIBS)
+AC_SUBST(GTK_CFLAGS)
+
+AM_CONDITIONAL([HAVE_GTK], [test "x$with_gtk" != "xno"])
 
 AC_ARG_WITH([gir],
   [AS_HELP_STRING([--with-gir], [enable support for GObject Introspection])],
@@ -522,7 +549,7 @@ Install the development package for python-$am_cv_python_version, or configure
 
    dnl PyGTK
    dnl disable pygtk when we're on Python 3
-   AS_IF([test "x$with_gtk"],
+   AS_IF([test "x$with_gtk" != "xno"],
      [AS_IF([test "x$PYTHON_VERSION_MAJOR" = "x2"],
        [PKG_CHECK_MODULES([PYGTK], [pygtk-2.0], [with_pygtk2=yes], [with_pygtk2=no])
         AC_CHECK_PROGS([PYGTK_CODEGEN], [pygobject-codegen-2.0 pygtk-codegen-2.0 pygtk-codegen], [:])
@@ -778,7 +805,7 @@ AS_IF([test "x$have_IM" != "xyes" && test "x$have_GM" != "xyes"],
   [echo "        => the zbarimg file scanner will *NOT* be built"])
 AS_IF([test "x$have_GM" = "xyes"],
   [echo "        => ImageMagick is preferred, as GraphicsMagick doesn't support https"])
-AS_IF([test "x$with_gtk" != "xyes"],
+AS_IF([test "x$with_gtk" == "xno"],
   [echo "        => the GTK+ widget will *NOT* be built"],
   [AS_IF([test "x$with_pygtk2" != "xyes"],
      [echo "        => the Python 2 GTK widget wrapper will *NOT* be built"])
