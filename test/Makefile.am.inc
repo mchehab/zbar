@@ -103,9 +103,22 @@ check-convert: test/test_convert
 	   echo "convert FAILED"; else echo "convert PASSED."; fi
 	@rm /tmp/base.I420.zimg 2>/dev/null
 
+if HAVE_PYGTK2
 check-pygtk: pygtk/zbarpygtk.la
 	PYTHONPATH=@abs_top_srcdir@/pygtk/.libs/ \
 		@PYTHON@ @abs_top_srcdir@/test/test_pygtk.py
+else
+check-pygtk:
+endif
+
+if HAVE_PYTHON
+check-python: python/zbar.la
+	PYTHONPATH=@abs_top_srcdir@/python/.libs/ \
+		@PYTHON@ @abs_top_srcdir@/test/test_python.py \
+		'@abs_top_srcdir@/examples/ean-13.png' '9789876543217'
+else
+check-python:
+endif
 
 check-gi: gtk/ZBar-1.0.typelib
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):@abs_top_srcdir@/gtk/.libs:@abs_top_srcdir@/zbar/.libs \
@@ -136,7 +149,8 @@ endif
 
 regress: regress-decoder
 
-check-local: check-images-py check-decoder check-images check-java regress
+check-local: check-images-py check-decoder check-images check-java \
+	     check-python regress
 
 other-tests: check-cpp check-convert check-video check-jpeg
 

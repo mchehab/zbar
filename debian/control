@@ -18,6 +18,7 @@ Build-Depends:
  pkg-config,
  python-all-dbg (>= 2.6.6-3~),
  python-all-dev (>= 2.6.6-3~),
+ python-pil,
  python-gtk2-dev,
  xauth <!nocheck>,
  xmlto,

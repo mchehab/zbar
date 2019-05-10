@@ -734,6 +734,8 @@ static void zbar_gtk_init (ZBarGtk *self)
 
 static void zbar_gtk_dispose (GObject *object)
 {
+
+
     ZBarGtk *self = ZBAR_GTK(object);
     if(!self->_private)
         return;
