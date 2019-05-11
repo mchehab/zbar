@@ -3,6 +3,8 @@ libzbargtk_la_CPPFLAGS = -I$(srcdir) -I$(top_srcdir)/include $(GTK_CFLAGS) $(AM_
 libzbargtk_la_LDFLAGS = -version-info $(ZGTK_LIB_VERSION) \
     -export-symbols-regex "^zbar_.*" $(AM_LDFLAGS) -no-undefined
 libzbargtk_la_LIBADD = $(GTK_LIBS) ../zbar/libzbar.la $(AM_LIBADD)
+libzbargtk_la_DEPENDENCIES = ../zbar/libzbar.la
+
 
 if HAVE_X
 libzbargtk_la_CPPFLAGS += -DHAVE_X
@@ -32,31 +34,27 @@ EXTRA_DIST = zbarmarshal.list
 
 include $(INTROSPECTION_MAKEFILE)
 
-ZBar-1.0.gir: $(lib_LTLIBRARIES) $(builddir)/gtk-gir-dump
-
 INTROSPECTION_SCANNER_ENV = GI_SCANNER_DISABLE_CACHE=yes
 INTROSPECTION_SCANNER_ARGS = --warn-all \
 			     --symbol-prefix=zbar \
 			     --identifier-prefix=zbar_ \
 			     --identifier-prefix=ZBar
 
+# NOTE: On some rounds trying to make GIR to build on Fedora,
+#       I had to add those options to INTROSPECTION_SCANNER_ARGS:
+#
+#			     --library-path=$(builddir)/.libs \
+#			     --library-path=$(top_builddir)/zbar/.libs
+
 INTROSPECTION_GIRS = ZBar-1.0.gir
 ZBar_1_0_gir_NAMESPACE = ZBar
 ZBar_1_0_gir_VERSION = 1.0
-ZBar_1_0_gir_PROGRAM = $(builddir)/gtk-gir-dump
-ZBar_1_0_gir_LIBS = $(lib_LTLIBRARIES)
-ZBar_1_0_gir_FILES = ../include/zbar/zbargtk.h zbargtk.c
+ZBar_1_0_gir_LIBS = $(lib_LTLIBRARIES) $(top_builddir)/zbar/libzbar.la
+ZBar_1_0_gir_FILES = $(top_builddir)/include/zbar/zbargtk.h zbargtk.c
 ZBar_1_0_gir_INCLUDES = Gtk-@GTK_VERSION_MAJOR@ Gdk-@GTK_VERSION_MAJOR@
-ZBar_1_0_gir_CFLAGS= $(libzbargtk_la_CPPFLAGS)
+ZBar_1_0_gir_CFLAGS = $(libzbargtk_la_CPPFLAGS)
 
 if HAVE_INTROSPECTION
-
-noinst_bindir = @abs_builddir@
-noinst_bin_PROGRAMS = gtk-gir-dump
-gtk_gir_dump_SOURCES = gtk-gir-dump.c
-gtk_gir_dump_CPPFLAGS = $(GTK_CFLAGS) $(AM_CPPFLAGS) $(INTROSPECTION_CFLAGS)
-gtk_gir_dump_LDADD = $(GTK_LIBS) libzbargtk.la ../zbar/libzbar.la \
-	$(AM_LDADD) $(INTROSPECTION_LIBS)
 
 girdir = $(INTROSPECTION_GIRDIR)
 dist_gir_DATA = $(INTROSPECTION_GIRS)
