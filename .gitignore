@@ -19,6 +19,8 @@ doc/reldate.xml
 doc/version.xml
 gtk/zbarmarshal.c
 gtk/zbarmarshal.h
+gtk/ZBar-1.0.gir
+gtk/ZBar-1.0.typelib
 include/config.h
 include/config.h.in
 include/stamp-h1
@@ -47,3 +49,5 @@ zbarcam/zbarcam-gtk
 zbarcam/zbarcam-qt
 zbarimg/zbarimg
 zbar*.pc
+zbar-*.tar.bz2
+zbar-*.tar.gz
