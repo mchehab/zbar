@@ -34,19 +34,38 @@ EXTRA_DIST = zbarmarshal.list
 
 include $(INTROSPECTION_MAKEFILE)
 
-INTROSPECTION_SCANNER_ENV = GI_SCANNER_DISABLE_CACHE=yes
+
+
+# NOTE:
+#
+# At least with Fedora 30 builds using mock (e. g. inside a chroot and
+# having the build dir different than the source dir, using
+# gobject-introspection-1.60, there is a bug with GIR file generation:
+# sometimes, g-ir-scanner is not capable of producing a C file that would
+# be loading libzbargtk.so.0. So, it fails with:
+#
+#	error while loading shared libraries: libzbargtk.so.0:
+#		cannot open shared object file: No such file or directory
+#
+# I suspect that it has something to do with libtool-2.4.6.
+
+# The fix is hackish, but it should be safe: it should manually include
+# the paths where libtool generate those at INTROSPECTION_SCANNER_ARGS.
+#
+# It should be noticed that, this shouldn't affect a non-buggy environment,
+# so, better to be safe than sorry.
 INTROSPECTION_SCANNER_ARGS = --warn-all \
 			     --symbol-prefix=zbar \
 			     --identifier-prefix=zbar_ \
-			     --identifier-prefix=ZBar
+			     --identifier-prefix=ZBar \
+			     --library-path=$(abs_builddir)/.libs \
+			     --library-path=$(abs_top_builddir)/zbar/.libs
 
-# NOTE: On some rounds trying to make GIR to build on Fedora,
-#       I had to add those options to INTROSPECTION_SCANNER_ARGS:
-#
-#			     --library-path=$(builddir)/.libs \
-#			     --library-path=$(top_builddir)/zbar/.libs
+# Just in case
+INTROSPECTION_SCANNER_ENV = GI_SCANNER_DISABLE_CACHE=yes
 
 INTROSPECTION_GIRS = ZBar-1.0.gir
+
 ZBar_1_0_gir_NAMESPACE = ZBar
 ZBar_1_0_gir_VERSION = 1.0
 ZBar_1_0_gir_LIBS = $(lib_LTLIBRARIES) $(top_builddir)/zbar/libzbar.la
