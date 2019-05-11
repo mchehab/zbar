@@ -54,6 +54,9 @@ ZBar_1_0_gir_FILES = $(top_builddir)/include/zbar/zbargtk.h zbargtk.c
 ZBar_1_0_gir_INCLUDES = Gtk-@GTK_VERSION_MAJOR@ Gdk-@GTK_VERSION_MAJOR@
 ZBar_1_0_gir_CFLAGS = $(libzbargtk_la_CPPFLAGS)
 
+# This may generate some warnings, but it is needed for "make dist"
+ZBar-1.0.gir: $(lib_LTLIBRARIES)
+
 if HAVE_INTROSPECTION
 
 girdir = $(INTROSPECTION_GIRDIR)
