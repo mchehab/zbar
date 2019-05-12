@@ -28,12 +28,11 @@ except:
         print("No image library on python. Aborting test")
         sys.exit()
 
-if len(sys.argv) < 2:
-    print("Usage: %s <file name> <expected text>")
+if len(sys.argv) < 1 or len(sys.argv) > 3:
+    print("Usage: %s <file name> [<expected text to check>]")
     sys.exit(-1)
 
 filename = sys.argv[1]
-text = sys.argv[2]
 
 org_image = Image.open(filename)
 
@@ -47,13 +46,19 @@ scanner = zbar.ImageScanner()
 image = zbar.Image(width=width, height=height, format='Y800', data=raw_data)
 scanner.scan(image)
 
-found = False
-for symbol in image:
-    if symbol.data == text:
-        print("OK")
-        found = True
-    else:
-        print("Expecting %s, received %s" % (text, symbol.data))
+if len(sys.argv) == 3:
+    text = sys.argv[2]
 
-if not found:
-    print("Can't process file")
+    found = False
+    for symbol in image:
+        found = True
+        if symbol.data == text:
+            print("OK")
+        else:
+            print("Expecting %s, received %s" % (text, symbol.data))
+
+    if not found:
+        print("Can't process file")
+else:
+    for symbol in image:
+        print("Decoded as %s" % symbol.data)
