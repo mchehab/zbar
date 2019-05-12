@@ -107,7 +107,7 @@ enumitem_repr (zbarEnumItem *self)
 }
 
 PyTypeObject zbarEnumItem_Type = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name        = "zbar.EnumItem",
     .tp_doc         = enumitem_doc,
     .tp_basicsize   = sizeof(zbarEnumItem),
@@ -190,7 +190,7 @@ enum_dealloc (zbarEnum *self)
 }
 
 PyTypeObject zbarEnum_Type = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name        = "zbar.Enum",
     .tp_doc         = enum_doc,
     .tp_basicsize   = sizeof(zbarEnum),

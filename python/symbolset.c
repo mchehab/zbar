@@ -65,7 +65,7 @@ static PySequenceMethods symbolset_as_sequence = {
 };
 
 PyTypeObject zbarSymbolSet_Type = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name        = "zbar.SymbolSet",
     .tp_doc         = symbolset_doc,
     .tp_basicsize   = sizeof(zbarSymbolSet),

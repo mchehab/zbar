@@ -464,7 +464,7 @@ static PyMethodDef image_methods[] = {
 };
 
 PyTypeObject zbarImage_Type = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name        = "zbar.Image",
     .tp_doc         = image_doc,
     .tp_basicsize   = sizeof(zbarImage),

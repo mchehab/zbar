@@ -174,7 +174,7 @@ static PyMethodDef scanner_methods[] = {
 };
 
 PyTypeObject zbarScanner_Type = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name        = "zbar.Scanner",
     .tp_doc         = scanner_doc,
     .tp_basicsize   = sizeof(zbarScanner),

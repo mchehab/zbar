@@ -84,7 +84,7 @@ symboliter_iternext (zbarSymbolIter *self)
 }
 
 PyTypeObject zbarSymbolIter_Type = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name        = "zbar.SymbolIter",
     .tp_doc         = symboliter_doc,
     .tp_basicsize   = sizeof(zbarSymbolIter),

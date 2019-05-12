@@ -338,7 +338,7 @@ static PyMethodDef decoder_methods[] = {
 };
 
 PyTypeObject zbarDecoder_Type = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name        = "zbar.Decoder",
     .tp_doc         = decoder_doc,
     .tp_basicsize   = sizeof(zbarDecoder),

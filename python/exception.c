@@ -115,7 +115,7 @@ static PyGetSetDef exc_getset[] = {
 };
 
 PyTypeObject zbarException_Type = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name        = "zbar.Exception",
     .tp_basicsize   = sizeof(zbarException),
     .tp_flags       = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE |

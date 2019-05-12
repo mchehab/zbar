@@ -184,7 +184,7 @@ static PyGetSetDef symbol_getset[] = {
 };
 
 PyTypeObject zbarSymbol_Type = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name        = "zbar.Symbol",
     .tp_doc         = symbol_doc,
     .tp_basicsize   = sizeof(zbarSymbol),
