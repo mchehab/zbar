@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+
+autoreconf -vfi
+
+# Let configure get this
+unset PYTHON_CFLAGS PYTHON
+
+export QT_SELECT=5
+./configure --with-gtk=gtk3 --with-python=python3
+make
+make check-local
+sudo make install

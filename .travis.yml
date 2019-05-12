@@ -15,6 +15,7 @@ cache:
 matrix:
   include:
   - env: TARGET_OS=xenial
+  - env: TARGET_OS=xenial-gtk3
   - env: TARGET_OS=debian-sid
   - compiler: clang
     env: TARGET_OS=debian-sid
