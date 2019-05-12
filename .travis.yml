@@ -14,7 +14,7 @@ cache:
   - $HOME/pbuilder-bases
 matrix:
   include:
-  - env: TARGET_OS=xenial
+  - env: TARGET_OS=xenial-gtk2
   - env: TARGET_OS=xenial-gtk3
   - env: TARGET_OS=debian-sid
   - compiler: clang
