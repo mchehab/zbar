@@ -27,7 +27,7 @@ import gi
 gi.require_version('ZBar', '1.0')
 
 try:
-    from gi.repository import ZBar, Gtk
+    from gi.repository import ZBar, Gtk, GdkPixbuf
 except ImportError:
     print("No ZBar integration")
     sys.exit()
@@ -47,7 +47,7 @@ def decoded(zbar, data):
     buf = results.props.buffer
     end = buf.get_end_iter()
     buf.insert(end, data + "\n")
-    results.scroll_to_iter(end, 0)
+    results.scroll_to_iter(end, 0, 0, 0, 0)
 
 def video_enabled(zbar, param):
     """callback invoked when the zbar widget enables or disables
@@ -89,9 +89,9 @@ def status_button_toggled(button):
         zbar.set_video_enabled(active)
     set_status_label(opened, active)
     if active:
-        status_image.set_from_stock(Gtk.STOCK_YES, Gtk.IconSize.BUTTON)
+        status_image.set_from_icon_name("gtk-yes", Gtk.IconSize.BUTTON)
     else:
-        status_image.set_from_stock(Gtk.STOCK_NO, Gtk.IconSize.BUTTON)
+        status_image.set_from_icon_name("Gtk-no", Gtk.IconSize.BUTTON)
 
 def open_button_clicked(button):
     """callback invoked when the 'Open' button is clicked.  pops up an
@@ -100,10 +100,12 @@ def open_button_clicked(button):
     widget which displays it and scans it for barcodes.  results are
     returned using the same hook used to report video results
     """
-    dialog = Gtk.FileChooserDialog("Open Image File", window,
-                                   Gtk.FileChooserAction.OPEN,
-                                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-                                    Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT))
+    dialog = Gtk.FileChooserDialog(title = "Open Image File", parent = window,
+                                   action = Gtk.FileChooserAction.OPEN)
+
+    dialog.add_buttons("gtk-cancel", Gtk.ResponseType.CANCEL)
+    dialog.add_buttons("gtk-open",   Gtk.ResponseType.ACCEPT)
+
     global open_file
     if open_file:
         dialog.set_filename(open_file)
@@ -153,7 +155,7 @@ video_list.connect("changed", video_changed)
 
 # enable/disable status button
 status_button = Gtk.ToggleButton(name="closed")
-status_image = Gtk.Image.new_from_stock(Gtk.STOCK_NO, Gtk.IconSize.BUTTON)
+status_image = Gtk.Image.new_from_icon_name("gtk-no", Gtk.IconSize.BUTTON)
 status_button.set_image(status_image)
 status_button.set_sensitive(False)
 
