@@ -14,7 +14,7 @@ PHONY = $(SUBDIRS)
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = zbar.pc
 
-dist_doc_DATA = COPYING HACKING INSTALL.md LICENSE NEWS README.md TODO
+dist_doc_DATA = COPYING HACKING.md INSTALL.md LICENSE NEWS README.md TODO
 
 include $(srcdir)/include/Makefile.am.inc
 
