@@ -9,7 +9,7 @@ the Perl bindings for the library.
 
 Check the ZBar project home page for the latest release, mailing
 lists, etc.
-    http://zbar.sourceforge.net/
+    https://github.com/mchehab/zbar
 
 
 INSTALLATION
@@ -27,7 +27,7 @@ DEPENDENCIES
 This module requires the ZBar Bar Code Reader, which may be obtained
 from:
 
-    http://zbar.sourceforge.net/
+    https://github.com/mchehab/zbar
 
 
 COPYRIGHT AND LICENCE

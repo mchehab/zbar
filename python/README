@@ -11,7 +11,7 @@ the Python bindings for the library.
 Check the ZBar project home page for the latest release, mailing
 lists, etc.
 
-* http://zbar.sourceforge.net/
+* https://github.com/mchehab/zbar
 
 Installation
 ------------
@@ -26,7 +26,7 @@ Dependencies
 This module requires the ZBar Bar Code Reader, which may be obtained
 from:
 
-* http://zbar.sourceforge.net/
+* https://github.com/mchehab/zbar
 
 Windows users please note: the module *will NOT load* unless the ZBar
 library DLL (currently libzbar-0.dll) is available in your Windows system

@@ -100,7 +100,7 @@ FunctionEnd
 !define MUI_FINISHPAGE_SHOWREADME_FUNCTION ShowREADME
 !define MUI_FINISHPAGE_LINK \
         "Visit the ZBar website for the latest news, FAQs and support"
-!define MUI_FINISHPAGE_LINK_LOCATION "http://zbar.sourceforge.net/"
+!define MUI_FINISHPAGE_LINK_LOCATION "https://github.com/mchehab/zbar"
 
 !insertmacro MUI_PAGE_FINISH
 

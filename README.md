@@ -20,6 +20,11 @@ Check the ZBar home page for the latest release, mailing lists, etc.:
 
 License information can be found in `COPYING`.
 
+You may find some outdated documentation at the original ZBar's
+site at Sourceforge, but please notice that the content there is not
+updated for ages:
+	http://zbar.sourceforge.net/
+
 
 BUILDING
 ========

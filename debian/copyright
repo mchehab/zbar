@@ -2,7 +2,7 @@ This work was originally packaged for Debian by Daniel Baumann
 <daniel@debian.org> and is now maintained by Bernd Zeimetz <bzed@debian.org>
 
 It was downloaded from:
-  http://zbar.sourceforge.net/
+  https://github.com/mchehab/zbar
 
 Below follows the copyrigt and license information as
 provided in the file COPYING

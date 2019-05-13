@@ -9,7 +9,7 @@ DataBar. These are the JNI wrappers for developing the library on
 Android platform.
 
 Check the ZBar home page for the latest release, mailing lists, etc.
-    http://zbar.sourceforge.net/
+    https://github.com/mchehab/zbar
 
 Copyright and License
 ---------------------
