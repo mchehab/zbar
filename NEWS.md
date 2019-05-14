@@ -1,4 +1,31 @@
-ZBar Barcode Reader
+ZBar Barcode Reader News
+========================
+
+
+Version 0.22.2 (2019-04-29)
+===========================
+
+  Some fixes to another set of Windows issues and to support Java 11.
+
+Version 0.22.1 (2019-04-25)
+===========================
+
+  Some fixes to allow building ZBar on Windows with MinGw.
+
+Version 0.22 (2019-02-20)
+=========================
+
+  Lots of improvements at zbarcam-qt, allowing it to fully configure the
+  decoders that will be used, and the options that will be used at the
+  decoders. Some improvements at the image scanner logic and plugin
+  selection.
+
+Version 0.21 (2019-02-12)
+=========================
+
+  Added support for SQ code, and the ability of compiling ZBar with the
+  LLVM/Clang compiler. Several bugs fixes and enhancements are also found
+  in this release; qexisting users are encouraged to upgrade.
 
 Version 0.20.1 (2018-08-08)
 ===========================
