@@ -1,3 +1,21 @@
+0.23:
+
+  * Text files at main dir converted to Markdown notation
+  * HACKING.md text now reflects the procedures we use since 0.20
+  * ZBar's URL locations updated on several places
+  * Added support for using Gtk3 with zbarcam-gtk
+  * Added support for using GObject Integration (GIR) with pygobject-3.0
+  * Added support for Python3 bindings
+  * Python scripts now runs with either python2 or python3
+  * added Travis checks for Gtk3 with Python3 and GIR
+  * added a test script for checking python bindings
+  * Added a test script for Python with Gtk support via GIR
+  * Suppressed gcc warnings when building with Gtk3
+  * Got rid of gdk_threads for good at zbarcam-gtk, using an idle hook to
+    handle async messages
+  * The debian/ and travis/ directories were removed from distribution files
+  * Java sources added to the distribution tarball
+
 0.22.2:
 
   * Improve some pkg check logic, in order to solve some

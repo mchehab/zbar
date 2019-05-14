@@ -1,6 +1,15 @@
 ZBar Barcode Reader News
 ========================
 
+Version 0.23
+============
+
+  Update ZBar for it to work with updated library versions, making it
+  compatible with either Gtk2 or Gtk3 and either Python2 or Python3.
+  As part of the new port, it is now possible to use ZBar Gtk bindings
+  not only with python2/python3, but also on other languages, as it now
+  uses GObject Introspection- GIR, with is a method to allow using libraries
+  developed on one language on others. Several languages support it.
 
 Version 0.22.2 (2019-04-29)
 ===========================
