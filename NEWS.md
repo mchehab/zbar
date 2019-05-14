@@ -1,12 +1,16 @@
 ZBar Barcode Reader
 
-version 0.20.1 (2018-08-08):
+Version 0.20.1 (2018-08-08)
+===========================
+
   Minor changes at ZBar, in order to adapt to modern distributions
   with are removing /usr/bin/python in favor of just using python2.
   Also, updated some python2 scripts to work with modern distros,
   where the Image module is now inside PIL.
 
-version 0.20 (2017-04-11):
+Version 0.20 (2017-04-11)
+=========================
+
   As upstream didn't have any version since 2009, created a ZBar fork at
   linuxtv.org. This release improves a lot V4L2 support, by using libv4l2
   to handle formats that are alien to ZBar, making it compatible with a lot
@@ -15,7 +19,9 @@ version 0.20 (2017-04-11):
   zbarcam-gtk). With zbarcam-qt, it is now possible to adjust the camera
   controls, making easier to read barcodes using a camera.
 
-version 0.10 (2009-10-23):
+Version 0.10 (2009-10-23)
+=========================
+
   ZBar goes 2D!  This release introduces support for QR Code, developed
   by our new project member, Timothy Terriberry.  Timothy is an image
   processing master, providing this sophisticated functionality using
@@ -27,7 +33,9 @@ version 0.10 (2009-10-23):
   Several bugs fixes and enhancements are also found in this release;
   existing users are encouraged to upgrade.
 
-version 0.9 (2009-08-31):
+Version 0.9 (2009-08-31)
+========================
+
   Introducing ZBar for Windows!  So far we only have straight ports of
   the command line applications, but work on a cross-platform GUI has
   already begun.  This release also has a few scanner/decoder
@@ -35,19 +43,25 @@ version 0.9 (2009-08-31):
   represented, so please open a support request if you experience any
   problems.
 
-version 0.8 (2009-06-05):
+Version 0.8 (2009-06-05)
+========================
+
   This is a bugfix release just to clean up a few issues found in the
   last release.  Existing users are encouraged to upgrade to pick up
   these fixes.
 
-version 0.7 (2009-04-21):
+Version 0.7 (2009-04-21)
+========================
+
   Welcome to ZBar!  In addition to finalizing the project name change,
   this release adds new bindings for Python and fixes a few bugs with
   the Perl interface.  The decoder also has several new features and
   addresses missing checks that will improve reliability with
   excessively noisy images.
 
-version 0.6 (2009-02-28):
+Version 0.6 (2009-02-28)
+========================
+
   This release fixes many bugs and adds several improvements suggested
   by users:  support for decoding UPC-E is finished.  zebraimg is
   now able to scan all pages of a document (such as PDF or TIFF) and
@@ -58,21 +72,27 @@ version 0.6 (2009-02-28):
   now able to offer initial support for building the base library for
   Windows!
 
-version 0.5 (2008-07-25):
+Version 0.5 (2008-07-25)
+========================
+
   Introducing zebra widgets!  Prioritized by popular demand, this
   release includes fully functional barcode scanning widgets for GTK,
   PyGTK, and Qt.  Application developers may now seamlessly integrate
   barcode reader support with their user interface.
 
   This release also fixes many bugs; existing users are encouraged to
-  upgrade.  
+  upgrade.
 
-version 0.4 (2008-05-31):
+Version 0.4 (2008-05-31)
+========================
+
   new support for EAN-8, Code 39 and Interleaved 2 of 5!
   this release also introduces the long awaited decoder configuration
   options and fixes several bugs
 
-version 0.3 (2008-02-25):
+Version 0.3 (2008-02-25)
+========================
+
   this is a beta release of the enhanced internal architecture.
   support has been added for version 2 of the video4linux API and many
   more image formats.  several other feature enhancements and bug
@@ -81,7 +101,9 @@ version 0.3 (2008-02-25):
   untouched.  significant new code is represented in this release
   - all bug reports are welcome and will be addressed promptly!
 
-version 0.2 (2007-05-16):
+Version 0.2 (2007-05-16)
+========================
+
   this release introduces significant enhancements, bug fixes and new
   features!  basic EAN-13/UPC-A reading has been improved and should
   now be much more reliable.  by popular request, new support has been
@@ -89,7 +111,9 @@ version 0.2 (2007-05-16):
   improved and there is even basic documentation for the application
   commands
 
-version 0.1 (2007-03-24):
+Version 0.1 (2007-03-24)
+========================
+
   first official Zebra release!
   supports basic scanning and decoding of EAN-13 and UPC-A symbols
   using a webcam (zebracam) or from stored image files (zebraimg).
