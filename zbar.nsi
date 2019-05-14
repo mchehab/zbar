@@ -92,7 +92,7 @@ Caption "ZBar ${VERSION} Setup"
 !insertmacro MUI_PAGE_INSTFILES
 
 Function ShowREADME
-     Exec '"notepad.exe" "$INSTDIR\README.windows"'
+     Exec '"notepad.exe" "$INSTDIR\README-windows.md"'
 FunctionEnd
 
 !define MUI_FINISHPAGE_NOREBOOTSUPPORT
@@ -114,7 +114,7 @@ Section "ZBar Core Files (required)" SecCore
     SectionIn 1 2 RO
 
     SetOutPath $INSTDIR
-    File share\doc\zbar\README.windows
+    File share\doc\zbar\README-windows.md
     File share\doc\zbar\NEWS.md
     File share\doc\zbar\TODO.md
     File share\doc\zbar\COPYING
@@ -257,7 +257,7 @@ Section Uninstall
     RMDir /r $INSTDIR\doc
     RMDir /r $INSTDIR\lib
     RMDir /r $INSTDIR\bin
-    Delete $INSTDIR\README.windows
+    Delete $INSTDIR\README-windows.md
     Delete $INSTDIR\NEWS.md
     Delete $INSTDIR\TODO.md
     Delete $INSTDIR\COPYING

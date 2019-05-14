@@ -11,7 +11,8 @@ bindings are included for C, C++, Python and Perl as well as GUI widgets for
 Qt, GTK and PyGTK.
 
 Check the ZBar home page for the latest release, mailing lists, etc.
-    https://github.com/mchehab/zbar
+
+  * <https://github.com/mchehab/zbar>
 
 License information can be found in 'COPYING'.
 
@@ -20,53 +21,78 @@ supporting libraries, for which the copyright, license and source code
 locations are as follows:
 
   * The GNU libiconv character set conversion library
+
     Copyright (C) 1999-2008 Free Software Foundation, Inc.
+
     This distribution includes GNU libiconv version 1.13.1, licensed under
     the LGPL version 2.  The source code is available from
-        http://www.gnu.org/software/libiconv
+
+      * <http://www.gnu.org/software/libiconv>
 
   * The ImageMagick software imaging library
+
     Copyright 1999-2009 ImageMagick Studio LLC
+
     This distribution includes ImageMagick version 6.5.4-10, licensed under
     its own terms.  The source code is available from
-        http://imagemagick.org
+
+      * <http://imagemagick.org>
 
   * The libxml2 XML C parser and toolkit
+
     Copyright (C) 1998-2003 Daniel Veillard.
+
     This distribution includes libxml2 version 2.7.3, provided under the MIT
     license.  The source code is available from
-        http://xmlsoft.org
+
+      * <http://xmlsoft.org>
 
   * IJG JPEG library
+
     Copyright (C) 1991-2009, Thomas G. Lane, Guido Vollbeding.
+
     This distribution includes jpeg version 7, licensed under its own
     terms.  The source code is available from
-        http://www.ijg.org
+
+      * <http://www.ijg.org>
 
   * libtiff, a library for reading and writing TIFF
+
     Copyright (c) 1988-1997 Sam Leffler
+
     Copyright (c) 1991-1997 Silicon Graphics, Inc.
+
     This distribution includes libtiff version 3.9.1, which is provided
     "as-is".  The source code is available from
-        http://www.remotesensing.org/libtiff
+
+      * <http://www.remotesensing.org/libtiff>
 
   * libpng, the official PNG reference library
+
     Copyright (c) 1998-2009 Glenn Randers-Pehrson
+
     This distribution includes libpng version 1.2.40, licensed under its own
     terms.  The source code is available from
-        http://www.libpng.org/pub/png/libpng.html
+
+      * <http://www.libpng.org/pub/png/libpng.html>
 
   * The zlib general purpose compression library
+
     Copyright (C) 1995-2005 Jean-loup Gailly and Mark Adler.
+
     This distribution includes zlib version 1.2.3, licensed under its own
     terms.  The source code is available from
-        http://zlib.net
+
+      * <http://zlib.net>
 
   * The bzip2 compression library
+
     Copyright (C) 1996-2007 Julian Seward.
+
     This distribution includes bzip2 version 1.0.5, licensed under its own
     terms.  The source code is available from
-        http://bzip.org
+
+      * <http://bzip.org>
 
 
 INSTALLING
@@ -87,12 +113,15 @@ to open a shell that has the zbarimg and zbarcam commands available
 (in the PATH).
 
 To start the webcam reader using the default camera, type:
+
     zbarcam
 
 To decode an image file, type eg:
+
     zbarimg -d examples\barcode.png
 
 For basic command instructions, type:
+
     zbarimg --help
     zbarcam --help
 
@@ -102,10 +131,12 @@ Check the manual for more details.
 REPORTING BUGS
 ==============
 
-Bugs can be reported on the SourceForge project page
-    http://www.sourceforge.net/projects/zbar/
+Bugs can be reported at the GitHub project page
+
+  * <https://github.com/mchehab/zbar>
 
 Please include the ZBar version number and a detailed description of
 the problem.  You'll probably have better luck if you're also familiar
 with the concepts from:
-    http://www.catb.org/~esr/faqs/smart-questions.html
+
+  * <http://www.catb.org/~esr/faqs/smart-questions.html>

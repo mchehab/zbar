@@ -86,7 +86,7 @@ EXTRA_DIST += perl/MANIFEST perl/README perl/Changes perl/COPYING.LIB \
     perl/t/Processor.t perl/t/Scanner.t perl/t/pod.t perl/t/pod-coverage.t
 
 if WIN32
-dist_doc_DATA += README.windows
+dist_doc_DATA += README-windows.md
 pkgdata_DATA = $(srcdir)/python/test/barcode.png \
     $(srcdir)/examples/scan_image.cpp $(srcdir)/examples/scan_image.vcproj
 
