@@ -18,6 +18,10 @@ Check the ZBar home page for the latest release, mailing lists, etc.:
 
 - <https://github.com/mchehab/zbar>
 
+Tarballs with ZBar can be obtained from:
+
+- <https://linuxtv.org/downloads/zbar/>
+
 License information can be found in `COPYING`.
 
 You may find some outdated documentation at the original ZBar's
@@ -30,6 +34,27 @@ BUILDING
 ========
 
 See `INSTALL.md` for generic configuration and build instructions.
+
+Usually, all you need to do is to run:
+
+    autoreconf -vfi
+    ./configure
+    make
+
+* NOTE
+
+  On version 0.23, since the support for gtk3 and python3 are new,
+  the default is to use gtk2 and python2.
+
+  If you want to use gtk3 and python3, you should have the development
+  packages for them, and run:
+
+      autoreconf -vfi
+      ./configure --with-gtk=auto --with-python=auto
+      make
+
+  This will make the building system to seek for the latest versions
+  for gtk and python.
 
 The scanner/decoder library itself only requires a few standard
 library functions which should be available almost anywhere.
@@ -49,9 +74,15 @@ pkg-config may be obtained from:
 
 The `zbarimg` program uses `ImageMagick` to read image files in many
 different formats.  You will need at least `ImageMagick` version 6.2.6
-if you want to scan image files.  `ImageMagick` may be obtained from:
+if you want to scan image files. You may also use `GraphicsMagick`
+package instead.
+
+`ImageMagick` may be obtained from:
 
 - <http://www.imagemagick.org/>
+
+Qt Widget
+---------
 
 The Qt widget requires Qt4 or Qt5. You will need Qt if you would like to
 use or develop a Qt GUI application with an integrated bar code
@@ -59,26 +90,56 @@ scanning widget. Qt4 may be obtained from:
 
 - <https://www.qt.io/>
 
-The GTK+ widget requires GTK+-2.x.  You will need GTK+ if you would
-like to use or develop a GTK+ GUI application with an integrated bar
+Gtk Widget
+----------
+
+The GTK+ widget requires GTK+-2.x or GTK+3.x.  You will need GTK+ if you
+would like to use or develop a GTK+ GUI application with an integrated bar
 code scanning widget.  GTK+ may be obtained from:
 
 - <http://www.gtk.org/>
 
-The PyGTK 2.0 wrapper for the GTK+ widget requires Python 2, PyGTK.
-You will need both if you would like to use or develop a PyGTK GUI
-application with an integrated bar code scanning widget.  PyGTK may be
-obtained from:
+Python widgets
+--------------
+
+**Python 2 legacy Gtk widget**
+
+The PyGTK 2.0/pygobject 2.0 wrapper for the GTK+ 2.x widget requires Python 2,
+PyGTK. You will need to enable both pygtk2 and gtk2 if you would like to use
+or develop a Python 2  GUI application with an integrated bar code scanning
+widget.  PyGTK may be obtained from:
 
 - <http://www.pygtk.org/>
 
-The Python bindings require Python 2.  You will need Python and PIL
-if you would like to scan images or video directly using Python.
-Python is available from:
+**Python 2 or 3 GIR Gtk widget**
+
+The GObject Introspection (GIR) wrapper for GTK+ widget is compatible with
+PyGObject, with works with either Python version 2 or 3. You will need to
+enable both Gtk and Python in order to use or develop a Python application
+with an integrated bar code scanning and webcam support. In order to build
+it, you need the required dependencies for GIR development. The actual
+package depends on the distribution. On Fedora, it is `pygobject3-devel`.
+On Debian/Ubuntu, it is `libgirepository1.0-dev` and `gir1.2-gtk-3.0`.
+While GIR builds with Gtk2, It is strongly recommended to use GTK+
+version 3.x, as there are known issues with version 2.x and GIR, with
+will likely make it to fail. A test script can be built and run with:
+`make check-gi`. Instructions about how to use are GIR on Python are
+available at:
+
+- <https://pygobject.readthedocs.io/en/latest/>
+
+**Python bindings**
+
+The Python bindings require Python 2 and provide only non-GUI functions.
+You will need Python and PIL or Pillow if you would like to scan images or
+video directly using Python. Python is available from:
 
 - <http://python.org/>
 
-The Perl bindings require Perl (version?).  You will need Perl if you
+Perl Widget
+-----------
+
+The Perl bindings require Perl (version 5).  You will need Perl if you
 would like to scan images or video directly using Perl.  Perl is
 available from:
 
@@ -92,6 +153,14 @@ library.  see:
 
 - `perl/README`
 
+Java Widget
+-----------
+
+The Java ZBar widget uses Java Native Interface (JNI), meaning that the
+widget will contain machine-dependent code. It works with Java version
+7 and above.  Java open JDK is available from:
+
+- <https://openjdk.java.net/>
 
 RUNNING
 =======
