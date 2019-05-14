@@ -147,7 +147,7 @@ ldconfig
 %doc %{_docdir}/%{name}-%{version}/LICENSE.md
 %doc %{_docdir}/%{name}-%{version}/NEWS.md
 %doc %{_docdir}/%{name}-%{version}/README
-%doc %{_docdir}/%{name}-%{version}/TODO
+%doc %{_docdir}/%{name}-%{version}/TODO.md
 
 %files devel
 %defattr(-,root,root)

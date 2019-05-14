@@ -116,7 +116,7 @@ Section "ZBar Core Files (required)" SecCore
     SetOutPath $INSTDIR
     File share\doc\zbar\README.windows
     File share\doc\zbar\NEWS.md
-    File share\doc\zbar\TODO
+    File share\doc\zbar\TODO.md
     File share\doc\zbar\COPYING
     File share\doc\zbar\LICENSE.md
 
@@ -259,7 +259,7 @@ Section Uninstall
     RMDir /r $INSTDIR\bin
     Delete $INSTDIR\README.windows
     Delete $INSTDIR\NEWS.md
-    Delete $INSTDIR\TODO
+    Delete $INSTDIR\TODO.md
     Delete $INSTDIR\COPYING
     Delete $INSTDIR\LICENSE.md
     Delete $INSTDIR\zbarvars.bat

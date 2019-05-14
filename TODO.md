@@ -1,14 +1,20 @@
-general:
+general
+=======
+
   * finish error handling
   * handle video destroyed w/images outstanding
   * dbg_scan background image stretched (still...)
   * profile and weed out obvious oversights
   * example using SANE to scan symbol(s)
 
-windows port:
+windows port
+============
+
   * libzbar-0.dll should be zbar-0.dll
 
-wrappers:
+wrappers
+========
+
   * build API docs for zbargtk, zbarpygtk
   * is zbargtk/QZBar BGR4 alpha swapped?
   * widget config APIs
@@ -17,7 +23,9 @@ wrappers:
   * GTK and Qt perl bindings
   * C++ global wrappers
 
-symbologies:
+symbologies
+===========
+
   * PDF417
     * extract/resolve symbol matrix parameters (NB multiple symbols)
     * error detection/correction
@@ -26,7 +34,9 @@ symbologies:
   * handle Code 128 function characters (FNC1-4)
   * Code 128 trailing quiet zone checks
 
-decoder:
+decoder
+=======
+
   * start/stop/abort and location detail APIs (PDF417, OMR)
   * more configuration options
     * disable for at least UPC-E (maybe UPC-A?)
@@ -38,19 +48,24 @@ decoder:
   * fix max length check during decode
   * revisit noise and resolution independence
 
-image scanner:
+image scanner
+=============
   * extract and track symbol polygons
     * dynamic scan density (PDF417, OMR)
   * add multi-sample array interface to linear scanner
 
-image formats:
+image formats
+=============
+
   * fix image data inheritance
   * de-interlacing
   * add color support to conversions (also jpeg)
   * add support for scanline pad throughout
   * factor conversion redundancy
 
-window:
+window
+======
+
   * add XShm support
   * X protocol error handling
   * Direct2D
@@ -61,7 +76,9 @@ window:
     * decoded result(?)
     * stats
 
-zbarcam/zbarimg:
+zbarcam/zbarimg
+===============
+
   * zbarimg multi-frame duplicate suppression
   * stats/fps at zbarcam exit
   * decode hook (program/script)? (also zbarimg?)
