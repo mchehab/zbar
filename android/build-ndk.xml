@@ -42,7 +42,7 @@ targets:
          <property name="version" value="0.2" />
       </then></if>
       <zip destfile="${project.sdk.name}-${version}.zip" >
-          <zipfileset dir="../" prefix="${project.sdk.name}-${version}" includes="COPYING, LICENSE"/>
+          <zipfileset dir="../" prefix="${project.sdk.name}-${version}" includes="COPYING, LICENSE.md"/>
           <zipfileset dir="." prefix="${project.sdk.name}-${version}" includes="README"/>
           <zipfileset dir="libs" prefix="${project.sdk.name}-${version}/libs"/>
           <zipfileset dir="examples" prefix="${project.sdk.name}-${version}/examples"/>
@@ -55,7 +55,7 @@ targets:
          <property name="version" value="0.2" />
       </then></if>
       <zip destfile="${project.sdk.name}-${version}.zip" >
-          <zipfileset dir="../" prefix="${project.sdk.name}-${version}" includes="COPYING, LICENSE"/>
+          <zipfileset dir="../" prefix="${project.sdk.name}-${version}" includes="COPYING, LICENSE.md"/>
           <zipfileset dir="." prefix="${project.sdk.name}-${version}" includes="README"/>
           <zipfileset dir="libs" prefix="${project.sdk.name}-${version}/libs"/>
           <zipfileset dir="examples" prefix="${project.sdk.name}-${version}/examples"/>

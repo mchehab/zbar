@@ -144,7 +144,7 @@ ldconfig
 %doc %{_docdir}/%{name}-%{version}/COPYING
 %doc %{_docdir}/%{name}-%{version}/HACKING.md
 %doc %{_docdir}/%{name}-%{version}/INSTALL
-%doc %{_docdir}/%{name}-%{version}/LICENSE
+%doc %{_docdir}/%{name}-%{version}/LICENSE.md
 %doc %{_docdir}/%{name}-%{version}/NEWS.md
 %doc %{_docdir}/%{name}-%{version}/README
 %doc %{_docdir}/%{name}-%{version}/TODO

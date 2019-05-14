@@ -172,7 +172,7 @@ steps you can follow:
 3. Then append the contents of the text file COPYING, included with the
    library.  This is all of the copyright information for the library.
 
-4. Then append the contents of the text file LICENSE, also included with the
+4. Then append the contents of the text file LICENSE.md, also included with the
    library.  This is just the LGPL version 2.1 which you may also obtain from
    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
 

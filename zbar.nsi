@@ -82,7 +82,7 @@ Caption "ZBar ${VERSION} Setup"
 
 !insertmacro MUI_PAGE_WELCOME
 
-!insertmacro MUI_PAGE_LICENSE "share\doc\zbar\LICENSE"
+!insertmacro MUI_PAGE_LICENSE "share\doc\zbar\LICENSE.md"
 
 !define MUI_COMPONENTSPAGE_SMALLDESC
 !define MUI_COMPONENTSPAGE_CHECKBITMAP ${NSISDIR}\Contrib\Graphics\Checks\simple-round2.bmp
@@ -115,10 +115,10 @@ Section "ZBar Core Files (required)" SecCore
 
     SetOutPath $INSTDIR
     File share\doc\zbar\README.windows
-    File share\doc\zbar\NEWS
+    File share\doc\zbar\NEWS.md
     File share\doc\zbar\TODO
     File share\doc\zbar\COPYING
-    File share\doc\zbar\LICENSE
+    File share\doc\zbar\LICENSE.md
 
     # emit a batch file to add the install directory to the path
     FileOpen $0 zbarvars.bat w
@@ -258,10 +258,10 @@ Section Uninstall
     RMDir /r $INSTDIR\lib
     RMDir /r $INSTDIR\bin
     Delete $INSTDIR\README.windows
-    Delete $INSTDIR\NEWS
+    Delete $INSTDIR\NEWS.md
     Delete $INSTDIR\TODO
     Delete $INSTDIR\COPYING
-    Delete $INSTDIR\LICENSE
+    Delete $INSTDIR\LICENSE.md
     Delete $INSTDIR\zbarvars.bat
     Delete $INSTDIR\uninstall.exe
     RMDir $INSTDIR

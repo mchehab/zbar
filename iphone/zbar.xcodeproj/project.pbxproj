@@ -81,7 +81,7 @@
 		DC3CF2021218353B00D7A786 /* README in Copy SDK */ = {isa = PBXBuildFile; fileRef = DC50467B12034D60009FF359 /* README */; };
 		DC3CF2031218353B00D7A786 /* ChangeLog in Copy SDK */ = {isa = PBXBuildFile; fileRef = DC3CF141121721A100D7A786 /* ChangeLog */; };
 		DC3CF2041218353B00D7A786 /* COPYING in Copy SDK */ = {isa = PBXBuildFile; fileRef = DC50467C12034D71009FF359 /* COPYING */; };
-		DC3CF2051218353B00D7A786 /* LICENSE in Copy SDK */ = {isa = PBXBuildFile; fileRef = DC50467D12034D71009FF359 /* LICENSE */; };
+		DC3CF2051218353B00D7A786 /* LICENSE.md in Copy SDK */ = {isa = PBXBuildFile; fileRef = DC50467D12034D71009FF359 /* LICENSE */; };
 		DC3CF29A1218359400D7A786 /* ReaderSample in Copy Examples */ = {isa = PBXBuildFile; fileRef = DC3CF2081218358C00D7A786 /* ReaderSample */; };
 		DC3CF29B1218359400D7A786 /* readertest in Copy Examples */ = {isa = PBXBuildFile; fileRef = DC3CF2651218358C00D7A786 /* readertest */; };
 		DC3CF2A312197A8C00D7A786 /* zbar-back.png in Copy Resources */ = {isa = PBXBuildFile; fileRef = DC3CF2A212197A7200D7A786 /* zbar-back.png */; };
@@ -229,7 +229,7 @@
 				DC3CF2021218353B00D7A786 /* README in Copy SDK */,
 				DC3CF2031218353B00D7A786 /* ChangeLog in Copy SDK */,
 				DC3CF2041218353B00D7A786 /* COPYING in Copy SDK */,
-				DC3CF2051218353B00D7A786 /* LICENSE in Copy SDK */,
+				DC3CF2051218353B00D7A786 /* LICENSE.md in Copy SDK */,
 				DC48C5A8121B1F910047193B /* Documentation.html in Copy SDK */,
 			);
 			name = "Copy SDK";
@@ -288,7 +288,7 @@
 		DC50463D12034A4C009FF359 /* Window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Window.h; path = ../include/zbar/Window.h; sourceTree = SOURCE_ROOT; };
 		DC50467B12034D60009FF359 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		DC50467C12034D71009FF359 /* COPYING */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = COPYING; path = ../COPYING; sourceTree = SOURCE_ROOT; };
-		DC50467D12034D71009FF359 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = SOURCE_ROOT; };
+		DC50467D12034D71009FF359 /* LICENSE.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = SOURCE_ROOT; };
 		DC5D76C2136FA8C40069AEF5 /* ZBarCameraSimulator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZBarCameraSimulator.m; sourceTree = "<group>"; };
 		DC5D76C5136FA8F20069AEF5 /* ZBarCameraSimulator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ZBarCameraSimulator.h; path = include/ZBarSDK/ZBarCameraSimulator.h; sourceTree = "<group>"; };
 		DC67C08210A079BE0033B702 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -383,7 +383,7 @@
 				DC50467B12034D60009FF359 /* README */,
 				DC3CF141121721A100D7A786 /* ChangeLog */,
 				DC50467C12034D71009FF359 /* COPYING */,
-				DC50467D12034D71009FF359 /* LICENSE */,
+				DC50467D12034D71009FF359 /* LICENSE.md */,
 				DC48C5A7121B1F840047193B /* Documentation.html */,
 				DC299BED1208FE49006A023C /* src */,
 				DC1A49A111FF338B00BCDA30 /* Resources */,

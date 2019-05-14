@@ -67,6 +67,6 @@ writeDSDBEntries($ARGV[0] || "DS_Store",
                                 Iloc_xy => [  8  * 32, 12.5  * 32 ]),
     makeEntries("Examples",     Iloc_xy => [ 12  * 32, 12.5  * 32 ]),
     makeEntries("COPYING",      Iloc_xy => [  4  * 32,  16   * 32 ]),
-    makeEntries("LICENSE",      Iloc_xy => [  8  * 32,  16   * 32 ]),
+    makeEntries("LICENSE.md",      Iloc_xy => [  8  * 32,  16   * 32 ]),
     makeEntries("Documentation",Iloc_xy => [ 12  * 32,  16   * 32 ]),
 );
