@@ -1201,13 +1201,6 @@ int _zbar_video_open (zbar_video_t* vdo, const char* dev)
     video_state_t* state;
     state = vdo->state = calloc(1, sizeof(video_state_t));
 
-    HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
-    if (FAILED(hr))
-    {
-        goto done;
-    }
-
-
     state->camera = dshow_search_camera(dev);
     if (!state->camera)
         goto done;
@@ -1224,7 +1217,7 @@ int _zbar_video_open (zbar_video_t* vdo, const char* dev)
 
 
     // create filter graph instance
-    hr = CoCreateInstance(&CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, &IID_IGraphBuilder, (void**)&state->graph);
+    HRESULT hr = CoCreateInstance(&CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, &IID_IGraphBuilder, (void**)&state->graph);
     CHECK_COM_ERROR(hr, "graph builder creation", goto done)
 
     // query media control from filter graph
