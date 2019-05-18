@@ -12,7 +12,7 @@ libzbar_la_SOURCES = debug.h config.c \
     event.h thread.h \
     window.h window.c video.h video.c \
     img_scanner.h img_scanner.c scanner.c \
-    decoder.h decoder.c
+    decoder.h decoder.c misc.c
 
 EXTRA_libzbar_la_SOURCES = svg.h svg.c
 
@@ -86,8 +86,14 @@ libzbar_la_SOURCES += video/v4l1.c
 endif
 if WIN32
 if HAVE_VIDEO
+if !WITH_DIRECTSHOW
 libzbar_la_SOURCES += video/vfw.c
 libzbar_la_LIBADD += -lvfw32
+else
+libzbar_la_SOURCES += video/dshow.c
+libzbar_la_CPPFLAGS += -DCOBJMACROS
+libzbar_la_LIBADD += -loleaut32 -lole32
+endif
 endif
 endif
 if !HAVE_VIDEO

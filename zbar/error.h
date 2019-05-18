@@ -110,10 +110,24 @@ extern int _zbar_verbosity;
             ZFLUSH                                                      \
         }                                                               \
     } while(0)
+#  define zwprintf(level, format, args...) do {                         \
+        if(_zbar_verbosity >= level) {                                  \
+            fprintf(stderr, "%s: ", __func__);                          \
+            fwprintf(stderr, format, ##args);                           \
+            ZFLUSH                                                      \
+        }                                                               \
+    } while(0)
 # else
 #  define zprintf(level, format, ...) do {                              \
         if(_zbar_verbosity >= level) {                                  \
             fprintf(stderr, "%s: " format, __func__ , ##__VA_ARGS__);   \
+            ZFLUSH                                                      \
+        }                                                               \
+    } while(0)
+#  define zwprintf(level, format, ...) do {                             \
+        if(_zbar_verbosity >= level) {                                  \
+            fprintf(stderr, "%s: ", __func__);                          \
+            fwprintf(stderr, format, ##__VA_ARGS__);                    \
             ZFLUSH                                                      \
         }                                                               \
     } while(0)
