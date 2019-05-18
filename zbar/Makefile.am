@@ -1,5 +1,5 @@
 lib_LTLIBRARIES = libzbar.la
-libzbar_la_CPPFLAGS = -I$(srcdir) $(AM_CPPFLAGS)
+libzbar_la_CPPFLAGS = -I$(srcdir) -I$(srcdir)/../include $(AM_CPPFLAGS)
 libzbar_la_LDFLAGS = -no-undefined -version-info $(LIB_VERSION) \
     -export-symbols-regex "^(zbar|_zbar.*_error)_.*" $(AM_LDFLAGS)
 libzbar_la_LIBADD = $(LTLIBICONV)
@@ -57,6 +57,15 @@ libzbar_la_SOURCES += sqcode.h sqcode.c \
 endif
 
 if WIN32
+
+%-rc.o: %.rc
+	$(RC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) -o $@ $<
+%-rc.lo: %.rc
+	$(LIBTOOL) --tag=RC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=compile $(RC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) -o $@ $<
+
 libzbar_la_SOURCES += processor/win.c libzbar.rc
 libzbar_la_CPPFLAGS += -mthreads
 libzbar_la_LDFLAGS += -mthreads
