@@ -1,5 +1,5 @@
 lib_LTLIBRARIES = libzbar.la
-libzbar_la_CPPFLAGS = -I$(srcdir) $(AM_CPPFLAGS)
+libzbar_la_CPPFLAGS = -I$(srcdir) -I$(srcdir)/../include $(AM_CPPFLAGS)
 libzbar_la_LDFLAGS = -no-undefined -version-info $(LIB_VERSION) \
     -export-symbols-regex "^(zbar|_zbar.*_error)_.*" $(AM_LDFLAGS)
 libzbar_la_LIBADD = $(LTLIBICONV)
@@ -12,7 +12,7 @@ libzbar_la_SOURCES = debug.h config.c \
     event.h thread.h \
     window.h window.c video.h video.c \
     img_scanner.h img_scanner.c scanner.c \
-    decoder.h decoder.c
+    decoder.h decoder.c misc.c
 
 EXTRA_libzbar_la_SOURCES = svg.h svg.c
 
@@ -57,6 +57,15 @@ libzbar_la_SOURCES += sqcode.h sqcode.c \
 endif
 
 if WIN32
+
+%-rc.o: %.rc
+	$(RC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) -o $@ $<
+%-rc.lo: %.rc
+	$(LIBTOOL) --tag=RC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=compile $(RC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) -o $@ $<
+
 libzbar_la_SOURCES += processor/win.c libzbar.rc
 libzbar_la_CPPFLAGS += -mthreads
 libzbar_la_LDFLAGS += -mthreads
@@ -77,8 +86,14 @@ libzbar_la_SOURCES += video/v4l1.c
 endif
 if WIN32
 if HAVE_VIDEO
+if !WITH_DIRECTSHOW
 libzbar_la_SOURCES += video/vfw.c
 libzbar_la_LIBADD += -lvfw32
+else
+libzbar_la_SOURCES += video/dshow.c
+libzbar_la_CPPFLAGS += -DCOBJMACROS
+libzbar_la_LIBADD += -loleaut32 -lole32
+endif
 endif
 endif
 if !HAVE_VIDEO
