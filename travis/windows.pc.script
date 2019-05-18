@@ -1,0 +1,20 @@
+#!/bin/bash
+set -e
+
+PATH=$PATH:/c/tools/msys64/usr/bin/
+
+echo "Generating configure file"
+
+autoreconf -vfi
+
+echo "Configuring ZBar"
+./configure --host=i686-w64-mingw32 --prefix=/usr/local/win32 \
+    --with-directshow \
+    --without-gtk \
+    --without-python \
+    --without-qt --without-java \
+    --without-imagemagick \
+    --enable-pthread --disable-dependency-tracking
+
+make
+make install

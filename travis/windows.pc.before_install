@@ -1,0 +1,4 @@
+#!/bin/bash
+
+choco install -r --no-progress -y msys2 make
+exit 0
