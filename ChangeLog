@@ -1,5 +1,6 @@
 0.23:
 
+  * Windows: added support for DirectVideo
   * Text files at main dir converted to Markdown notation
   * HACKING.md text now reflects the procedures we use since 0.20
   * ZBar's URL locations updated on several places

@@ -10,6 +10,7 @@ Version 0.23
   not only with python2/python3, but also on other languages, as it now
   uses GObject Introspection- GIR, with is a method to allow using libraries
   developed on one language on others. Several languages support it.
+  On Windows side, support for DirectVideo was added.
 
 Version 0.22.2 (2019-04-29)
 ===========================
