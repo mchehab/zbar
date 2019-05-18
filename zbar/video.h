@@ -46,6 +46,7 @@ typedef enum video_interface_e {
     VIDEO_V4L1,                 /* v4l protocol version 1 */
     VIDEO_V4L2,                 /* v4l protocol version 2 */
     VIDEO_VFW,                  /* video for windows */
+    VIDEO_DSHOW                 /* direct show */
 } video_interface_t;
 
 typedef enum video_iomode_e {

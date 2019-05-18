@@ -167,23 +167,41 @@ static int vfw_nq (zbar_video_t *vdo,
     return(video_nq_image(vdo, img));
 }
 
+/// Platform dependent part of #zbar_video_next_image, which blocks
+/// until an image is available.
+/** Must be called with video lock held and returns
+  * with the lock released.
+  * <p>Waits for the image from `vdo->state->image`. If available,
+  * this field is nulled. Releases the lock temporarily when waiting for
+  * the `vdo->state->captured` signal. */
 static zbar_image_t *vfw_dq (zbar_video_t *vdo)
 {
     zbar_image_t *img = vdo->state->image;
     if(!img) {
         _zbar_mutex_unlock(&vdo->qlock);
         int rc = WaitForSingleObject(vdo->state->captured, INFINITE);
+        // note: until we get the lock again the grabber thread might
+        // already provide the next sample (which is fine)
         _zbar_mutex_lock(&vdo->qlock);
-        if(!rc)
+
+        switch (rc)
+        {
+        case WAIT_OBJECT_0:
             img = vdo->state->image;
-        else
-            img = NULL;
-        /*FIXME handle errors? */
+            break;
+        case WAIT_ABANDONED:
+            err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__,
+                        "event handle abandoned");
+            break;
+        case WAIT_FAILED:
+            err_capture(vdo, SEV_ERROR, ZBAR_ERR_WINAPI, __func__,
+                        "Waiting for image failed");
+            break;
+        }
     }
-    else
-        ResetEvent(vdo->state->captured);
-    if(img)
-        vdo->state->image = NULL;
+
+    vdo->state->image = NULL;
+    ResetEvent(vdo->state->captured);
 
     video_unlock(vdo);
     return(img);
@@ -467,7 +485,7 @@ int _zbar_video_open (zbar_video_t *vdo,
                                "video device not found '%s'", dev));
 
     if(!state->captured)
-        state->captured = CreateEvent(NULL, 0, 0, NULL);
+        state->captured = CreateEvent(NULL, TRUE, FALSE, NULL);
     else
         ResetEvent(state->captured);
 

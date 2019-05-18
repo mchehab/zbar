@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <string.h>
 #ifdef _WIN32
+# include <objbase.h>
 # include <io.h>
 # include <fcntl.h>
 #endif
@@ -142,6 +143,14 @@ static void data_handler (zbar_image_t *img, const void *userdata)
 
 int main (int argc, const char *argv[])
 {
+#ifdef _WIN32
+    HRESULT res = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+    if(FAILED(res)) {
+        fprintf(stderr, "ERROR: failed to initialize COM library\n");
+        return(1);
+    }
+#endif
+
     /* setup zbar library standalone processor,
      * threads will be used if available
      */
