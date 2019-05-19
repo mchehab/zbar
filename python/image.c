@@ -381,6 +381,34 @@ image_set_data (zbarImage *self,
     return(0);
 }
 
+
+static PyObject*
+image_get_use_utf8 (zbarImage *self,
+                    void *closure)
+{
+#if PY_MAJOR_VERSION >= 3
+    return PyBool_FromLong(self->use_utf8);
+#else
+    Py_RETURN_FALSE;
+#endif
+}
+
+
+#if PY_MAJOR_VERSION >= 3
+static int
+image_set_use_utf8 (zbarImage *self,
+                    PyObject *value,
+                    void *closure)
+{
+    self->use_utf8 = PyObject_IsTrue(value);
+    return(0);
+}
+#else
+static int
+(*image_set_use_uft8) (PyObject *, PyObject *, void *) = NULL;
+#endif
+
+
 static PyGetSetDef image_getset[] = {
     { "format",   (getter)image_get_format, (setter)image_set_format, },
     { "size",     (getter)image_get_size,   (setter)image_set_size, },
@@ -393,6 +421,7 @@ static PyGetSetDef image_getset[] = {
       NULL, (void*)2 },
     { "data",     (getter)image_get_data,   (setter)image_set_data, },
     { "symbols",  (getter)image_get_symbols,(setter)image_set_symbols, },
+    { "use_utf8", (getter)image_get_use_utf8, (setter)image_set_use_utf8, },
     { NULL, },
 };
 
@@ -403,9 +432,15 @@ image_init (zbarImage *self,
 {
     int width = -1, height = -1;
     PyObject  *format = NULL, *data = NULL;
-    static char *kwlist[] = { "width", "height", "format", "data", NULL };
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, "|iiOO", kwlist,
-                                    &width, &height, &format, &data))
+    int use_utf8;
+#if PY_MAJOR_VERSION >= 3
+    use_utf8 = 1;
+#else
+    use_utf8 = 0;
+#endif
+    static char *kwlist[] = { "width", "height", "format", "data", "use_utf8", NULL };
+    if(!PyArg_ParseTupleAndKeywords(args, kwds, "|iiOOp", kwlist,
+                                    &width, &height, &format, &data, &use_utf8))
         return(-1);
 
     if(width > 0 && height > 0)
@@ -414,6 +449,15 @@ image_init (zbarImage *self,
         return(-1);
     if(data && image_set_data(self, data, NULL))
         return(-1);
+
+#if PY_MAJOR_VERSION >= 3
+    self->use_utf8 = use_utf8;
+#else
+    if(use_utf8 == 1) {
+        PyErr_SetString(PyExc_ValueError, "use_utf8=True not supported on Python2-ZBar");
+        return(-1);
+    }
+#endif
     return(0);
 }
 

@@ -120,9 +120,14 @@ symbol_get_data (zbarSymbol *self,
 {
     if(!self->data) {
 #if PY_MAJOR_VERSION >= 3
-        self->data =
-            PyUnicode_FromStringAndSize(zbar_symbol_get_data(self->zsym),
-                                        zbar_symbol_get_data_length(self->zsym));
+        if(self->use_utf8)
+            self->data =
+                PyUnicode_FromStringAndSize(zbar_symbol_get_data(self->zsym),
+                                            zbar_symbol_get_data_length(self->zsym));
+        else
+            self->data =
+                PyBytes_FromStringAndSize(zbar_symbol_get_data(self->zsym),
+                                          zbar_symbol_get_data_length(self->zsym));
 #else
         /* FIXME this could be a buffer now */
         self->data =
@@ -210,6 +215,10 @@ zbarSymbol_FromSymbol (const zbar_symbol_t *zsym)
     self->zsym = zsym;
     self->data = NULL;
     self->loc = NULL;
+#if PY_MAJOR_VERSION >= 3
+    // TODO: copy value from source ZbarImage.use_utf8
+    self->use_utf8 = 1;
+#endif
     return(self);
 }
 
