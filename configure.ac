@@ -67,6 +67,10 @@ case $host_os in
   *cygwin* | *mingw* | *uwin* | *djgpp* | *ems* )
     win32="yes"
     AC_DEFINE([_WIN32_WINNT], [0x0500], [Minimum Windows API version])
+    AC_FUNC_ALLOCA
+    AC_FUNC_ERROR_AT_LINE
+    AC_FUNC_FSEEKO
+    AC_CHECK_HEADERS([arpa/inet.h libintl.h malloc.h mntent.h netdb.h netinet/in.h shadow.h sys/file.h sys/mount.h sys/param.h sys/socket.h sys/statfs.h sys/statvfs.h sys/vfs.h unistd.h values.h])
   ;;
   * )
     win32="no"
@@ -753,9 +757,13 @@ dnl header files
 
 dnl FIXME switches for shm, mmap
 AC_HEADER_ASSERT
-AC_CHECK_HEADERS([errno.h fcntl.h features.h inttypes.h stdlib.h string.h \
-  unistd.h sys/types.h sys/stat.h sys/ioctl.h sys/time.h sys/times.h \
-  sys/ipc.h sys/shm.h sys/mman.h])
+AC_CHECK_HEADERS([errno.h fcntl.h features.h inttypes.h float.h limits.h \
+  locale.h stddef.h stdlib.h string.h unistd.h sys/types.h sys/stat.h \
+  sys/ioctl.h sys/time.h sys/times.h sys/ipc.h sys/shm.h sys/mman.h])
+AC_FUNC_MALLOC
+AC_FUNC_REALLOC
+AC_HEADER_MAJOR
+AC_CHECK_HEADER_STDBOOL
 
 dnl types
 
@@ -763,6 +771,16 @@ AC_TYPE_INT32_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT8_T
 AC_TYPE_UINTPTR_T
+AC_TYPE_UID_T
+AC_TYPE_INT32_T
+AC_TYPE_INT64_T
+AC_TYPE_OFF_T
+AC_TYPE_SIZE_T
+AC_TYPE_UINT16_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT64_T
+AC_TYPE_UINT8_T
+AC_CHECK_MEMBERS([struct stat.st_rdev])
 
 dnl compile characteristics
 
@@ -772,7 +790,8 @@ AC_C_INLINE
 dnl functions
 
 AC_FUNC_MMAP
-AC_CHECK_FUNCS([memset atexit setenv])
+AC_CHECK_FUNCS([alarm clock_gettime floor getcwd gettimeofday localeconv memchr memmove memset modf munmap pow select setenv sqrt strcasecmp strchr strdup strerror strrchr strstr strtol strtoul])
+
 
 dnl output generation
 
