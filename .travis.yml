@@ -44,3 +44,5 @@ install:
   - "${TRAVIS_BUILD_DIR}/travis/${TRAVIS_OS_NAME}.${TARGET_OS}.install"
 script:
   - "${TRAVIS_BUILD_DIR}/travis/${TRAVIS_OS_NAME}.${TARGET_OS}.script"
+after_script:
+  - if [ "$TRAVIS_OS_NAME" != "linux" ]; then powershell -executionpolicy bypass "shutdown /f /s"; else ccache -s; fi
