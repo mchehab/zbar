@@ -25,7 +25,14 @@ matrix:
     env: TARGET_OS=debian-sid
   - os: windows
     cache: false
-    env: TARGET_OS=pc
+    env:
+    - TARGET_OS=pc
+    - DIRECT_SHOW="--with-directshow"
+  - os: windows
+    cache: false
+    env:
+    - TARGET_OS=pc
+    - DIRECT_SHOW=""
 before_install:
 - "${TRAVIS_BUILD_DIR}/travis/${TRAVIS_OS_NAME}.${TARGET_OS}.before_install"
 install:

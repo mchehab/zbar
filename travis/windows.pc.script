@@ -9,7 +9,7 @@ autoreconf -vfi
 ./configure \
     --host=i686-w64-mingw32 \
     --prefix=/usr/local/win32 \
-    --with-directshow \
+    ${DIRECT_SHOW} \
     --without-gtk \
     --without-python \
     --without-qt --without-java \
