@@ -23,14 +23,12 @@ matrix:
   - os: linux
     compiler: clang
     env: TARGET_OS=debian-sid
-#  - os: windows
-#    cache: false
-#    env: TARGET_OS=pc
+  - os: windows
+    cache: false
+    env: TARGET_OS=pc
 before_install:
 - "${TRAVIS_BUILD_DIR}/travis/${TRAVIS_OS_NAME}.${TARGET_OS}.before_install"
 install:
 - "${TRAVIS_BUILD_DIR}/travis/${TRAVIS_OS_NAME}.${TARGET_OS}.install"
 script:
 - "${TRAVIS_BUILD_DIR}/travis/${TRAVIS_OS_NAME}.${TARGET_OS}.script"
-after_script:
-- if [ "$TRAVIS_OS_NAME" == "linux" ]; then ccache -s; fi
