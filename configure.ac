@@ -833,7 +833,13 @@ dnl summary log
 echo ""
 echo "please verify that the detected configuration matches your expectations:"
 echo "------------------------------------------------------------------------"
-echo "X                      --with-x=$have_x"
+AS_IF([test "x$win32" != "xno"],
+  [AS_IF([test "x$with_directshow" != "xno"],
+    [echo "DirectShow driver      --with-directshow=$with_directshow"],
+    [echo "VfW driver             --with-directshow=$with_directshow"]
+  )],
+  [echo "X                      --with-x=$have_x"]
+)
 echo "pthreads               --enable-pthread=$enable_pthread"
 echo "doc                    --enable-doc=$enable_doc"
 echo "v4l                    --enable-video=$enable_video"
@@ -851,21 +857,14 @@ echo "Enabled codes:        $enabled_codes"
 echo "Disabled codes:       $disabled_codes"
 AS_IF([test "x$with_java" = "xyes"],
   [echo "JAVA_HOME              $JAVA_HOME"])
-echo ""
-
 
 dnl Display "warnings" about disabled and experimental features
 
+echo ""
 AS_IF([test "x$enable_video" != "xyes"],
   [echo "        => zbarcam video scanner will *NOT* be built"])
 AS_IF([test "x$have_libv4l" != "xyes"],
   [echo "        => libv4l will *NOT* be used"])
-AS_IF([test "x$win32" != "xno"],
-  [AS_IF([test "x$with_directshow" != "xno"],
-    [echo "        => building directshow driver"],
-    [echo "        => building VfW driver"]
-  )]
-)
 AS_IF([test "x$with_jpeg" != "xyes"],
   [echo "        => JPEG image conversions will *NOT* be supported"])
 AS_IF([test "x$have_IM" != "xyes" && test "x$have_GM" != "xyes"],
