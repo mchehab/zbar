@@ -5,37 +5,42 @@ sudo: required
 notifications:
   email:
     recipients:
-    - mchehab@kernel.org
+      - mchehab@kernel.org
     on_success: change
     on_failure: always
 cache:
   directories:
-  - $HOME/.ccache
-  - $HOME/pbuilder-bases
+    - $HOME/.ccache
+    - $HOME/pbuilder-bases
 matrix:
+  fast_finish: true
   include:
-  - os: linux
-    env: TARGET_OS=xenial-gtk2
-  - os: linux
-    env: TARGET_OS=xenial-gtk3
-  - os: linux
-    env: TARGET_OS=debian-sid
-  - os: linux
-    compiler: clang
-    env: TARGET_OS=debian-sid
-  - os: windows
-    cache: false
-    env:
-    - TARGET_OS=pc
-    - DIRECT_SHOW="--with-directshow"
-  - os: windows
-    cache: false
-    env:
-    - TARGET_OS=pc
-    - DIRECT_SHOW=""
+    - os: linux
+      env: TARGET_OS=xenial-gtk2
+    - os: linux
+      env: TARGET_OS=xenial-gtk3
+    - os: linux
+      env: TARGET_OS=debian-sid
+    - os: linux
+      compiler: clang
+      env: TARGET_OS=debian-sid
+    # Both in allow_failures
+    - os: windows
+      cache: false
+      env: TARGET_OS=pc DIRECT_SHOW="--with-directshow"
+    - os: windows
+      cache: false
+      env: TARGET_OS=pc DIRECT_SHOW=""
+  allow_failures:
+    - os: windows
+      cache: false
+      env: TARGET_OS=pc DIRECT_SHOW="--with-directshow"
+    - os: windows
+      cache: false
+      env: TARGET_OS=pc DIRECT_SHOW=""
 before_install:
-- "${TRAVIS_BUILD_DIR}/travis/${TRAVIS_OS_NAME}.${TARGET_OS}.before_install"
+  - "${TRAVIS_BUILD_DIR}/travis/${TRAVIS_OS_NAME}.${TARGET_OS}.before_install"
 install:
-- "${TRAVIS_BUILD_DIR}/travis/${TRAVIS_OS_NAME}.${TARGET_OS}.install"
+  - "${TRAVIS_BUILD_DIR}/travis/${TRAVIS_OS_NAME}.${TARGET_OS}.install"
 script:
-- "${TRAVIS_BUILD_DIR}/travis/${TRAVIS_OS_NAME}.${TARGET_OS}.script"
+  - "${TRAVIS_BUILD_DIR}/travis/${TRAVIS_OS_NAME}.${TARGET_OS}.script"
