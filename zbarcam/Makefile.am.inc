@@ -1,6 +1,7 @@
 bin_PROGRAMS += zbarcam/zbarcam
 zbarcam_zbarcam_SOURCES = zbarcam/zbarcam.c
 zbarcam_zbarcam_LDADD = zbar/libzbar.la
+zbarcam_zbarcam_CPPFLAGS =
 # automake bug in "monolithic mode"?
 CLEANFILES += zbarcam/.libs/zbarcam zbarcam/moc_zbarcam_qt.h
 
@@ -34,4 +35,9 @@ endif
 if WIN32
 zbarcam_zbarcam_SOURCES += zbarcam/zbarcam.rc
 zbarcam_zbarcam_LDADD += zbarcam/zbarcam-rc.o
+
+if WITH_DIRECTSHOW
+zbarcam_zbarcam_CPPFLAGS += -DDIRECTSHOW
+endif
+
 endif

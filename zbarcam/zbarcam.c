@@ -143,7 +143,7 @@ static void data_handler (zbar_image_t *img, const void *userdata)
 
 int main (int argc, const char *argv[])
 {
-#ifdef _WIN32
+#ifdef DIRECTSHOW
     HRESULT res = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
     if(FAILED(res)) {
         fprintf(stderr, "ERROR: failed to initialize COM library\n");
