@@ -1,5 +1,5 @@
 lib_LTLIBRARIES = libzbar.la
-libzbar_la_CPPFLAGS = -I$(srcdir) -I$(srcdir)/../include $(AM_CPPFLAGS)
+libzbar_la_CPPFLAGS = $(AM_CPPFLAGS)
 libzbar_la_LDFLAGS = -no-undefined -version-info $(LIB_VERSION) \
     -export-symbols-regex "^(zbar|_zbar.*_error)_.*" $(AM_LDFLAGS)
 libzbar_la_LIBADD = $(LTLIBICONV)

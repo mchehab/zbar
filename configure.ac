@@ -53,7 +53,7 @@ AC_DEFINE_UNQUOTED([LIB_VERSION_REVISION],
   [[`echo "$LIB_VERSION" | sed -e 's/^[^:]*:\([^:]*\):.*$/\1/'`]],
   [Library revision])
 
-AM_CPPFLAGS="-I$srcdir/include"
+AM_CPPFLAGS="-I\$(top_srcdir)/include"
 AM_CFLAGS="-Wall -Wno-parentheses"
 AM_CXXFLAGS="$AM_CFLAGS"
 AC_SUBST([AM_CPPFLAGS])
