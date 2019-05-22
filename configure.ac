@@ -66,6 +66,7 @@ AC_CANONICAL_HOST
 case $host_os in
   *cygwin* | *mingw* | *uwin* | *djgpp* | *ems* )
     win32="yes"
+    with_dbus="no"
     AC_DEFINE([_WIN32_WINNT], [0x0500], [Minimum Windows API version])
     AC_FUNC_ALLOCA
     AC_FUNC_ERROR_AT_LINE
@@ -847,7 +848,8 @@ echo "GTK                    --with-gtk=$with_gtk          Gtk${GTK_VERSION}"
 echo "GObject introspection  --with-gir=$with_gir"
 echo "Qt                     --with-qt=$with_qt            Qt${QT_VERSION}"
 echo "Java                   --with-java=$with_java"
-echo "Dbus                   --with-dbus=$with_dbus"
+AS_IF([test "x$win32" == "xno"],
+  [echo "Dbus                   --with-dbus=$with_dbus"])
 AS_IF([test "x$have_GM" = "xyes"],
   [echo "GraphicsMagick         --with-graphicsmagick=yes"],
   [echo "ImageMagick            --with-imagemagick=$with_imagemagick"])
