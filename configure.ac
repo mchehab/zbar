@@ -760,8 +760,6 @@ AC_HEADER_ASSERT
 AC_CHECK_HEADERS([errno.h fcntl.h features.h inttypes.h float.h limits.h \
   locale.h stddef.h stdlib.h string.h unistd.h sys/types.h sys/stat.h \
   sys/ioctl.h sys/time.h sys/times.h sys/ipc.h sys/shm.h sys/mman.h])
-AC_FUNC_MALLOC
-AC_FUNC_REALLOC
 AC_HEADER_MAJOR
 AC_CHECK_HEADER_STDBOOL
 
@@ -790,7 +788,7 @@ AC_C_INLINE
 dnl functions
 
 AC_FUNC_MMAP
-AC_CHECK_FUNCS([alarm clock_gettime floor getcwd gettimeofday localeconv memchr memmove memset modf munmap pow select setenv sqrt strcasecmp strchr strdup strerror strrchr strstr strtol strtoul])
+AC_CHECK_FUNCS([alarm clock_gettime floor getcwd gettimeofday localeconv memchr memmove memset modf munmap pow select setenv sqrt strcasecmp strchr strdup strerror strrchr strstr strtol strtoul malloc realloc])
 
 
 dnl output generation
