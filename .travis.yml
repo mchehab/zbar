@@ -20,6 +20,8 @@ matrix:
     - os: linux
       env: TARGET_OS=xenial-gtk3
     - os: linux
+      env: TARGET_OS=mingw-w64
+    - os: linux
       env: TARGET_OS=debian-sid
     - os: linux
       compiler: clang
