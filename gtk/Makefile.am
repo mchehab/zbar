@@ -1,5 +1,5 @@
 lib_LTLIBRARIES = libzbargtk.la
-libzbargtk_la_CPPFLAGS = -I$(srcdir) -I$(top_srcdir)/include $(GTK_CFLAGS) $(AM_CPPFLAGS)
+libzbargtk_la_CPPFLAGS = $(GTK_CFLAGS) $(AM_CPPFLAGS)
 libzbargtk_la_LDFLAGS = -version-info $(ZGTK_LIB_VERSION) \
     -export-symbols-regex "^zbar_.*" $(AM_LDFLAGS) -no-undefined
 libzbargtk_la_LIBADD = $(GTK_LIBS) ../zbar/libzbar.la $(AM_LIBADD)
