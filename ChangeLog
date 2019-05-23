@@ -9,6 +9,8 @@
   * Added support for Python3 bindings
   * Python scripts now runs with either python2 or python3
   * added Travis checks for Gtk3 with Python3 and GIR
+  * added Travis builds for cross-compilation with winGW
+  * added Travis builds for Windows native build
   * added a test script for checking python bindings
   * Added a test script for Python with Gtk support via GIR
   * Suppressed gcc warnings when building with Gtk3
