@@ -12,7 +12,7 @@ libzbar_la_SOURCES = debug.h config.c \
     event.h thread.h \
     window.h window.c video.h video.c \
     img_scanner.h img_scanner.c scanner.c \
-    decoder.h decoder.c misc.c
+    decoder.h decoder.c misc.h misc.c
 
 EXTRA_libzbar_la_SOURCES = svg.h svg.c
 
