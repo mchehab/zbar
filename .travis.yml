@@ -33,6 +33,8 @@ matrix:
     - os: windows
       cache: false
       env: TARGET_OS=pc DIRECT_SHOW=""
+    - os: osx
+      env: TARGET_OS=mac
   allow_failures:
     - os: windows
       cache: false
@@ -40,8 +42,6 @@ matrix:
     - os: windows
       cache: false
       env: TARGET_OS=pc DIRECT_SHOW=""
-    - os: osx
-      env: TARGET_OS=mac
 before_install:
   - "${TRAVIS_BUILD_DIR}/travis/${TRAVIS_OS_NAME}.${TARGET_OS}.before_install"
 install:
