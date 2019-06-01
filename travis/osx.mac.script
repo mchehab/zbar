@@ -1,0 +1,14 @@
+#!/bin/bash
+set -e
+
+export PATH="/usr/local/opt/libiconv/bin:$PATH"
+export LDFLAGS="-L/usr/local/opt/libiconv/lib"
+export CPPFLAGS="-I/usr/local/opt/libiconv/include"
+
+autoreconf -vfi
+
+./configure --disable-video --without-qt --without-gtk \
+            --without-python --without-imagemagick --with-graphicsmagick
+
+make
+#make install
