@@ -1,4 +1,6 @@
 #!/bin/bash
-brew install gettext autoconf automake libiconv libtool gs graphicsmagick
+brew install gettext autoconf automake libiconv libtool \
+             gs graphicsmagick python xmlto pkg-config
+
 brew link gettext --force
 brew unlink libtool && brew link libtool

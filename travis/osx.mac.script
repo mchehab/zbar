@@ -8,7 +8,7 @@ export CPPFLAGS="-I/usr/local/opt/libiconv/include"
 autoreconf -vfi
 
 ./configure --disable-video --without-qt --without-gtk \
-            --without-python --without-imagemagick --with-graphicsmagick
+            --with-python=python3 --without-imagemagick --with-graphicsmagick
 
 make
-#make install
+sudo make install
