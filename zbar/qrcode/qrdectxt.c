@@ -409,7 +409,10 @@ int qr_code_data_list_extract_text(const qr_code_data_list *_qrlist,
       /*If eci should be reset between codes, do so.*/
       if(eci<=QR_ECI_GLI1){
         eci=-1;
-        if(eci_cd!=(iconv_t)-1)iconv_close(eci_cd);
+        if(eci_cd!=(iconv_t)-1){
+	  iconv_close(eci_cd);
+	  eci_cd=(iconv_t)-1;
+	}
       }
 
     }
