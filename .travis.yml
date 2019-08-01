@@ -16,16 +16,21 @@ matrix:
   fast_finish: true
   include:
     - os: linux
-      env: TARGET_OS=xenial-gtk2
+      env: TARGET_OS=ubuntu-gtk2
+      dist: bionic
     - os: linux
-      env: TARGET_OS=xenial-gtk3
+      env: TARGET_OS=ubuntu-gtk3
+      dist: bionic
     - os: linux
       env: TARGET_OS=mingw-w64
+      dist: xenial
     - os: linux
       env: TARGET_OS=debian-sid
+      dist: bionic
     - os: linux
       compiler: clang
       env: TARGET_OS=debian-sid
+      dist: bionic
     # Both in allow_failures
     - os: windows
       cache: false
