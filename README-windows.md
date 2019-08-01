@@ -116,6 +116,77 @@ It follows a non-exhaustive list of those components:
   * Depending on how this is packaged, other licenses may apply
 
 
+BUILDING
+========
+
+NOTE: this is a simplified version of what it was done in order to do the
+Travis CI builds. You may use this as a guide, but the instructions here
+may be incomplete. If you find inconsistencies, feel free to submit patches
+improving the building steps.
+
+Building on Ubuntu Xenial
+-------------------------
+
+You need to install the following packages:
+
+    sudo apt-get install -y \
+	autoconf automake autotools-dev libdbus-1-dev \
+	pkg-config binutils-mingw-w64-i686 gcc-mingw-w64 mingw-w64-i686-dev \
+	mingw-w64-common
+
+As Ubuntu Xenial doesn't provide win-iconv-mingw-w64-dev, we need to build
+it with:
+
+    git clone https://github.com/win-iconv/win-iconv.git
+    (cd win-iconv && CC=i686-w64-mingw32-gcc make &&
+	sudo make install prefix=/usr/i686-w64-mingw32)
+
+Then, build Zbar with:
+
+    export PKG_CONFIG_PATH=/usr/x86_64-w64-mingw32/lib/pkgconfig
+
+    autoreconf -vfi
+
+    CC=i686-w64-mingw32-gcc ./configure --host=i686-w64-mingw32 \
+	--prefix=/usr/local/win32 --with-directshow \
+	--without-gtk --without-python --without-qt --without-java \
+	--without-imagemagick --enable-pthread
+
+    make
+
+
+Building nativelly on Windows
+-----------------------------
+
+It is possible to build it natively on Windows too.
+
+You need first to setup a building environment with minGw. One way would
+be to use Chocolatey to download what's needed:
+
+  * https://chocolatey.org/
+
+With Cocolatey installed, ensure that you have minGw and needed deps with:
+
+    choco install -r --no-progress -y msys2 make
+
+Then use pacman to install the needed packages:
+
+    pacman -Syu --noconfirm autoconf libtool automake make \
+	autoconf-archive pkg-config
+
+Once you have everything needed and set the PATH to the places where the
+building environment is, you can build ZBar with:
+
+    autoreconf -vfi
+
+    ./configure \
+	--host=i686-w64-mingw32 --prefix=/usr/local/win32 \
+	--without-gtk --without-python --without-qt --without-java \
+	--without-imagemagick --enable-pthread --disable-dependency-tracking
+
+    make
+
+
 RUNNING
 =======
 
