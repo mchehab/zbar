@@ -23,7 +23,7 @@ matrix:
       dist: bionic
     - os: linux
       env: TARGET_OS=mingw-w64
-      dist: xenial
+      dist: bionic
     - os: linux
       env: TARGET_OS=debian-sid
       dist: bionic

@@ -124,22 +124,19 @@ Travis CI builds. You may use this as a guide, but the instructions here
 may be incomplete. If you find inconsistencies, feel free to submit patches
 improving the building steps.
 
-Building on Ubuntu Xenial
+Also, please notice that the instructions here is for a minimal version,
+without any bindings nor ImageMagick.
+
+Building on Ubuntu Bionic
 -------------------------
 
 You need to install the following packages:
 
     sudo apt-get install -y \
 	autoconf automake autotools-dev libdbus-1-dev \
-	pkg-config binutils-mingw-w64-i686 gcc-mingw-w64 mingw-w64-i686-dev \
-	mingw-w64-common
-
-As Ubuntu Xenial doesn't provide win-iconv-mingw-w64-dev, we need to build
-it with:
-
-    git clone https://github.com/win-iconv/win-iconv.git
-    (cd win-iconv && CC=i686-w64-mingw32-gcc make &&
-	sudo make install prefix=/usr/i686-w64-mingw32)
+	pkg-config binutils-mingw-w64-i686 gcc-mingw-w64 \
+	mingw-w64-i686-dev mingw-w64-common win-iconv-mingw-w64-dev \
+	xmlto
 
 Then, build Zbar with:
 
@@ -155,8 +152,8 @@ Then, build Zbar with:
     make
 
 
-Building nativelly on Windows
------------------------------
+Building natively on Windows
+----------------------------
 
 It is possible to build it natively on Windows too.
 
@@ -182,7 +179,8 @@ building environment is, you can build ZBar with:
     ./configure \
 	--host=i686-w64-mingw32 --prefix=/usr/local/win32 \
 	--without-gtk --without-python --without-qt --without-java \
-	--without-imagemagick --enable-pthread --disable-dependency-tracking
+	--without-imagemagick --enable-pthread \
+	 --with-directshow --disable-dependency-tracking
 
     make
 
