@@ -246,12 +246,16 @@ static int scan_image (const char *filename)
                     return(-1);
                 }
             }
-            printf("\n");
             found++;
             num_symbols++;
 
-            if(oneshot)
+            if(oneshot) {
+                if(xmllvl >= 0)
+                    printf("\n");
                 break;
+            }
+            else
+                printf("\n");
         }
         if(xmllvl > 2) {
             xmllvl--;
