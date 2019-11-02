@@ -73,6 +73,8 @@ int qr_code_data_list_extract_text(const qr_code_data_list *_qrlist,
   unsigned char       *mark;
   int                  ntext;
   int                  i;
+  int                  raw_binary = 0;
+  zbar_image_scanner_get_config(iscn, ZBAR_QRCODE, ZBAR_CFG_BINARY, &raw_binary);
   qrdata=_qrlist->qrdata;
   nqrdata=_qrlist->nqrdata;
   mark=(unsigned char *)calloc(nqrdata,sizeof(*mark));
@@ -243,8 +245,16 @@ int qr_code_data_list_extract_text(const qr_code_data_list *_qrlist,
             inleft=bytebuf_ntext;
             out=sa_text+sa_ntext;
             outleft=sa_ctext-sa_ntext;
-            /*If we have no specified encoding, attempt to auto-detect it.*/
+            /*If we have no specified encoding, attempt to auto-detect it
+              unless configured with ZBAR_CFG_BINARY.*/
             if(eci<0){
+              if (raw_binary) {
+                /* copy all remaining bytes to output buffer. */
+                memcpy(out, in, inleft);
+                sa_ntext += inleft;
+                bytebuf_ntext = 0;
+              }
+              else {
               int ei;
               /*If there was data encoded in kanji mode, assume it's SJIS.*/
               if(has_kanji)enc_list_mtf(enc_list,sjis_cd);
@@ -308,6 +318,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list *_qrlist,
                 inleft=bytebuf_ntext;
                 out=sa_text+sa_ntext;
                 outleft=sa_ctext-sa_ntext;
+              }
               }
             }
             /*We were actually given a character set; use it.

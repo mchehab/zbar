@@ -153,6 +153,9 @@ struct qr_code_data_list{
 
 /*Extract symbol data from a list of QR codes and attach to the image.
   All text is converted to UTF-8.
+  For binary/byte mode QR codes: if configured with ZBAR_CFG_BINARY,
+  the bytes will be returned as is. Otherwise, the encoding will be
+  automatically determined and the data will be converted to that character set.
   Any structured-append group that does not have all of its members is decoded
    as ZBAR_PARTIAL with ZBAR_PARTIAL components for the discontinuities.
   Note that isolated members of a structured-append group may be decoded with
