@@ -130,11 +130,14 @@ static void data_handler (zbar_image_t *img, const void *userdata)
             if(fwrite(xml_buf, xml_len, 1, stdout) != 1)
                 continue;
         }
-        printf("\n");
         n++;
 
-        if(oneshot)
+        if(oneshot) {
+            if (format != RAW)
+                printf("\n");
             break;
+        } else
+            printf("\n");
     }
 
     if(format == XML && n)
