@@ -49,6 +49,7 @@ static const char *note_usage =
     "    --verbose=N     set specific debug output level\n"
     "    --xml           use XML output format\n"
     "    --raw           output decoded symbol data without symbology prefix\n"
+    "    -1, --oneshot   exit after scanning one QR code\n"
 #ifdef HAVE_DBUS
     "    --nodbus        disable dbus message\n"
 #endif
@@ -67,7 +68,7 @@ static const char *xml_foot =
     "</source></barcodes>\n";
 
 static zbar_processor_t *proc;
-static int quiet = 0;
+static int quiet = 0, oneshot = 0;
 static enum {
     DEFAULT, RAW, XML
 } format = DEFAULT;
@@ -88,7 +89,7 @@ static inline int parse_config (const char *cfgstr, int i, int n, char *arg)
         fprintf(stderr, "ERROR: need argument for option: %s\n", arg);
         return(1);
     }
-    
+
     if(zbar_processor_parse_config(proc, cfgstr)) {
         fprintf(stderr, "ERROR: invalid configuration setting: %s\n", cfgstr);
         return(1);
@@ -131,6 +132,9 @@ static void data_handler (zbar_image_t *img, const void *userdata)
         }
         printf("\n");
         n++;
+
+        if(oneshot)
+            break;
     }
 
     if(format == XML && n)
@@ -187,6 +191,7 @@ int main (int argc, const char *argv[])
                 case 'h': return(usage(0));
                 case 'v': zbar_increase_verbosity(); break;
                 case 'q': quiet = 1; break;
+                case '1': oneshot = 1; break;
                 default:
                     fprintf(stderr, "ERROR: unknown bundled config: -%c\n\n",
                             argv[i][j]);
@@ -214,6 +219,8 @@ int main (int argc, const char *argv[])
         }
         else if(!strcmp(argv[i], "--quiet"))
             quiet = 1;
+        else if(!strcmp(argv[i], "--oneshot"))
+            oneshot = 1;
         else if(!strcmp(argv[i], "--xml"))
             format = XML;
         else if(!strcmp(argv[i], "--raw"))
@@ -292,34 +299,40 @@ int main (int argc, const char *argv[])
     if(zbar_processor_set_active(proc, active))
         return(zbar_processor_error_spew(proc, 0));
 
-    /* let the callback handle data */
-    int rc;
-    while((rc = zbar_processor_user_wait(proc, -1)) >= 0) {
-        if(rc == 'q' || rc == 'Q')
-            break;
-        // HACK: controls are known on V4L2 by ID, not by name. This is also
-        // not compatible with other platforms
-        if(rc == 'b' || rc == 'B') {
-            int value;
-            zbar_processor_get_control(proc, "Brightness", &value);
-            zbar_processor_set_control(proc, "Brightness", ++value);
+    if (oneshot) {
+        if (zbar_process_one(proc, -1) < 0)
+            if (zbar_processor_get_error_code(proc) != ZBAR_ERR_CLOSED)
+                return zbar_processor_error_spew(proc, 0);
+    } else {
+        /* let the callback handle data */
+        int rc;
+        while((rc = zbar_processor_user_wait(proc, -1)) >= 0) {
+            if(rc == 'q' || rc == 'Q')
+                break;
+            // HACK: controls are known on V4L2 by ID, not by name. This is also
+            // not compatible with other platforms
+            if(rc == 'b' || rc == 'B') {
+                int value;
+                zbar_processor_get_control(proc, "Brightness", &value);
+                zbar_processor_set_control(proc, "Brightness", ++value);
+            }
+            if(rc == 'n' || rc == 'N') {
+                int value;
+                zbar_processor_get_control(proc, "Brightness", &value);
+                zbar_processor_set_control(proc, "Brightness", --value);
+            }
+            if(rc == ' ') {
+                active = !active;
+                if(zbar_processor_set_active(proc, active))
+                    return(zbar_processor_error_spew(proc, 0));
+            }
         }
-        if(rc == 'n' || rc == 'N') {
-            int value;
-            zbar_processor_get_control(proc, "Brightness", &value);
-            zbar_processor_set_control(proc, "Brightness", --value);
-        }
-        if(rc == ' ') {
-            active = !active;
-            if(zbar_processor_set_active(proc, active))
-                return(zbar_processor_error_spew(proc, 0));
-        }
-    }
 
-    /* report any errors that aren't "window closed" */
-    if(rc && rc != 'q' && rc != 'Q' &&
-       zbar_processor_get_error_code(proc) != ZBAR_ERR_CLOSED)
-        return(zbar_processor_error_spew(proc, 0));
+        /* report any errors that aren't "window closed" */
+        if(rc && rc != 'q' && rc != 'Q' &&
+           zbar_processor_get_error_code(proc) != ZBAR_ERR_CLOSED)
+            return(zbar_processor_error_spew(proc, 0));
+    }
 
     /* free resources (leak check) */
     zbar_processor_destroy(proc);
