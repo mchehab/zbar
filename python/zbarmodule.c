@@ -70,6 +70,7 @@ static const enumdef config_defs[] = {
     { "ADD_CHECK",      ZBAR_CFG_ADD_CHECK },
     { "EMIT_CHECK",     ZBAR_CFG_EMIT_CHECK },
     { "ASCII",          ZBAR_CFG_ASCII },
+    { "BINARY",         ZBAR_CFG_BINARY },
     { "MIN_LEN",        ZBAR_CFG_MIN_LEN },
     { "MAX_LEN",        ZBAR_CFG_MAX_LEN },
     { "UNCERTAINTY",    ZBAR_CFG_UNCERTAINTY },

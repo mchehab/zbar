@@ -171,6 +171,7 @@ typedef enum zbar_config_e {
     ZBAR_CFG_ADD_CHECK,         /**< enable check digit when optional */
     ZBAR_CFG_EMIT_CHECK,        /**< return check digit when present */
     ZBAR_CFG_ASCII,             /**< enable full ASCII character set */
+    ZBAR_CFG_BINARY,            /**< don't convert binary data to text */
     ZBAR_CFG_NUM,               /**< number of boolean decoder configs */
 
     ZBAR_CFG_MIN_LEN = 0x20,    /**< minimum data length for valid decode */
