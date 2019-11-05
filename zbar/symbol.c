@@ -67,6 +67,7 @@ const char *zbar_get_config_name (zbar_config_t cfg)
     case ZBAR_CFG_ADD_CHECK: return("ADD_CHECK");
     case ZBAR_CFG_EMIT_CHECK: return("EMIT_CHECK");
     case ZBAR_CFG_ASCII: return("ASCII");
+    case ZBAR_CFG_BINARY: return("BINARY");
     case ZBAR_CFG_MIN_LEN: return("MIN_LEN");
     case ZBAR_CFG_MAX_LEN: return("MAX_LEN");
     case ZBAR_CFG_UNCERTAINTY: return("UNCERTAINTY");

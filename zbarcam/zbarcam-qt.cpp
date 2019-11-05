@@ -113,6 +113,7 @@ static const struct settings_s settings[] = {
     { "max-length",    zbar::ZBAR_CFG_MAX_LEN,       false },
     { "uncertainty",   zbar::ZBAR_CFG_UNCERTAINTY,   false },
     { "ascii",         zbar::ZBAR_CFG_ASCII,         true },
+    { "binary",        zbar::ZBAR_CFG_BINARY,        true },
     { "add-check",     zbar::ZBAR_CFG_ADD_CHECK,     true },
     { "emit-check",    zbar::ZBAR_CFG_EMIT_CHECK,    true },
     { "position",      zbar::ZBAR_CFG_POSITION,      true },
