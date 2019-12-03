@@ -659,14 +659,22 @@ AS_IF([test "x$with_qt" != "xno"],
      CPPFLAGS="$CPPFLAGS $QT_CPPFLAGS"
 dnl -fPIC has no effect on Windows and breaks windres
      AS_IF([test "x$win32" = "xno"], [CPPFLAGS="$CPPFLAGS -fPIC"])
-     AC_MSG_NOTICE([using Qt version $QT_VERSION])],
+     AC_MSG_NOTICE([using Qt version $QT_VERSION])
+     qt_pkgconfig_file="zbar-qt5.pc"
+     ],
 
     [MOC=`$PKG_CONFIG QtGui --variable=moc_location`
      AC_MSG_NOTICE([using moc from $MOC])
      QT_VERSION=`$PKG_CONFIG QtGui --modversion`
-     AC_MSG_NOTICE([using Qt version $QT_VERSION])]))
+     AC_MSG_NOTICE([using Qt version $QT_VERSION])
+     qt_pkgconfig_file="zbar-qt.pc"
+     ]))
 
 AM_CONDITIONAL([HAVE_QT], [test "x$with_qt" = "xyes"])
+
+AM_COND_IF([HAVE_QT],
+     [AC_CONFIG_FILES([zbar-qt.pc:"${qt_pkgconfig_file}.in"])]
+)
 
 dnl Java
 have_java="maybe"
@@ -820,7 +828,6 @@ java/Makefile
 zbar/Makefile
 zbar.pc
 zbar-gtk.pc
-zbar-qt.pc
 doc/doxygen.conf])
 
 AC_CONFIG_FILES([test/test_examples.sh],[chmod 755 test/test_examples.sh])
