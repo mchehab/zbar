@@ -16,3 +16,4 @@ b567e550216fe24f7652f683146365a9fe7ee867  zbarimg -Sisbn10.enable ean-13.png
 d0f37aa076d42c270f7231c5490beea5605e2ba0  zbarimg -Sisbn13.enable ean-13.png
 3f041225df3b8364b5fd0daf9cf402e8a4731f9b  zbarimg -Supca.enable code-upc-a.png
 b350ca7efad7a50c5ac082d5c683a8e8d8d380a7  zbarimg -Stest-inverted qr-code-inverted.png
+df896e459e47a7d392031a7d4962722a143e276b  zbarimg --raw --oneshot -Sbinary qr-code-binary.png
