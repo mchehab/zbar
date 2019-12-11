@@ -69,6 +69,7 @@ fi
 if [ "@ENABLE_QRCODE@" == "1" ]; then
         test qr-code.png
         test -Stest-inverted qr-code-inverted.png
+        test '--raw --oneshot -Sbinary' qr-code-binary.png
 fi
 
 if [ "@ENABLE_SQCODE@" == "1" ]; then

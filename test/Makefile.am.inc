@@ -76,6 +76,7 @@ gen_checksum: all
 	$(ZBARIMG) -Sisbn13.enable $(EXAMPLES)/ean-13.png 2>/dev/null|sha1sum|sed "s,-,zbarimg -Sisbn13.enable ean-13.png,"  >>$(EXAMPLES)/sha1sum
 	$(ZBARIMG) -Supca.enable $(EXAMPLES)/code-upc-a.png 2>/dev/null|sha1sum|sed "s,-,zbarimg -Supca.enable code-upc-a.png,"  >>$(EXAMPLES)/sha1sum
 	$(ZBARIMG) -Stest-inverted $(EXAMPLES)/qr-code-inverted.png 2>/dev/null|sha1sum|sed "s,-,zbarimg -Stest-inverted qr-code-inverted.png,"  >>$(EXAMPLES)/sha1sum
+	$(ZBARIMG) --raw -Sbinary $(EXAMPLES)/qr-code-binary.png 2>/dev/null|head -c -1|sha1sum|sed "s,-,zbarimg --raw -Sbinary qr-code-binary.png," >>$(EXAMPLES)/sha1sum
 
 test_progs: $(check_PROGRAMS)
 	@$(MAKE) $(check_PROGRAMS)
