@@ -85,6 +85,7 @@ static const char *note_usage =
     "    -D, --nodisplay disable display of following images (default)\n"
     "    --xml, --noxml  enable/disable XML output format\n"
     "    --raw           output decoded symbol data without symbology prefix\n"
+    "    -1, --oneshot   exit after scanning one QR code\n"
     "    -S<CONFIG>[=<VALUE>], --set <CONFIG>[=<VALUE>]\n"
     "                    set decoder/scanner <CONFIG> to <VALUE> (or 1)\n"
     // FIXME overlay level
@@ -147,6 +148,7 @@ static const char *xml_foot =
 static int notfound = 0, exit_code = 0;
 static int num_images = 0, num_symbols = 0;
 static int xmllvl = 0;
+static int oneshot = 0;
 
 char *xmlbuf = NULL;
 unsigned xmlbuflen = 0;
@@ -244,9 +246,16 @@ static int scan_image (const char *filename)
                     return(-1);
                 }
             }
-            printf("\n");
             found++;
             num_symbols++;
+
+            if(oneshot) {
+                if(xmllvl >= 0)
+                    printf("\n");
+                break;
+            }
+            else
+                printf("\n");
         }
         if(xmllvl > 2) {
             xmllvl--;
@@ -327,6 +336,7 @@ int main (int argc, const char *argv[])
                 switch(arg[j]) {
                 case 'h': return(usage(0, NULL, NULL));
                 case 'q': quiet = 1; break;
+                case '1': oneshot = 1; break;
                 case 'v': zbar_increase_verbosity(); break;
                 case 'd': display = 1; break;
                 case 'D': break;
@@ -345,6 +355,8 @@ int main (int argc, const char *argv[])
             quiet = 1;
             argv[i] = NULL;
         }
+        else if(!strcmp(arg, "--oneshot"))
+            oneshot = 1;
         else if(!strcmp(arg, "--verbose"))
             zbar_increase_verbosity();
         else if(!strncmp(arg, "--verbose=", 10))
