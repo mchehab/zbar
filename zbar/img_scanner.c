@@ -713,10 +713,12 @@ static inline void quiet_border (zbar_image_scanner_t *iscn)
 #ifdef HAVE_DBUS
 static int dict_add_property (DBusMessageIter *property,
                               const char *key,
-                              const char *value)
+                              const char *value,
+                              unsigned int value_length,
+                              int is_binary)
 {
 
-    DBusMessageIter dict_entry, dict_val;
+    DBusMessageIter dict_entry, dict_val, array_val;
     DBusError err;
     dbus_error_init(&err);
     dbus_message_iter_open_container(property, DBUS_TYPE_DICT_ENTRY, NULL, &dict_entry);
@@ -725,13 +727,29 @@ static int dict_add_property (DBusMessageIter *property,
         dbus_message_iter_close_container(property, &dict_entry);
         goto error;
     }
-    dbus_message_iter_open_container(&dict_entry, DBUS_TYPE_VARIANT, DBUS_TYPE_STRING_AS_STRING, &dict_val);
-    if (!dbus_message_iter_append_basic(&dict_val, DBUS_TYPE_STRING, &value)){
-        fprintf(stderr, "Value Error\n");
-        dbus_message_iter_close_container(&dict_entry, &dict_val);
-        dbus_message_iter_close_container(property, &dict_entry);
-        goto error;
+
+    if (is_binary) {
+        dbus_message_iter_open_container(&dict_entry, DBUS_TYPE_VARIANT, "ay", &dict_val);
+        dbus_message_iter_open_container(&dict_val, DBUS_TYPE_ARRAY, "y", &array_val);
+        if (!dbus_message_iter_append_fixed_array(&array_val, DBUS_TYPE_BYTE, &value, value_length)) {
+            fprintf(stderr, "Byte Array Value Error\n");
+            dbus_message_iter_close_container(&dict_val, &array_val);
+            dbus_message_iter_close_container(&dict_entry, &dict_val);
+            dbus_message_iter_close_container(property, &dict_entry);
+            goto error;
+        }
+    } else {
+        dbus_message_iter_open_container(&dict_entry, DBUS_TYPE_VARIANT, DBUS_TYPE_STRING_AS_STRING, &dict_val);
+        if (!dbus_message_iter_append_basic(&dict_val, DBUS_TYPE_STRING, &value)) {
+            fprintf(stderr, "String Value Error\n");
+            dbus_message_iter_close_container(&dict_entry, &dict_val);
+            dbus_message_iter_close_container(property, &dict_entry);
+            goto error;
+        }
     }
+
+    if (is_binary)
+        dbus_message_iter_close_container(&dict_val, &array_val);
     dbus_message_iter_close_container(&dict_entry, &dict_val);
     dbus_message_iter_close_container(property, &dict_entry);
     return(1);
@@ -744,12 +762,14 @@ error:
     return(0);
 }
 
-static void zbar_send_dbus(int type, const char* sigvalue)
+static void zbar_send_dbus(int type, const char* sigvalue,
+                           unsigned int length, int is_binary)
 {
     DBusMessage* msg;
     DBusMessageIter args, dict;
     DBusConnection* conn;
     const char *type_name;
+    const char *value_key = is_binary ? "BinaryData" : "Data";
     DBusError err;
     int ret;
     dbus_uint32_t serial = 0;
@@ -797,13 +817,13 @@ static void zbar_send_dbus(int type, const char* sigvalue)
     }
 
     type_name = zbar_get_symbol_name(type);
-    if (!dict_add_property(&dict, "Type", type_name)) {
+    if (!dict_add_property(&dict, "Type", type_name, 0, 0)) {
         fprintf(stderr, "Out Of Property Memory!\n");
         dbus_message_unref(msg);
         return;
     }
 
-    if (!dict_add_property(&dict, "Data", sigvalue)) {
+    if (!dict_add_property(&dict, value_key, sigvalue, length, is_binary)) {
         fprintf(stderr, "Out Of Property Memory!\n");
         dbus_message_unref(msg);
         return;
@@ -829,7 +849,8 @@ static void zbar_send_dbus(int type, const char* sigvalue)
     dbus_message_unref(msg);
 }
 
-static void zbar_send_code_via_dbus(zbar_image_t *img)
+static void zbar_send_code_via_dbus(zbar_image_scanner_t *iscn,
+                                    zbar_image_t *img)
 {
     const zbar_symbol_t *sym = zbar_image_first_symbol(img);
 
@@ -843,7 +864,13 @@ static void zbar_send_code_via_dbus(zbar_image_t *img)
         if(type == ZBAR_PARTIAL)
             continue;
 
-        zbar_send_dbus(type, zbar_symbol_get_data(sym));
+        int is_binary = 0;
+        zbar_image_scanner_get_config(iscn, type, ZBAR_CFG_BINARY, &is_binary);
+
+        zbar_send_dbus(type,
+                       zbar_symbol_get_data(sym),
+                       zbar_symbol_get_data_length(sym),
+                       is_binary);
     }
 }
 #endif
@@ -1137,7 +1164,7 @@ int zbar_scan_image(zbar_image_scanner_t *iscn,
         iscn->handler(img, iscn->userdata);
 #ifdef HAVE_DBUS
     if(iscn->is_dbus_enabled)
-        zbar_send_code_via_dbus(img);
+        zbar_send_code_via_dbus(iscn, img);
 #endif
 
     svg_close();
