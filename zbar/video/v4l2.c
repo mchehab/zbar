@@ -133,9 +133,11 @@ static zbar_image_t *v4l2_dq (zbar_video_t *vdo)
             return(NULL);
 
         /* FIXME should read entire image */
-        unsigned long datalen = read(fd, (void*)img->data, img->datalen);
-        if(datalen < 0)
+        ssize_t datalen = read(fd, (void*)img->data, img->datalen);
+        if(datalen < 0) {
+            perror("v4l2_dq read");
             return(NULL);
+        }
         else if(datalen != img->datalen)
             zprintf(0, "WARNING: read() size mismatch: 0x%lx != 0x%lx\n",
                     datalen, img->datalen);
