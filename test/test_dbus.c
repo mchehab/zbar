@@ -156,27 +156,43 @@ int main(int argc, char *argv[])
                 while (dbus_message_iter_get_arg_type(&entry) != DBUS_TYPE_INVALID) {
                   dbus_message_iter_recurse(&entry, &dict);
                   if (DBUS_TYPE_STRING != dbus_message_iter_get_arg_type(&dict)) {
-                    fprintf(stderr, "Dict Entry is not string!\n");
+                    fprintf(stderr, "Dict Entry key is not string!\n");
                   } else {
                     dbus_message_iter_get_basic(&dict, &property);
-                    if (strcmp(property, ZBAR_SIGNAL_TYPE) == 0) {
-                      dbus_message_iter_next(&dict);
+                    dbus_message_iter_next(&dict);
+                    if (DBUS_TYPE_VARIANT != dbus_message_iter_get_arg_type(&dict)) {
+                      fprintf(stderr, "Dict Entry value is not variant!\n");
+                    } else {
                       dbus_message_iter_recurse(&dict, &val);
-                      dbus_message_iter_get_basic(&val, &str);
-                      fprintf(stderr, "Type = %s\n", str);
-                    } else if (strcmp(property, ZBAR_SIGNAL_DATA) == 0) {
-                      dbus_message_iter_next(&dict);
-                      dbus_message_iter_recurse(&dict, &val);
-                      dbus_message_iter_get_basic(&val, &str);
-                      fprintf(stderr, "Value = %s\n", str);
-                      fprintf(log, "%s\n", str);
-                    } else if (strcmp(property, ZBAR_SIGNAL_BINARY_DATA) == 0) {
-                      dbus_message_iter_next(&dict);
-                      dbus_message_iter_recurse(&dict, &val);
-                      dbus_message_iter_recurse(&val, &val);
-                      dbus_message_iter_get_fixed_array(&val, &str, &length);
-                      fprintf(stderr, "BinaryData[%d]\n", length);
-                      fwrite(str, sizeof(*str), length, bin_log);
+                      if (strcmp(property, ZBAR_SIGNAL_TYPE) == 0) {
+                        if (DBUS_TYPE_STRING != dbus_message_iter_get_arg_type(&val)) {
+                          fprintf(stderr, "Dict Entry value for barcode type is not string!\n");
+                        } else {
+                          dbus_message_iter_get_basic(&val, &str);
+                          fprintf(stderr, "Type = %s\n", str);
+                        }
+                      } else if (strcmp(property, ZBAR_SIGNAL_DATA) == 0) {
+                        if (DBUS_TYPE_STRING != dbus_message_iter_get_arg_type(&val)) {
+                          fprintf(stderr, "Dict Entry value for barcode text data is not string!\n");
+                        } else {
+                          dbus_message_iter_get_basic(&val, &str);
+                          fprintf(stderr, "Value = %s\n", str);
+                          fprintf(log, "%s\n", str);
+                        }
+                      } else if (strcmp(property, ZBAR_SIGNAL_BINARY_DATA) == 0) {
+                        if (DBUS_TYPE_ARRAY != dbus_message_iter_get_arg_type(&val)) {
+                          fprintf(stderr, "Dict Entry value for barcode binary data is not array!\n");
+                        } else {
+                          dbus_message_iter_recurse(&val, &val);
+                          if (DBUS_TYPE_BYTE != dbus_message_iter_get_arg_type(&val)) {
+                            fprintf(stderr, "Dict Entry value for barcode binary data is not array of bytes!\n");
+                          } else {
+                            dbus_message_iter_get_fixed_array(&val, &str, &length);
+                            fprintf(stderr, "BinaryData[%d]\n", length);
+                            fwrite(str, sizeof(*str), length, bin_log);
+                          }
+                        }
+                      }
                     }
                   }
                   dbus_message_iter_next(&entry);
