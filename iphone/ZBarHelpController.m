@@ -154,14 +154,14 @@
     assert(webView);
     if(webView.loading)
         webView.hidden = YES;
-    //webView.delegate = self;
+    webView.delegate = self;
     [super viewWillAppear: animated];
 }
 
 - (void) viewWillDisappear: (BOOL) animated
 {
     [webView stopLoading];
-    //webView.delegate = nil;
+    webView.delegate = nil;
     [super viewWillDisappear: animated];
 }
 
