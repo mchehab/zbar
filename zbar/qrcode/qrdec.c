@@ -3609,6 +3609,7 @@ static int qr_code_decode(qr_code_data *_qrdata,const rs_gf256 *_gf,
     int ndatai;
     block_szi=block_sz+(i>=nshort_blocks);
     ret=rs_correct(_gf,QR_M0,block_data+ncodewords,block_szi,npar,NULL,0);
+    zprintf(1, "Number of errors corrected: %i%s\n", ret, ret < 0 ? " (data irrecoverable)": "");
     /*For version 1 symbols and version 2-L and 3-L symbols, we aren't allowed
        to use all the parity bytes for correction.
       They are instead used to improve detection.
