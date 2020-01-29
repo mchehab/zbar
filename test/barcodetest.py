@@ -205,10 +205,13 @@ def compare_maps(expect, actual, compare_func):
             notes.append('TODO unexpected result:\n' + toxml(iact))
 
     for key, iexp in expect.items():
-        if iexp.get(str(ET.QName(TS, 'exception'))) == 'TODO':
-            notes.append('TODO missing expected result:\n' + toxml(iexp))
-        else:
-            errors.append('missing expected result:\n' + toxml(iexp))
+
+        exc = iexp.get(str(ET.QName(TS, 'exception')))
+
+        if exc == 'TODO':
+               notes.append('TODO missing expected result:\n' + toxml(iexp))
+        elif exc is not None:
+               errors.append('missing expected result:\n' + toxml(iexp))
 
     if len(notes) == 1:
         print('(TODO)', end=' ', file=sys.stderr)
