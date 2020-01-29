@@ -54,7 +54,9 @@ public:
         unsigned height = qimg.height();
         set_size(width, height);
         set_format(zbar_fourcc('B','G','R','4'));
-#if QT_VERSION >= 0x050000
+#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
+        unsigned long datalen = qimg.sizeInBytes();
+#elif QT_VERSION >= QT_VERSION_CHECK(5,0,0)
         unsigned long datalen = qimg.byteCount();
 #else
         unsigned long datalen = qimg.numBytes();
