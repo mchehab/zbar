@@ -96,10 +96,11 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    if (log == NULL || bin_log == NULL) {
-        fprintf(stderr, "Log files not specified\n");
-        return -1;
-    }
+    if (!log)
+	log = fdopen(dup(fileno(stderr)), "w+");
+
+    if (!bin_log)
+	bin_log = fdopen(dup(fileno(stderr)), "w+");
 
     // initialise the error value
     dbus_error_init(&err);
