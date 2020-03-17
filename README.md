@@ -130,7 +130,7 @@ available at:
 
 **Python bindings**
 
-The Python bindings require Python 2 and provide only non-GUI functions.
+The Python bindings require Python 2 or 3 and provide only non-GUI functions.
 You will need Python and PIL or Pillow if you would like to scan images or
 video directly using Python. Python is available from:
 
