@@ -128,7 +128,7 @@ check-gi: gtk/ZBar-1.0.typelib
 
 # Require a camera device for it to work
 check-video: test/test_video
-	@abs_top_srcdir@/test/test_video -q
+	if [ -d /dev/video0 ]; then @abs_top_srcdir@/test/test_video -q; fi
 
 check-jpeg: test/test_jpeg
 	@abs_top_srcdir@/test/test_jpeg -q
