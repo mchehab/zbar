@@ -1,7 +1,7 @@
 bin_PROGRAMS += zbarimg/zbarimg
 zbarimg_zbarimg_SOURCES = zbarimg/zbarimg.c
 zbarimg_zbarimg_CPPFLAGS = $(MAGICK_CFLAGS) $(AM_CPPFLAGS)
-zbarimg_zbarimg_LDADD = $(MAGICK_LIBS) zbar/libzbar.la
+zbarimg_zbarimg_LDADD = zbar/libzbar.la $(MAGICK_LIBS)
 # automake bug in "monolithic mode"?
 CLEANFILES += zbarimg/.libs/zbarimg
 
