@@ -35,23 +35,38 @@ BUILDING
 
 See `INSTALL.md` for generic configuration and build instructions.
 
-Usually, all you need to do is to run:
+If you have installed all needed dependencies, all you need to do is to run:
 
+```
     autoreconf -vfi
     ./configure
     make
+```
 
-* NOTE
 
-  On version 0.23, since the support for gtk3 and python3 are new,
-  the default is to use gtk2 and python2.
+* NOTES
 
-  If you want to use gtk3 and python3, you should have the development
-  packages for them, and run:
 
-      autoreconf -vfi
-      ./configure --with-gtk=auto --with-python=auto
-      make
+  1) Currently, we maintain a Continuous Integration build test at
+     TravisCI:
+
+        <https://travis-ci.org/github/mchehab/zbar/>
+
+     Due to that, there are scripts meant to test ZBar build on
+     Linux, Windows and MacOS, that could be helpful. Please see
+     the `.travis.yml` file, and the corresponding scripts under `travis/`.
+
+  2) On version 0.23, since the support for gtk3 and python3 are new,
+     the default is to use gtk2 and python2.
+
+     If you want to use gtk3 and python3, you should have the development
+     packages for them, and run:
+
+     ```
+	autoreconf -vfi
+	./configure --with-gtk=auto --with-python=auto
+	make
+     ```
 
   This will make the building system to seek for the latest versions
   for gtk and python.
