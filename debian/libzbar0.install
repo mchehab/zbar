@@ -1,2 +1,1 @@
-#! /usr/bin/dh-exec
-/usr/lib/libzbar.so.* /usr/lib/${DEB_HOST_MULTIARCH}/
+/usr/lib/*/libzbar.so.*

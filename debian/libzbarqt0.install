@@ -1,3 +1,2 @@
-#! /usr/bin/dh-exec
-/usr/lib/libzbarqt.so.0 /usr/lib/${DEB_HOST_MULTIARCH}/
-/usr/lib/libzbarqt.so.0.* /usr/lib/${DEB_HOST_MULTIARCH}/
+usr/lib/*/libzbarqt.so.0
+usr/lib/*/libzbarqt.so.0.*

@@ -1,33 +1,122 @@
-zbar (0.22.2) unstable; urgency=low
+zbar (0.23-1.3) unstable; urgency=medium
 
-  * New upstream release.
+  * Non-maintainer upload.
+  * Upload to unstable.
+  * debian/control: Disable building python3 extension for all
+    python versions again. Upstream code does not support it yet.
 
- -- Mauro Carvalho Chehab <mchehab+samsung@kernel.org>  Wed, 08 May 2019 12:00:00 +0000
+ -- Boyuan Yang <byang@debian.org>  Sun, 02 Feb 2020 14:02:50 -0500
 
-zbar (0.22.1) unstable; urgency=low
+zbar (0.23-1.3~exp1) experimental; urgency=medium
 
-  * New upstream release.
+  * Non-maintainer upload.
+  * debian/control: Add back Qt5 binding. New packages:
+    - libzbarqt0: Qt5 zbar binding
+    - libzbarqt-dev: Qt5 zbar binding (development file)
+    - zbarcam-qt: Qt5 zbar camera frontend tool
+    - zbarcam-gtk: Gtk zbar camera frontend tool
+    (Closes: #950398)
+  * debian/control:
+    + Bump Standards-Version to 4.5.0.
+    + Mention QR code in package short description.
+      (Closes: #946576)
+  * debian/rules: Build python3 extension for all supported
+    python versions.
+  * debian/patches: Cherry-pick patches of error fix and Qt5
+    support.
 
- -- Mauro Carvalho Chehab <mchehab+samsung@kernel.org>  Wed, 08 May 2019 12:00:00 +0000
+ -- Boyuan Yang <byang@debian.org>  Fri, 31 Jan 2020 23:46:17 -0500
 
-zbar (0.22) unstable; urgency=low
+zbar (0.23-1.2) unstable; urgency=medium
 
-  * New upstream release.
+  * Non-maintainer upload
+  * Drop unused Build-Depends on python-gtk2-dev (Closes: 885473)
+  * Clean up python3 Build-Depends
 
- -- Mauro Carvalho Chehab <mchehab+samsung@kernel.org>  Wed, 08 May 2019 12:00:00 +0000
+ -- Jeremy Bicha <jbicha@debian.org>  Tue, 22 Oct 2019 22:20:05 -0400
 
-zbar (0.21.1) unstable; urgency=low
+zbar (0.23-1.1) unstable; urgency=medium
 
-  * New upstream release. (Closes: #762114)
-  * Exit gracefully when decoding split QR codes. (Closes: #719013)
+  * Non-maintainer upload.
+  * Rebuild for a source-only upload.
+  * debian/control: Bump Standards-Version to 4.4.0.
+  * debian/patches:
+    + Refactor previous perl shabang patch to merge them together.
+    + Backport upstream patch to fix iconv-related unexpected abort.
+  * debian/libzbargtk0.symbols: Add new symbol.
 
- -- Javier Serrano Polo <javier@jasp.net>  Wed, 13 Feb 2019 10:03:35 +0100
+ -- Boyuan Yang <byang@debian.org>  Thu, 25 Jul 2019 17:01:39 -0400
 
-zbar (0.21) unstable; urgency=low
+zbar (0.23-1) unstable; urgency=medium
 
-  * New upstream release.
+  * New upstream version.
+  * New maintainer. (Closes: #898078)
+  * Drop pygtk, python2 support. (Closes: #885473)
+  * Add python3 support. (Closes: #888303)
+  * debian/clean: added.
 
- -- Javier Serrano Polo <javier@jasp.net>  Mon, 04 Feb 2019 07:17:57 +0100
+ -- Gürkan Myczko <gurkan@phys.ethz.ch>  Mon, 27 May 2019 09:22:12 +0200
+
+zbar (0.22-1) unstable; urgency=medium
+
+  * QA upload.
+  * New upstream release (2019-02-20).
+  * debian/patches: Drop all patches, merged upstream.
+  * debian/control: Also mark libzbar-dev and libzbargtk-dev as
+    Multi-Arch: same.
+
+ -- Boyuan Yang <byang@debian.org>  Wed, 20 Feb 2019 10:18:30 -0500
+
+zbar (0.21-3) unstable; urgency=medium
+
+  * QA upload.
+  * debian/patches:
+    + Replace custom codespell typo fix patches with upstream
+      applied one.
+    + Cherry-pick upstream patches till 20190215 to fix grammar
+      error in configure.ac script.
+  * debian/control:
+    + Mark libbarcode-zbar-perl, python-zbar and python-zbarpygtk
+      as Multi-Arch: same. (Closes: #812954)
+  * New zbarcam is no longer crashing. (Closes: #762209)
+
+ -- Boyuan Yang <byang@debian.org>  Fri, 15 Feb 2019 10:35:13 -0500
+
+zbar (0.21-2) unstable; urgency=medium
+
+  * QA upload.
+  * debian/zbar-tools.install: Use dh-exec again to selectively
+    install zbarcam for linux-any only.
+
+ -- Boyuan Yang <byang@debian.org>  Thu, 14 Feb 2019 18:58:42 -0500
+
+zbar (0.21-1) unstable; urgency=medium
+
+  * QA upload.
+  * Upload onto unstable.
+  * debian/control: Update homepage with current GitHub project.
+
+ -- Boyuan Yang <byang@debian.org>  Thu, 14 Feb 2019 18:32:38 -0500
+
+zbar (0.21-1~exp1) experimental; urgency=medium
+
+  * QA upload.
+  * New upstream release 0.21.
+  * debian/watch: Monitor new upstream on GitHub.
+  * debian/control:
+    - Drop build-dependency on dh-exec, no longer necessary.
+  * debian/gbp.conf: Disable gbp-import-orig postimport hook,
+    it is useless now.
+  * debian/rules:
+    + Completely rewrite and use the dh sequencer.
+    + use override_dh_strip to generate automatic debug packages.
+  * debian/patches:
+    - Drop all patches, merged or fixed upstream.
+    + Cherry-pick upstream fixes on stable-0.21 branch
+      till 20190214.
+    + Add a patch to fix typos found by codespell.
+
+ -- Boyuan Yang <byang@debian.org>  Thu, 14 Feb 2019 15:51:03 -0500
 
 zbar (0.10+doc-11) unstable; urgency=medium
 

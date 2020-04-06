@@ -7,8 +7,8 @@ libzbargtk.so.0 libzbargtk0 #MINVER#
  zbar_gtk_image_from_pixbuf@Base 0.10
  zbar_gtk_new@Base 0.10
  zbar_gtk_release_pixbuf@Base 0.10
- zbar_gtk_request_video_size@Base 0.20.1
+ zbar_gtk_request_video_size@Base 0.21
  zbar_gtk_scan_image@Base 0.10
  zbar_gtk_set_video_device@Base 0.10
  zbar_gtk_set_video_enabled@Base 0.10
- zbar_marshal_VOID__INT_STRING@Base 0.22.2
+ zbar_marshal_VOID__INT_STRING@Base 0.23

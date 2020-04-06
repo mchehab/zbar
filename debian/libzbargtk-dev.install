@@ -1,5 +1,4 @@
-#! /usr/bin/dh-exec
-/usr/include/zbar/zbargtk.h
-/usr/lib/libzbargtk.a /usr/lib/${DEB_HOST_MULTIARCH}/
-/usr/lib/libzbargtk.so /usr/lib/${DEB_HOST_MULTIARCH}/
-/usr/lib/pkgconfig/zbar-gtk.pc /usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig/
+usr/include/zbar/zbargtk.h
+usr/lib/*/libzbargtk.a
+usr/lib/*/libzbargtk.so
+usr/lib/*/pkgconfig/zbar-gtk.pc

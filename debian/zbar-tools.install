@@ -1,1 +1,6 @@
-/usr/bin/zbar*
+#!/usr/bin/dh-exec
+[linux-any] usr/bin/zbarcam
+usr/bin/zbarimg
+etc/dbus-1/system.d/org.linuxtv.Zbar.conf
+#[linux-any] usr/bin/zbarcam-gtk
+#[linux-any] usr/bin/zbarcam-qt

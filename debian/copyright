@@ -1,7 +1,10 @@
 This work was originally packaged for Debian by Daniel Baumann
-<daniel@debian.org> and is now maintained by Bernd Zeimetz <bzed@debian.org>
+<daniel@debian.org> and is later maintained by Bernd Zeimetz <bzed@debian.org>.
 
 It was downloaded from:
+  http://zbar.sourceforge.net/
+
+The current version of zbar is downloaded from:
   https://github.com/mchehab/zbar
 
 Below follows the copyrigt and license information as
