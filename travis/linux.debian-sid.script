@@ -32,6 +32,8 @@ else
 	sudo pbuilder --update --basetgz "$BASETGZ"
 fi
 
+git archive --format tgz -o ../zbar_$(more configure.ac |grep AC_INIT|perl -ne 'print $1 if /(\d+.\d+)/').orig.tar.gz HEAD
+
 DIR="$PWD"
 cd ..
 dpkg-source -b "$DIR"
