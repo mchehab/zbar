@@ -47,6 +47,7 @@
     UIBarButtonItem *doneBtn, *backBtn, *space;
     NSURL *linkURL;
     NSUInteger orientations;
+    UIView *controls;
 }
 
 @property (nonatomic, assign) id<ZBarHelpDelegate> delegate;

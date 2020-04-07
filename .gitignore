@@ -24,6 +24,9 @@ gtk/ZBar-1.0.typelib
 include/config.h
 include/config.h.in
 include/stamp-h1
+iphone/build
+iphone/zbar.xcodeproj/project.xcworkspace
+iphone/zbar.xcodeproj/xcuserdata
 java/net/sourceforge/zbar/*.class
 java/zbar.jar
 java/zbarjni.h

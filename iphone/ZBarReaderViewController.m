@@ -254,8 +254,8 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
     }
 
     CGRect r = view.bounds;
-    r.origin.y = r.size.height - 54;
-    r.size.height = 54;
+    r.origin.y = r.size.height - 44;
+    r.size.height = 44;
     controls = [[UIView alloc]
                    initWithFrame: r];
     controls.autoresizingMask =
@@ -275,6 +275,9 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
 
     UIButton *info =
         [UIButton buttonWithType: UIButtonTypeInfoLight];
+    CGRect frame = info.frame;
+    frame.size.height = 44;
+    info.frame = frame;
     [info addTarget: self
           action: @selector(info)
           forControlEvents: UIControlEventTouchUpInside];
@@ -296,9 +299,31 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
                 autorelease],
             nil];
     [controls addSubview: toolbar];
+    toolbar.autoresizingMask =
+        UIViewAutoresizingFlexibleWidth |
+        UIViewAutoresizingFlexibleHeight;
     [toolbar release];
 
     [view addSubview: controls];
+
+    if (@available(iOS 11, *)) {
+        UILayoutGuide *safe = self.view.safeAreaLayoutGuide;
+        controls.translatesAutoresizingMaskIntoConstraints = NO;
+        //toolbar.translatesAutoresizingMaskIntoConstraints = NO;
+        [NSLayoutConstraint activateConstraints:@[
+                                                   [safe.trailingAnchor constraintEqualToAnchor:controls.trailingAnchor],
+                                                   [controls.leadingAnchor constraintEqualToAnchor:safe.leadingAnchor],
+                                                   [safe.bottomAnchor constraintEqualToAnchor:controls.bottomAnchor]
+                                                  ]];
+        [NSLayoutConstraint
+        constraintWithItem:controls
+        attribute:NSLayoutAttributeHeight
+        relatedBy:NSLayoutRelationEqual
+        toItem:nil
+        attribute:NSLayoutAttributeHeight
+        multiplier:1.0
+        constant:44.0].active = YES;
+    }
 }
 
 - (void) initVideoQuality
@@ -345,7 +370,7 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
        self.parentViewController.modalViewController == self)
     {
         autoresize |= UIViewAutoresizingFlexibleBottomMargin;
-        r.size.height -= 54;
+        r.size.height -= 44;
     }
     readerView.frame = r;
     readerView.autoresizingMask = autoresize;
@@ -545,7 +570,7 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
         [readerDelegate
             imagePickerControllerDidCancel: (UIImagePickerController*)self];
     else
-        [self dismissModalViewControllerAnimated: YES];
+        [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void) info
@@ -560,16 +585,7 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
     helpController = [[ZBarHelpController alloc]
                          initWithReason: reason];
     helpController.delegate = (id<ZBarHelpDelegate>)self;
-    helpController.wantsFullScreenLayout = YES;
-    UIView *helpView = helpController.view;
-    helpView.alpha = 0;
-    helpView.frame = self.view.bounds;
-    [helpController viewWillAppear: YES];
-    [self.view addSubview: helpView];
-    [UIView beginAnimations: @"ZBarHelp"
-            context: nil];
-    helpController.view.alpha = 1;
-    [UIView commitAnimations];
+    [self presentViewController:helpController animated:YES completion:nil];
 }
 
 - (void) takePicture
@@ -623,13 +639,11 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
 
 - (void) helpControllerDidFinish: (ZBarHelpController*) help
 {
-    assert(help == helpController);
-    [help viewWillDisappear: YES];
+
     [UIView beginAnimations: @"ZBarHelp"
-            context: NULL];
+          context: NULL];
     [UIView setAnimationDelegate: self];
     [UIView setAnimationDidStopSelector: @selector(removeHelp:done:context:)];
-    help.view.alpha = 0;
     [UIView commitAnimations];
 }
 
@@ -638,7 +652,6 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
             context: (void*) ctx
 {
     if([tag isEqualToString: @"ZBarHelp"] && helpController) {
-        [helpController.view removeFromSuperview];
         [helpController release];
         helpController = nil;
     }

@@ -88,7 +88,7 @@
                   initWithFrame: CGRectMake(0, 0,
                                             bounds.size.width,
                                             bounds.size.height - 44)];
-    //webView.delegate = self;
+    webView.navigationDelegate = self;
     webView.backgroundColor = [UIColor colorWithWhite: .125f
                                        alpha: 1];
     webView.autoresizingMask = (UIViewAutoresizingFlexibleWidth |
@@ -97,13 +97,23 @@
     webView.hidden = YES;
     [view addSubview: webView];
 
+    CGRect r = view.bounds;
+    r.origin.y = r.size.height - 44;
+    r.size.height = 44;
+    controls = [[UIView alloc]
+                   initWithFrame: r];
+    controls.autoresizingMask =
+        UIViewAutoresizingFlexibleWidth |
+        UIViewAutoresizingFlexibleHeight |
+        UIViewAutoresizingFlexibleTopMargin;
+    controls.backgroundColor = [UIColor blackColor];
+
+    r.origin.y = 0;
     toolbar = [[UIToolbar alloc]
-                  initWithFrame: CGRectMake(0, bounds.size.height - 44,
-                                            bounds.size.width, 44)];
+                  initWithFrame: r];
     toolbar.barStyle = UIBarStyleBlackOpaque;
     toolbar.autoresizingMask = (UIViewAutoresizingFlexibleWidth |
-                                UIViewAutoresizingFlexibleHeight |
-                                UIViewAutoresizingFlexibleTopMargin);
+                                UIViewAutoresizingFlexibleHeight);
 
     doneBtn = [[UIBarButtonItem alloc]
                   initWithBarButtonSystemItem: UIBarButtonSystemItemDone
@@ -124,7 +134,41 @@
 
     toolbar.items = [NSArray arrayWithObjects: space, doneBtn, nil];
 
-    [view addSubview: toolbar];
+    [controls addSubview: toolbar];
+    toolbar.autoresizingMask =
+        UIViewAutoresizingFlexibleWidth |
+        UIViewAutoresizingFlexibleHeight;
+    [toolbar release];
+
+    [view addSubview: controls];
+
+    if (@available(iOS 11, *)) {
+        UILayoutGuide *safe = self.view.safeAreaLayoutGuide;
+        controls.translatesAutoresizingMaskIntoConstraints = NO;
+        webView.translatesAutoresizingMaskIntoConstraints = NO;
+
+        [NSLayoutConstraint activateConstraints:@[
+                                                   [safe.trailingAnchor constraintEqualToAnchor:webView.trailingAnchor],
+                                                   [webView.leadingAnchor constraintEqualToAnchor:safe.leadingAnchor],
+                                                   [webView.topAnchor constraintEqualToAnchor:safe.topAnchor],
+                                                   [webView.bottomAnchor constraintEqualToAnchor:controls.topAnchor]
+                                                  ]];
+
+        [NSLayoutConstraint activateConstraints:@[
+                                                   [safe.trailingAnchor constraintEqualToAnchor:controls.trailingAnchor],
+                                                   [controls.leadingAnchor constraintEqualToAnchor:safe.leadingAnchor],
+                                                   [controls.bottomAnchor constraintEqualToAnchor:safe.bottomAnchor]
+                                                  ]];
+
+        [NSLayoutConstraint
+        constraintWithItem:controls
+        attribute:NSLayoutAttributeHeight
+        relatedBy:NSLayoutRelationEqual
+        toItem:nil
+        attribute:NSLayoutAttributeHeight
+        multiplier:1.0
+        constant:44.0].active = YES;
+    }
 
     NSString *path = [[NSBundle mainBundle]
                          pathForResource: @"zbar-help"
@@ -141,12 +185,6 @@
         [webView loadRequest: req];
     else
         NSLog(@"ERROR: unable to load zbar-help.html from bundle");
-}
-
-- (void) viewDidUnload
-{
-    [self cleanup];
-    [super viewDidUnload];
 }
 
 - (void) viewWillAppear: (BOOL) animated
@@ -204,20 +242,22 @@
 {
     if([delegate respondsToSelector: @selector(helpControllerDidFinish:)])
         [delegate helpControllerDidFinish: self];
-    else
-        [self dismissModalViewControllerAnimated: YES];
+
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-- (void) webViewDidFinishLoad: (WKWebView*) view
+- (void)webView:(WKWebView *)view
+    didFinishNavigation:(WKNavigation *)navigation
 {
     if(view.hidden) {
-        [view stringByEvaluatingJavaScriptFromString:
-            [NSString stringWithFormat:
-                @"onZBarHelp({reason:\"%@\"});", reason]];
-        [UIView beginAnimations: @"ZBarHelp"
-                context: nil];
-        view.hidden = NO;
-        [UIView commitAnimations];
+        [view evaluateJavaScript:[NSString stringWithFormat: @"onZBarHelp({reason:\"%@\"});", reason]
+                  completionHandler:^(id abc, NSError *error){
+            [UIView beginAnimations: @"ZBarHelp"
+                            context: nil];
+            view.hidden = NO;
+            [UIView commitAnimations];
+        }];
+
     }
 
     BOOL canGoBack = [view canGoBack];
