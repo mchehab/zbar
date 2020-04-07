@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 
-PATH=$PATH:/c/tools/msys64/usr/bin/
 export CONFIG_SHELL=/usr/bin/bash.exe
 
 autoreconf -vfi
@@ -16,8 +15,5 @@ autoreconf -vfi
     --without-imagemagick \
     --enable-pthread --disable-dependency-tracking
 
-# HACK: Ensure that msys64 comes first, as otherwise libtool won't work
-PATH=/c/tools/msys64/usr/bin/:$PATH
-
-make
-make install
+$MAKE
+$MAKE install

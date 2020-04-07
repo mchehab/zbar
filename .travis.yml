@@ -1,17 +1,25 @@
 language: cpp
 compiler: gcc
-dist: xenial
+dist: bionic
+osx_image: xcode10.3
 sudo: required
+
 notifications:
   email:
     recipients:
       - mchehab@kernel.org
     on_success: change
     on_failure: always
+
 cache:
   directories:
     - $HOME/.ccache
     - $HOME/pbuilder-bases
+    - $HOME/Library/Caches/Homebrew
+    - $HOME/AppData/Local/Temp/chocolatey
+    - /C/tools/msys64
+  timeout: 1000
+
 matrix:
   fast_finish: true
   include:
@@ -33,25 +41,59 @@ matrix:
       dist: bionic
     # Both in allow_failures
     - os: windows
-      cache: false
       env: TARGET_OS=pc DIRECT_SHOW="--with-directshow"
     - os: windows
-      cache: false
       env: TARGET_OS=pc DIRECT_SHOW=""
     - os: osx
       env: TARGET_OS=mac
   allow_failures:
     - os: windows
-      cache: false
       env: TARGET_OS=pc DIRECT_SHOW="--with-directshow"
     - os: windows
-      cache: false
       env: TARGET_OS=pc DIRECT_SHOW=""
+
+before_cache:
+- rm -f $HOME/.cache/pip/log/debug.log
+- >-
+    if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+        $msys2 pacman --sync --clean --noconfirm;
+        echo "--tcp-nodelay" >> ${APPDATA}/.curlrc;
+    else
+        ccache -s
+    fi
+# https://stackoverflow.com/a/53331571/1433768
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew cleanup; fi
+
 before_install:
-  - "${TRAVIS_BUILD_DIR}/travis/${TRAVIS_OS_NAME}.${TARGET_OS}.before_install"
+- >-
+    case "$TRAVIS_OS_NAME" in
+    "osx")
+        brew update
+        ;;
+    "windows")
+        [[ ! -f C:/tools/msys64/msys2_shell.cmd ]] && rm -rf C:/tools/msys64;
+        choco uninstall -y mingw;
+        choco upgrade -y msys2;
+        export msys2='cmd //C RefreshEnv.cmd ';
+        export msys2+='& set MSYS=winsymlinks:nativestrict ';
+        export msys2+='& C:\\tools\\msys64\\msys2_shell.cmd -defterm -no-start';
+        export shell="$msys2 -mingw64 -full-path -here -c \$\* --";
+        export msys2+=" -msys2 -c \$\* --";
+        $msys2 pacman --sync --noconfirm --needed \
+                mingw-w64-x86_64-toolchain base-devel;
+        export CPPFLAGS=-D__USE_MINGW_ANSI_STDIO=1;
+        export PATH=/C/tools/msys64/mingw64/bin:/C/tools/msys64/usr/bin/:$PATH
+        export MAKE=mingw32-make;
+        export AR=gcc-ar;
+        export RANLIB=gcc-ranlib;
+        ;;
+    *)  # Linux
+        sudo apt-get update -qq
+        ;;
+    esac
+
 install:
   - "${TRAVIS_BUILD_DIR}/travis/${TRAVIS_OS_NAME}.${TARGET_OS}.install"
+
 script:
   - "${TRAVIS_BUILD_DIR}/travis/${TRAVIS_OS_NAME}.${TARGET_OS}.script"
-after_script:
-  - if [ "$TRAVIS_OS_NAME" != "linux" ]; then travis_terminate ${TRAVIS_TEST_RESULT}; else ccache -s; fi
