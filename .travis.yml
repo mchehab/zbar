@@ -79,13 +79,12 @@ before_install:
         export msys2+='& C:\\tools\\msys64\\msys2_shell.cmd -defterm -no-start';
         export shell="$msys2 -mingw64 -full-path -here -c \$\* --";
         export msys2+=" -msys2 -c \$\* --";
-        $msys2 pacman --sync --noconfirm --needed \
-                mingw-w64-x86_64-toolchain base-devel;
-        export CPPFLAGS=-D__USE_MINGW_ANSI_STDIO=1;
-        export PATH=/C/tools/msys64/mingw64/bin:/C/tools/msys64/usr/bin/:$PATH
+        $msys2 pacman --sync --noconfirm --disable-download-timeout --needed \
+                mingw-w64-x86_64-toolchain
+        $msys2 pacman -Syu --noconfirm --disable-download-timeout \
+                autoconf libtool automake make autoconf-archive pkg-config mingw-w64-x86_64-gnutls mingw-w64-x86_64-graphviz
+        export PATH=/C/tools/msys64/mingw64/bin:$PATH
         export MAKE=mingw32-make;
-        export AR=gcc-ar;
-        export RANLIB=gcc-ranlib;
         ;;
     *)  # Linux
         sudo apt-get update -qq

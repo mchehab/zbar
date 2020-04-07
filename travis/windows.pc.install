@@ -1,13 +1,3 @@
 #!/bin/bash
-set -e
 
-# Fix the environment for autotools to actually work
-ln -s /c/tools/msys64/usr/share/autoconf* /usr/share/
-ln -s /c/tools/msys64/usr/share/automake* /usr/share/
-ln -s /c/tools/msys64/usr/share/aclocal* /usr/share/
-ln -s /c/tools/msys64/usr/share/libtool* /usr/share/
-ln -s /c/tools/msys64/usr/share/pkgconfig /usr/share/
-ln -s /c/tools/msys64/usr/bin/autom4te /usr/bin/
-ln -s /c/tools/msys64/usr/bin/autoconf /usr/bin/
-ln -s /c/tools/msys64/usr/bin/autoheader /usr/bin/
-ln -s /c/tools/msys64/usr/bin/m4 /usr/bin/
+# Everything was already installed by before_install at .travis.yml

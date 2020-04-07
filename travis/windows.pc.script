@@ -1,11 +1,15 @@
 #!/bin/bash
-set -e
 
-export CONFIG_SHELL=/usr/bin/bash.exe
+#export CONFIG_SHELL=/usr/bin/bash.exe
+export CPPFLAGS=-D__USE_MINGW_ANSI_STDIO=1;
+export AR=gcc-ar;
+export RANLIB=gcc-ranlib;
 
-autoreconf -vfi
+echo "Calling autoreconf"
+$shell autoreconf -Wall -vfi
 
-./configure \
+echo "Calling configure"
+$shell ./configure \
     --host=i686-w64-mingw32 \
     --prefix=/usr/local/win32 \
     ${DIRECT_SHOW} \
@@ -15,5 +19,12 @@ autoreconf -vfi
     --without-imagemagick \
     --enable-pthread --disable-dependency-tracking
 
-$MAKE
-$MAKE install
+set -e
+
+echo "Building"
+$shell $MAKE
+
+echo "Installing"
+$shell $MAKE install
+
+echo "Success."
