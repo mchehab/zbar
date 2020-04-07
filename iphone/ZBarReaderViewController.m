@@ -260,7 +260,6 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
                    initWithFrame: r];
     controls.autoresizingMask =
         UIViewAutoresizingFlexibleWidth |
-        UIViewAutoresizingFlexibleHeight |
         UIViewAutoresizingFlexibleTopMargin;
     controls.backgroundColor = [UIColor blackColor];
 
