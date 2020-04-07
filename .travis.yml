@@ -93,6 +93,7 @@ before_install:
     esac
 
 install:
+  - export MAKEFLAGS="-j `nproc`"
   - "${TRAVIS_BUILD_DIR}/travis/${TRAVIS_OS_NAME}.${TARGET_OS}.install"
 
 script:
