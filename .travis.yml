@@ -39,18 +39,14 @@ matrix:
       compiler: clang
       env: TARGET_OS=debian-sid
       dist: bionic
-    # Both in allow_failures
+
     - os: windows
       env: TARGET_OS=pc DIRECT_SHOW="--with-directshow"
     - os: windows
       env: TARGET_OS=pc DIRECT_SHOW=""
+
     - os: osx
       env: TARGET_OS=mac
-  allow_failures:
-    - os: windows
-      env: TARGET_OS=pc DIRECT_SHOW="--with-directshow"
-    - os: windows
-      env: TARGET_OS=pc DIRECT_SHOW=""
 
 before_cache:
 - rm -f $HOME/.cache/pip/log/debug.log
