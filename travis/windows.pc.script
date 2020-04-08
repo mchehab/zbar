@@ -1,17 +1,17 @@
 #!/bin/bash
+set -e
 
-#export CONFIG_SHELL=/usr/bin/bash.exe
+export CONFIG_SHELL=/C/tools/msys64/usr/bin/bash.exe
 export CPPFLAGS=-D__USE_MINGW_ANSI_STDIO=1;
 export AR=gcc-ar;
 export RANLIB=gcc-ranlib;
 
-echo "Calling autoreconf"
-$shell autoreconf -Wall -vfi
+$shell autoreconf -vfi
 
-echo "Calling configure"
+prefix=/C/tools/msys64/mingw64/
+
 $shell ./configure \
-    --host=i686-w64-mingw32 \
-    --prefix=/usr/local/win32 \
+    --prefix=$prefix \
     ${DIRECT_SHOW} \
     --without-gtk \
     --without-python \
@@ -19,12 +19,12 @@ $shell ./configure \
     --without-imagemagick \
     --enable-pthread --disable-dependency-tracking
 
-set -e
-
 echo "Building"
 $shell $MAKE
 
 echo "Installing"
-$shell $MAKE install
 
-echo "Success."
+# Ignore errors here, as it won't be able to create some dirs
+$shell $MAKE install || true
+
+echo "Success!"

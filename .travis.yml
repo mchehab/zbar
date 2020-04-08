@@ -82,7 +82,7 @@ before_install:
         $msys2 pacman --sync --noconfirm --disable-download-timeout --needed \
                 mingw-w64-x86_64-toolchain
         $msys2 pacman -Syu --noconfirm --disable-download-timeout \
-                autoconf libtool automake make autoconf-archive pkg-config mingw-w64-x86_64-gnutls mingw-w64-x86_64-graphviz
+                autoconf libtool automake make autoconf-archive pkg-config mingw-w64-x86_64-gnutls
         export PATH=/C/tools/msys64/mingw64/bin:$PATH
         export MAKE=mingw32-make;
         ;;
