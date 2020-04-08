@@ -847,15 +847,20 @@ AS_IF([test "x$win32" != "xno"],
   )],
   [echo "X                      --with-x=$have_x"]
 )
-echo "pthreads               --enable-pthread=$enable_pthread"
-echo "doc                    --enable-doc=$enable_doc"
-echo "v4l                    --enable-video=$enable_video"
-echo "jpeg                   --with-jpeg=$with_jpeg"
-echo "Python                 --with-python=$with_python    python${PYTHON_VERSION}"
-echo "GTK                    --with-gtk=$with_gtk          Gtk${GTK_VERSION}"
-echo "GObject introspection  --with-gir=$with_gir"
-echo "Qt                     --with-qt=$with_qt            Qt${QT_VERSION}"
-echo "Java                   --with-java=$with_java"
+
+AS_IF([test "x$with_python" != "xno"], pyver="\tpython${PYTHON_VERSION}")
+AS_IF([test "x$with_gtk" != "xno"], gtkver="\tGtk${GTK_VERSION}")
+AS_IF([test "x$with_qt" != "xno"], qtver="\tQt${QT_VERSION}")
+
+echo    "pthreads               --enable-pthread=$enable_pthread"
+echo    "doc                    --enable-doc=$enable_doc"
+echo    "v4l                    --enable-video=$enable_video"
+echo    "jpeg                   --with-jpeg=$with_jpeg"
+echo -e "Python                 --with-python=$with_python $pyver"
+echo -e "GTK                    --with-gtk=$with_gtk       $gtkver"
+echo    "GObject introspection  --with-gir=$with_gir"
+echo -e "Qt                     --with-qt=$with_qt         $qtver"
+echo    "Java                   --with-java=$with_java"
 AS_IF([test "x$win32" = "xno"],
   [echo "Dbus                   --with-dbus=$with_dbus"])
 AS_IF([test "x$have_GM" = "xyes"],
