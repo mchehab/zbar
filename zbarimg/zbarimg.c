@@ -149,6 +149,7 @@ static int notfound = 0, exit_code = 0;
 static int num_images = 0, num_symbols = 0;
 static int xmllvl = 0;
 static int oneshot = 0;
+static int binary = 0;
 
 char *xmlbuf = NULL;
 unsigned xmlbuflen = 0;
@@ -249,13 +250,15 @@ static int scan_image (const char *filename)
             found++;
             num_symbols++;
 
-            if(oneshot) {
-                if(xmllvl >= 0)
-                    printf("\n");
-                break;
-            }
-            else
-                printf("\n");
+	    if (!binary) {
+		if(oneshot) {
+		    if(xmllvl >= 0)
+			printf("\n");
+		    break;
+		}
+		else
+		    printf("\n");
+	    }
         }
         if(xmllvl > 2) {
             xmllvl--;
@@ -307,6 +310,9 @@ static inline int parse_config (const char *cfgstr, const char *arg)
 
     if(zbar_processor_parse_config(processor, cfgstr))
         return(usage(1, "ERROR: invalid configuration setting: ", cfgstr));
+
+    if (!strcmp(cfgstr, "binary"))
+	binary = 1;
 
     return(0);
 }
@@ -411,14 +417,6 @@ int main (int argc, const char *argv[])
         return(1);
     }
 
-#ifdef _WIN32
-    if(xmllvl == -1) {
-	_setmode(_fileno(stdout), _O_BINARY);
-    } else
-	_setmode(_fileno(stdout), _O_TEXT);
-    }
-#endif
-
     if(xmllvl > 0) {
 	printf("%s", xml_head);
     }
@@ -427,6 +425,17 @@ int main (int argc, const char *argv[])
         const char *arg = argv[i];
         if(!arg)
             continue;
+
+	if (binary)
+	    xmllvl = -1;
+
+#ifdef _WIN32
+	if(xmllvl == -1) {
+	    _setmode(_fileno(stdout), _O_BINARY);
+	} else {
+	    _setmode(_fileno(stdout), _O_TEXT);
+	}
+#endif
 
         if(arg[0] != '-' || !arg[1]) {
             if(scan_image(arg))
