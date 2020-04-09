@@ -369,11 +369,20 @@ int main (int argc, const char *argv[])
 #endif
         else if(!strcmp(arg, "--display"))
             display++;
+        else if(!strcmp(arg, "--xml")) {
+            if(xmllvl >= 0)
+                xmllvl = 1;
+        }
+        else if(!strcmp(arg, "--noxml")) {
+            if(xmllvl > 0)
+                xmllvl = 0;
+        }
+        else if(!strcmp(arg, "--raw")) {
+		// RAW mode takes precedence
+                xmllvl = -1;
+        }
         else if(!strcmp(arg, "--nodisplay") ||
                 !strcmp(arg, "--set") ||
-                !strcmp(arg, "--xml") ||
-                !strcmp(arg, "--noxml") ||
-                !strcmp(arg, "--raw") ||
                 !strncmp(arg, "--set=", 6))
             continue;
         else if(!strcmp(arg, "--")) {
@@ -400,6 +409,18 @@ int main (int argc, const char *argv[])
     if(zbar_processor_init(processor, NULL, display)) {
         zbar_processor_error_spew(processor, 0);
         return(1);
+    }
+
+#ifdef _WIN32
+    if(xmllvl == -1) {
+	_setmode(_fileno(stdout), _O_BINARY);
+    } else
+	_setmode(_fileno(stdout), _O_TEXT);
+    }
+#endif
+
+    if(xmllvl > 0) {
+	printf("%s", xml_head);
     }
 
     for(i = 1; i < argc; i++) {
@@ -429,33 +450,7 @@ int main (int argc, const char *argv[])
             zbar_processor_set_visible(processor, 1);
         else if(!strcmp(arg, "--nodisplay"))
             zbar_processor_set_visible(processor, 0);
-        else if(!strcmp(arg, "--xml")) {
-            if(xmllvl < 1) {
-                xmllvl = 1;
-#ifdef _WIN32
-                fflush(stdout);
-                _setmode(_fileno(stdout), _O_BINARY);
-#endif
-                printf("%s", xml_head);
-            }
-        }
-        else if(!strcmp(arg, "--noxml") || !strcmp(arg, "--raw")) {
-            if(xmllvl > 0) {
-                xmllvl = 0;
-                printf("%s", xml_foot);
-                fflush(stdout);
-#ifdef _WIN32
-                _setmode(_fileno(stdout), _O_TEXT);
-#endif
-            }
-            if(!strcmp(arg, "--raw")) {
-                xmllvl = -1;
-#ifdef _WIN32
-                fflush(stdout);
-                _setmode(_fileno(stdout), _O_BINARY);
-#endif
-            }
-        }
+
         else if(!strcmp(arg, "--set")) {
             if(parse_config(argv[++i], "--set"))
                 return(1);
@@ -476,7 +471,6 @@ int main (int argc, const char *argv[])
         exit_code = 0;
 
     if(xmllvl > 0) {
-        xmllvl = -1;
         printf("%s", xml_foot);
         fflush(stdout);
     }
