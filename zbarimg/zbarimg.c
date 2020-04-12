@@ -84,8 +84,8 @@ static const char *note_usage =
     "    -d, --display   enable display of following images to the screen\n"
     "    -D, --nodisplay disable display of following images (default)\n"
     "    --xml, --noxml  enable/disable XML output format\n"
-    "    --raw           output decoded symbol data without symbology prefix\n"
-    "    -1, --oneshot   exit after scanning one QR code\n"
+    "    --raw           output decoded symbol data without converting charsets\n"
+    "    -1, --oneshot   exit after scanning one bar code\n"
     "    -S<CONFIG>[=<VALUE>], --set <CONFIG>[=<VALUE>]\n"
     "                    set decoder/scanner <CONFIG> to <VALUE> (or 1)\n"
     // FIXME overlay level

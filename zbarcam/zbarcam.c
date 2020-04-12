@@ -48,8 +48,8 @@ static const char *note_usage =
     "    -v, --verbose   increase debug output level\n"
     "    --verbose=N     set specific debug output level\n"
     "    --xml           use XML output format\n"
-    "    --raw           output decoded symbol data without symbology prefix\n"
-    "    -1, --oneshot   exit after scanning one QR code\n"
+    "    --raw           output decoded symbol data without converting charsets\n"
+    "    -1, --oneshot   exit after scanning one bar code\n"
 #ifdef HAVE_DBUS
     "    --nodbus        disable dbus message\n"
 #endif
