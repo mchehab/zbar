@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zbar 0.23\n"
 "Report-Msgid-Bugs-To: https://github.com/mchehab/zbar/issues\n"
-"POT-Creation-Date: 2020-04-12 17:00+0200\n"
+"POT-Creation-Date: 2020-04-13 10:36+0200\n"
 "PO-Revision-Date: 2020-04-12 17:01+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -43,21 +43,21 @@ msgid ""
 msgstr ""
 "uso: zbarcam [opções] [/dev/video?]\n"
 "\n"
-"Le e decodifica códigos de barra de um stream de vídeo\n"
+"Lê e decodifica códigos de barra em imagens capturadas pela câmera ou outro "
+"dispositivo de vídeo\n"
 "\n"
 "opções:\n"
 "    -h, --help      esse texto de auxílio\n"
 "    --version       mostra a versão e termina\n"
-"    -q, --quiet     desabilita aviso sonoro quando símbolos são "
-"decodificados\n"
-"    -v, --verbose   aumenta nível de mensagens de depuração\n"
-"    --verbose=N     configura um determinado nível para mensagens de "
+"    -q, --quiet     desabilita mensagens informativas e avisos sonoros "
+"quando símbolos são decodificados\n"
+"    -v, --verbose   aumenta o nível de mensagens de depuração\n"
+"    --verbose=N     configura um determinado nível de mensagens de "
 "depuração\n"
 "    --xml           mostra resultados em formato XML\n"
-"    --raw           mostra símbolos decodificados sem tratamento de conjunto "
-"de caracteres\n"
-"    -1, --oneshot   termina programa ao decodificar o primeiro código de "
-"barras\n"
+"    --raw           mostra símbolos decodificados sem metadados e sem "
+"converter o conjunto de caracteres\n"
+"    -1, --oneshot   termina o programa após ler um código de barras\n"
 "    --nodisplay     desabilita janela de apresentação de imagens\n"
 "    --prescale=<W>x<H>\n"
 "                    solicita modo de vídeo diferente\n"
@@ -92,21 +92,19 @@ msgid ""
 msgstr ""
 "uso: zbarimg [opções] <image>...\n"
 "\n"
-"Le e decodifica códigos de barra de uma ou mais imagens\n"
+"Lê e decodifica códigos de barra em uma ou mais imagens\n"
 "\n"
 "opções:\n"
 "    -h, --help      esse texto de auxílio\n"
 "    --version       mostra a versão e termina\n"
-"    -q, --quiet     desabilita aviso sonoro quando símbolos são "
-"decodificados\n"
-"    -v, --verbose   aumenta nível de mensagens de depuração\n"
-"    --verbose=N     configura um determinado nível para mensagens de "
+"    -q, --quiet     desabilita mensagens informativas\n"
+"    -v, --verbose   aumenta o nível de mensagens de depuração\n"
+"    --verbose=N     configura um determinado nível de mensagens de "
 "depuração\n"
 "    --xml           mostra resultados em formato XML\n"
-"    --raw           mostra símbolos decodificados sem tratamento de conjunto "
-"de caracteres\n"
-"    -1, --oneshot   termina programa ao decodificar o primeiro código de "
-"barras\n"
+"    --raw           mostra símbolos decodificados sem metadados e sem "
+"converter o conjunto de caracteres\n"
+"    -1, --oneshot   termina o programa após ler um código de barras\n"
 "    --nodisplay     desabilita janela de apresentação de imagens\n"
 "    --prescale=<W>x<H>\n"
 "                    solicita modo de vídeo diferente\n"
@@ -125,7 +123,8 @@ msgstr ""
 "AVISO: dados de código de barra não foram decodificados em alguma(s) "
 "imagem(ns)\n"
 "Favor verificar:\n"
-"  - O tipo de código de barras é suportado? As simbologias suportadas são:\n"
+"  - Há suporte para códigos de barras desse tipo? As simbologias suportadas "
+"são:\n"
 
 #: zbarimg/zbarimg.c:113
 msgid ""
@@ -142,9 +141,9 @@ msgid ""
 "    $ zbarimg -Sisbn10.enable <files>\n"
 "\n"
 msgstr ""
-"  - A imagem com o código de barras é larga suficiente?\n"
-"  - A imagem com o código está desfocada?\n"
-"  - Existe iluminação e contraste suficiente?\n"
+"  - O código de barras ficou grande o suficiente na foto?\n"
+"  - O código de barras está em foco?\n"
+"  - Existe iluminação e contraste suficientes?\n"
 "  - Se o símbolo está dividido em diversos códigos, eles foram combinados em "
 "uma única imagem?\n"
 "  - O tipo de código de barras está habilitado?\n"
@@ -158,54 +157,54 @@ msgstr ""
 "    $ zbarimg -Sisbn10.enable <files>\n"
 "\n"
 
-#: zbarimg/zbarimg.c:499
+#: zbarimg/zbarimg.c:501
 #, c-format
 msgid ""
 "\t. EAN/UPC (EAN-13, EAN-8, EAN-2, EAN-5, UPC-A, UPC-E, ISBN-10, ISBN-13)\n"
 msgstr ""
 "\t. EAN/UPC (EAN-13, EAN-8, EAN-2, EAN-5, UPC-A, UPC-E, ISBN-10, ISBN-13)\n"
 
-#: zbarimg/zbarimg.c:502
+#: zbarimg/zbarimg.c:504
 #, c-format
 msgid "\t. DataBar, DataBar Expanded\n"
 msgstr "\t. DataBar, DataBar Expandido\n"
 
-#: zbarimg/zbarimg.c:505
+#: zbarimg/zbarimg.c:507
 #, c-format
 msgid "\t. Code 128\n"
 msgstr "\t. Código 128\n"
 
-#: zbarimg/zbarimg.c:508
+#: zbarimg/zbarimg.c:510
 #, c-format
 msgid "\t. Code 93\n"
 msgstr "\t. Código 93\n"
 
-#: zbarimg/zbarimg.c:511
+#: zbarimg/zbarimg.c:513
 #, c-format
 msgid "\t. Code 39\n"
 msgstr "\t. Código 39\n"
 
-#: zbarimg/zbarimg.c:514
+#: zbarimg/zbarimg.c:516
 #, c-format
 msgid "\t. Codabar\n"
 msgstr "\t. Codabar\n"
 
-#: zbarimg/zbarimg.c:517
+#: zbarimg/zbarimg.c:519
 #, c-format
 msgid "\t. Interleaved 2 of 5\n"
 msgstr "\t. Entrelaçado 2 de 5\n"
 
-#: zbarimg/zbarimg.c:520
+#: zbarimg/zbarimg.c:522
 #, c-format
 msgid "\t. QR code\n"
 msgstr "\t. Código QR\n"
 
-#: zbarimg/zbarimg.c:523
+#: zbarimg/zbarimg.c:525
 #, c-format
 msgid "\t. SQ code\n"
 msgstr "\t. Código SQ\n"
 
-#: zbarimg/zbarimg.c:526
+#: zbarimg/zbarimg.c:528
 #, c-format
 msgid "\t. PDF 417\n"
 msgstr "\t. PDF 417\n"
