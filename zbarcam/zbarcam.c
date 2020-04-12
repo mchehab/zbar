@@ -34,9 +34,19 @@
 
 #include <zbar.h>
 
+#ifdef ENABLE_NLS
+#include "../zbar/gettext.h"
+# include <libintl.h>
+# define _(string) gettext(string)
+#else
+# define _(string) string
+#endif
+
+# define N_(string) string
+
 #define BELL "\a"
 
-static const char *note_usage =
+static const char *note_usage = N_(
     "usage: zbarcam [options] [/dev/video?]\n"
     "\n"
     "scan and decode bar codes from a video stream\n"
@@ -50,16 +60,18 @@ static const char *note_usage =
     "    --xml           use XML output format\n"
     "    --raw           output decoded symbol data without converting charsets\n"
     "    -1, --oneshot   exit after scanning one bar code\n"
-#ifdef HAVE_DBUS
-    "    --nodbus        disable dbus message\n"
-#endif
     "    --nodisplay     disable video display window\n"
     "    --prescale=<W>x<H>\n"
     "                    request alternate video image size from driver\n"
     "    -S<CONFIG>[=<VALUE>], --set <CONFIG>[=<VALUE>]\n"
     "                    set decoder/scanner <CONFIG> to <VALUE> (or 1)\n"
     /* FIXME overlay level */
-    "\n";
+    "\n");
+
+#ifdef HAVE_DBUS
+static const char *note_usage2 = N_(
+    "    --nodbus        disable dbus message\n");
+#endif
 
 static const char *xml_head =
     "<barcodes xmlns='http://zbar.sourceforge.net/2008/barcode'>"
@@ -79,7 +91,10 @@ static unsigned xml_len = 0;
 static int usage (int rc)
 {
     FILE *out = (rc) ? stderr : stdout;
-    fprintf(out, "%s", note_usage);
+    fprintf(out, "%s", _(note_usage));
+#ifdef HAVE_DBUS
+    fprintf(out, "%s", _(note_usage2));
+#endif
     return(rc);
 }
 
@@ -150,6 +165,12 @@ static void data_handler (zbar_image_t *img, const void *userdata)
 
 int main (int argc, const char *argv[])
 {
+#ifdef ENABLE_NLS
+    setlocale (LC_ALL, "");
+    bindtextdomain (PACKAGE, LOCALEDIR);
+    textdomain (PACKAGE);
+#endif
+
 #ifdef DIRECTSHOW
     HRESULT res = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
     if(FAILED(res)) {

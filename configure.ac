@@ -71,7 +71,7 @@ case $host_os in
     AC_FUNC_ALLOCA
     AC_FUNC_ERROR_AT_LINE
     AC_FUNC_FSEEKO
-    AC_CHECK_HEADERS([arpa/inet.h libintl.h malloc.h mntent.h netdb.h netinet/in.h shadow.h sys/file.h sys/mount.h sys/param.h sys/socket.h sys/statfs.h sys/statvfs.h sys/vfs.h unistd.h values.h])
+    AC_CHECK_HEADERS([arpa/inet.h malloc.h mntent.h netdb.h netinet/in.h shadow.h sys/file.h sys/mount.h sys/param.h sys/socket.h sys/statfs.h sys/statvfs.h sys/vfs.h unistd.h values.h])
   ;;
   * )
     win32="no"
@@ -139,6 +139,8 @@ dnl libraries
 
 AC_SEARCH_LIBS([clock_gettime], [rt pthread])
 AM_ICONV()
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION(0.20)
 
 dnl libraries linkage
 AC_ARG_ENABLE([static_qt],
@@ -825,6 +827,7 @@ AC_CONFIG_FILES([
 Makefile
 gtk/Makefile
 java/Makefile
+po/Makefile.in
 zbar/Makefile
 zbar.pc
 zbar-gtk.pc

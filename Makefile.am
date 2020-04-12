@@ -1,11 +1,27 @@
 ACLOCAL_AMFLAGS = -I config
+AM_CFLAGS += -DLOCALEDIR=\"$(localedir)\"
+AM_CXXFLAGS += -DLOCALEDIR=\"$(localedir)\"
 bin_PROGRAMS =
 check_PROGRAMS =
 EXTRA_PROGRAMS =
 lib_LTLIBRARIES =
 pyexec_LTLIBRARIES =
 CLEANFILES =
-DISTCLEANFILES =
+DISTCLEANFILES = \
+	ABOUT-NLS \
+	po/Makefile.in.in \
+	po/Makevars.template \
+	po/POTFILES \
+	po/Rules-quot \
+	po/boldquot.sed \
+	po/en@boldquot.header \
+	po/en@quot.header \
+	po/insert-header.sin \
+	po/quot.sed \
+	po/remove-potcdate.sed \
+	po/remove-potcdate.sin \
+	po/stamp-po \
+	po/zbar.pot
 MAINTAINERCLEANFILES =
 BUILT_SOURCES =
 EXTRA_DIST =
@@ -18,7 +34,7 @@ dist_doc_DATA = COPYING HACKING.md INSTALL.md LICENSE.md NEWS.md README.md TODO.
 
 include $(srcdir)/include/Makefile.am.inc
 
-SUBDIRS = zbar
+SUBDIRS = zbar po
 
 zbar/libzbar.la:
 	$(MAKE) -C @builddir@/zbar libzbar.la
