@@ -499,7 +499,7 @@ AS_IF([test "x$with_gtk" = "xgtk3" || test "x$with_gtk" = "xauto"],
      with_gtk="gtk3"
      GTK_CFLAGS=$GTK3_CFLAGS
      GTK_LIBS=$GTK3_LIBS
-    ])
+    ],[libgtk3=false])
   ])
 
 AS_IF([test "x$with_gtk" = "xgtk2" || test "x$with_gtk" = "xauto"],
@@ -511,7 +511,7 @@ AS_IF([test "x$with_gtk" = "xgtk2" || test "x$with_gtk" = "xauto"],
      with_gtk="gtk2"
      GTK_CFLAGS=$GTK2_CFLAGS
      GTK_LIBS=$GTK2_LIBS
-    ])
+    ],[libgtk2=false])
   ])
 
 # GTK not found
