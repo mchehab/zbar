@@ -141,6 +141,7 @@ AC_SEARCH_LIBS([clock_gettime], [rt pthread])
 AM_ICONV()
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION(0.20)
+AM_GNU_GETTEXT_REQUIRE_VERSION(0.18)
 
 dnl libraries linkage
 AC_ARG_ENABLE([static_qt],
