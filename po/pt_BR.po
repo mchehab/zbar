@@ -1,0 +1,211 @@
+# Portuguese translations for zbar
+# Traduções em português brasileiro para zbar.
+# Copyright (C) 2020 Mauro Carvalho Chehab
+# This file is distributed under the same license as the zbar package.
+# Mauro Carvalho Chehab <mchehab@kernel.org>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: zbar 0.23\n"
+"Report-Msgid-Bugs-To: https://github.com/mchehab/zbar/issues\n"
+"POT-Creation-Date: 2020-04-12 17:00+0200\n"
+"PO-Revision-Date: 2020-04-12 17:01+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.3\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: zbarcam/zbarcam.c:50
+msgid ""
+"usage: zbarcam [options] [/dev/video?]\n"
+"\n"
+"scan and decode bar codes from a video stream\n"
+"\n"
+"options:\n"
+"    -h, --help      display this help text\n"
+"    --version       display version information and exit\n"
+"    -q, --quiet     disable beep when symbol is decoded\n"
+"    -v, --verbose   increase debug output level\n"
+"    --verbose=N     set specific debug output level\n"
+"    --xml           use XML output format\n"
+"    --raw           output decoded symbol data without converting charsets\n"
+"    -1, --oneshot   exit after scanning one bar code\n"
+"    --nodisplay     disable video display window\n"
+"    --prescale=<W>x<H>\n"
+"                    request alternate video image size from driver\n"
+"    -S<CONFIG>[=<VALUE>], --set <CONFIG>[=<VALUE>]\n"
+"                    set decoder/scanner <CONFIG> to <VALUE> (or 1)\n"
+"\n"
+msgstr ""
+"uso: zbarcam [opções] [/dev/video?]\n"
+"\n"
+"Le e decodifica códigos de barra de um stream de vídeo\n"
+"\n"
+"opções:\n"
+"    -h, --help      esse texto de auxílio\n"
+"    --version       mostra a versão e termina\n"
+"    -q, --quiet     desabilita aviso sonoro quando símbolos são "
+"decodificados\n"
+"    -v, --verbose   aumenta nível de mensagens de depuração\n"
+"    --verbose=N     configura um determinado nível para mensagens de "
+"depuração\n"
+"    --xml           mostra resultados em formato XML\n"
+"    --raw           mostra símbolos decodificados sem tratamento de conjunto "
+"de caracteres\n"
+"    -1, --oneshot   termina programa ao decodificar o primeiro código de "
+"barras\n"
+"    --nodisplay     desabilita janela de apresentação de imagens\n"
+"    --prescale=<W>x<H>\n"
+"                    solicita modo de vídeo diferente\n"
+"    -S<CONFIG>[=<VALUE>], --set <CONFIG>[=<VALUE>]\n"
+"                    configura parâmetro <CONFIG> para <VALUE> (ou 1)\n"
+"\n"
+
+#: zbarcam/zbarcam.c:73 zbarimg/zbarimg.c:103
+msgid "    --nodbus        disable dbus message\n"
+msgstr "    --nodbus        desabilita mensagens no dbus\n"
+
+#: zbarimg/zbarimg.c:81
+msgid ""
+"usage: zbarimg [options] <image>...\n"
+"\n"
+"scan and decode bar codes from one or more image files\n"
+"\n"
+"options:\n"
+"    -h, --help      display this help text\n"
+"    --version       display version information and exit\n"
+"    -q, --quiet     minimal output, only print decoded symbol data\n"
+"    -v, --verbose   increase debug output level\n"
+"    --verbose=N     set specific debug output level\n"
+"    -d, --display   enable display of following images to the screen\n"
+"    -D, --nodisplay disable display of following images (default)\n"
+"    --xml, --noxml  enable/disable XML output format\n"
+"    --raw           output decoded symbol data without converting charsets\n"
+"    -1, --oneshot   exit after scanning one bar code\n"
+"    -S<CONFIG>[=<VALUE>], --set <CONFIG>[=<VALUE>]\n"
+"                    set decoder/scanner <CONFIG> to <VALUE> (or 1)\n"
+"\n"
+msgstr ""
+"uso: zbarimg [opções] <image>...\n"
+"\n"
+"Le e decodifica códigos de barra de uma ou mais imagens\n"
+"\n"
+"opções:\n"
+"    -h, --help      esse texto de auxílio\n"
+"    --version       mostra a versão e termina\n"
+"    -q, --quiet     desabilita aviso sonoro quando símbolos são "
+"decodificados\n"
+"    -v, --verbose   aumenta nível de mensagens de depuração\n"
+"    --verbose=N     configura um determinado nível para mensagens de "
+"depuração\n"
+"    --xml           mostra resultados em formato XML\n"
+"    --raw           mostra símbolos decodificados sem tratamento de conjunto "
+"de caracteres\n"
+"    -1, --oneshot   termina programa ao decodificar o primeiro código de "
+"barras\n"
+"    --nodisplay     desabilita janela de apresentação de imagens\n"
+"    --prescale=<W>x<H>\n"
+"                    solicita modo de vídeo diferente\n"
+"    -S<CONFIG>[=<VALUE>], --set <CONFIG>[=<VALUE>]\n"
+"                    configura parâmetro <CONFIG> para <VALUE> (ou 1)\n"
+"\n"
+
+#: zbarimg/zbarimg.c:107
+msgid ""
+"\n"
+"WARNING: barcode data was not detected in some image(s)\n"
+"Things to check:\n"
+"  - is the barcode type supported? Currently supported symbologies are:\n"
+msgstr ""
+"\n"
+"AVISO: dados de código de barra não foram decodificados em alguma(s) "
+"imagem(ns)\n"
+"Favor verificar:\n"
+"  - O tipo de código de barras é suportado? As simbologias suportadas são:\n"
+
+#: zbarimg/zbarimg.c:113
+msgid ""
+"  - is the barcode large enough in the image?\n"
+"  - is the barcode mostly in focus?\n"
+"  - is there sufficient contrast/illumination?\n"
+"  - If the symbol is split in several barcodes, are they combined in one "
+"image?\n"
+"  - Did you enable the barcode type?\n"
+"    some EAN/UPC codes are disabled by default. To enable all, use:\n"
+"    $ zbarimg -S*.enable <files>\n"
+"    Please also notice that some variants take precedence over others.\n"
+"    Due to that, if you want, for example, ISBN-10, you should do:\n"
+"    $ zbarimg -Sisbn10.enable <files>\n"
+"\n"
+msgstr ""
+"  - A imagem com o código de barras é larga suficiente?\n"
+"  - A imagem com o código está desfocada?\n"
+"  - Existe iluminação e contraste suficiente?\n"
+"  - Se o símbolo está dividido em diversos códigos, eles foram combinados em "
+"uma única imagem?\n"
+"  - O tipo de código de barras está habilitado?\n"
+"    Alguns códigos EAN/UPC são desabilitados por padrão. Para habilitar "
+"todos, use:\n"
+"    $ zbarimg -S*.enable <files>\n"
+"    Note também que algumas variantes são utilizadas primeiro, quando é "
+"possível decodificar o mesmo código com múltiplas variantes.\n"
+"    Por conta disso, se você desejar, por exemplo, utilizar ISBN-10, você "
+"deve habilitar a simbologia com:\n"
+"    $ zbarimg -Sisbn10.enable <files>\n"
+"\n"
+
+#: zbarimg/zbarimg.c:499
+#, c-format
+msgid ""
+"\t. EAN/UPC (EAN-13, EAN-8, EAN-2, EAN-5, UPC-A, UPC-E, ISBN-10, ISBN-13)\n"
+msgstr ""
+"\t. EAN/UPC (EAN-13, EAN-8, EAN-2, EAN-5, UPC-A, UPC-E, ISBN-10, ISBN-13)\n"
+
+#: zbarimg/zbarimg.c:502
+#, c-format
+msgid "\t. DataBar, DataBar Expanded\n"
+msgstr "\t. DataBar, DataBar Expandido\n"
+
+#: zbarimg/zbarimg.c:505
+#, c-format
+msgid "\t. Code 128\n"
+msgstr "\t. Código 128\n"
+
+#: zbarimg/zbarimg.c:508
+#, c-format
+msgid "\t. Code 93\n"
+msgstr "\t. Código 93\n"
+
+#: zbarimg/zbarimg.c:511
+#, c-format
+msgid "\t. Code 39\n"
+msgstr "\t. Código 39\n"
+
+#: zbarimg/zbarimg.c:514
+#, c-format
+msgid "\t. Codabar\n"
+msgstr "\t. Codabar\n"
+
+#: zbarimg/zbarimg.c:517
+#, c-format
+msgid "\t. Interleaved 2 of 5\n"
+msgstr "\t. Entrelaçado 2 de 5\n"
+
+#: zbarimg/zbarimg.c:520
+#, c-format
+msgid "\t. QR code\n"
+msgstr "\t. Código QR\n"
+
+#: zbarimg/zbarimg.c:523
+#, c-format
+msgid "\t. SQ code\n"
+msgstr "\t. Código SQ\n"
+
+#: zbarimg/zbarimg.c:526
+#, c-format
+msgid "\t. PDF 417\n"
+msgstr "\t. PDF 417\n"
