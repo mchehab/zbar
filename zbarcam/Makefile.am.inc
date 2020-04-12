@@ -34,7 +34,7 @@ endif
 
 if WIN32
 zbarcam_zbarcam_SOURCES += zbarcam/zbarcam.rc
-zbarcam_zbarcam_LDADD += zbarcam/zbarcam-rc.o
+zbarcam_zbarcam_LDADD += zbarcam/zbarcam-rc.o @LTLIBINTL@
 
 if WITH_DIRECTSHOW
 zbarcam_zbarcam_CPPFLAGS += -DDIRECTSHOW

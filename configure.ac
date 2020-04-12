@@ -142,6 +142,7 @@ AM_ICONV()
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION(0.20)
 AM_GNU_GETTEXT_REQUIRE_VERSION(0.18)
+AM_CONDITIONAL([USE_NLS], [test "x${USE_NLS}" = "xyes"])
 
 dnl libraries linkage
 AC_ARG_ENABLE([static_qt],
@@ -844,6 +845,9 @@ dnl summary log
 echo ""
 echo "please verify that the detected configuration matches your expectations:"
 echo "------------------------------------------------------------------------"
+AS_IF([test "x$USE_NLS" == "xyes"],
+  [echo    "gettext                $USE_NLS"]
+)
 AS_IF([test "x$win32" != "xno"],
   [AS_IF([test "x$with_directshow" != "xno"],
     [echo "DirectShow driver      --with-directshow=$with_directshow"],
@@ -865,6 +869,7 @@ echo -e "GTK                    --with-gtk=$with_gtk       $gtkver"
 echo    "GObject introspection  --with-gir=$with_gir"
 echo -e "Qt                     --with-qt=$with_qt         $qtver"
 echo    "Java                   --with-java=$with_java"
+
 AS_IF([test "x$win32" = "xno"],
   [echo "Dbus                   --with-dbus=$with_dbus"])
 AS_IF([test "x$have_GM" = "xyes"],

@@ -34,7 +34,12 @@ dist_doc_DATA = COPYING HACKING.md INSTALL.md LICENSE.md NEWS.md README.md TODO.
 
 include $(srcdir)/include/Makefile.am.inc
 
-SUBDIRS = zbar po
+SUBDIRS = zbar
+
+if USE_NLS
+  SUBDIRS += po
+  dist_doc_DATA += ABOUT-NLS
+endif
 
 zbar/libzbar.la:
 	$(MAKE) -C @builddir@/zbar libzbar.la
