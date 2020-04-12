@@ -480,12 +480,12 @@ dnl For now, defaults to GTK version 2
 
 AC_ARG_WITH([gtk],
   [AS_HELP_STRING([--with-gtk],
-    [Specify support for GTK. Valid values are: no, auto, gtk2, gtk3 (default is gtk2)])],
+    [Specify support for GTK. Valid values are: no, auto, gtk2, gtk3 (default is auto)])],
   [AS_IF([test "x$with_gtk" != "xno"   && test "x$with_gtk" != "xauto" &&
           test "x$with_gtk" != "xgtk2" && test "x$with_gtk" != "xgtk3"],
          [echo "Invalid value for --with-gtk. Falling back to 'no'"
           with_gtk="xno"])],
-  [with_gtk="gtk2"])
+  [with_gtk="auto"])
 
 AC_ARG_VAR([GLIB_GENMARSHAL], [full path to glib-genmarshal])
 AC_ARG_VAR([GTK_VERSION_MAJOR])
@@ -534,13 +534,13 @@ dnl If both PYTHON and --with-python=foo are defined, PYTHON takes precedence
 AC_ARG_WITH([python],
   [AS_HELP_STRING([--with-python],
     [Specify support for Python. Valid values are: no, auto, python2, python3
-(default is python2).
+(default is auto).
 Please notice that PYTHON var, if especified, takes precedence.])],
   [AS_IF([test "x$with_python" != "xno"      && test "x$with_python" != "xauto" &&
           test "x$with_python" != "xpython2" && test "x$with_python" != "xpython3"],
          [echo "Invalid value for --with-python. Falling back to 'no'"
           with_python="xno"])],
-  [with_python="python2"])
+  [with_python="auto"])
 
 AC_ARG_VAR([PYTHON_CONFIG], [full path to python-config program])
 AC_ARG_VAR([PYTHON_CFLAGS], [compiler flags for building python extensions])
