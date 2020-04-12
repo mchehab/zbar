@@ -7,6 +7,7 @@
 .dirstamp
 .libs/
 
+ABOUT-NLS
 aclocal.m4
 autom4te.cache/
 config/
@@ -33,6 +34,21 @@ java/zbarjni.h
 libtool
 Makefile
 Makefile.in
+po/*.gmo
+po/*.mo
+po/Makefile.in.in
+po/Makevars.template
+po/POTFILES
+po/Rules-quot
+po/boldquot.sed
+po/en@boldquot.header
+po/en@quot.header
+po/insert-header.sin
+po/quot.sed
+po/remove-potcdate.sed
+po/remove-potcdate.sin
+po/stamp-po
+po/zbar.pot
 pygtk/zbarpygtk.c
 pygtk/zbarpygtk.defs
 qt/moc_*.cpp

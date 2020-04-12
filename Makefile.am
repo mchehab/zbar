@@ -9,6 +9,8 @@ pyexec_LTLIBRARIES =
 CLEANFILES =
 DISTCLEANFILES = \
 	ABOUT-NLS \
+	po/*.gmo \
+	po/*.mo \
 	po/Makefile.in.in \
 	po/Makevars.template \
 	po/POTFILES \
