@@ -23,6 +23,7 @@
 
 #include <config.h>
 #include <QApplication>
+#include <QCommandLineParser>
 #include <QtGlobal>
 #include <QWidget>
 #include <QLayout>
@@ -407,7 +408,7 @@ public:
     ~ZbarcamQZBar () {
         saveSettings();
     }
-    ZbarcamQZBar (const char *default_device, int verbose = 0)
+    ZbarcamQZBar (const QStringList *names, int verbose = 0)
                  : resolutions(NULL)
     {
         // drop-down list of video devices
@@ -545,7 +546,13 @@ public:
         setLayout(grid);
 
         videoList->addItem("");
-        int active = scan_video((void*)add_device, videoList, default_device);
+
+	int active = 0;
+	for (int i = 0; i < names->size(); i++)
+	    active += scan_video((void*)add_device, videoList, names->at(i).toUtf8());
+
+	if (names->isEmpty())
+	    active += scan_video((void*)add_device, videoList, NULL);
 
         // directly connect combo box change signal to scanner video open
         connect(videoList, SIGNAL(currentIndexChanged(const QString&)),
@@ -1006,25 +1013,33 @@ int main (int argc, char *argv[])
     app.setOrganizationDomain("linuxtv.org");
     app.setAttribute(Qt::AA_UseHighDpiPixmaps, true);
 
-    const char *dev = NULL;
+    QCommandLineParser parser;
+    parser.setApplicationDescription("ZBar bar code reader Qt application");
+    parser.addHelpOption();
 
-    // FIXME: poor man's argument parser.
-    // Should use, instead, QCommandLineParser
-    for (int i = 1; i < argc; i++) {
-        if (!strcmp(argv[i], "--debug")) {
-            verbose = 127;
-        } else if (!strcmp(argv[i], "-v")) {
-            verbose++;
-        } else if (!strcmp(argv[i], "--help")) {
-            qWarning() << "Usage:" << argv[0]
-                    << "[<--debug>] [<-v>] [<--help>] [<device or file name>]\n";
-            return(-1);
-        } else {
-            dev = argv[i];
-        }
-    }
+    parser.addPositionalArgument("name",
+				 QObject::tr("device or file name"));
 
-    ZbarcamQZBar window(dev, verbose);
+    QCommandLineOption debugOption(QStringList() << "d" << "debug",
+				   QObject::tr("Enable debug mode."));
+    parser.addOption(debugOption);
+
+    QCommandLineOption verboseOption(QStringList() << "v" << "verbosity",
+				     QObject::tr("Verbosity level."),
+				     QObject::tr("value"));
+    parser.addOption(verboseOption);
+
+    parser.process(app);
+
+    if (parser.isSet(verboseOption))
+	verbose = parser.value(verboseOption).toInt();
+
+    if (parser.isSet(debugOption))
+	verbose = 127;
+
+    const QStringList args = parser.positionalArguments();
+
+    ZbarcamQZBar window(&args, verbose);
     window.show();
     return(app.exec());
 }
