@@ -1,3 +1,19 @@
+0.23.1:
+
+  * Add i18n translation support and add a pt_BR translation
+  * Change default to autodetect python and gtk versions
+  * Improve tests and builds on travisCI
+  * Some documentation updates
+  * Add support for binary data extraction
+  * Add support for raw decoding without charset conversions
+  * Add one shot scanning mode
+  * Improved OSX and iphone support
+  * Fix help messages
+  * Fix some makefile issues
+  * Fix error detection in video4linux read
+  * Fix pkgconfig for zbar-qt5
+  * Fix a double-free condition
+
 0.23:
 
   * Windows: added support for DirectShow
