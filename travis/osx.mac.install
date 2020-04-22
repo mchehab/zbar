@@ -3,7 +3,4 @@ brew install gettext autoconf automake libiconv libtool \
              gs graphicsmagick python xmlto pkg-config ccache
 
 brew unlink libtool && brew link libtool
-
-# Create a link for autopoint, otherwise autotools don't find it
-brew link gettext --force
-ln -s `brew ls gettext | grep bin/autopoint` /usr/local/bin
+brew unlink gettext && brew link gettext
