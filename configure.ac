@@ -845,7 +845,7 @@ dnl summary log
 echo ""
 echo "please verify that the detected configuration matches your expectations:"
 echo "------------------------------------------------------------------------"
-AS_IF([test "x$USE_NLS" == "xyes"],
+AS_IF([test "x$USE_NLS" = "xyes"],
   [echo    "gettext                $USE_NLS"]
 )
 AS_IF([test "x$win32" != "xno"],
