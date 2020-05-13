@@ -38,9 +38,9 @@ See `INSTALL.md` for generic configuration and build instructions.
 If you have installed all needed dependencies, all you need to do is to run:
 
 ```
-    autoreconf -vfi
-    ./configure
-    make
+autoreconf -vfi
+./configure
+make
 ```
 
 
@@ -62,9 +62,9 @@ If you have installed all needed dependencies, all you need to do is to run:
      If you want to use gtk3 and python3, you should have the development
      packages for them, and run:
 ```
-	autoreconf -vfi
-	./configure --with-gtk=auto --with-python=auto
-	make
+autoreconf -vfi
+./configure --with-gtk=auto --with-python=auto
+make
 ```
 
   This will make the building system to seek for the latest versions
