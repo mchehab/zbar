@@ -40,7 +40,6 @@
 #include <zbar.h>
 
 #ifdef ENABLE_NLS
-#include "../zbar/gettext.h"
 # include <libintl.h>
 # define _(string) gettext(string)
 #else
