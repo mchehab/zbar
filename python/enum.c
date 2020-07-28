@@ -76,6 +76,8 @@ enumitem_str (zbarEnumItem *self)
     return(self->name);
 }
 
+#if PY_MAJOR_VERSION < 3
+/* tp_print was dropped on Python 3.9 */
 static int
 enumitem_print (zbarEnumItem *self,
                 FILE *fp,
@@ -83,6 +85,7 @@ enumitem_print (zbarEnumItem *self,
 {
     return(self->name->ob_type->tp_print(self->name, fp, flags));
 }
+#endif
 
 static PyObject*
 enumitem_repr (zbarEnumItem *self)
@@ -115,7 +118,9 @@ PyTypeObject zbarEnumItem_Type = {
     .tp_new         = (newfunc)enumitem_new,
     .tp_dealloc     = (destructor)enumitem_dealloc,
     .tp_str         = (reprfunc)enumitem_str,
+#if PY_MAJOR_VERSION < 3
     .tp_print       = (printfunc)enumitem_print,
+#endif
     .tp_repr        = (reprfunc)enumitem_repr,
 };
 
