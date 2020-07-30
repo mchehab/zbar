@@ -132,10 +132,6 @@ static void data_handler (zbar_image_t *img, const void *userdata)
                 continue;
         }
         else if(format == RAW) {
-#ifdef _WIN32
-            _setmode(_fileno(stdout), _O_BINARY);
-#endif
-
             if(fwrite(zbar_symbol_get_data(sym),
                       zbar_symbol_get_data_length(sym),
                       1, stdout) != 1)
@@ -312,11 +308,17 @@ int main (int argc, const char *argv[])
        (display && zbar_processor_set_visible(proc, 1)))
         return(zbar_processor_error_spew(proc, 0));
 
-    if(format == XML) {
 #ifdef _WIN32
+    if(format == XML || format == RAW) {
         fflush(stdout);
-        _setmode(_fileno(stdout), _O_BINARY);
+        if(_setmode(_fileno(stdout), _O_BINARY) == -1) {
+            fprintf(stderr, "ERROR: failed to set stdout mode: %i\n\n", errno);
+            return(usage(1));
+        }
+    }
 #endif
+
+    if(format == XML) {
         printf(xml_head, video_device);
         fflush(stdout);
     }
