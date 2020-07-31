@@ -313,7 +313,7 @@ int main (int argc, const char *argv[])
         fflush(stdout);
         if(_setmode(_fileno(stdout), _O_BINARY) == -1) {
             fprintf(stderr, "ERROR: failed to set stdout mode: %i\n", errno);
-            return 1;
+            return(1);
         }
     }
 #endif
