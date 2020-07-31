@@ -312,8 +312,8 @@ int main (int argc, const char *argv[])
     if(format == XML || format == RAW) {
         fflush(stdout);
         if(_setmode(_fileno(stdout), _O_BINARY) == -1) {
-            fprintf(stderr, "ERROR: failed to set stdout mode: %i\n\n", errno);
-            return(usage(1));
+            fprintf(stderr, "ERROR: failed to set stdout mode: %i\n", errno);
+            return 1;
         }
     }
 #endif
