@@ -494,7 +494,7 @@ int main (int argc, const char *argv[])
 #endif
 #endif
         fprintf(stderr, "\n");
-        if(notfound)
+        if(notfound) {
             fprintf(stderr, "%s", _(warning_not_found_head));
 #if ENABLE_EAN == 1
      fprintf(stderr, _("\t. EAN/UPC (EAN-13, EAN-8, EAN-2, EAN-5, UPC-A, UPC-E, ISBN-10, ISBN-13)\n"));
@@ -527,6 +527,7 @@ int main (int argc, const char *argv[])
      fprintf(stderr, _("\t. PDF 417\n"));
 #endif
             fprintf(stderr, "%s", _(warning_not_found_tail));
+        }
     }
     if(num_images && notfound && !exit_code)
         exit_code = 4;
