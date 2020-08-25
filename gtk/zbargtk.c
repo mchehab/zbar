@@ -264,7 +264,6 @@ static gboolean zbar_processing_idle_callback(gpointer data)
 
             if(zbar_video_enable(zbar->video, 0)) {
                 zbar_video_error_spew(zbar->video, 0);
-                zbar->video_enabled_state = FALSE;
             }
 
             zbar_image_scanner_enable_cache(zbar->scanner, 0);
