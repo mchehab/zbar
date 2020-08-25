@@ -721,7 +721,7 @@ static void zbar_gtk_init (ZBarGtk *self)
     g_assert(zbar->window);
 
     zbar->req_width = zbar->video_width = DEFAULT_WIDTH;
-    zbar->req_height = zbar->video_width = DEFAULT_HEIGHT;
+    zbar->req_height = zbar->video_height = DEFAULT_HEIGHT;
 
     /* use a queue to signalize about the need to handle decoding and video */
     zbar->queue = g_async_queue_new();
