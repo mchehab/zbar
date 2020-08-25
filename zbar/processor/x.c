@@ -67,6 +67,7 @@ static inline int x_handle_event (zbar_processor_t *proc)
             zprintf(3, "WM_DELETE_WINDOW\n");
             return(_zbar_processor_handle_input(proc, -1));
         }
+        break;
 
     case KeyPress: {
         KeySym key = XLookupKeysym(&ev.xkey, 0);
