@@ -41,6 +41,7 @@
 
 #ifdef ENABLE_NLS
 # include <libintl.h>
+# include <locale.h>
 # define _(string) gettext(string)
 #else
 # define _(string) string
