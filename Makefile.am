@@ -93,7 +93,7 @@ dbusconf_DATA = $(srcdir)/dbus/org.linuxtv.Zbar.conf
 EXTRA_DIST += $(dbusconf_DATA)
 endif
 
-EXTRA_DIST += zbar.ico zbar.nsi
+EXTRA_DIST += zbar.ico zbar.nsi zbar-qt5.pc.in zbar-qt.pc.in
 
 EXTRA_DIST += examples/*.png examples/sha1sum \
     examples/upcrpc.py examples/upcrpc.pl \
