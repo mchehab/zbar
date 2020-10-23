@@ -47,7 +47,39 @@ matrix:
 
     - os: osx
       env: TARGET_OS=mac
+      # power jobs added.
+    - os: linux
+      env: TARGET_OS=ubuntu-gtk2
+      dist: bionic
+      arch: ppc64le
+    - os: linux
+      env: TARGET_OS=ubuntu-gtk3
+      dist: bionic
+      arch: ppc64le
+    - os: linux
+      env: TARGET_OS=mingw-w64
+      dist: bionic
+      arch: -ppc64le
+    - os: linux
+      env: TARGET_OS=debian-sid
+      dist: bionic
+      arch: -ppc64le
+    - os: linux
+      compiler: clang
+      env: TARGET_OS=debian-sid
+      dist: bionic
+      arch: -ppc64le
 
+    - os: windows
+      env: TARGET_OS=pc DIRECT_SHOW="--with-directshow"
+      arch: ppc64le
+    - os: windows
+      env: TARGET_OS=pc DIRECT_SHOW=""
+      arch: ppc64le
+
+    - os: osx
+      env: TARGET_OS=mac
+      arch: ppc64le
 before_cache:
 - rm -f $HOME/.cache/pip/log/debug.log
 - >-
