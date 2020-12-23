@@ -691,15 +691,14 @@ public Q_SLOTS:
         resolutions->clear();
 
         for (int i = 0;; i++) {
-            QString new_res;
+            QString new_res, fps;
             struct CamRes cur_res;
 
             if (!zbar->get_resolution(i, cur_res.width, cur_res.height, cur_res.max_fps))
                 break;
 
-            new_res.sprintf("%dx%d - %.2f fps (max)",
-                            cur_res.width, cur_res.height,
-                            cur_res.max_fps);
+            fps.setNum(cur_res.max_fps, 'f', 2);
+            new_res = QString("%1x%2 - %3 fps (max)").arg(cur_res.width).arg(cur_res.height).arg(fps);
 
             resolutions->addItem(new_res);
             res.append(cur_res);
