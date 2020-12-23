@@ -43,11 +43,13 @@ processor_new (PyTypeObject *type,
         return(NULL);
 
 #ifdef WITH_THREAD
+#  if (PY_MAJOR_VERSION < 3) || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION < 9)
     /* the processor creates a thread that calls back into python,
      * so we must ensure that threads are initialized before attempting
      * to manipulate the GIL (bug #3349199)
      */
     PyEval_InitThreads();
+#  endif
 #else
     if(threaded > 0 &&
        PyErr_WarnEx(NULL, "threading requested but not available", 1))
