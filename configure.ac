@@ -656,7 +656,7 @@ AS_IF([test "x$with_qt" != "xno"],
 					    [with_qt="no"])])])
 
 AS_IF([test "x$with_qt" != "xno"],
-   AS_IF([test "x$with_qt5" != "xno"],
+   [AS_IF([test "x$with_qt5" != "xno"],
     [AC_CHECK_PROGS(MOC, [moc-qt5 moc])
      AC_MSG_NOTICE([using moc from $MOC])
      QT_VERSION=`$PKG_CONFIG Qt5Gui --modversion`
@@ -672,7 +672,7 @@ dnl -fPIC has no effect on Windows and breaks windres
      QT_VERSION=`$PKG_CONFIG QtGui --modversion`
      AC_MSG_NOTICE([using Qt version $QT_VERSION])
      qt_pkgconfig_file="zbar-qt.pc"
-     ]))
+     ])])
 
 AM_CONDITIONAL([HAVE_QT], [test "x$with_qt" = "xyes"])
 
