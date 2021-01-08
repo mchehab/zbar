@@ -39,6 +39,7 @@ setup(
                 'scanner.c',
                 ],
             libraries = [ 'zbar' ],
+            include_dirs = ['../include']
         ),
     ],
 )
