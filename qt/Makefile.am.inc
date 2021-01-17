@@ -15,4 +15,5 @@ qt/moc_%.cpp: qt/%.h
 	$(MOC) $(qt_libzbarqt_la_CPPFLAGS) $< -o $@
 
 qt/moc_%.cpp: include/zbar/%.h
+	$(mkdir_p) qt
 	$(MOC) $(qt_libzbarqt_la_CPPFLAGS) $< -o $@
