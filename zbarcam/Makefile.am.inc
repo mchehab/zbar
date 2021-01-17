@@ -28,6 +28,7 @@ DISTCLEANFILES += $(nodist_zbarcam_zbarcam_qt_SOURCES) zbarcam/moc_zbarcam_qt.h
 
 
 zbarcam/moc_zbarcam_qt.h: zbarcam/zbarcam-qt.cpp
+	$(mkdir_p) zbarcam
 	$(MOC) -i $(zbarcam_zbarcam_qt_CPPFLAGS) $< -o $@
 endif
 
