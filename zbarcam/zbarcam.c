@@ -114,14 +114,15 @@ static inline int parse_config (const char *cfgstr, int i, int n, char *arg)
 
 static void data_handler (zbar_image_t *img, const void *userdata)
 {
+    int n = 0;
     const zbar_symbol_t *sym = zbar_image_first_symbol(img);
     assert(sym);
-    int n = 0;
     for(; sym; sym = zbar_symbol_next(sym)) {
+        zbar_symbol_type_t type;
         if(zbar_symbol_get_count(sym))
             continue;
 
-        zbar_symbol_type_t type = zbar_symbol_get_type(sym);
+        type = zbar_symbol_get_type(sym);
         if(type == ZBAR_PARTIAL)
             continue;
 
@@ -165,6 +166,11 @@ static void data_handler (zbar_image_t *img, const void *userdata)
 
 int main (int argc, const char *argv[])
 {
+    const char *video_device;
+    int display;
+    unsigned long infmt, outfmt;
+    int i, active;
+
 #ifdef ENABLE_NLS
     setlocale (LC_ALL, "");
     bindtextdomain (PACKAGE, LOCALEDIR);
@@ -189,13 +195,12 @@ int main (int argc, const char *argv[])
     }
     zbar_processor_set_data_handler(proc, data_handler, NULL);
 
-    const char *video_device = "";
+    video_device = "";
 #ifdef HAVE_DBUS
     int dbus = 1;
 #endif
-    int display = 1;
-    unsigned long infmt = 0, outfmt = 0;
-    int i;
+    display = 1;
+    infmt = 0, outfmt = 0;
     for(i = 1; i < argc; i++) {
         if(argv[i][0] != '-')
             video_device = argv[i];
@@ -325,7 +330,7 @@ int main (int argc, const char *argv[])
     }
 
     /* start video */
-    int active = 1;
+    active = 1;
     if(zbar_processor_set_active(proc, active))
         return(zbar_processor_error_spew(proc, 0));
 

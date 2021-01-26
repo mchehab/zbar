@@ -83,6 +83,9 @@ static const uint32_t vfw_formats[] = {
 
 static ZTHREAD vfw_capture_thread (void *arg)
 {
+    MSG msg;
+    int rc = 0;
+
     zbar_video_t *vdo = arg;
     video_state_t *state = vdo->state;
     zbar_thread_t *thr = &state->thread;
@@ -96,8 +99,6 @@ static ZTHREAD vfw_capture_thread (void *arg)
     zprintf(4, "spawned vfw capture thread (thr=%04lx)\n",
             _zbar_thread_self());
 
-    MSG msg;
-    int rc = 0;
     while(thr->started && rc >= 0 && rc <= 1) {
         _zbar_mutex_unlock(&vdo->qlock);
 
@@ -123,12 +124,15 @@ static ZTHREAD vfw_capture_thread (void *arg)
 static LRESULT CALLBACK vfw_stream_cb (HWND hwnd,
                                        VIDEOHDR *hdr)
 {
+    zbar_video_t *vdo;
+    zbar_image_t *img;
+
     if(!hwnd || !hdr)
         return(0);
-    zbar_video_t *vdo = (void*)capGetUserData(hwnd);
+    vdo = (void*)capGetUserData(hwnd);
 
     _zbar_mutex_lock(&vdo->qlock);
-    zbar_image_t *img = vdo->state->image;
+    img = vdo->state->image;
     if(!img) {
         _zbar_mutex_lock(&vdo->qlock);
         img = video_dq_image(vdo);
@@ -148,9 +152,10 @@ static LRESULT CALLBACK vfw_error_cb (HWND hwnd,
                                       int errid,
                                       const char *errmsg)
 {
+    zbar_video_t *vdo;
     if(!hwnd)
         return(0);
-    zbar_video_t *vdo = (void*)capGetUserData(hwnd);
+    vdo = (void*)capGetUserData(hwnd);
     zprintf(2, "id=%d msg=%s\n", errid, errmsg);
     _zbar_mutex_lock(&vdo->qlock);
     vdo->state->image = NULL;
@@ -178,8 +183,9 @@ static zbar_image_t *vfw_dq (zbar_video_t *vdo)
 {
     zbar_image_t *img = vdo->state->image;
     if(!img) {
+        int rc;
         _zbar_mutex_unlock(&vdo->qlock);
-        int rc = WaitForSingleObject(vdo->state->captured, INFINITE);
+        rc = WaitForSingleObject(vdo->state->captured, INFINITE);
         // note: until we get the lock again the grabber thread might
         // already provide the next sample (which is fine)
         _zbar_mutex_lock(&vdo->qlock);
@@ -235,12 +241,13 @@ static int vfw_stop (zbar_video_t *vdo)
 static int vfw_set_format (zbar_video_t *vdo,
                            uint32_t fmt)
 {
+    BITMAPINFOHEADER *bih;
     const zbar_format_def_t *fmtdef = _zbar_format_lookup(fmt);
     if(!fmtdef->format)
         return(err_capture_int(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__,
                                "unsupported vfw format: %x", fmt));
 
-    BITMAPINFOHEADER *bih = vdo->state->bih;
+    bih = vdo->state->bih;
     assert(bih);
     bih->biWidth = vdo->width;
     bih->biHeight = vdo->height;
@@ -290,11 +297,13 @@ static int vfw_set_format (zbar_video_t *vdo,
 static int vfw_init (zbar_video_t *vdo,
                      uint32_t fmt)
 {
+    HWND hwnd;
+    CAPTUREPARMS cp;
+
     if(vfw_set_format(vdo, fmt))
         return(-1);
 
-    HWND hwnd = vdo->state->hwnd;
-    CAPTUREPARMS cp;
+    hwnd = vdo->state->hwnd;
     if(!capCaptureGetSetup(hwnd, &cp, sizeof(cp)))
         return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_WINAPI, __func__,
                            "retrieving capture parameters"));
@@ -360,12 +369,13 @@ static int vfw_cleanup (zbar_video_t *vdo)
 static int vfw_probe_format (zbar_video_t *vdo,
                              uint32_t fmt)
 {
+    BITMAPINFOHEADER *bih;
     const zbar_format_def_t *fmtdef = _zbar_format_lookup(fmt);
     if(!fmtdef)
         return(0);
 
     zprintf(4, "    trying %.4s(%08x)...\n", (char*)&fmt, fmt);
-    BITMAPINFOHEADER *bih = vdo->state->bih;
+    bih = vdo->state->bih;
     bih->biWidth = vdo->width;
     bih->biHeight = vdo->height;
     switch(fmtdef->group) {
@@ -406,9 +416,13 @@ static int vfw_probe_format (zbar_video_t *vdo,
 
 static int vfw_probe (zbar_video_t *vdo)
 {
+    BITMAPINFOHEADER *bih;
+    int n = 0;
+    const uint32_t *fmt;
+
     video_state_t *state = vdo->state;
     state->bi_size = capGetVideoFormatSize(state->hwnd);
-    BITMAPINFOHEADER *bih = state->bih = realloc(state->bih, state->bi_size);
+    bih = state->bih = realloc(state->bih, state->bi_size);
     /* FIXME check OOM */
 
     if(!capSetUserData(state->hwnd, (LONG)vdo) ||
@@ -429,8 +443,6 @@ static int vfw_probe (zbar_video_t *vdo)
     zprintf(2, "probing supported formats:\n");
     vdo->formats = calloc(VFW_NUM_FORMATS, sizeof(uint32_t));
 
-    int n = 0;
-    const uint32_t *fmt;
     for(fmt = vfw_formats; *fmt; fmt++)
         if(vfw_probe_format(vdo, *fmt))
             vdo->formats[n++] = *fmt;
@@ -452,11 +464,14 @@ static int vfw_probe (zbar_video_t *vdo)
 int _zbar_video_open (zbar_video_t *vdo,
                       const char *dev)
 {
+    int reqid = -1;
+    char name[MAX_NAME], desc[MAX_NAME];
+    int devid;
+
     video_state_t *state = vdo->state;
     if(!state)
         state = vdo->state = calloc(1, sizeof(video_state_t));
 
-    int reqid = -1;
     if((!strncmp(dev, "/dev/video", 10) ||
         !strncmp(dev, "\\dev\\video", 10)) &&
        dev[10] >= '0' && dev[10] <= '9' && !dev[11])
@@ -466,8 +481,6 @@ int _zbar_video_open (zbar_video_t *vdo,
         reqid = dev[0] - '0';
 
     zprintf(6, "searching for camera: %s (%d)\n", dev, reqid);
-    char name[MAX_NAME], desc[MAX_NAME];
-    int devid;
     for(devid = 0; devid < MAX_DRIVERS; devid++) {
         if(!capGetDriverDescription(devid, name, MAX_NAME, desc, MAX_NAME)) {
             /* FIXME TBD error */

@@ -61,9 +61,10 @@ int _zbar_event_wait (zbar_event_t *event,
                       zbar_mutex_t *lock,
                       zbar_timer_t *timeout)
 {
+    int rc;
     if(lock)
         _zbar_mutex_unlock(lock);
-    int rc = WaitForSingleObject(*event, _zbar_timer_check(timeout));
+    rc = WaitForSingleObject(*event, _zbar_timer_check(timeout));
     if(lock)
         _zbar_mutex_lock(lock);
 
@@ -79,14 +80,16 @@ int _zbar_thread_start (zbar_thread_t *thr,
                         void *arg,
                         zbar_mutex_t *lock)
 {
+    HANDLE hthr;
+    int rc;
     if(thr->started || thr->running)
         return(-1/*FIXME*/);
     thr->started = 1;
     _zbar_event_init(&thr->notify);
     _zbar_event_init(&thr->activity);
 
-    HANDLE hthr = CreateThread(NULL, 0, proc, arg, 0, NULL);
-    int rc = (!hthr ||
+    hthr = CreateThread(NULL, 0, proc, arg, 0, NULL);
+    rc = (!hthr ||
               _zbar_event_wait(&thr->activity, NULL, NULL) < 0 ||
               !thr->running);
     CloseHandle(hthr);
@@ -272,6 +275,8 @@ int _zbar_processor_open (zbar_processor_t *proc,
                           unsigned width,
                           unsigned height)
 {
+    ATOM wca;
+    RECT r = { 0, 0, width, height };
     HMODULE hmod = NULL;
     if(!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
                           GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
@@ -279,13 +284,12 @@ int _zbar_processor_open (zbar_processor_t *proc,
         return(err_capture(proc, SEV_ERROR, ZBAR_ERR_WINAPI, __func__,
                            "failed to obtain module handle"));
 
-    ATOM wca = win_register_class(hmod);
+    wca = win_register_class(hmod);
     if(!wca)
         return(err_capture(proc, SEV_ERROR, ZBAR_ERR_WINAPI, __func__,
                            "failed to register window class"));
 
     proc->state->registeredClass = wca;
-    RECT r = { 0, 0, width, height };
     AdjustWindowRectEx(&r, WIN_STYLE, 0, EXT_STYLE);
     proc->display = CreateWindowEx(EXT_STYLE, (LPCTSTR)(long)wca,
                                    "ZBar", WIN_STYLE,

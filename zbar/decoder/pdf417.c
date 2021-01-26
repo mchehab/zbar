@@ -37,6 +37,12 @@
 
 static inline signed short pdf417_decode8 (zbar_decoder_t *dcode)
 {
+    long sig = 0;
+    signed char e;
+    unsigned char i;
+    int clst;
+    signed short g[3];
+    unsigned short c;
     /* build edge signature of character
      * from similar edge measurements
      */
@@ -45,9 +51,6 @@ static inline signed short pdf417_decode8 (zbar_decoder_t *dcode)
     if(s < 8)
         return(-1);
 
-    long sig = 0;
-    signed char e;
-    unsigned char i;
     for(i = 0; i < 7; i++) {
         if(get_color(dcode) == ZBAR_SPACE)
             e = decode_e(get_width(dcode, i) +
@@ -63,7 +66,7 @@ static inline signed short pdf417_decode8 (zbar_decoder_t *dcode)
     dbprintf(2, " sig=%06lx", sig);
 
     /* determine cluster number */
-    int clst = ((sig & 7) - ((sig >> 3) & 7) +
+    clst = ((sig & 7) - ((sig >> 3) & 7) +
                 ((sig >> 12) & 7) - ((sig >> 15) & 7));
     if(clst < 0)
         clst += 9;
@@ -78,7 +81,6 @@ static inline signed short pdf417_decode8 (zbar_decoder_t *dcode)
         return(-1);
     }
 
-    signed short g[3];
     sig &= 0x3ffff;
     g[0] = pdf417_hash[(sig - (sig >> 10)) & PDF417_HASH_MASK];
     g[1] = pdf417_hash[((sig >> 8) - sig) & PDF417_HASH_MASK];
@@ -88,7 +90,7 @@ static inline signed short pdf417_decode8 (zbar_decoder_t *dcode)
             dcode->pdf417.direction, sig, clst, g[0], g[1], g[2],
             _zbar_decoder_buf_dump(dcode->buf, dcode->pdf417.character));
 
-    unsigned short c = (g[0] + g[1] + g[2]) & PDF417_HASH_MASK;
+    c = (g[0] + g[1] + g[2]) & PDF417_HASH_MASK;
     dbprintf(2, " g0=%x g1=%x g2=%x c=%03d(%d)",
              g[0], g[1], g[2], c & 0x3ff, c >> 10);
     return(c);
@@ -96,12 +98,14 @@ static inline signed short pdf417_decode8 (zbar_decoder_t *dcode)
 
 static inline signed char pdf417_decode_start(zbar_decoder_t *dcode)
 {
+    int ei, ex;
+    pdf417_decoder_t *dcode417;
     unsigned s = dcode->pdf417.s8;
     if(s < 8)
         return(0);
 
-    int ei = decode_e(get_width(dcode, 0) + get_width(dcode, 1), s, 17);
-    int ex = (get_color(dcode) == ZBAR_SPACE) ? 2 : 6;
+    ei = decode_e(get_width(dcode, 0) + get_width(dcode, 1), s, 17);
+    ex = (get_color(dcode) == ZBAR_SPACE) ? 2 : 6;
     if(ei != ex)
         return(0);
 
@@ -157,7 +161,7 @@ static inline signed char pdf417_decode_start(zbar_decoder_t *dcode)
         return(0);
     }
 
-    pdf417_decoder_t *dcode417 = &dcode->pdf417;
+    dcode417 = &dcode->pdf417;
     dcode417->direction = get_color(dcode);
     dcode417->element = 0;
     dcode417->character = 0;
@@ -168,6 +172,7 @@ static inline signed char pdf417_decode_start(zbar_decoder_t *dcode)
 
 zbar_symbol_type_t _zbar_decode_pdf417 (zbar_decoder_t *dcode)
 {
+    signed short c;
     pdf417_decoder_t *dcode417 = &dcode->pdf417;
 
     /* update latest character width */
@@ -198,7 +203,7 @@ zbar_symbol_type_t _zbar_decode_pdf417 (zbar_decoder_t *dcode)
                 _zbar_decoder_buf_dump(dcode->buf, c));
     }
 
-    signed short c = pdf417_decode8(dcode);
+    c = pdf417_decode8(dcode);
     if(c < 0 || size_buf(dcode, dcode417->character + 1)) {
         dbprintf(1, (c < 0) ? " [aborted]\n" : " [overflow]\n");
         release_lock(dcode, ZBAR_PDF417);

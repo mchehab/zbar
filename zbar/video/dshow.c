@@ -175,12 +175,14 @@ static inline const BITMAPINFOHEADER* dshow_caccess_bih(const AM_MEDIA_TYPE* mt)
 /** @param bpp Bits Per Pixel */
 static void flip_vert(zbar_image_t* const img, void* const srcBuf, int bpp)
 {
+    BYTE *dst, *src;
+    int i, n;
+
     // The formula below works only if bpp%8==0
     long bytesPerLine = 1L * img->width * bpp / 8;
     assert(img->datalen >= img->height * bytesPerLine);
-    void *dst = (void*)img->data;
-    void *src = srcBuf + (img->height - 1) * bytesPerLine;
-    int i, n;
+    dst = (BYTE*)img->data;
+    src = ((BYTE*)srcBuf) + (img->height - 1) * bytesPerLine;
     for (i=0, n = img->height; i < n; i++) {
         memcpy(dst, src, bytesPerLine);
         dst += bytesPerLine;
@@ -369,6 +371,7 @@ static char* get_clsid_string(REFGUID guid)
   * before passing the image to zbar. */
 static void prepare_mjpg_format_mapping(zbar_video_t* vdo)
 {
+    int iMjpgConv;
     video_state_t* state = vdo->state;
     /// The format we will convert MJPG to
     uint32_t fmtConv = mjpg_conversion_fmt;
@@ -386,7 +389,7 @@ static void prepare_mjpg_format_mapping(zbar_video_t* vdo)
     // we prefer better quality images.
 
     // The index of fmtConv before mapping mjpg to fmtConv
-    int iMjpgConv = get_int_format_index(state->int_formats, fmtConv);
+    iMjpgConv = get_int_format_index(state->int_formats, fmtConv);
 
     if (iMjpgConv >= 0) {
         // remove the iMjpgConv entry by moving the following entries by 1
@@ -501,20 +504,23 @@ HRESULT __stdcall zbar_samplegrabber_cb_SampleCB(ISampleGrabberCB* _This, double
 //HRESULT __stdcall zbar_samplegrabber_cb_BufferCB(ISampleGrabberCB* _This, double sampletime, BYTE* buffer, long bufferlen)
 HRESULT __stdcall zbar_samplegrabber_cb_BufferCB(ISampleGrabberCB* _This, double sampletime, BYTE* buffer, LONG bufferlen)
 {
+    zbar_samplegrabber_cb* This;
+    zbar_video_t* vdo;
+    zbar_image_t* img;
     if (!buffer || !bufferlen)
         return S_OK;
 
 
     grabbed_count++;
-    zbar_samplegrabber_cb* This = (zbar_samplegrabber_cb*)_This;
-    zbar_video_t* vdo = This->vdo;
+    This = (zbar_samplegrabber_cb*)_This;
+    vdo = This->vdo;
 
     _zbar_mutex_lock(&vdo->qlock);
 
     zprintf(16, "got sample no %ld: %p (%ld), thr=%04lx\n", grabbed_count,
             buffer, bufferlen, _zbar_thread_self());
 
-    zbar_image_t* img = vdo->state->image;
+    img = vdo->state->image;
     if (!img)
     {
         _zbar_mutex_lock(&vdo->qlock);
@@ -546,6 +552,9 @@ HRESULT __stdcall zbar_samplegrabber_cb_BufferCB(ISampleGrabberCB* _This, double
 
 static ZTHREAD dshow_capture_thread(void* arg)
 {
+    MSG msg;
+    int rc = 0;
+
     zbar_video_t* vdo = arg;
     video_state_t* state = vdo->state;
     zbar_thread_t* thr = &state->thread;
@@ -557,8 +566,6 @@ static ZTHREAD dshow_capture_thread(void* arg)
     zprintf(4, "spawned dshow capture thread (thr=%04lx)\n",
             _zbar_thread_self());
 
-    MSG msg;
-    int rc = 0;
     while(thr->started && rc >= 0 && rc <= 1) {
         _zbar_mutex_unlock(&vdo->qlock);
 
@@ -598,8 +605,9 @@ static zbar_image_t* dshow_dq(zbar_video_t* vdo)
 {
     zbar_image_t* img = vdo->state->image;
     if (!img) {
+        DWORD rc;
         _zbar_mutex_unlock(&vdo->qlock);
-        DWORD rc = WaitForSingleObject(vdo->state->captured, INFINITE);
+        rc = WaitForSingleObject(vdo->state->captured, INFINITE);
             // note: until we get the lock again the grabber thread might
             // already provide the next sample (which is fine)
         _zbar_mutex_lock(&vdo->qlock);
@@ -631,12 +639,13 @@ static zbar_image_t* dshow_dq(zbar_video_t* vdo)
 
 static int dshow_start(zbar_video_t* vdo)
 {
+    HRESULT hr;
     video_state_t* state = vdo->state;
     ResetEvent(state->captured);
 
     zprintf(16, "thr=%04lx\n", _zbar_thread_self());
 
-    HRESULT hr = IMediaControl_Run(state->mediacontrol);
+    hr = IMediaControl_Run(state->mediacontrol);
     CHECK_COM_ERROR(hr, "couldn't start video stream", (void)0);
     if (FAILED(hr))
         return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__,
@@ -646,11 +655,12 @@ static int dshow_start(zbar_video_t* vdo)
 
 static int dshow_stop(zbar_video_t* vdo)
 {
+    HRESULT hr;
     video_state_t* state = vdo->state;
 
     zprintf(16, "thr=%04lx\n", _zbar_thread_self());
 
-    HRESULT hr = IMediaControl_Stop(state->mediacontrol);
+    hr = IMediaControl_Stop(state->mediacontrol);
     CHECK_COM_ERROR(hr, "couldn't stop video stream", (void)0);
     if (FAILED(hr))
         return(err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__,
@@ -668,6 +678,12 @@ static int dshow_set_format (zbar_video_t* vdo,
                            uint32_t fmt)
 {
     int rc = 0; // return code
+    video_state_t* state;
+    int_format_t *int_fmt;
+    BYTE* caps;
+    AM_MEDIA_TYPE* mt, *currentmt;
+    HRESULT hr;
+    BITMAPINFOHEADER* bih;
 
     const zbar_format_def_t* fmtdef = _zbar_format_lookup(fmt);
     int fmt_ind = get_format_index(vdo->formats, fmt);
@@ -675,21 +691,21 @@ static int dshow_set_format (zbar_video_t* vdo,
         return(err_capture_int(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__,
                                "unsupported vfw format: %x", fmt));
 
-    video_state_t* state = vdo->state;
-    int_format_t *int_fmt = &state->int_formats[fmt_ind];
+    state = vdo->state;
+    int_fmt = &state->int_formats[fmt_ind];
 
 
     // prepare media type structure as read from GetStreamCaps
-    BYTE* caps = malloc(state->caps_size);
+    caps = malloc(state->caps_size);
     if (!caps) err_capture(vdo, SEV_FATAL, ZBAR_ERR_NOMEM, __func__, "");
-    AM_MEDIA_TYPE* mt = NULL;
-    AM_MEDIA_TYPE* currentmt = NULL;  // used later, but must be here
+    mt = NULL;
+    currentmt = NULL;  // used later, but must be here
                                       // due to possible "goto cleanup"
-    HRESULT hr = IAMStreamConfig_GetStreamCaps(state->camstreamconfig,
+    hr = IAMStreamConfig_GetStreamCaps(state->camstreamconfig,
         int_fmt->idx_caps, &mt, caps);
     free(caps);
     CHECK_COM_ERROR(hr, "querying chosen stream caps failed", goto cleanup)
-    BITMAPINFOHEADER* bih = dshow_access_bih(mt);
+    bih = dshow_access_bih(mt);
 
     // then, adjust the format
     if (!vdo->width || !vdo->height)
@@ -754,17 +770,22 @@ cleanup:
 
 static int dshow_init(zbar_video_t* vdo, uint32_t fmt)
 {
+    HRESULT hr;
+    video_state_t* state;
+    int fmt_ind;
+    ISampleGrabberCB* grabbercb;
+    REFERENCE_TIME avgtime_perframe;
+
     if (dshow_set_format(vdo, fmt))
         return -1;
 
 
-    HRESULT hr;
-    video_state_t* state = vdo->state;
-    int fmt_ind = get_format_index(vdo->formats, fmt);
+    state = vdo->state;
+    fmt_ind = get_format_index(vdo->formats, fmt);
 
 
     // install sample grabber callback
-    ISampleGrabberCB* grabbercb = (ISampleGrabberCB*)new_zbar_samplegrabber_cb(vdo);
+    grabbercb = (ISampleGrabberCB*)new_zbar_samplegrabber_cb(vdo);
     hr = ISampleGrabber_SetCallback(vdo->state->samplegrabber, grabbercb, 1);
     ISampleGrabberCB_Release(grabbercb);
     if (FAILED(hr))
@@ -781,6 +802,8 @@ static int dshow_init(zbar_video_t* vdo, uint32_t fmt)
     if (state->int_formats[fmt_ind].fourcc == fourcc('M','J','P','G'))
     {
         IBaseFilter* mjpgdecompressor = NULL;
+        AM_MEDIA_TYPE conv_mt = { 0 };
+
         hr = CoCreateInstance(&CLSID_MjpegDec, NULL, CLSCTX_INPROC_SERVER, &IID_IBaseFilter, (void**)&mjpgdecompressor);
         CHECK_COM_ERROR(hr, "failed to create mjpeg decompressor filter", (void)0)
         if (FAILED(hr))
@@ -802,7 +825,6 @@ static int dshow_init(zbar_video_t* vdo, uint32_t fmt)
         // (BGR4 [zbar input] -> MJPG [camera output]).
         // Because zbar requests BGR4 we have to ensure that we really do
         // provide it.
-        AM_MEDIA_TYPE conv_mt = {};
         conv_mt.majortype = MEDIATYPE_Video;
         conv_mt.subtype = *mjpg_conversion_mediatype;
         conv_mt.formattype = FORMAT_VideoInfo;
@@ -830,7 +852,7 @@ mjpg_cleanup:
     {
         // ensure (again) that the sample grabber gets only
         // video media types with VIDEOINFOHEADER
-        AM_MEDIA_TYPE grab_mt = {};
+        AM_MEDIA_TYPE grab_mt = { 0 };
         grab_mt.majortype = MEDIATYPE_Video;
         grab_mt.formattype = FORMAT_VideoInfo;
         hr = ISampleGrabber_SetMediaType(state->samplegrabber, &grab_mt);
@@ -852,14 +874,15 @@ render_cleanup:
     // scope: after the graph is built (and the pins connected) we query the
     // final media type from sample grabber's input pin;
     {
-        AM_MEDIA_TYPE input_mt = {};
+        AM_MEDIA_TYPE input_mt = { 0 };
+        const BITMAPINFOHEADER* bih;
 
         hr = ISampleGrabber_GetConnectedMediaType(state->samplegrabber, &input_mt);
         CHECK_COM_ERROR(hr, "couldn't query input media type from sample grabber", goto cleanup1)
 
 
         assert(dshow_has_vih(&input_mt));
-        const BITMAPINFOHEADER* bih = dshow_caccess_bih(&input_mt);
+        bih = dshow_caccess_bih(&input_mt);
 
         // adjust state->bih
         state->bi_size = bih->biSize;
@@ -882,16 +905,17 @@ cleanup1:
     }
 
     // query camera stream parameters;
-    REFERENCE_TIME avgtime_perframe = 0;
+    avgtime_perframe = 0;
 
     // scope: query avgtime_perframe from camera
     {
         AM_MEDIA_TYPE* currentmt = NULL;
+        VIDEOINFOHEADER* vih;
         hr = IAMStreamConfig_GetFormat(state->camstreamconfig, &currentmt);
         CHECK_COM_ERROR(hr, "querying camera format failed", goto cleanup2)
 
         assert(dshow_has_vih(currentmt));
-        VIDEOINFOHEADER* vih = (VIDEOINFOHEADER*) currentmt->pbFormat;
+        vih = (VIDEOINFOHEADER*) currentmt->pbFormat;
         avgtime_perframe = vih->AvgTimePerFrame;
 
 
@@ -928,10 +952,11 @@ cleanup2:
 
 static int dshow_cleanup (zbar_video_t* vdo)
 {
+    video_state_t* state;
     zprintf(16, "thr=%04lx\n", _zbar_thread_self());
 
     /* close open device */
-    video_state_t* state = vdo->state;
+    state = vdo->state;
 
     _zbar_thread_stop(&state->thread, &vdo->qlock);
 
@@ -947,6 +972,8 @@ static int dshow_cleanup (zbar_video_t* vdo)
 static int dshow_determine_formats(zbar_video_t* vdo)
 {
     video_state_t* state = vdo->state;
+    BYTE* caps;
+    int n = 0, i;
 
     // collect formats
     int resolutions;
@@ -962,30 +989,34 @@ static int dshow_determine_formats(zbar_video_t* vdo)
 
     // this is actually a VIDEO_STREAM_CONFIG_CAPS structure, which is mostly deprecated anyway,
     // so we just reserve enough buffer but treat it as opaque otherwise
-    BYTE* caps = malloc(state->caps_size);
-    int n = 0, i;
+    caps = malloc(state->caps_size);
     for (i = 0; i < resolutions; ++i)
     {
         AM_MEDIA_TYPE* mt;
+        int is_supported;
+
         HRESULT hr = IAMStreamConfig_GetStreamCaps(state->camstreamconfig, i, &mt, caps);
         CHECK_COM_ERROR(hr, "querying stream capability failed", continue)
-        int is_supported = 0;
+        is_supported = 0;
 
         if (dshow_has_vih(mt))
         {
+            uint32_t fmt;
             const BITMAPINFOHEADER* bih = dshow_caccess_bih(mt);
 
             zprintf(6, BIH_FMT "\n",
                     BIH_FIELDS(bih));
-            uint32_t fmt = get_fourcc_for_mt(mt);
+            fmt = get_fourcc_for_mt(mt);
             // This is actually a check if the format is recognized.
             // TODO: Check if the format is really supported by zbar.
             is_supported = (fmt != 0);
 
             if (is_supported)
             {
-                // first search for existing fourcc format
+                resolution_t resolution;
                 int j;
+
+                // first search for existing fourcc format
                 for (j = 0; j < n; ++j)
                 {
                     if (state->int_formats[i].fourcc == fmt)
@@ -1000,7 +1031,9 @@ static int dshow_determine_formats(zbar_video_t* vdo)
                     vdo->formats[n] = fmt;
                     ++n;
                 }
-                resolution_t resolution = { bih->biWidth, bih->biHeight };
+
+                resolution.cx = bih->biWidth;
+                resolution.cy = bih->biHeight;
                 resolution_list_add(&state->int_formats[j].resolutions,
                                     &resolution);
             }
@@ -1037,17 +1070,19 @@ static int dshow_determine_formats(zbar_video_t* vdo)
 
 static int dshow_probe(zbar_video_t* vdo)
 {
+    video_state_t* state;
+    AM_MEDIA_TYPE* currentmt;
+    HRESULT hr;
     if (dshow_determine_formats(vdo))
         return -1;
 
 
-    video_state_t* state = vdo->state;
+    state = vdo->state;
 
 
     // query current format
 
-    AM_MEDIA_TYPE* currentmt;
-    HRESULT hr = IAMStreamConfig_GetFormat(state->camstreamconfig, &currentmt);
+    hr = IAMStreamConfig_GetFormat(state->camstreamconfig, &currentmt);
     CHECK_COM_ERROR(hr, "couldn't query current camera format", return -1)
 
     if (!dshow_has_vih(currentmt))
@@ -1097,6 +1132,10 @@ static IBaseFilter* dshow_search_camera(const char* dev)
     IBaseFilter* camera = NULL;
     ICreateDevEnum* devenumerator = NULL;
     IEnumMoniker* enummoniker = NULL;
+    HRESULT hr;
+    BSTR wdev;
+    int docontinue;
+    int devid;
 
     int reqid = -1;
     if ((!strncmp(dev, "/dev/video", 10) ||
@@ -1109,7 +1148,7 @@ static IBaseFilter* dshow_search_camera(const char* dev)
 
     zprintf(6, "searching for camera (#%d): %s\n", reqid, dev);
 
-    HRESULT hr = CoCreateInstance(&CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC_SERVER, &IID_ICreateDevEnum, (void**)&devenumerator);
+    hr = CoCreateInstance(&CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC_SERVER, &IID_ICreateDevEnum, (void**)&devenumerator);
     CHECK_COM_ERROR(hr, "failed to create system device enumerator", goto done)
 
     hr = ICreateDevEnum_CreateClassEnumerator(devenumerator, &CLSID_VideoInputDeviceCategory, &enummoniker, 0);
@@ -1123,14 +1162,12 @@ static IBaseFilter* dshow_search_camera(const char* dev)
 
 
     // turn device name (the GUID) from char to wide char
-    BSTR wdev = SysAllocStringLen(NULL, strlen(dev));
+    wdev = SysAllocStringLen(NULL, strlen(dev));
     if (!wdev)
         goto done;
     MultiByteToWideChar(CP_UTF8, 0, dev, -1, wdev, strlen(dev) + 1);
 
     // Go through and find capture device
-    int docontinue;
-    int devid;
     for (devid = 0, docontinue = 1; docontinue; ++devid)
     {
         IMoniker* moniker = NULL;
@@ -1194,9 +1231,9 @@ done:
 
 int _zbar_video_open (zbar_video_t* vdo, const char* dev)
 {
+    HRESULT hr;
     // assume failure
     int ret = -1;
-
 
     video_state_t* state;
     state = vdo->state = calloc(1, sizeof(video_state_t));
@@ -1217,7 +1254,7 @@ int _zbar_video_open (zbar_video_t* vdo, const char* dev)
 
 
     // create filter graph instance
-    HRESULT hr = CoCreateInstance(&CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, &IID_IGraphBuilder, (void**)&state->graph);
+    hr = CoCreateInstance(&CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, &IID_IGraphBuilder, (void**)&state->graph);
     CHECK_COM_ERROR(hr, "graph builder creation", goto done)
 
     // query media control from filter graph
