@@ -1,15 +1,3 @@
-build/
-Debug/
-Release/
-x64/
-.vs/
-.vscode/
-*.sdf
-*.suo
-*.vcxproj.user
-*.ipch
-*.opensdf
-
 *.la
 *.lo
 *.o

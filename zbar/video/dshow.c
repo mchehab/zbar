@@ -22,8 +22,6 @@
  *  http://sourceforge.net/projects/zbarw
  *------------------------------------------------------------------------*/
 
-#include <config.h>
-
 #include "video.h"
 #include "thread.h"
 #include "misc.h"
@@ -1015,8 +1013,10 @@ static int dshow_determine_formats(zbar_video_t* vdo)
 
             if (is_supported)
             {
-                // first search for existing fourcc format
+                resolution_t resolution;
                 int j;
+
+                // first search for existing fourcc format
                 for (j = 0; j < n; ++j)
                 {
                     if (state->int_formats[i].fourcc == fmt)
@@ -1031,11 +1031,11 @@ static int dshow_determine_formats(zbar_video_t* vdo)
                     vdo->formats[n] = fmt;
                     ++n;
                 }
-                {
-                resolution_t resolution = { bih->biWidth, bih->biHeight };
+
+                resolution.cx = bih->biWidth;
+                resolution.cy = bih->biHeight;
                 resolution_list_add(&state->int_formats[j].resolutions,
                                     &resolution);
-                }
             }
         }
         // note: other format types could be possible, e.g. VIDEOINFOHEADER2 ...

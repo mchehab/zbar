@@ -3,8 +3,6 @@
    GNU Lesser General Public License as published by the Free Software
    Foundation; either version 2.1 of the License, or (at your option) any later
    version.*/
-#include <config.h>
-
 #include "sqcode.h"
 
 #include <stdbool.h>
@@ -283,6 +281,7 @@ bool find_bottom_dot(zbar_image_t *img, sq_dot *dot, unsigned *found_x,
     unsigned *found_y)
 {
     int x, y;
+
     for (x = dot->x0 + dot->width - 1; x >= (int) dot->x0; x--) {
         for (y = dot->y0 + dot->height;
              y < (int) (dot->y0 + 3 * dot->height); y++) {

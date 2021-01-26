@@ -101,9 +101,12 @@ const char *zbar_get_orientation_name (zbar_orientation_t orient)
 int _zbar_get_symbol_hash (zbar_symbol_type_t sym)
 {
     int h;
-    signed char hash[ZBAR_CODE128 + 1] = { 0 };
+    static signed char hash[ZBAR_CODE128 + 1] = { 0 };
+    static int flag = 0;
 
-    {
+    if (flag == 0) {
+        flag = 1;
+
         //[0 ... ZBAR_CODE128] = -1,
         memset(hash, -1, sizeof(hash));
 

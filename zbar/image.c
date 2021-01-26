@@ -24,9 +24,6 @@
 #include "error.h"
 #include "image.h"
 #include "refcnt.h"
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 zbar_image_t *zbar_image_create ()
 {
