@@ -167,13 +167,13 @@ int _zbar_window_end (zbar_window_t *w)
 
 int _zbar_window_clear (zbar_window_t *w)
 {
+    RECT r = { 0, 0, w->width, w->height };
     HDC hdc = GetDC(w->display);
     if(!hdc)
         return(-1/*FIXME*/);
-    {
-    RECT r = { 0, 0, w->width, w->height };
+
     FillRect(hdc, &r, GetStockObject(BLACK_BRUSH));
-    }
+
     ReleaseDC(w->display, hdc);
     ValidateRect(w->display, NULL);
     return(0);
@@ -273,15 +273,14 @@ int _zbar_window_fill_rect (zbar_window_t *w,
                             point_t org,
                             point_t size)
 {
+    RECT r = { org.x, org.y, org.x + size.x, org.y + size.y };
     HDC hdc = w->state->hdc;
     SetDCBrushColor(hdc, RGB((rgb & 4) * 0x33,
                              (rgb & 2) * 0x66,
                              (rgb & 1) * 0xcc));
-    {
-    RECT r = { org.x, org.y, org.x + size.x, org.y + size.y };
 
     FillRect(hdc, &r, GetStockObject(DC_BRUSH));
-    }
+
     return(0);
 }
 
