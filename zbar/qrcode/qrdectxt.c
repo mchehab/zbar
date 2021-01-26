@@ -107,6 +107,8 @@ int qr_code_data_list_extract_text(const qr_code_data_list *_qrlist,
     zbar_symbol_t *syms = NULL, **sym = &syms;
     qr_point dir;
     int horiz;
+    char *bytebuf_text;
+    size_t bytebuf_ntext;
 
     /*Step 0: Collect the other QR codes belonging to this S-A group.*/
     if(qrdata[i].sa_size){
@@ -191,8 +193,8 @@ int qr_code_data_list_extract_text(const qr_code_data_list *_qrlist,
     err=0;
 
 
-    char *bytebuf_text = (char *)malloc((sa_ctext+1)*sizeof(*sa_text));
-    size_t bytebuf_ntext = 0;
+    bytebuf_text = (char *)malloc((sa_ctext+1)*sizeof(*sa_text));
+    bytebuf_ntext = 0;
 
     for(j = 0; j < sa_size && !err; j++, sym = &(*sym)->next) {
       *sym = _zbar_image_scanner_alloc_sym(iscn, ZBAR_QRCODE, 0);

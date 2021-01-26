@@ -295,6 +295,7 @@ char *zbar_symbol_xml (const zbar_symbol_t *sym,
                        char **buf,
                        unsigned *len)
 {
+    unsigned int mods, cfgs;
     unsigned int datalen, maxlen;
     int i, n = 0;
 
@@ -321,10 +322,10 @@ char *zbar_symbol_xml (const zbar_symbol_t *sym,
 
     maxlen = (MAX_STATIC + strlen(type) + strlen(orient) +
               datalen + MAX_INT_DIGITS + 1);
-    unsigned int mods = sym->modifiers;
+    mods = sym->modifiers;
     if(mods)
         maxlen += MAX_MOD;
-    unsigned int cfgs = sym->configs & ~(1 << ZBAR_CFG_ENABLE);
+    cfgs = sym->configs & ~(1 << ZBAR_CFG_ENABLE);
     if(cfgs)
         maxlen += MAX_CFG;
     if(binary)

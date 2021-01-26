@@ -34,10 +34,11 @@ static int dib_init (zbar_window_t *w,
                      zbar_image_t *img,
                      int new_format)
 {
+    window_state_t *win;
     if(new_format)
         _zbar_window_bih_init(w, img);
 
-    window_state_t *win = w->state;
+    win = w->state;
     w->dst_width = win->bih.biWidth = (img->width + 3) & ~3;
     w->dst_height = win->bih.biHeight = img->height;
     return(0);

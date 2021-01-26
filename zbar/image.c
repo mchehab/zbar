@@ -131,13 +131,14 @@ void zbar_image_set_crop (zbar_image_t *img,
                           unsigned w,
                           unsigned h)
 {
+    unsigned img_h;
     unsigned img_w = img->width;
     if(x > img_w) x = img_w;
     if(x + w > img_w) w = img_w - x;
     img->crop_x = x;
     img->crop_w = w;
 
-    unsigned img_h = img->height;
+    img_h = img->height;
     if(y > img_h) y = img_h;
     if(y + h > img_h) h = img_h - y;
     img->crop_y = y;

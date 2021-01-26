@@ -99,6 +99,7 @@ static inline void proc_waiter_release (zbar_processor_t *proc,
 
 int _zbar_processor_lock (zbar_processor_t *proc)
 {
+    proc_waiter_t *waiter;
     if(!proc->lock_level) {
         proc->lock_owner = _zbar_thread_self();
         proc->lock_level = 1;
@@ -110,7 +111,7 @@ int _zbar_processor_lock (zbar_processor_t *proc)
         return(0);
     }
 
-    proc_waiter_t *waiter = proc_waiter_queue(proc);
+    waiter = proc_waiter_queue(proc);
     _zbar_event_wait(&waiter->notify, &proc->mutex, NULL);
 
     assert(proc->lock_level == 1);
@@ -142,8 +143,8 @@ int _zbar_processor_unlock (zbar_processor_t *proc,
 void _zbar_processor_notify (zbar_processor_t *proc,
                              unsigned events)
 {
-    proc->wait_next = NULL;
     proc_waiter_t *waiter;
+    proc->wait_next = NULL;
     for(waiter = proc->wait_head; waiter; waiter = waiter->next)
         waiter->events = ((waiter->events & ~events) |
                           (events & EVENT_CANCELED));
@@ -159,11 +160,13 @@ static inline int proc_wait_unthreaded (zbar_processor_t *proc,
                                         proc_waiter_t *waiter,
                                         zbar_timer_t *timeout)
 {
+    int rc;
     int blocking = proc->streaming && zbar_video_get_fd(proc->video) < 0;
     _zbar_mutex_unlock(&proc->mutex);
 
-    int rc = 1;
+    rc = 1;
     while(rc > 0 && (waiter->events & EVENTS_PENDING)) {
+        int reltime;
         /* FIXME lax w/the locking (though shouldn't matter...) */
         if(blocking) {
             zbar_image_t *img = zbar_video_next_image(proc->video);
@@ -178,7 +181,7 @@ static inline int proc_wait_unthreaded (zbar_processor_t *proc,
             zbar_image_destroy(img);
             _zbar_mutex_unlock(&proc->mutex);
         }
-        int reltime = _zbar_timer_check(timeout);
+        reltime = _zbar_timer_check(timeout);
         if(blocking && (reltime < 0 || reltime > MAX_INPUT_BLOCK))
             reltime = MAX_INPUT_BLOCK;
         rc = _zbar_processor_input_wait(proc, NULL, reltime);
@@ -191,13 +194,16 @@ int _zbar_processor_wait (zbar_processor_t *proc,
                           unsigned events,
                           zbar_timer_t *timeout)
 {
+    int save_level;
+    proc_waiter_t *waiter;
+    int rc;
+
     _zbar_mutex_lock(&proc->mutex);
-    int save_level = proc->lock_level;
-    proc_waiter_t *waiter = proc_waiter_queue(proc);
+    save_level = proc->lock_level;
+    waiter = proc_waiter_queue(proc);
     waiter->events = events & EVENTS_PENDING;
 
     _zbar_processor_unlock(proc, 1);
-    int rc;
     if(proc->threaded)
         rc = _zbar_event_wait(&waiter->notify, &proc->mutex, timeout);
     else
