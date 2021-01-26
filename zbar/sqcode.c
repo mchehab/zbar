@@ -3,6 +3,8 @@
    GNU Lesser General Public License as published by the Free Software
    Foundation; either version 2.1 of the License, or (at your option) any later
    version.*/
+#include <config.h>
+
 #include "sqcode.h"
 
 #include <stdbool.h>
@@ -79,11 +81,12 @@ static const char base64_table[] = {
 };
 
 static char *base64_encode_buffer(const char *s, size_t size) {
+    char *e;
 	size_t encoded_size = (size + 2) / 3 * 4 + 1;
 	char *encoded = malloc(encoded_size);
 	if (!encoded)
 		return NULL;
-	char *e = encoded;
+	e = encoded;
 	for (;;) {
 		unsigned char c = (*s >> 2) & 0x3f;
 		*e++ = base64_table[c];
@@ -117,13 +120,14 @@ static bool sq_extract_text(zbar_image_scanner_t *iscn,
                             const char *buf,
                             size_t len)
 {
+    size_t b64_len;
     zbar_symbol_t *sym = _zbar_image_scanner_alloc_sym(iscn, ZBAR_SQCODE, 0);
     sym->data = base64_encode_buffer(buf, len);
     if (!sym->data) {
         _zbar_image_scanner_recycle_syms(iscn, sym);
         return true;
     }
-    size_t b64_len = (len + 2) / 3 * 4;
+    b64_len = (len + 2) / 3 * 4;
     sym->data_alloc = b64_len + 1;
     sym->datalen = b64_len;
     _zbar_image_scanner_add_sym(iscn, sym);
@@ -137,10 +141,11 @@ static bool is_black_color(const unsigned char c)
 
 static bool is_black(zbar_image_t *img, int x, int y)
 {
+    const unsigned char *data;
     if (x < 0 || (unsigned) x >= img->width || y < 0
         || (unsigned) y >= img->height)
         return false;
-    const unsigned char *data = img->data;
+    data = img->data;
     return is_black_color(data[y * img->width + x]);
 }
 
@@ -153,6 +158,9 @@ static void set_dot_center(sq_dot *dot, float x, float y)
 static void sq_scan_shape(zbar_image_t *img, sq_dot *dot, int start_x,
     int start_y)
 {
+    int x, y;
+    unsigned x0, y0, width, height, x_sum, y_sum, total_weight;
+    const unsigned char *data;
     if (!is_black(img, start_x, start_y)) {
         dot->type = SHAPE_VOID;
         dot->x0 = start_x;
@@ -163,13 +171,13 @@ static void sq_scan_shape(zbar_image_t *img, sq_dot *dot, int start_x,
         return;
     }
 
-    unsigned x0 = start_x;
-    unsigned y0 = start_y;
-    unsigned width = 1;
-    unsigned height = 1;
+    x0 = start_x;
+    y0 = start_y;
+    width = 1;
+    height = 1;
 
 new_point:
-    for (int x = x0 - 1; x < (int) (x0 + width + 1); x++) {
+    for (x = x0 - 1; x < (int) (x0 + width + 1); x++) {
         if (is_black(img, x, y0 - 1)) {
             y0 = y0 - 1;
             height++;
@@ -180,7 +188,7 @@ new_point:
             goto new_point;
         }
     }
-    for (int y = y0; y < (int) (y0 + height); y++) {
+    for (y = y0; y < (int) (y0 + height); y++) {
         if (is_black(img, x0 - 1, y)) {
             x0 = x0 - 1;
             width++;
@@ -208,15 +216,17 @@ new_point:
     }
 
     /* Set dot center */
-    const unsigned char *data = img->data;
-    unsigned x_sum = 0;
-    unsigned y_sum = 0;
-    unsigned total_weight = 0;
-    for (int y = y0; y < (int) (y0 + height); y++) {
-        for (int x = x0; x < (int) (x0 + width); x++) {
+    data = img->data;
+    x_sum = 0;
+    y_sum = 0;
+    total_weight = 0;
+    for (y = y0; y < (int) (y0 + height); y++) {
+        int x;
+        for (x = x0; x < (int) (x0 + width); x++) {
+            unsigned char weight;
             if (!is_black(img, x, y))
                 continue;
-            unsigned char weight = 0xff - data[y * img->width + x];
+            weight = 0xff - data[y * img->width + x];
             x_sum += weight * x;
             y_sum += weight * y;
             total_weight += weight;
@@ -239,8 +249,9 @@ static void set_middle_point(sq_point *middle, const sq_point *start,
 bool find_left_dot(zbar_image_t *img, sq_dot *dot, unsigned *found_x,
     unsigned *found_y)
 {
-    for (int y = dot->y0; y < (int) (dot->y0 + dot->height); y++) {
-        for (int x = dot->x0 - 1; x >= (int) (dot->x0 - 2 * dot->width); x--) {
+    int y, x;
+    for (y = dot->y0; y < (int) (dot->y0 + dot->height); y++) {
+        for (x = dot->x0 - 1; x >= (int) (dot->x0 - 2 * dot->width); x--) {
             if (is_black(img, x, y)) {
                 *found_x = x;
                 *found_y = y;
@@ -254,8 +265,9 @@ bool find_left_dot(zbar_image_t *img, sq_dot *dot, unsigned *found_x,
 bool find_right_dot(zbar_image_t *img, sq_dot *dot, unsigned *found_x,
     unsigned *found_y)
 {
-    for (int y = dot->y0; y < (int) (dot->y0 + dot->height); y++) {
-        for (int x = dot->x0 + dot->width; x < (int) (dot->x0 + 3 * dot->width);
+    int y, x;
+    for (y = dot->y0; y < (int) (dot->y0 + dot->height); y++) {
+        for (x = dot->x0 + dot->width; x < (int) (dot->x0 + 3 * dot->width);
              x++) {
             if (is_black(img, x, y)) {
                 *found_x = x;
@@ -270,8 +282,9 @@ bool find_right_dot(zbar_image_t *img, sq_dot *dot, unsigned *found_x,
 bool find_bottom_dot(zbar_image_t *img, sq_dot *dot, unsigned *found_x,
     unsigned *found_y)
 {
-    for (int x = dot->x0 + dot->width - 1; x >= (int) dot->x0; x--) {
-        for (int y = dot->y0 + dot->height;
+    int x, y;
+    for (x = dot->x0 + dot->width - 1; x >= (int) dot->x0; x--) {
+        for (y = dot->y0 + dot->height;
              y < (int) (dot->y0 + 3 * dot->height); y++) {
             if (is_black(img, x, y)) {
                 *found_x = x;
@@ -287,6 +300,15 @@ int _zbar_sq_decode (sq_reader *reader,
                      zbar_image_scanner_t *iscn,
                      zbar_image_t *img)
 {
+    unsigned scan_y, scan_x, y;
+    sq_dot start_dot, top_left_dot, top_right_dot, bottom_left_dot, bottom_right_dot, bottom_left2_dot;
+    bool start_corner, error;
+    sq_point *top_border, *left_border, *right_border, *bottom_border;
+    size_t border_len, cur_len, offset, bit_side_len, bit_len, byte_len, idx;
+    float inc_x, inc_y;
+    void *ptr;
+    char *buf;
+
     if (!reader->enabled)
         return 0;
 
@@ -296,8 +318,6 @@ int _zbar_sq_decode (sq_reader *reader,
     }
 
     /* Starting pixel */
-    unsigned scan_y;
-    unsigned scan_x;
     for (scan_y = 0; scan_y < img->height; scan_y++) {
         for (scan_x = 0; scan_x < img->width; scan_x++) {
             if (is_black(img, scan_x, scan_y))
@@ -308,19 +328,17 @@ int _zbar_sq_decode (sq_reader *reader,
 
 found_start: ;
     /* Starting dot */
-    sq_dot start_dot;
     sq_scan_shape(img, &start_dot, scan_x, scan_y);
 
-    bool start_corner = start_dot.type == SHAPE_CORNER;
+    start_corner = start_dot.type == SHAPE_CORNER;
 
-    bool error = true;
+    error = true;
 
-    sq_point *top_border = NULL;
-    sq_point *left_border = NULL;
-    sq_point *right_border = NULL;
-    sq_point *bottom_border = NULL;
+    top_border = NULL;
+    left_border = NULL;
+    right_border = NULL;
+    bottom_border = NULL;
 
-    size_t border_len;
     if (start_corner) {
         border_len = 0;
     }
@@ -332,18 +350,20 @@ found_start: ;
         top_border[0] = start_dot.center;
     }
 
-    sq_dot top_left_dot = start_dot;
+    top_left_dot = start_dot;
     while (find_left_dot(img, &top_left_dot, &scan_x, &scan_y)) {
         sq_scan_shape(img, &top_left_dot, scan_x, scan_y);
         if (top_left_dot.type != SHAPE_DOT)
             goto free_borders;
         if (border_len) {
+            void *ptr;
+            size_t i;
             border_len += 2;
-            void *ptr = realloc(top_border, border_len * sizeof(sq_point));
+            ptr = realloc(top_border, border_len * sizeof(sq_point));
             if (!ptr)
                 goto free_borders;
             top_border = ptr;
-            for (size_t i = border_len - 1; i >= 2; i--)
+            for (i = border_len - 1; i >= 2; i--)
                 top_border[i] = top_border[i - 2];
             top_border[0] = top_left_dot.center;
             set_middle_point(&top_border[1], &top_border[0], &top_border[2]);
@@ -359,16 +379,17 @@ found_start: ;
     if (top_left_dot.type != SHAPE_DOT)
         goto free_borders;
 
-    sq_dot top_right_dot = start_dot;
+    top_right_dot = start_dot;
     if (!start_corner) {
         while (find_right_dot(img, &top_right_dot, &scan_x, &scan_y)) {
+            void *ptr;
             sq_scan_shape(img, &top_right_dot, scan_x, scan_y);
             if (top_right_dot.type == SHAPE_CORNER)
                 break;
             if (top_right_dot.type != SHAPE_DOT)
                 goto free_borders;
             border_len += 2;
-            void *ptr = realloc(top_border, border_len * sizeof(sq_point));
+            ptr = realloc(top_border, border_len * sizeof(sq_point));
             if (!ptr)
                 goto free_borders;
             top_border = ptr;
@@ -380,10 +401,10 @@ found_start: ;
     }
     if (border_len < 3)
         goto free_borders;
-    float inc_x = top_border[border_len - 1].x - top_border[border_len - 3].x;
-    float inc_y = top_border[border_len - 1].y - top_border[border_len - 3].y;
+    inc_x = top_border[border_len - 1].x - top_border[border_len - 3].x;
+    inc_y = top_border[border_len - 1].y - top_border[border_len - 3].y;
     border_len += 3;
-    void *ptr = realloc(top_border, border_len * sizeof(sq_point));
+    ptr = realloc(top_border, border_len * sizeof(sq_point));
     if (!ptr)
         goto free_borders;
     top_border = ptr;
@@ -399,8 +420,8 @@ found_start: ;
         goto free_borders;
     left_border[0] = top_border[0];
 
-    sq_dot bottom_left_dot = top_left_dot;
-    size_t cur_len = 1;
+    bottom_left_dot = top_left_dot;
+    cur_len = 1;
     while (find_bottom_dot(img, &bottom_left_dot, &scan_x, &scan_y)) {
         sq_scan_shape(img, &bottom_left_dot, scan_x, scan_y);
         if (bottom_left_dot.type == SHAPE_CORNER)
@@ -430,7 +451,7 @@ found_start: ;
     if (!right_border)
         goto free_borders;
 
-    sq_dot bottom_right_dot = top_right_dot;
+    bottom_right_dot = top_right_dot;
     cur_len = 3;
     while (find_bottom_dot(img, &bottom_right_dot, &scan_x, &scan_y)) {
         sq_scan_shape(img, &bottom_right_dot, scan_x, scan_y);
@@ -468,8 +489,8 @@ found_start: ;
         goto free_borders;
     bottom_border[border_len - 1] = right_border[border_len - 1];
 
-    sq_dot bottom_left2_dot = bottom_right_dot;
-    size_t offset = border_len - 1;
+    bottom_left2_dot = bottom_right_dot;
+    offset = border_len - 1;
     while (find_left_dot(img, &bottom_left2_dot, &scan_x, &scan_y)) {
         sq_scan_shape(img, &bottom_left2_dot, scan_x, scan_y);
         if (bottom_left2_dot.type == SHAPE_CORNER)
@@ -498,22 +519,24 @@ found_start: ;
     /* Size check */
     if (border_len < 8 + 2 * (1 + 2) || border_len > 65535)
         goto free_borders;
-    size_t bit_side_len = border_len - 2 * (1 + 2);
+    bit_side_len = border_len - 2 * (1 + 2);
 
-    size_t bit_len = bit_side_len * bit_side_len;
+    bit_len = bit_side_len * bit_side_len;
     if (bit_len % 8)
         goto free_borders;
-    size_t byte_len = bit_len / 8;
-    char *buf = calloc(byte_len, sizeof(char));
+    byte_len = bit_len / 8;
+    buf = calloc(byte_len, sizeof(char));
     if (!buf)
         goto free_borders;
 
-    size_t idx = 0;
-    for (unsigned y = 3; y <= border_len - 4; y++) {
-        for (unsigned x = 3; x <= border_len - 4; x++) {
+    idx = 0;
+    for (y = 3; y <= border_len - 4; y++) {
+        unsigned x;
+        for (x = 3; x <= border_len - 4; x++) {
+            unsigned char bottom_right_color, mixed_color;
             float bottom_weight = y / (float) (border_len - 1);
             float top_weight = 1 - bottom_weight;
-            float right_weight = x / (float) (border_len - 1);;
+            float right_weight = x / (float) (border_len - 1);
             float left_weight = 1 - right_weight;
 
             sq_point top_left_source =
@@ -533,10 +556,10 @@ found_start: ;
                 data[sample_y * img->width + sample_x];
             sample_x = bottom_right_source.x;
             sample_y = bottom_right_source.y;
-            unsigned char bottom_right_color =
+            bottom_right_color =
                 data[sample_y * img->width + sample_x];
 
-            unsigned char mixed_color =
+            mixed_color =
                 ((top_weight + left_weight) * top_left_color
                 + (bottom_weight + right_weight) * bottom_right_color) / 2;
 

@@ -31,8 +31,16 @@ int _zbar_window_dib_init(zbar_window_t *w);
 
 int _zbar_window_resize (zbar_window_t *w)
 {
+    LOGBRUSH lb = { 0, };
+    int x0, y0, by0, bh, i;
     window_state_t *win = w->state;
     int lbw;
+
+    static const int bx[5] = { -6, -3, -1,  2,  5 };
+    static const int bw[5] = {  1,  1,  2,  2,  1 };
+    static const int zx[4] = { -7,  7, -7,  7 };
+    static const int zy[4] = { -8, -8,  8,  8 };
+
     if(w->height * 8 / 10 <= w->width)
         lbw = w->height / 36;
     else
@@ -50,7 +58,6 @@ int _zbar_window_resize (zbar_window_t *w)
     if(win->logo_zbpen)
         DeleteObject(win->logo_zbpen);
 
-    LOGBRUSH lb = { 0, };
     lb.lbStyle = BS_SOLID;
     lb.lbColor = RGB(0xd7, 0x33, 0x33);
     win->logo_zpen = ExtCreatePen(PS_GEOMETRIC | PS_SOLID |
@@ -62,15 +69,11 @@ int _zbar_window_resize (zbar_window_t *w)
                                    PS_ENDCAP_ROUND | PS_JOIN_ROUND,
                                    lbw * 2, &lb, 0, NULL);
 
-    int x0 = w->width / 2;
-    int y0 = w->height / 2;
-    int by0 = y0 - 54 * lbw / 5;
-    int bh = 108 * lbw / 5;
+    x0 = w->width / 2;
+    y0 = w->height / 2;
+    by0 = y0 - 54 * lbw / 5;
+    bh = 108 * lbw / 5;
 
-    static const int bx[5] = { -6, -3, -1,  2,  5 };
-    static const int bw[5] = {  1,  1,  2,  2,  1 };
-
-    int i;
     for(i = 0; i < 5; i++) {
         int x = x0 + lbw * bx[i];
         HRGN bar = CreateRectRgn(x, by0,
@@ -83,9 +86,6 @@ int _zbar_window_resize (zbar_window_t *w)
             win->logo_zbars = bar;
     }
 
-    static const int zx[4] = { -7,  7, -7,  7 };
-    static const int zy[4] = { -8, -8,  8,  8 };
-
     for(i = 0; i < 4; i++) {
         win->logo_z[i].x = x0 + lbw * zx[i];
         win->logo_z[i].y = y0 + lbw * zy[i];
@@ -97,6 +97,10 @@ int _zbar_window_attach (zbar_window_t *w,
                          void *display,
                          unsigned long unused)
 {
+    HDC hdc;
+    int height;
+    HFONT font;
+    TEXTMETRIC tm;
     window_state_t *win = w->state;
     if(w->display) {
         /* FIXME cleanup existing resources */
@@ -119,7 +123,7 @@ int _zbar_window_attach (zbar_window_t *w,
     win->bih.biSize = sizeof(win->bih);
     win->bih.biPlanes = 1;
 
-    HDC hdc = GetDC(w->display);
+    hdc = GetDC(w->display);
     if(!hdc)
         return(-1/*FIXME*/);
     win->bih.biXPelsPerMeter =
@@ -127,15 +131,14 @@ int _zbar_window_attach (zbar_window_t *w,
     win->bih.biYPelsPerMeter =
         1000L * GetDeviceCaps(hdc, VERTRES) / GetDeviceCaps(hdc, VERTSIZE);
 
-    int height = -MulDiv(11, GetDeviceCaps(hdc, LOGPIXELSY), 96);
-    HFONT font = CreateFontW(height, 0, 0, 0, 0, 0, 0, 0,
+    height = -MulDiv(11, GetDeviceCaps(hdc, LOGPIXELSY), 96);
+    font = CreateFontW(height, 0, 0, 0, 0, 0, 0, 0,
                              ANSI_CHARSET, 0, 0, 0,
                              FF_MODERN | FIXED_PITCH, NULL);
 
     SelectObject(hdc, font);
     DeleteObject(font);
 
-    TEXTMETRIC tm;
     GetTextMetrics(hdc, &tm);
     win->font_height = tm.tmHeight;
 
@@ -167,10 +170,10 @@ int _zbar_window_clear (zbar_window_t *w)
     HDC hdc = GetDC(w->display);
     if(!hdc)
         return(-1/*FIXME*/);
-
+    {
     RECT r = { 0, 0, w->width, w->height };
     FillRect(hdc, &r, GetStockObject(BLACK_BRUSH));
-
+    }
     ReleaseDC(w->display, hdc);
     ValidateRect(w->display, NULL);
     return(0);
@@ -190,12 +193,14 @@ int _zbar_window_draw_polygon (zbar_window_t *w,
                                const point_t *pts,
                                int npts)
 {
+    point_t org;
+    POINT *gdipts;
+    int i;
     HDC hdc = w->state->hdc;
     win_set_rgb(hdc, rgb);
 
-    point_t org = w->scaled_offset;
-    POINT gdipts[npts + 1];
-    int i;
+    org = w->scaled_offset;
+    gdipts = (POINT *)calloc(npts + 1, sizeof(*gdipts));
     for(i = 0; i < npts; i++) {
         point_t p = window_scale_pt(w, pts[i]);
         gdipts[i].x = p.x + org.x;
@@ -204,6 +209,7 @@ int _zbar_window_draw_polygon (zbar_window_t *w,
     gdipts[npts] = gdipts[0];
 
     Polyline(hdc, gdipts, npts + 1);
+    free(gdipts);
     return(0);
 }
 
@@ -212,8 +218,6 @@ int _zbar_window_draw_marker (zbar_window_t *w,
                               point_t p)
 {
     HDC hdc = w->state->hdc;
-    win_set_rgb(hdc, rgb);
-
     static const DWORD npolys[3] = { 5, 2, 2 };
     POINT polys[9] = {
         { p.x - 2, p.y - 2 },
@@ -229,6 +233,8 @@ int _zbar_window_draw_marker (zbar_window_t *w,
         { p.x, p.y + 4 },
     };
 
+    win_set_rgb(hdc, rgb);
+
     PolyPolyline(hdc, polys, npolys, 3);
     return(0);
 }
@@ -238,13 +244,13 @@ int _zbar_window_draw_text (zbar_window_t *w,
                             point_t p,
                             const char *text)
 {
+    int n = 0;
     HDC hdc = w->state->hdc;
     SetTextColor(hdc, RGB((rgb & 4) * 0x33,
                           (rgb & 2) * 0x66,
                           (rgb & 1) * 0xcc));
     SetBkMode(hdc, TRANSPARENT);
 
-    int n = 0;
     while(n < 32 && text[n] && isprint(text[n]))
         n++;
 
@@ -271,10 +277,11 @@ int _zbar_window_fill_rect (zbar_window_t *w,
     SetDCBrushColor(hdc, RGB((rgb & 4) * 0x33,
                              (rgb & 2) * 0x66,
                              (rgb & 1) * 0xcc));
-
+    {
     RECT r = { org.x, org.y, org.x + size.x, org.y + size.y };
 
     FillRect(hdc, &r, GetStockObject(DC_BRUSH));
+    }
     return(0);
 }
 

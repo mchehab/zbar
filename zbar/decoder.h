@@ -232,9 +232,10 @@ static inline unsigned decode_sortn (zbar_decoder_t *dcode,
         unsigned wmin = UINT_MAX;
         int jmin = -1, j;
         for(j = n - 1; j >= 0; j--) {
+            unsigned w;
             if((mask >> j) & 1)
                 continue;
-            unsigned w = get_width(dcode, i0 + j * 2);
+            w = get_width(dcode, i0 + j * 2);
             if(wmin >= w) {
                 wmin = w;
                 jmin = j;

@@ -27,20 +27,26 @@ static void get_data (const char *name,
                       int *width, int *height,
                       void **raw)
 {
+    png_structp png;
+    png_infop info;
+    int color, bits;
+    png_bytep* rows;
+    int i;
+
     FILE *file = fopen(name, "rb");
     if(!file) exit(2);
-    png_structp png =
+    png =
         png_create_read_struct(PNG_LIBPNG_VER_STRING,
                                NULL, NULL, NULL);
     if(!png) exit(3);
     if(setjmp(png_jmpbuf(png))) exit(4);
-    png_infop info = png_create_info_struct(png);
+    info = png_create_info_struct(png);
     if(!info) exit(5);
     png_init_io(png, file);
     png_read_info(png, info);
     /* configure for 8bpp grayscale input */
-    int color = png_get_color_type(png, info);
-    int bits = png_get_bit_depth(png, info);
+    color = png_get_color_type(png, info);
+    bits = png_get_bit_depth(png, info);
     if(color & PNG_COLOR_TYPE_PALETTE)
         png_set_palette_to_rgb(png);
     if(color == PNG_COLOR_TYPE_GRAY && bits < 8)
@@ -54,16 +60,21 @@ static void get_data (const char *name,
     /* allocate image */
     *width = png_get_image_width(png, info);
     *height = png_get_image_height(png, info);
-    *raw = malloc(*width * *height);
-    png_bytep rows[*height];
-    int i;
+    *raw = (png_bytep)calloc(*width * *height, sizeof(png_byte));
+    rows = (png_bytep*)calloc(*height, sizeof(*rows));
     for(i = 0; i < *height; i++)
-        rows[i] = *raw + (*width * i);
+        rows[i] = ((png_bytep)(*raw)) + (*width * i);
     png_read_image(png, rows);
+    free(rows);
 }
 
 int main (int argc, char **argv)
 {
+    int width, height, n;
+    void *raw;
+    zbar_image_t *image;
+    const zbar_symbol_t *symbol;
+
     if(argc < 2) return(1);
 
     /* create a reader */
@@ -73,21 +84,21 @@ int main (int argc, char **argv)
     zbar_image_scanner_set_config(scanner, 0, ZBAR_CFG_ENABLE, 1);
 
     /* obtain image data */
-    int width = 0, height = 0;
-    void *raw = NULL;
+    width = 0, height = 0;
+    raw = NULL;
     get_data(argv[1], &width, &height, &raw);
 
     /* wrap image data */
-    zbar_image_t *image = zbar_image_create();
+    image = zbar_image_create();
     zbar_image_set_format(image, zbar_fourcc('Y','8','0','0'));
     zbar_image_set_size(image, width, height);
     zbar_image_set_data(image, raw, width * height, zbar_image_free_data);
 
     /* scan the image for barcodes */
-    int n = zbar_scan_image(scanner, image);
+    n = zbar_scan_image(scanner, image);
 
     /* extract results */
-    const zbar_symbol_t *symbol = zbar_image_first_symbol(image);
+    symbol = zbar_image_first_symbol(image);
     for(; symbol; symbol = zbar_symbol_next(symbol)) {
         /* do something useful with results */
         zbar_symbol_type_t typ = zbar_symbol_get_type(symbol);

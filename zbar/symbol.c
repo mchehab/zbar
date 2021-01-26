@@ -100,33 +100,36 @@ const char *zbar_get_orientation_name (zbar_orientation_t orient)
 
 int _zbar_get_symbol_hash (zbar_symbol_type_t sym)
 {
-    static const signed char hash[ZBAR_CODE128 + 1] = {
-        [0 ... ZBAR_CODE128] = -1,
+    int h;
+    signed char hash[ZBAR_CODE128 + 1] = { 0 };
+
+    {
+        //[0 ... ZBAR_CODE128] = -1,
+        memset(hash, -1, sizeof(hash));
 
         /* [ZBAR_FOO] = 0, is empty */
-        [ZBAR_SQCODE]      = 1,
-        [ZBAR_CODE128]     = 2,
-        [ZBAR_EAN13]       = 3,
-        [ZBAR_UPCA]        = 4,
-        [ZBAR_EAN8]        = 5,
-        [ZBAR_UPCE]        = 6,
-        [ZBAR_ISBN13]      = 7,
-        [ZBAR_ISBN10]      = 8,
-        [ZBAR_CODE39]      = 9,
-        [ZBAR_I25]         = 10,
-        [ZBAR_PDF417]      = 11,
-        [ZBAR_QRCODE]      = 12,
-        [ZBAR_DATABAR]     = 13,
-        [ZBAR_DATABAR_EXP] = 14,
-        [ZBAR_CODE93]      = 15,
-        [ZBAR_EAN2]        = 16,
-        [ZBAR_EAN5]        = 17,
-        [ZBAR_COMPOSITE]   = 18,
-        [ZBAR_CODABAR]     = 19,
+        hash[ZBAR_SQCODE]      = 1,
+        hash[ZBAR_CODE128]     = 2,
+        hash[ZBAR_EAN13]       = 3,
+        hash[ZBAR_UPCA]        = 4,
+        hash[ZBAR_EAN8]        = 5,
+        hash[ZBAR_UPCE]        = 6,
+        hash[ZBAR_ISBN13]      = 7,
+        hash[ZBAR_ISBN10]      = 8,
+        hash[ZBAR_CODE39]      = 9,
+        hash[ZBAR_I25]         = 10,
+        hash[ZBAR_PDF417]      = 11,
+        hash[ZBAR_QRCODE]      = 12,
+        hash[ZBAR_DATABAR]     = 13,
+        hash[ZBAR_DATABAR_EXP] = 14,
+        hash[ZBAR_CODE93]      = 15,
+        hash[ZBAR_EAN2]        = 16,
+        hash[ZBAR_EAN5]        = 17,
+        hash[ZBAR_COMPOSITE]   = 18,
+        hash[ZBAR_CODABAR]     = 19;
 
         /* Please update NUM_SYMS accordingly */
-    };
-    int h;
+    }
 
     assert (sym >= ZBAR_PARTIAL && sym <= ZBAR_CODE128);
 
@@ -295,6 +298,7 @@ char *zbar_symbol_xml (const zbar_symbol_t *sym,
                        char **buf,
                        unsigned *len)
 {
+    unsigned int mods, cfgs;
     unsigned int datalen, maxlen;
     int i, n = 0;
 
@@ -321,10 +325,10 @@ char *zbar_symbol_xml (const zbar_symbol_t *sym,
 
     maxlen = (MAX_STATIC + strlen(type) + strlen(orient) +
               datalen + MAX_INT_DIGITS + 1);
-    unsigned int mods = sym->modifiers;
+    mods = sym->modifiers;
     if(mods)
         maxlen += MAX_MOD;
-    unsigned int cfgs = sym->configs & ~(1 << ZBAR_CFG_ENABLE);
+    cfgs = sym->configs & ~(1 << ZBAR_CFG_ENABLE);
     if(cfgs)
         maxlen += MAX_CFG;
     if(binary)
