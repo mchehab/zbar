@@ -107,7 +107,7 @@ int _zbar_get_symbol_hash (zbar_symbol_type_t sym)
     if (flag == 0) {
         flag = 1;
 
-        //[0 ... ZBAR_CODE128] = -1,
+        /* [0 ... ZBAR_CODE128] = -1, */
         memset(hash, -1, sizeof(hash));
 
         /* [ZBAR_FOO] = 0, is empty */
