@@ -26,7 +26,6 @@ DISTCLEANFILES = \
 	po/zbar.pot
 MAINTAINERCLEANFILES =
 BUILT_SOURCES =
-EXTRA_DIST =
 PHONY = $(SUBDIRS)
 
 pkgconfigdir = $(libdir)/pkgconfig
@@ -90,10 +89,10 @@ endif
 if HAVE_DBUS
 dbusconfdir = @DBUS_CONFDIR@
 dbusconf_DATA = $(srcdir)/dbus/org.linuxtv.Zbar.conf
-EXTRA_DIST += $(dbusconf_DATA)
 endif
 
-EXTRA_DIST += zbar.ico zbar.nsi zbar-qt5.pc.in zbar-qt.pc.in
+EXTRA_DIST += zbar.ico zbar.nsi zbar-qt5.pc.in zbar-qt.pc.in \
+    dbus/org.linuxtv.Zbar.conf
 
 EXTRA_DIST += examples/*.png examples/sha1sum \
     examples/upcrpc.py examples/upcrpc.pl \
