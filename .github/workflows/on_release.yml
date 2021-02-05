@@ -30,9 +30,10 @@ jobs:
         .github/workflows/debuilder.sh
     - name: generating tarball
       run: |
-        OS_VERSION=$(. /etc/os-release && echo $ID-$VERSION_ID)
-        tar cvfz ${DIR}/zbar-${OS_VERSION}.tar.gz *.deb
-        echo "OS_VERSION=$OS_VERSION" >> $GITHUB_ENV
+        DIR="${PWD}"
+        cd ..
+        tar cvfz zbar-ubuntu-20.04.tar.gz *.deb
+        cd ${DIR}
 
     - name: upload
       env:
@@ -40,8 +41,8 @@ jobs:
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./zbar-${OS_VERSION}.tar.gz
-        asset_name: zbar-${OS_VERSION}.tar.gz
+        asset_path: ../zbar-ubuntu-20.04.tar.gz
+        asset_name: zbar-ubuntu-20.04.tar.gz
         asset_content_type: application/gzip
 
   Mac_OS:
