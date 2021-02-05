@@ -146,10 +146,10 @@ version (PyObject *self,
     if(!PyArg_ParseTuple(args, ""))
         return(NULL);
 
-    unsigned int major, minor;
-    zbar_version(&major, &minor, NULL);
+    unsigned int major, minor, patch;
+    zbar_version(&major, &minor, &patch);
 
-    return(Py_BuildValue("II", major, minor));
+    return(Py_BuildValue("III", major, minor, patch));
 }
 
 static PyObject*
