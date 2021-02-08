@@ -234,7 +234,7 @@ initzbar(void)
     if(PyType_Ready(&zbarException_Type) < 0)
         INITERROR;
 #endif
-
+#if ZBAR_LITE != 1
     if(PyType_Ready(&zbarEnumItem_Type) < 0 ||
        PyType_Ready(&zbarEnum_Type) < 0 ||
        PyType_Ready(&zbarImage_Type) < 0 ||
@@ -245,7 +245,18 @@ initzbar(void)
        PyType_Ready(&zbarImageScanner_Type) < 0 ||
        PyType_Ready(&zbarDecoder_Type) < 0 ||
        PyType_Ready(&zbarScanner_Type) < 0)
+#else
+    if (PyType_Ready(&zbarEnumItem_Type) < 0 ||
+        PyType_Ready(&zbarEnum_Type) < 0 ||
+        PyType_Ready(&zbarImage_Type) < 0 ||
+        PyType_Ready(&zbarSymbol_Type) < 0 ||
+        PyType_Ready(&zbarSymbolSet_Type) < 0 ||
+        PyType_Ready(&zbarSymbolIter_Type) < 0 ||
+        PyType_Ready(&zbarImageScanner_Type) < 0 ||
+        PyType_Ready(&zbarDecoder_Type) < 0 ||
+        PyType_Ready(&zbarScanner_Type) < 0)
         INITERROR;
+#endif
 
     /* initialize module */
 #if PY_MAJOR_VERSION >= 3
@@ -310,7 +321,9 @@ initzbar(void)
     PyModule_AddObject(mod, "Symbol", (PyObject*)&zbarSymbol_Type);
     PyModule_AddObject(mod, "SymbolSet", (PyObject*)&zbarSymbolSet_Type);
     PyModule_AddObject(mod, "SymbolIter", (PyObject*)&zbarSymbolIter_Type);
+#if ZBAR_LITE != 1
     PyModule_AddObject(mod, "Processor", (PyObject*)&zbarProcessor_Type);
+#endif
     PyModule_AddObject(mod, "ImageScanner", (PyObject*)&zbarImageScanner_Type);
     PyModule_AddObject(mod, "Decoder", (PyObject*)&zbarDecoder_Type);
     PyModule_AddObject(mod, "Scanner", (PyObject*)&zbarScanner_Type);
@@ -344,7 +357,7 @@ initzbar(void)
 #endif
 }
 
-
+#if ZBAR_LITE != 1
 PyObject*
 zbarErr_Set (PyObject *self)
 {
@@ -364,3 +377,4 @@ zbarErr_Set (PyObject *self)
         PyErr_SetObject(st->zbar_exc[0], self);
     return(NULL);
 }
+#endif
