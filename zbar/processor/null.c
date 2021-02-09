@@ -60,3 +60,61 @@ int _zbar_processor_invalidate (zbar_processor_t *proc)
 {
     return(null_error(proc, __func__));
 }
+
+int _zbar_event_wait (zbar_event_t *event,
+                      zbar_mutex_t *lock,
+                      zbar_timer_t *timeout)
+{
+    return(null_error(event, __func__));
+}
+
+int _zbar_processor_init (zbar_processor_t *proc)
+{
+    return(null_error(proc, __func__));
+}
+
+int _zbar_processor_input_wait (zbar_processor_t *proc,
+                                zbar_event_t *event,
+                                int timeout)
+{
+    return(null_error(proc, __func__));
+}
+
+void _zbar_event_trigger (zbar_event_t *event)
+{
+    null_error(event, __func__);
+}
+
+void _zbar_event_destroy (zbar_event_t *event)
+{
+    null_error(event, __func__);
+}
+
+int _zbar_thread_start (zbar_thread_t *thr,
+                        zbar_thread_proc_t *proc,
+                        void *arg,
+                        zbar_mutex_t *lock)
+{
+    return(null_error(proc, __func__));
+}
+
+int _zbar_processor_enable (zbar_processor_t *proc)
+{
+    return(null_error(proc, __func__));
+}
+
+int _zbar_thread_stop (zbar_thread_t *thr,
+                       zbar_mutex_t *lock)
+{
+    return(null_error(thr, __func__));
+}
+
+int _zbar_processor_cleanup (zbar_processor_t *proc)
+{
+    return(null_error(proc, __func__));
+}
+
+int _zbar_event_init (zbar_event_t *event)
+{
+    return(null_error(event, __func__));
+}

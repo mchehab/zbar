@@ -131,7 +131,6 @@ extern PyTypeObject zbarSymbolIter_Type;
 
 extern zbarSymbolIter *zbarSymbolIter_FromSymbolSet(zbarSymbolSet *syms);
 
-#if ZBAR_LITE != 1
 typedef struct {
     PyObject_HEAD
     zbar_processor_t *zproc;
@@ -142,7 +141,6 @@ typedef struct {
 extern PyTypeObject zbarProcessor_Type;
 
 #define zbarProcessor_Check(obj) PyObject_TypeCheck(obj, &zbarProcessor_Type)
-#endif
 
 typedef struct {
     PyObject_HEAD

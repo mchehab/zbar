@@ -234,7 +234,7 @@ initzbar(void)
     if(PyType_Ready(&zbarException_Type) < 0)
         INITERROR;
 #endif
-#if ZBAR_LITE != 1
+
     if(PyType_Ready(&zbarEnumItem_Type) < 0 ||
        PyType_Ready(&zbarEnum_Type) < 0 ||
        PyType_Ready(&zbarImage_Type) < 0 ||
@@ -245,18 +245,7 @@ initzbar(void)
        PyType_Ready(&zbarImageScanner_Type) < 0 ||
        PyType_Ready(&zbarDecoder_Type) < 0 ||
        PyType_Ready(&zbarScanner_Type) < 0)
-#else
-    if (PyType_Ready(&zbarEnumItem_Type) < 0 ||
-        PyType_Ready(&zbarEnum_Type) < 0 ||
-        PyType_Ready(&zbarImage_Type) < 0 ||
-        PyType_Ready(&zbarSymbol_Type) < 0 ||
-        PyType_Ready(&zbarSymbolSet_Type) < 0 ||
-        PyType_Ready(&zbarSymbolIter_Type) < 0 ||
-        PyType_Ready(&zbarImageScanner_Type) < 0 ||
-        PyType_Ready(&zbarDecoder_Type) < 0 ||
-        PyType_Ready(&zbarScanner_Type) < 0)
         INITERROR;
-#endif
 
     /* initialize module */
 #if PY_MAJOR_VERSION >= 3
@@ -357,7 +346,7 @@ initzbar(void)
 #endif
 }
 
-#if ZBAR_LITE != 1
+
 PyObject*
 zbarErr_Set (PyObject *self)
 {
@@ -377,4 +366,3 @@ zbarErr_Set (PyObject *self)
         PyErr_SetObject(st->zbar_exc[0], self);
     return(NULL);
 }
-#endif
