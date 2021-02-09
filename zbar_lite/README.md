@@ -1,5 +1,6 @@
 # This package is a part of ZBAR, only supports image related functions. For now , it is only designed for Python.
 
+
 #How to build and install
 **It is recommended for you to run cmd below first to get the right config.h.**
 
@@ -57,6 +58,8 @@ you may meet an error that `cannot find -lmsvcr140`, as you can see in <https://
 
 
 #How to use
+###*We provide several versions of whl right now. You can try to install via `pip install zbar-lite`.*
+
 ```
 import zbar
 import cv2
