@@ -21,10 +21,10 @@ cp ../python/*.h zbar/
 cp ../include/zbar.h src/
 
 
-#if [ -f "../include/config.h" ]
-#then
-#cp ../include/config.h src/
-#fi
+if [ -f "../include/config.h" ]
+then
+cp ../include/config.h src/
+fi
 
 cp ../zbar/config.c src/zbar/
 cp ../zbar/convert.c src/zbar/
