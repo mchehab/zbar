@@ -49,8 +49,6 @@ extern struct module_state zbar_state;
 #define GETSTATE(m) (&zbar_state)
 #define GETMODSTATE() (&zbar_state)
 #endif
-
-
 extern PyObject *zbarErr_Set(PyObject *self);
 
 typedef struct {
