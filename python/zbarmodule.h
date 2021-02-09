@@ -51,8 +51,9 @@ extern struct module_state zbar_state;
 #define GETMODSTATE() (&zbar_state)
 #endif
 
-
+#if ZBAR_LITE != 1
 extern PyObject *zbarErr_Set(PyObject *self);
+#endif
 
 typedef struct {
 #if PY_MAJOR_VERSION >= 3
