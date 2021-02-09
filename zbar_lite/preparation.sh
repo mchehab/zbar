@@ -21,10 +21,10 @@ cp ../python/*.h zbar/
 cp ../include/zbar.h src/
 
 
-if [ -f "../include/config.h" ]
-then
-cp ../include/config.h src/
-fi
+#if [ -f "../include/config.h" ]
+#then
+#cp ../include/config.h src/
+#fi
 
 cp ../zbar/config.c src/zbar/
 cp ../zbar/convert.c src/zbar/
@@ -59,4 +59,6 @@ cp ../zbar/processor.h src/zbar/
 
 
 sed -i 's/#define ZBAR_LITE 0/#define ZBAR_LITE 1/g' ./zbar/zbarmodule.h
-#sed -i 's/#define ENABLE_PDF417 0/#define ENABLE_PDF417 1/g' ./src/config.h
+sed -i 's/"ISO8859-1"/"UTF-8"/g' ./src/zbar/qrcode/qrdectxt.c
+sed -i 's/"BIG-5"/"UTF-8"/g' ./src/zbar/qrcode/qrdectxt.c
+sed -i 's/"SJIS"/"UTF-8"/g' ./src/zbar/qrcode/qrdectxt.c

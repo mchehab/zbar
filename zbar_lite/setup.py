@@ -34,11 +34,35 @@ except ImportError as err:
     from distutils.extension import Extension
 
     setuptools_opts = {}
+
 import os
 import ctypes
 import ctypes.util
+import sys
 
 CUR_DIR = os.path.realpath(os.path.dirname(__file__))
+
+
+def use_config_template():
+    """
+    use_config_template
+    :return:
+    """
+    config_path = os.path.join(CUR_DIR, "src", "config.h")
+    if sys.platform == "win32":
+        target_os = "windows"
+    else:
+        target_os = "linux"
+    template_file = os.path.join(CUR_DIR, "config_template", target_os, "config.h")
+    if not os.path.exists(config_path):
+        print("use template config.h in {}".format(template_file))
+        with open(config_path, "w", encoding="utf-8") as f:
+            with open(template_file, "r") as f1:
+                c = f1.read()
+            f.write(c)
+
+
+use_config_template()
 
 
 def get_c_file(target_dir):

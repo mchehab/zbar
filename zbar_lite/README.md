@@ -1,7 +1,11 @@
 # This package is a part of ZBAR, only supports image related functions. For now , it is only designed for Python.
 
 #How to build and install
-**It is recommended for you to run cmd below first.**
+**It is recommended for you to run cmd below first to get the right config.h.**
+
+There are two template config.h in the `./config_template` . 
+
+if you did not generate a config.h, we will copy one of them to `./src` according to your OS when setup.
 ```
 cd zbar
 autoreconf -vfi
@@ -18,7 +22,13 @@ before build, you should make sure that your gcc compiler is fit with your OS.
 
 you can install gcc build env from `https://sourceforge.net/projects/mingw-w64/files/` for windows
 
-Notice that mingw64 and mingw-w64 is not the same thing.
+*Notice that mingw64 and mingw-w64 is not the same thing.*
+
+It is recommended for you to install setuptools to install and build.
+
+```
+pip install setuptools wheel
+```
 
 I select `x86_64-posix-seh-rev0` to build my wheel on Windows.
 
@@ -42,7 +52,8 @@ python setup.py install
 
 if you build this whl in Windows with `python setup.py build_ext --compiler=mingw32`, 
 you may meet an error that `cannot find -lmsvcr140`, as you can see in <https://stackoverflow.com/questions/43873604/where-is-msvcr140-dll-does-it-exist>.
-I fixed it in the setup.py
+
+*I fixed it in the setup.py*
 
 
 #How to use
