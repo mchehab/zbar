@@ -255,8 +255,8 @@ initzbar(void)
         PyType_Ready(&zbarImageScanner_Type) < 0 ||
         PyType_Ready(&zbarDecoder_Type) < 0 ||
         PyType_Ready(&zbarScanner_Type) < 0)
-        INITERROR;
 #endif
+        INITERROR;
 
     /* initialize module */
 #if PY_MAJOR_VERSION >= 3
