@@ -1,6 +1,6 @@
 #include <iostream>
-#include <Magick++.h>
 #include <zbar.h>
+#include <Magick++.h>
 #define STR(s) #s
 
 using namespace std;
