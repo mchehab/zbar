@@ -1,7 +1,7 @@
 # This package is a part of ZBAR, only supports image related functions. For now , it is only designed for Python.
 
 
-#How to build and install
+# How to build and install
 **It is recommended for you to run cmd below first to get the right config.h.**
 
 There are two template config.h in the `./config_template` . 
@@ -47,7 +47,7 @@ to install
 python setup.py install
 ```
 
-##Some errors you could meet:
+## Some errors you could meet:
 
 ### cannot find -lmsvcr140
 
@@ -57,8 +57,8 @@ you may meet an error that `cannot find -lmsvcr140`, as you can see in <https://
 *I fixed it in the setup.py*
 
 
-#How to use
-###*We provide several versions of whl right now. You can try to install via `pip install zbar-lite`.*
+# How to use
+### *We provide several versions of whl right now. You can try to install via `pip install zbar-lite`.*
 
 ```
 import zbar
@@ -92,4 +92,4 @@ for symbol in image:
 # clean up
 del(image)
 ```
-#For more documents you can visit <https://github.com/mchehab/zbar/tree/master/python> 
+# For more documents you can visit <https://github.com/mchehab/zbar/tree/master/python> 
