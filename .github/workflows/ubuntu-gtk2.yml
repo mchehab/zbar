@@ -1,0 +1,36 @@
+name: Gtk2
+
+on:
+  push:
+    branches: [ configure-fixes ]
+  pull_request:
+    branches: [ configure-fixes ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: prepare
+      run: |
+        sudo apt update
+        sudo apt-get install -y autoconf automake autopoint autotools-dev \
+            gettext libdbus-1-dev libgtk2.0-dev libmagick++-dev \
+            libqt5x11extras5-dev libv4l-dev libx11-dev openjdk-8-jdk-headless \
+            perl pkg-config python-all-dev python-all-dbg python-gtk2-dev \
+            qt5-default xmlto
+
+    - name: configure
+      run: |
+        autoreconf -vfi
+        export QT_SELECT=5
+        ./configure
+    - name: build
+      run:
+        make
+    - name: check
+      run:
+        make check-local
+    - name: install
+      run:
+        sudo make install
