@@ -345,8 +345,7 @@ AC_ARG_WITH([jpeg],
 
 have_jpeg="maybe"
 AS_IF([test "x$with_jpeg" != "xno"],
-  [AC_CHECK_HEADERS([jpeglib.h], [], [have_jpeg="no"])
-   AC_CHECK_HEADER([jerror.h], [], [have_jpeg="no"])
+  [AC_CHECK_HEADERS([jpeglib.h jerror.h], [], [have_jpeg="no"])
    AC_CHECK_LIB([jpeg], [jpeg_read_header], [], [have_jpeg="no"])
    AS_IF([test "x$have_jpeg" != "xno"],
      [with_jpeg="yes"],
@@ -393,12 +392,12 @@ dnl but the latter doesn't exist in older versions (bug #2848437)
 dnl double check ImageMagick install (bug #2582232)
       CPPFLAGS_save="$CPPFLAGS"
       CPPFLAGS="$CPPFLAGS $MAGICK_CFLAGS"
-      AC_CHECK_HEADER([wand/MagickWand.h],
+      AC_CHECK_HEADERS([wand/MagickWand.h],
         [have_IM="yes"],
         [have_IM="broken"])
 dnl check for ImageMagick 7, see https://imagemagick.org/script/porting.php#headers
       AS_IF([test "x$have_IM" = "xbroken"], [
-        AC_CHECK_HEADER([MagickWand/MagickWand.h],
+        AC_CHECK_HEADERS([MagickWand/MagickWand.h],
           [
             have_IM="yes"
             have_IM7="yes"
@@ -585,7 +584,7 @@ AS_IF([test "x$PYTHON_VERSION" != "x" && test "x$with_python" != "xno"],
    dnl check that #include <Python.h> compiles (bug #3092663)
    CPPFLAGS_save="$CPPFLAGS"
    CPPFLAGS="$CPPFLAGS $PYTHON_CFLAGS"
-   AC_CHECK_HEADER([Python.h], [], [AC_MSG_ERROR([dnl
+   AC_CHECK_HEADERS([Python.h], [], [AC_MSG_ERROR([dnl
 Python module enabled, but unable to compile Python.h.
 Install the development package for python-$am_cv_python_version, or configure
 --without-python to disable the python bindings.dnl
@@ -756,7 +755,7 @@ AS_IF([test -d "$JAVA_HOME/include/linux"],
 AS_IF([test "x$with_java" != "xno"],
   [CPPFLAGS_save="$CPPFLAGS"
    CPPFLAGS="$CPPFLAGS $JAVA_CFLAGS"
-   AC_CHECK_HEADER([jni.h], [], [have_java="no"])
+   AC_CHECK_HEADERS([jni.h], [], [have_java="no"])
    CPPFLAGS="$CPPFLAGS_save"
    AS_IF([test "x$have_java" != "xno"],
      [with_java="yes"],
