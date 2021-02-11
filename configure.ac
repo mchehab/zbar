@@ -584,11 +584,13 @@ AS_IF([test "x$PYTHON_VERSION" != "x" && test "x$with_python" != "xno"],
    dnl check that #include <Python.h> compiles (bug #3092663)
    CPPFLAGS_save="$CPPFLAGS"
    CPPFLAGS="$CPPFLAGS $PYTHON_CFLAGS"
-   AC_CHECK_HEADERS([Python.h], [], [AC_MSG_ERROR([dnl
+   AC_CHECK_HEADERS([Python.h], [],
+     [AS_IF([test "x$with_python" = "xauto"],with_python="no",
+       [AC_MSG_ERROR([dnl
 Python module enabled, but unable to compile Python.h.
 Install the development package for python-$am_cv_python_version, or configure
 --without-python to disable the python bindings.dnl
-])])
+])])])
    CPPFLAGS="$CPPFLAGS_save"
 
    dnl PyGTK
