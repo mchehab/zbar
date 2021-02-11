@@ -519,6 +519,8 @@ AS_IF([test "x$with_gtk" = "xgtk2" || test "x$with_gtk" = "xauto"],
 
 # GTK not found
 AS_IF(test "x$with_gtk" = "xauto"],[with_gtk="no"])
+AS_IF(test "x$with_gtk" != "xno"],[AC_CHECK_HEADERS([gtk/gtk.h], [], [with_gtk="no"])])
+
 
 AC_SUBST(GTK_LIBS)
 AC_SUBST(GTK_CFLAGS)
