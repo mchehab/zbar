@@ -1,3 +1,4 @@
+changecom()dnl
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.68])
 AC_INIT([zbar], [0.23.1], [mchehab+samsung@kernel.org])
@@ -519,7 +520,7 @@ AS_IF([test "x$with_gtk" = "xgtk2" || test "x$with_gtk" = "xauto"],
     ],[libgtk2=false])
   ])
 
-# GTK not found
+dnl GTK not found
 AS_IF(test "x$with_gtk" = "xauto"],[with_gtk="no"])
 AS_IF(test "x$with_gtk" != "xno"],[AC_CHECK_HEADERS([gtk/gtk.h], [], [with_gtk="no"])])
 
@@ -693,13 +694,13 @@ AC_ARG_VAR([JAVA_HOME], [root location of JDK])
 AC_ARG_VAR([JAVAC], [location of Java language compiler])
 AC_ARG_VAR([JAVAH], [location of Java header generator])
 
-# If $JAVA_HOME not defined, try to autodetect it
+dnl If $JAVA_HOME not defined, try to autodetect it
 AS_IF([test -z "$JAVA_HOME"],
       [AC_PATH_PROGS([JAVAC], [javac jikes ecj gcj], [:], [$PATH])
        AS_IF([test ! -z "$JAVAC"],
 	     [JAVA_HOME=$( readlink -f ${JAVAC} | rev | cut -d/ -f3- | rev )])])
 
-# If $JAVA_HOME is defined, set JAVA_PATH and JAVAC
+dnl If $JAVA_HOME is defined, set JAVA_PATH and JAVAC
 AS_IF([test ! -z "$JAVA_HOME"],
       [JAVA_PATH="$JAVA_HOME/bin$PATH_SEPARATOR$PATH"
        AS_IF([test -z "$JAVAC"],
@@ -713,8 +714,8 @@ AC_ARG_WITH([java],
 
 JAVAC=${JAVAC/ecj/ecj -1.5}
 
-# Javah was obsoleted on Java 8 and removed on Java 11. So, we need to
-# look strictly at the $JAVA_HOME in order to avoid mixing different versions
+dnl Javah was obsoleted on Java 8 and removed on Java 11. So, we need to
+dnl look strictly at the $JAVA_HOME in order to avoid mixing different versions
 AS_IF([test -z "$JAVAH"],
       [AC_PATH_PROGS([JAVAH], [javah], [], [$JAVA_HOME/bin])])
 
@@ -910,8 +911,8 @@ AS_IF([test "x$with_java" != "xyes"],
   [echo "        => the Java interface will *NOT* be built"])
 AS_IF([test "x$with_java_unit" != "xyes"],
   [echo "        => the Java unit test will *NOT* be enabled"])
-#echo "NPAPI Plugin     --with-npapi=$with_npapi"
-#AS_IF([test "x$with_mozilla" != "xyes"],
-#  [echo "       => the Mozilla/Firefox/OpenOffice plugin will *NOT* be built"])
+dnl echo "NPAPI Plugin     --with-npapi=$with_npapi"
+dnl AS_IF([test "x$with_mozilla" != "xyes"],
+dnl  [echo "       => the Mozilla/Firefox/OpenOffice plugin will *NOT* be built"])
 AS_IF([test "x$enable_pdf417" = "xyes"],
   [echo "        => the pdf417 code support is incomplete!"])
