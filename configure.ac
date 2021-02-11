@@ -88,11 +88,6 @@ AC_PROG_CC_STDC
 
 PKG_PROG_PKG_CONFIG
 
-AC_ARG_VAR([XMLTO], [location of xmlto, used for optional \
-documentation generation])
-AC_ARG_VAR([XMLTOFLAGS], [additional arguments for xmlto])
-AC_CHECK_PROGS([XMLTO], [xmlto], [:])
-
 dnl symbologies
 
 AC_ARG_ENABLE([codes],
@@ -187,6 +182,13 @@ AC_ARG_ENABLE([doc],
     [disable building docs])],
   [],
   [enable_doc="yes"])
+
+AS_IF([test "x$enable_doc" != "xno"],
+  [AC_ARG_VAR([XMLTO], [location of xmlto, used for optional documentation generation])
+   AC_ARG_VAR([XMLTOFLAGS], [additional arguments for xmlto])
+   AC_CHECK_PROG([XMLTO], [:], [])])
+
+AS_IF([test "x$XMLTO" = "x"], enable_doc="no")
 
 AM_CONDITIONAL([HAVE_DOC], [test "x$enable_doc" != "xno"])
 
