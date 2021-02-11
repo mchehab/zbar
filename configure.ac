@@ -396,7 +396,10 @@ dnl double check ImageMagick install (bug #2582232)
       CPPFLAGS_save="$CPPFLAGS"
       CPPFLAGS="$CPPFLAGS $MAGICK_CFLAGS"
       AC_CHECK_HEADERS([wand/MagickWand.h],
-        [have_IM="yes"],
+        [
+          have_IM="yes"
+          with_imagemagick="yes"
+        ],
         [have_IM="broken"])
 dnl check for ImageMagick 7, see https://imagemagick.org/script/porting.php#headers
       AS_IF([test "x$have_IM" = "xbroken"], [
@@ -404,6 +407,7 @@ dnl check for ImageMagick 7, see https://imagemagick.org/script/porting.php#head
           [
             have_IM="yes"
             have_IM7="yes"
+            with_imagemagick="yes"
           ],
           [have_IM="broken"])
       ])
@@ -419,6 +423,7 @@ AS_IF([test "x$have_IM" = "xyes"], [],
      [looked_for="$looked_for or GraphicsMagick"])
    PKG_CHECK_MODULES([GM], [GraphicsMagickWand],
      [have_GM="yes"
+      with_imagemagick="no"
       magick="GraphicsMagick"
       MAGICK_CFLAGS="$MAGICK_CFLAGS $GM_CFLAGS"
       MAGICK_LIBS="$MAGICK_LIBS $GM_LIBS"
@@ -430,8 +435,10 @@ AS_IF([test "x$have_IM" = "xyes"], [],
 dnl now that we have collected all the info abt what Magick is available
 dnl let the user know what we will or can't do
 AS_IF([test "x$have_IM" = "xbroken" && test "x$have_GM" = "xyes"],
-  [AC_MSG_WARN([Your ImageMagick install is broken, using GraphicsMagick instead])])
-
+  [
+    with_imagemagick="no"
+    AC_MSG_WARN([Your ImageMagick install is broken, using GraphicsMagick instead])
+  ])
 AS_IF([test "x$have_IM" = "xyes" || test "x$have_GM" = "xyes"],
   [AC_MSG_NOTICE([using $magick version $MAGICK_VERSION])],
   [test "x$with_imagemagick" = "xno" && \
@@ -441,6 +448,9 @@ AS_IF([test "x$have_IM" = "xyes" || test "x$have_GM" = "xyes"],
   [AC_MSG_FAILURE([$magick package found but wand/MagickWand.h not installed?!
 this is a problem with your $magick install, please try again after
 resolving the inconsistency or installing GraphicsMagick alternative...])],
+  [test "x$with_graphicsmagick" = "xcheck"],
+  [AC_MSG_NOTICE([ImageMagick/GraphicsMagick not detected. Several features will be disabled])
+   with_imagemagick="no"],
   [AC_MSG_FAILURE([dnl
 Unable to find $looked_for:
 
