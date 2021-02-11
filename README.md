@@ -35,6 +35,12 @@ BUILDING
 
 See `INSTALL.md` for generic configuration and build instructions.
 
+Please notice that at least autotools related packages and a
+C compiler are needed, in order to generate the configure script.
+
+So, on Debian, at least those packages are needed:
+	autoconf autopoint pkg-config libtool gcc make
+
 If you have installed all needed dependencies, all you need to do is to run:
 
 ```
