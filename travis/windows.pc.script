@@ -13,10 +13,6 @@ prefix=/C/tools/msys64/mingw64/
 $shell ./configure \
     --prefix=$prefix \
     ${DIRECT_SHOW} \
-    --without-gtk \
-    --without-python \
-    --without-qt --without-java \
-    --without-imagemagick \
     --enable-pthread --disable-dependency-tracking
 
 echo "Building"
