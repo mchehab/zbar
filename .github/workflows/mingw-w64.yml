@@ -1,0 +1,53 @@
+name: Mingw-w64
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: prepare
+      run: |
+        sudo apt update
+        sudo apt-get install -y autoconf automake autopoint autotools-dev \
+        gettext libdbus-1-dev pkg-config win-iconv-mingw-w64-dev \
+        binutils-mingw-w64-i686 gcc-mingw-w64 mingw-w64-i686-dev \
+        mingw-w64-common xmlto
+    - name: configure without directshow
+      run: |
+        export PKG_CONFIG_PATH=/usr/x86_64-w64-mingw32/lib/pkgconfig
+
+        autoreconf -vfi
+
+        CC=i686-w64-mingw32-gcc ./configure \
+            --host=i686-w64-mingw32 --prefix=/usr/local/win32 \
+            --without-gtk --without-python --without-qt --without-java \
+            --without-imagemagick --enable-pthread
+    - name: build without directshow
+      run:
+        make
+    - name: install without directshow
+      run:
+        sudo make install
+    - name: configure with directshow
+      run: |
+        export PKG_CONFIG_PATH=/usr/x86_64-w64-mingw32/lib/pkgconfig
+
+        autoreconf -vfi
+
+        CC=i686-w64-mingw32-gcc ./configure \
+            --host=i686-w64-mingw32 --prefix=/usr/local/win32 \
+            --without-gtk --without-python --without-qt --without-java \
+            --without-imagemagick --enable-pthread \
+            --with-directshow
+    - name: build with directshow
+      run:
+        make
+    - name: install with directshow
+      run:
+        sudo make install
