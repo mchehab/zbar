@@ -187,7 +187,7 @@ AC_ARG_ENABLE([doc],
 AS_IF([test "x$enable_doc" != "xno"],
   [AC_ARG_VAR([XMLTO], [location of xmlto, used for optional documentation generation])
    AC_ARG_VAR([XMLTOFLAGS], [additional arguments for xmlto])
-   AC_CHECK_PROG([XMLTO], [:], [])])
+   AC_CHECK_PROGS([XMLTO], [xmlto])])
 
 AS_IF([test "x$XMLTO" = "x"], enable_doc="no")
 
@@ -531,9 +531,7 @@ AS_IF([test "x$with_gtk" = "xgtk2" || test "x$with_gtk" = "xauto"],
   ])
 
 dnl GTK not found
-AS_IF(test "x$with_gtk" = "xauto"],[with_gtk="no"])
-AS_IF(test "x$with_gtk" != "xno"],[AC_CHECK_HEADERS([gtk/gtk.h], [], [with_gtk="no"])])
-
+AS_IF([test "x$with_gtk" = "xauto"], [with_gtk="no"])
 
 AC_SUBST(GTK_LIBS)
 AC_SUBST(GTK_CFLAGS)
@@ -666,7 +664,7 @@ AS_IF([test "x$have_x" = "xyes"],
 AS_IF([test "x$with_qt" != "xno"],
       [PKG_CHECK_MODULES([QT],
 		         [Qt5Core >= 5 Qt5Gui >= 5 Qt5Widgets >= 5.0 $qt_extra],,
-		         [with_qt5 = "no"
+		         [with_qt5="no"
 		          PKG_CHECK_MODULES([QT],
 					    [QtCore >= 4 QtGui >= 4],,
 					    [with_qt="no"])])])
