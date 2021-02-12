@@ -560,7 +560,7 @@ Please notice that PYTHON var, if especified, takes precedence.])],
 
 AC_ARG_VAR([PYTHON_CONFIG], [full path to python-config program])
 AC_ARG_VAR([PYTHON_CFLAGS], [compiler flags for building python extensions])
-AC_ARG_VAR([PYTHON_LIBS], [linker flags for building python extensions])
+AC_ARG_VAR([PYTHON_LDFLAGS], [linker flags for building python extensions])
 
 AC_ARG_VAR([PYGTK_H2DEF], [full path to PyGTK h2def.py module (python2 only)])
 AC_ARG_VAR([PYGTK_CODEGEN], [full path to pygtk-codegen program (python2 only)])
@@ -593,10 +593,18 @@ AS_IF([test "x$PYTHON_VERSION" != "x" && test "x$with_python" != "xno"],
      [test -x "$PYTHON-config"],
      [PYTHON_CFLAGS=`$PYTHON-config --cflags`],
      [PYTHON_CFLAGS=`$PYTHON -c 'import distutils.sysconfig as s, sys; sys.stdout.write(" ".join(s.get_config_vars("CFLAGS")) + " -I"+s.get_python_inc() + " -I"+s.get_python_inc(plat_specific=True))'`])
+   AS_IF([test "x$PYTHON_LDFLAGS" != "x"],
+     [],
+     [test "x$PYTHON_CONFIG" != "x" && test -x "$PYTHON_CONFIG"],
+     [PYTHON_LDFLAGS=`$PYTHON_CONFIG --ldflags`],
+     [test -x "$PYTHON-config"],
+     [PYTHON_LDFLAGS=`$PYTHON-config --ldflags`],
+     [PYTHON_LDFLAGS=`$PYTHON -c 'import distutils.sysconfig as s, sys; sys.stdout.write(" ".join(s.get_config_vars("LDFLAGS")) + " -I"+s.get_python_inc() + " -I"+s.get_python_inc(plat_specific=True))'`])
 
    dnl check that #include <Python.h> compiles (bug #3092663)
    CPPFLAGS_save="$CPPFLAGS"
    CPPFLAGS="$CPPFLAGS $PYTHON_CFLAGS"
+   AS_IF([test "x$win32" = "xyes"], PYTHON_LDFLAGS="$PYTHON_LDFLAGS -no-undefined")
    AC_CHECK_HEADERS([Python.h], [],
      [AS_IF([test "x$with_python" = "xauto"],with_python="no",
        [AC_MSG_ERROR([dnl
