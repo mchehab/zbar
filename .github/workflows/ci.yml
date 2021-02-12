@@ -191,11 +191,14 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        arch: [x86_64]
+        arch: [x86_64, i686]
         include:
           - arch: x86_64
             msystem: MINGW64
             grep: x86-64
+          - arch: i686
+            msystem: MINGW32
+            grep: 386
     defaults:
       run:
         shell: msys2 {0}
