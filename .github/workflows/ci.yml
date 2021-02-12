@@ -225,6 +225,9 @@ jobs:
         update: false
         install: >-
           mingw-w64-${{ matrix.arch }}-gcc
+          mingw-w64-${{ matrix.arch }}-iconv
+          mingw-w64-${{ matrix.arch }}-imagemagick
+          mingw-w64-${{ matrix.arch }}-python
           base-devel git xmlto
           autoconf libtool automake gettext make autoconf-archive pkg-config
 
