@@ -1,0 +1,146 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+#
+# Linux
+#
+  Ubuntu_Gtk2:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: prepare
+      run: |
+        sudo apt update
+        sudo apt-get install -y autoconf automake autopoint autotools-dev \
+            gettext libdbus-1-dev libgtk2.0-dev libmagick++-dev \
+            libqt5x11extras5-dev libv4l-dev libx11-dev openjdk-8-jdk-headless \
+            perl pkg-config python-all-dev python-all-dbg python-gtk2-dev \
+            qt5-default xmlto
+
+    - name: configure
+      run: |
+        autoreconf -vfi
+        export QT_SELECT=5
+        ./configure
+    - name: build
+      run:
+        make
+    - name: check
+      run:
+        make check-local
+    - name: install
+      run:
+        sudo make install
+  Ubuntu_Gtk3:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: prepare
+      run: |
+        sudo apt update
+        sudo apt-get install -y autoconf automake autopoint autotools-dev \
+            gettext libdbus-1-dev gir1.2-gtk-3.0 libgtk-3-dev \
+            libgirepository1.0-dev libmagick++-dev libqt5x11extras5-dev \
+            libv4l-dev libx11-dev openjdk-8-jdk-headless perl \
+            pkg-config python3-minimal python3-dev python3 python3-gi \
+            qt5-default xmlto
+    - name: configure
+      run: |
+        autoreconf -vfi
+
+        # Let configure get this
+        unset PYTHON_CFLAGS PYTHON
+
+        export QT_SELECT=5
+        ./configure --with-gtk=gtk3 --with-python=python3
+    - name: build
+      run:
+        make
+    - name: check
+      run:
+        make check-local
+    - name: install
+      run:
+        sudo make install
+  Mingw_w64:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: prepare
+      run: |
+        sudo apt update
+        sudo apt-get install -y autoconf automake autopoint autotools-dev \
+        gettext libdbus-1-dev pkg-config win-iconv-mingw-w64-dev \
+        binutils-mingw-w64-i686 gcc-mingw-w64 mingw-w64-i686-dev \
+        mingw-w64-common xmlto
+    - name: configure without directshow
+      run: |
+        export PKG_CONFIG_PATH=/usr/x86_64-w64-mingw32/lib/pkgconfig
+
+        autoreconf -vfi
+
+        CC=i686-w64-mingw32-gcc ./configure \
+            --host=i686-w64-mingw32 --prefix=/usr/local/win32 \
+            --without-gtk --without-python --without-qt --without-java \
+            --without-imagemagick --enable-pthread
+    - name: build without directshow
+      run:
+        make
+    - name: install without directshow
+      run:
+        sudo make install
+    - name: configure with directshow
+      run: |
+        export PKG_CONFIG_PATH=/usr/x86_64-w64-mingw32/lib/pkgconfig
+
+        autoreconf -vfi
+
+        CC=i686-w64-mingw32-gcc ./configure \
+            --host=i686-w64-mingw32 --prefix=/usr/local/win32 \
+            --without-gtk --without-python --without-qt --without-java \
+            --without-imagemagick --enable-pthread \
+            --with-directshow
+    - name: build with directshow
+      run:
+        make
+    - name: install with directshow
+      run:
+        sudo make install
+
+#
+# Mac OS
+#
+
+  Mac_OS:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: prepare
+      run: |
+        brew install gettext autoconf automake libiconv libtool \
+                    gs graphicsmagick python xmlto pkg-config ccache
+
+        brew unlink libtool && brew link libtool
+        brew unlink gettext && brew link gettext
+    - name: configure
+      run:
+        export PATH="/usr/local/opt/libiconv/bin:$PATH"
+        export PATH="/usr/local/opt/ccache/libexec:$PATH"
+        export LDFLAGS="-L/usr/local/opt/libiconv/lib"
+        export CPPFLAGS="-I/usr/local/opt/libiconv/include"
+
+        autoreconf -vfi
+
+        ./configure --disable-video --without-qt --without-gtk --disable-nls --with-python=python3 --without-imagemagick --with-graphicsmagick
+
+    - name: build
+      run: |
+        make
+        sudo make install
