@@ -601,6 +601,8 @@ AS_IF([test "x$PYTHON_VERSION" != "x" && test "x$with_python" != "xno"],
      [PYTHON_LDFLAGS=`$PYTHON-config --ldflags`],
      [PYTHON_LDFLAGS=`$PYTHON -c 'import distutils.sysconfig as s, sys; sys.stdout.write(" ".join(s.get_config_vars("LDFLAGS")) + " -I"+s.get_python_inc() + " -I"+s.get_python_inc(plat_specific=True))'`])
 
+     AC_MSG_WARN([Python CFLAGS=$PYTHON_CFLAGS])
+     AC_MSG_WARN([Python LDFLAGS=$PYTHON_LDFLAGS])
    dnl check that #include <Python.h> compiles (bug #3092663)
    CPPFLAGS_save="$CPPFLAGS"
    CPPFLAGS="$CPPFLAGS $PYTHON_CFLAGS"
