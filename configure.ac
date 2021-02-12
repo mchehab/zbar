@@ -600,9 +600,11 @@ AS_IF([test "x$PYTHON_VERSION" != "x" && test "x$with_python" != "xno"],
      [test -x "$PYTHON-config"],
      [PYTHON_LDFLAGS=`$PYTHON-config --ldflags`],
      [PYTHON_LDFLAGS=`$PYTHON -c 'import distutils.sysconfig as s, sys; sys.stdout.write(" ".join(s.get_config_vars("LDFLAGS")) + " -I"+s.get_python_inc() + " -I"+s.get_python_inc(plat_specific=True))'`])
+
    dnl check that #include <Python.h> compiles (bug #3092663)
    CPPFLAGS_save="$CPPFLAGS"
    CPPFLAGS="$CPPFLAGS $PYTHON_CFLAGS"
+   AS_IF([test "x$win32" = "xyes"], PYTHON_LDFLAGS="$PYTHON_LDFLAGS -no-undefined")
    AC_CHECK_HEADERS([Python.h], [],
      [AS_IF([test "x$with_python" = "xauto"],with_python="no",
        [AC_MSG_ERROR([dnl

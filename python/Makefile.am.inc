@@ -1,8 +1,7 @@
 pyexec_LTLIBRARIES += python/zbar.la
 python_zbar_la_CPPFLAGS = $(PYTHON_CFLAGS) $(AM_CPPFLAGS)
 python_zbar_la_LDFLAGS = -shared -module -avoid-version -export-dynamic \
-    -export-symbols-regex '(initzbar|PyInit_zbar)' -no-undefined \
-    $(PYTHON_LDFLAGS)
+    -export-symbols-regex '(initzbar|PyInit_zbar)' $(PYTHON_LDFLAGS)
 python_zbar_la_LIBADD = zbar/libzbar.la $(AM_LIBADD)
 
 python_zbar_la_SOURCES = python/zbarmodule.c python/zbarmodule.h \
