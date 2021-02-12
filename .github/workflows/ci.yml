@@ -183,3 +183,49 @@ jobs:
       run: |
         make
         sudo make install
+
+#
+# Windows
+#
+  Windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [x86_64]
+        include:
+          - arch: x86_64
+            msystem: MINGW64
+            grep: x86-64
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    env:
+      CPPFLAGS: -D__USE_MINGW_ANSI_STDIO=1
+
+    steps:
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: ${{ matrix.msystem }}
+        update: false
+        install: >-
+          mingw-w64-${{ matrix.arch }}-gcc
+          base-devel git xmlto
+          autoconf libtool automake gettext make autoconf-archive pkg-config
+
+    - uses: actions/checkout@v2
+
+    - name: configure
+      shell: msys2 {0}
+      run: |
+        autoreconf -vfi
+        ./configure --enable-pthread --disable-dependency-tracking ${{ matrix.cam }}
+
+    - name: build
+      shell: msys2 {0}
+      run:
+        make
+    - name: install
+      shell: msys2 {0}
+      run:
+        make install
