@@ -2,9 +2,9 @@ pyexec_LTLIBRARIES += pygtk/zbarpygtk.la
 pygtk_zbarpygtk_la_CPPFLAGS = \
     $(GTK_CFLAGS) $(PYTHON_CFLAGS) $(PYGTK_CFLAGS) $(AM_CPPFLAGS)
 pygtk_zbarpygtk_la_LDFLAGS = -shared -module -avoid-version -export-dynamic \
-    -export-symbols-regex initzbarpygtk
+     -export-symbols-regex initzbarpygtk $(PYTHON_LDFLAGS)
 pygtk_zbarpygtk_la_LIBADD = \
-    $(PYTHON_LIBS) $(PYGTK_LIBS) gtk/libzbargtk.la $(AM_LIBADD)
+    $(PYGTK_LIBS) gtk/libzbargtk.la $(AM_LIBADD)
 
 pygtk_zbarpygtk_la_DEPENDENCIES = gtk/libzbargtk.la
 dist_pygtk_zbarpygtk_la_SOURCES = pygtk/zbarpygtkmodule.c
