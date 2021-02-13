@@ -22,6 +22,19 @@ Tarballs with ZBar can be obtained from:
 
 - <https://linuxtv.org/downloads/zbar/>
 
+Since ZBar version 0.23.90, binaries auto-generated from Github's
+Actions workflows are auto-generated for each release:
+
+- <https://linuxtv.org/downloads/zbar/binaries/>
+
+They contain binaries for:
+
+- Ubuntu SID, generated via pbuilder;
+- Mac OS;
+- Windows, for 4 different configurations:
+  - 32 bits/64 bits;
+  - Video for Windows (VfW) or DirectShow (DShow).
+
 License information can be found in `COPYING`.
 
 You may find some outdated documentation at the original ZBar's
