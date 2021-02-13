@@ -1,3 +1,17 @@
+0.23.90:
+
+  * Started using github actions for CI and binary releases
+  * Fixed several issues with configure.ac, making it auto-detect
+    most things, when possible
+  * README.md now shows the absolute minimum requirement for
+    building ZBar on Ubuntu
+  * Fixed some build issues
+  * Make it compatible with Python 3.9
+  * Fixed some Python 3.9 and Qt5 warnings
+  * Typo fixes
+  * Several fixes at zbarcam
+  * zbarimg: fix stderr output when symbols are found
+
 0.23.1:
 
   * Add i18n translation support and add a pt_BR translation
