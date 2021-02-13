@@ -1,0 +1,56 @@
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - '[0-9]+*'
+
+name: Release
+
+jobs:
+  Debian:
+    runs-on: ubuntu-latest
+    env:
+      TARGET_ARCH: amd64
+      BASETGZ: /home/runner/pbuilder-bases/debian-sid-amd64.tgz
+      MIRROR: http://cdn-fastly.deb.debian.org/debian
+      KEYRING: /usr/share/keyrings/debian-archive-keyring.gpg
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: prepare
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y autopoint debian-archive-keyring dpkg gettext pbuilder
+    - name: pbulder_prepare
+      run: |
+        if [ ! -e "$BASETGZ.stamp" ]; then
+          mkdir -p "$HOME/pbuilder-bases"
+          sudo mkdir -p "/root"
+          sudo touch /root/.pbuilderrc
+          sudo pbuilder --create --basetgz "$BASETGZ" --mirror $MIRROR \
+            --distribution sid --architecture $TARGET_ARCH \
+            --debootstrapopts --keyring=$KEYRING \
+            --debootstrapopts --include=perl \
+            --debootstrapopts --variant=buildd
+          touch "$BASETGZ.stamp"
+        else
+          sudo pbuilder --update --basetgz "$BASETGZ"
+        fi
+    - name: src_archive
+      run:
+        git archive --format tgz -o ../zbar_$(more configure.ac |grep AC_INIT|perl -ne 'print $1 if /(\d+.\d+)/').orig.tar.gz HEAD
+    - name: build
+      run: |
+        DIR="$PWD"
+        cd ..
+        sudo dpkg-source -b "$DIR"
+        sudo pbuilder --build --debbuildopts --jobs=auto --basetgz "$BASETGZ" *.dsc
+
+    - name: upload
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: debian-sid
+        path: /var/cache/pbuilder/result/*.deb
+        if-no-files-found: error
