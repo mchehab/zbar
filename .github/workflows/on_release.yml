@@ -1,0 +1,167 @@
+name: Upload binaries to release
+
+on:
+  release:
+    types:
+      - created
+      - published
+      - edited
+
+jobs:
+  Debian:
+    name: Build for Debian SID
+    runs-on: ubuntu-latest
+    env:
+      TARGET_ARCH: amd64
+      BASETGZ: /home/runner/pbuilder-bases/debian-sid-amd64.tgz
+      MIRROR: http://cdn-fastly.deb.debian.org/debian
+      KEYRING: /usr/share/keyrings/debian-archive-keyring.gpg
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: prepare
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y autopoint debian-archive-keyring dpkg gettext pbuilder
+    - name: pbulder_prepare
+      run: |
+        if [ ! -e "$BASETGZ.stamp" ]; then
+          mkdir -p "$HOME/pbuilder-bases"
+          sudo mkdir -p "/root"
+          sudo touch /root/.pbuilderrc
+          sudo pbuilder --create --basetgz "$BASETGZ" --mirror $MIRROR \
+            --distribution sid --architecture $TARGET_ARCH \
+            --debootstrapopts --keyring=$KEYRING \
+            --debootstrapopts --include=perl \
+            --debootstrapopts --variant=buildd
+          touch "$BASETGZ.stamp"
+        else
+          sudo pbuilder --update --basetgz "$BASETGZ"
+        fi
+    - name: src_archive
+      run:
+        git archive --format tgz -o ../zbar_$(more configure.ac |grep AC_INIT|perl -ne 'print $1 if /(\d+.\d+)/').orig.tar.gz HEAD
+    - name: build
+      run: |
+        DIR="$PWD"
+        cd ..
+        sudo dpkg-source -b "$DIR"
+        sudo pbuilder --build --debbuildopts --jobs=auto --basetgz "$BASETGZ" *.dsc
+        cd "$DIR"
+    - name: generating tarball
+      run: |
+        DIR="$PWD"
+        cd /var/cache/pbuilder/result
+        tar c -f ${DIR}/zbar-debian-sid.tar.gz -z *.deb
+
+    - name: upload
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./zbar-debian-sid.tar.gz
+        asset_name: zbar-debian-sid.tar.gz
+        asset_content_type: application/gzip
+
+  Mac_OS:
+    name: Build for Mac OS
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: prepare
+      run: |
+        brew install gettext autoconf automake libiconv libtool \
+                    gs graphicsmagick python xmlto pkg-config ccache
+
+        brew unlink libtool && brew link libtool
+        brew unlink gettext && brew link gettext
+    - name: configure
+      run:
+        autoreconf -vfi
+
+        ./configure --disable-video --disable-nls --with-python=python3
+
+    - name: build
+      run: |
+        make
+        DESTDIR=${PWD}/macos make install
+    - name: generating tarball
+      run: |
+        DIR="$PWD"
+        tar c -C ${PWD}/macos -f ${DIR}/zbar-macos.tar.gz -z .
+    - name: upload
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./zbar-macos.tar.gz
+        asset_name: zbar-macos.tar.gz
+        asset_content_type: application/gzip
+
+  Windows:
+    name: Build for Windows
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [x86_64, i686]
+        video: [VfW, DShow]
+        include:
+          - arch: x86_64
+            msystem: MINGW64
+            grep: x86-64
+          - arch: i686
+            msystem: MINGW32
+            grep: 386
+          - video: DShow
+            extra: --with-directshow
+          - video: VfW
+            extra:
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    env:
+      CPPFLAGS: -D__USE_MINGW_ANSI_STDIO=1
+
+    steps:
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: ${{ matrix.msystem }}
+        update: false
+        install: >-
+          mingw-w64-${{ matrix.arch }}-gcc
+          mingw-w64-${{ matrix.arch }}-iconv
+          mingw-w64-${{ matrix.arch }}-imagemagick
+          mingw-w64-${{ matrix.arch }}-python
+          base-devel git xmlto zip
+          autoconf libtool automake gettext make autoconf-archive pkg-config
+
+    - uses: actions/checkout@v2
+
+    - name: configure
+      shell: msys2 {0}
+      run: |
+        autoreconf -vfi
+        ./configure --enable-pthread --disable-dependency-tracking ${{ matrix.extra }}
+
+    - name: build
+      shell: msys2 {0}
+      run:
+        make
+    - name: generating zip
+      shell: msys2 {0}
+      run: |
+        DESTDIR=${PWD}/win_${{ matrix.arch }}-${{ matrix.video }} make install
+        (cd ${PWD}/win_${{ matrix.arch }}-${{ matrix.video }}; zip -r ../zbar-win_${{ matrix.arch }}-${{ matrix.video }}.zip .)
+
+    - name: upload
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./zbar-win_${{ matrix.arch }}-${{ matrix.video }}.zip
+        asset_name: zbar-win_${{ matrix.arch }}-${{ matrix.video }}.zip
+        asset_content_type: application/gzip

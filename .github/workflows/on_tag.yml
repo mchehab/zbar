@@ -1,0 +1,31 @@
+name: Create release on tag
+
+on:
+  workflow_dispatch:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - '[0-9]+*'
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Release changelog
+        run: .github/workflows/gen_release.pl body_file.tmp
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body_path: body_file.tmp
+          draft: false
+          prerelease: false
