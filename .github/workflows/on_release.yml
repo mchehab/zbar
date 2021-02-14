@@ -22,37 +22,21 @@ jobs:
     - name: prepare
       run: |
         sudo apt-get update
-        sudo apt-get install -y autopoint debian-archive-keyring dpkg gettext pbuilder
-    - name: pbulder_prepare
-      run: |
-        if [ ! -e "$BASETGZ.stamp" ]; then
-          mkdir -p "$HOME/pbuilder-bases"
-          sudo mkdir -p "/root"
-          sudo touch /root/.pbuilderrc
-          sudo pbuilder --create --basetgz "$BASETGZ" --mirror $MIRROR \
-            --distribution sid --architecture $TARGET_ARCH \
-            --debootstrapopts --keyring=$KEYRING \
-            --debootstrapopts --include=perl \
-            --debootstrapopts --variant=buildd
-          touch "$BASETGZ.stamp"
-        else
-          sudo pbuilder --update --basetgz "$BASETGZ"
-        fi
-    - name: src_archive
-      run:
-        git archive --format tgz -o ../zbar_$(more configure.ac |grep AC_INIT|perl -ne 'print $1 if /(\d+.\d+)/').orig.tar.gz HEAD
+        sudo apt-get install -y autoconf automake autopoint autotools-dev \
+                                gettext libdbus-1-dev pkg-config xmlto \
+                                devscripts build-essential lintian \
+                                debhelper-compat \
+                                dh-exec dh-sequence-python3 libdbus-1-dev \
+                                libmagick++-dev libv4l-dev python3-dev \
+                                libgtk-3-dev lftp
     - name: build
       run: |
-        DIR="$PWD"
-        cd ..
-        sudo dpkg-source -b "$DIR"
-        sudo pbuilder --build --debbuildopts --jobs=auto --basetgz "$BASETGZ" *.dsc
-        cd "$DIR"
+        .github/workflows/debuilder.sh
     - name: generating tarball
       run: |
-        DIR="$PWD"
-        cd /var/cache/pbuilder/result
-        tar c -f ${DIR}/zbar-debian-sid.tar.gz -z *.deb
+        OS_VERSION=$(. /etc/os-release && echo $ID-$VERSION_ID)
+        tar cvfz ${DIR}/zbar-debian-sid.tar.gz *.deb
+        echo "OS_VERSION=$OS_VERSION" >> $GITHUB_ENV
 
     - name: upload
       env:
@@ -60,8 +44,8 @@ jobs:
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./zbar-debian-sid.tar.gz
-        asset_name: zbar-debian-sid.tar.gz
+        asset_path: ./zbar-${OS_VERSION}.tar.gz
+        asset_name: zbar-${OS_VERSION}.tar.gz
         asset_content_type: application/gzip
 
   Mac_OS:

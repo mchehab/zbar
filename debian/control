@@ -3,7 +3,7 @@ Section: libs
 Priority: optional
 Maintainer: Gürkan Myczko <gurkan@phys.ethz.ch>
 Build-Depends:
- debhelper-compat (= 12),
+ debhelper-compat,
  dh-exec,
  dh-sequence-python3,
  libdbus-1-dev,
