@@ -8,15 +8,9 @@ on:
       - edited
 
 jobs:
-  Debian:
-    name: Build for Debian SID
-    runs-on: ubuntu-latest
-    env:
-      TARGET_ARCH: amd64
-      BASETGZ: /home/runner/pbuilder-bases/debian-sid-amd64.tgz
-      MIRROR: http://cdn-fastly.deb.debian.org/debian
-      KEYRING: /usr/share/keyrings/debian-archive-keyring.gpg
-
+  Ubuntu:
+    name: Build for Ubuntu 20.04
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
     - name: prepare
@@ -26,16 +20,18 @@ jobs:
                                 gettext libdbus-1-dev pkg-config xmlto \
                                 devscripts build-essential lintian \
                                 debhelper-compat \
-                                dh-exec dh-sequence-python3 libdbus-1-dev \
+                                dh-exec libdbus-1-dev \
                                 libmagick++-dev libv4l-dev python3-dev \
-                                libgtk-3-dev lftp
+                                libgtk-3-dev lftp \
+                                dh-sequence-python3 libgtk2.0-dev \
+                                libqt5x11extras5-dev qtbase5-dev
     - name: build
       run: |
         .github/workflows/debuilder.sh
     - name: generating tarball
       run: |
         OS_VERSION=$(. /etc/os-release && echo $ID-$VERSION_ID)
-        tar cvfz ${DIR}/zbar-debian-sid.tar.gz *.deb
+        tar cvfz ${DIR}/zbar-${OS_VERSION}.tar.gz *.deb
         echo "OS_VERSION=$OS_VERSION" >> $GITHUB_ENV
 
     - name: upload

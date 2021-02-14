@@ -1,9 +1,12 @@
 #!/bin/bash
 set -e
 
-# A debian ruleset file which runs on Github's ubuntu-latest distro
-DEB_FNAME="zbar_0.23.1-*.debian.tar.xz"
+# A debian ruleset file which runs on Github's distro
+DEB_FNAME="zbar_0.23.90-*.debian.tar.xz"
 DEB_URL="http://deb.debian.org/debian/pool/main/z/zbar/"
+
+# Should be the same version as provided by the host OS
+COMPAT=12
 
 # Set directories used during the build
 
@@ -34,7 +37,7 @@ tar xf ${TAR}
 tar xf ${ZBARDIR}/${DEB_FNAME}
 
 # Ensure that debhelper-compat will use the one expected by the build distro
-sed -E "s#debhelper-compat.*,#debhelper-compat (= 12),#" -i debian/control
+sed -E "s#debhelper-compat.*,#debhelper-compat (= $COMPAT),#" -i debian/control
 
 # Ignore missing SONAME for libs, if any, as it is not a build robot's task
 # to update ${DEB_FNAME} ruleset
