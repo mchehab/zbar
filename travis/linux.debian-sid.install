@@ -1,7 +1,0 @@
-#!/bin/sh
-sudo apt-get install -y \
-	autopoint \
-	debian-archive-keyring \
-	dpkg \
-	gettext \
-	pbuilder
