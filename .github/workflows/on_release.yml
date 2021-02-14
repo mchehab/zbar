@@ -31,7 +31,7 @@ jobs:
     - name: generating tarball
       run: |
         OS_VERSION=$(. /etc/os-release && echo $ID-$VERSION_ID)
-        tar cvfz ${DIR}/zbar-${OS_VERSION}.tar.gz *.deb
+        tar cvfz zbar-${OS_VERSION}.tar.gz *.deb
         echo "OS_VERSION=$OS_VERSION" >> $GITHUB_ENV
 
     - name: upload
