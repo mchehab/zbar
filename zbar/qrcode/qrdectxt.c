@@ -16,6 +16,8 @@
 #include "error.h"
 #include "img_scanner.h"
 
+#define ENC_LIST_SIZE	4
+
 static int text_is_ascii(const unsigned char *_text,int _len){
   int i;
   for(i=0;i<_len;i++)if(_text[i]>=0x80)return 0;
@@ -50,9 +52,9 @@ static int text_is_big5(const unsigned char *_text, int _len){
   return 1;
 }
 
-static void enc_list_mtf(iconv_t _enc_list[3],iconv_t _enc){
+static void enc_list_mtf(iconv_t _enc_list[ENC_LIST_SIZE],iconv_t _enc){
   int i;
-  for(i=0;i<4;i++)if(_enc_list[i]==_enc){
+  for(i=0;i<ENC_LIST_SIZE;i++)if(_enc_list[i]==_enc){
     int j;
     for(j=i;j-->0;)_enc_list[j+1]=_enc_list[j];
     _enc_list[0]=_enc;
@@ -90,7 +92,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list *_qrlist,
   for(i=0;i<nqrdata;i++)if(!mark[i]){
     const qr_code_data       *qrdataj;
     const qr_code_data_entry *entry;
-    iconv_t                   enc_list[4];
+    iconv_t                   enc_list[ENC_LIST_SIZE];
     iconv_t                   eci_cd;
     int                       sa[16];
     int                       sa_size;
@@ -290,7 +292,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list *_qrlist,
               }
 
               /*Try our list of encodings.*/
-              for(ei=0;ei<4;ei++)if(enc_list[ei]!=(iconv_t)-1){
+              for(ei=0;ei<ENC_LIST_SIZE;ei++)if(enc_list[ei]!=(iconv_t)-1){
                 /*According to the 2005 version of the standard,
                    ISO/IEC 8859-1 (one hyphen) is supposed to be used, but
                    reality is not always so (and in the 2000 version of the
@@ -305,7 +307,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list *_qrlist,
                 if(ei<3&&enc_list[ei]==latin1_cd&&
                  !text_is_latin1((unsigned char *)in,inleft)){
                   int ej;
-                  for(ej=ei+1;ej<4;ej++)enc_list[ej-1]=enc_list[ej];
+                  for(ej=ei+1;ej<ENC_LIST_SIZE;ej++)enc_list[ej-1]=enc_list[ej];
                   enc_list[3]=latin1_cd;
                 }
                 err=iconv(enc_list[ei],&in,&inleft,&out,&outleft)==(size_t)-1;
