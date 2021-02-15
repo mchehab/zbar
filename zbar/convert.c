@@ -1105,7 +1105,6 @@ int _zbar_best_format (uint32_t src,
 int zbar_negotiate_format (zbar_video_t *vdo,
                            zbar_window_t *win)
 {
-    static const uint32_t y800[2] = { fourcc('Y','8','0','0'), 0 };
     errinfo_t *errdst;
     const uint32_t *srcs, *dsts;
     unsigned min_cost = -1;
@@ -1115,26 +1114,23 @@ int zbar_negotiate_format (zbar_video_t *vdo,
     if(!vdo && !win)
         return(0);
 
-    if(win)
-        (void)window_lock(win);
+    (void)window_lock(win);
 
-    errdst = (vdo) ? &vdo->err : &win->err;
+    errdst = &vdo->err;
     if(verify_format_sort()) {
-        if(win)
-            (void)window_unlock(win);
+        (void)window_unlock(win);
         return(err_capture(errdst, SEV_FATAL, ZBAR_ERR_INTERNAL, __func__,
                            "image format list is not sorted!?"));
     }
 
-    if((vdo && !vdo->formats) || (win && !win->formats)) {
-        if(win)
-            (void)window_unlock(win);
+    if(!vdo->format || !win->formats) {
+        (void)window_unlock(win);
         return(err_capture(errdst, SEV_ERROR, ZBAR_ERR_UNSUPPORTED, __func__,
                            "no input or output formats available"));
     }
 
-    srcs = (vdo) ? vdo->formats : y800;
-    dsts = (win) ? win->formats : y800;
+    srcs = vdo->formats;
+    dsts = win->formats;
 
     for(fmt = _zbar_formats; *fmt; fmt++) {
         /* only consider formats supported by video device */
@@ -1163,8 +1159,8 @@ int zbar_negotiate_format (zbar_video_t *vdo,
         vdo->formats = vdo->emu_formats;
         vdo->emu_formats = NULL;
 
-	srcs = (vdo) ? vdo->formats : y800;
-	dsts = (win) ? win->formats : y800;
+        srcs = vdo->formats;
+        dsts = win->formats;
 
         /*
         * Use the same cost algorithm to select emulated formats.
@@ -1196,14 +1192,11 @@ int zbar_negotiate_format (zbar_video_t *vdo,
         }
     }
 
-    if(win)
-        (void)window_unlock(win);
+    (void)window_unlock(win);
 
     if(!min_fmt)
         return(err_capture(errdst, SEV_ERROR, ZBAR_ERR_UNSUPPORTED, __func__,
                            "no supported image formats available"));
-    if(!vdo)
-        return(0);
 
     zprintf(2, "setting best format %.4s(%08" PRIx32 ") (%d)\n",
             (char*)&min_fmt, min_fmt, min_cost);
