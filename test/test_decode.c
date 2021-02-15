@@ -1342,7 +1342,7 @@ int main (int argc, char *argv[])
     encode_junk(rnd_size + 1);
 
     if (num_iter) {
-        for (iter == 0; iter < num_iter; iter++) {
+        for (iter = 0; iter < num_iter; iter++) {
             test1();
             seed = (rand() << 8) ^ rand();
         }
