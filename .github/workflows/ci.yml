@@ -225,7 +225,9 @@ jobs:
       shell: msys2 {0}
       run: |
         autoreconf -vfi
-        ./configure --enable-pthread --disable-dependency-tracking ${{ matrix.extra }}
+        ./configure LDFLAGS="-static" \
+                    --enable-pthread --disable-dependency-tracking \
+                    ${{ matrix.extra }}
 
     - name: build
       shell: msys2 {0}
