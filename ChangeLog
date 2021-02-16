@@ -1,5 +1,9 @@
-0.23.90:
+0.23.92:
 
+  * Added a --enable-static option to make easier to distribute
+    Windows binaries
+
+0.23.90:
   * Started using github actions for CI and binary releases
   * Fixed several issues with configure.ac, making it auto-detect
     most things, when possible
