@@ -28,4 +28,4 @@ jobs:
           release_name: Release ${{ github.ref }}
           body_path: body_file.tmp
           draft: false
-          prerelease: false
+          prerelease: true
