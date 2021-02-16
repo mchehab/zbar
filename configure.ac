@@ -59,7 +59,6 @@ AM_CFLAGS="-Wall -Wno-parentheses"
 AM_CXXFLAGS="$AM_CFLAGS"
 AC_SUBST([AM_CPPFLAGS])
 AC_SUBST([AM_CFLAGS])
-AC_SUBST([LDFLAGS])
 AC_SUBST([AM_CXXFLAGS])
 
 dnl windows build
@@ -477,12 +476,6 @@ AS_IF([test "x$have_IM7" = "xyes"],
   [AC_DEFINE([HAVE_IMAGEMAGICK7], [1], [Define to 1 to use ImageMagick 7])])
 AM_CONDITIONAL([HAVE_MAGICK],
   [test "x$have_IM" = "xyes" || test "x$have_GM" = "xyes"])
-
-AC_ARG_ENABLE([static],
-  [AS_HELP_STRING([--enable-static],
-    [Use static libraries])])
-
-AS_IF([test x$enable_static = xyes], [AC_SUBST([LDFLAGS], ["-static"])])
 
 dnl Mozilla NPAPI
 AC_ARG_WITH([npapi],
