@@ -98,35 +98,80 @@ const char *zbar_get_orientation_name (zbar_orientation_t orient)
     }
 }
 
+#ifndef _MSC_VER
+static const signed char _zbar_symbol_hash[ZBAR_CODE128 + 1] = {
+    [0 ... ZBAR_CODE128] = -1,
+
+    /* [ZBAR_FOO] = 0, is empty */
+    [ZBAR_SQCODE]      = 1,
+    [ZBAR_CODE128]     = 2,
+    [ZBAR_EAN13]       = 3,
+    [ZBAR_UPCA]        = 4,
+    [ZBAR_EAN8]        = 5,
+    [ZBAR_UPCE]        = 6,
+    [ZBAR_ISBN13]      = 7,
+    [ZBAR_ISBN10]      = 8,
+    [ZBAR_CODE39]      = 9,
+    [ZBAR_I25]         = 10,
+    [ZBAR_PDF417]      = 11,
+    [ZBAR_QRCODE]      = 12,
+    [ZBAR_DATABAR]     = 13,
+    [ZBAR_DATABAR_EXP] = 14,
+    [ZBAR_CODE93]      = 15,
+    [ZBAR_EAN2]        = 16,
+    [ZBAR_EAN5]        = 17,
+    [ZBAR_COMPOSITE]   = 18,
+    [ZBAR_CODABAR]     = 19,
+
+    /* Please update NUM_SYMS accordingly */
+};
+
+static const signed char *_init_hash() { return _zbar_symbol_hash; };
+#else
+/*
+ * Needed By Microsoft C. Even on Visual Studio 2019, C99 designated
+ * identifiers aren't supported! So, we need this hack.
+ */
+static const signed char *_init_hash() {
+    static signed char hash[ZBAR_CODE128 + 1] = { -1 };
+    static int was_initialized = 0;
+
+    if (was_initialized)
+	return (const signed char *)hash;
+
+    memset(hash, -1, sizeof(hash));
+
+    /* Keep in sync with the C99 implementation */
+    hash[ZBAR_SQCODE]      = 1,
+    hash[ZBAR_CODE128]     = 2,
+    hash[ZBAR_EAN13]       = 3,
+    hash[ZBAR_UPCA]        = 4,
+    hash[ZBAR_EAN8]        = 5,
+    hash[ZBAR_UPCE]        = 6,
+    hash[ZBAR_ISBN13]      = 7,
+    hash[ZBAR_ISBN10]      = 8,
+    hash[ZBAR_CODE39]      = 9,
+    hash[ZBAR_I25]         = 10,
+    hash[ZBAR_PDF417]      = 11,
+    hash[ZBAR_QRCODE]      = 12,
+    hash[ZBAR_DATABAR]     = 13,
+    hash[ZBAR_DATABAR_EXP] = 14,
+    hash[ZBAR_CODE93]      = 15,
+    hash[ZBAR_EAN2]        = 16,
+    hash[ZBAR_EAN5]        = 17,
+    hash[ZBAR_COMPOSITE]   = 18,
+    hash[ZBAR_CODABAR]     = 19;
+
+    was_initialized = 1;
+
+    return (const signed char *)hash;
+};
+#endif
+
 int _zbar_get_symbol_hash (zbar_symbol_type_t sym)
 {
-    static const signed char hash[ZBAR_CODE128 + 1] = {
-        [0 ... ZBAR_CODE128] = -1,
-
-        /* [ZBAR_FOO] = 0, is empty */
-        [ZBAR_SQCODE]      = 1,
-        [ZBAR_CODE128]     = 2,
-        [ZBAR_EAN13]       = 3,
-        [ZBAR_UPCA]        = 4,
-        [ZBAR_EAN8]        = 5,
-        [ZBAR_UPCE]        = 6,
-        [ZBAR_ISBN13]      = 7,
-        [ZBAR_ISBN10]      = 8,
-        [ZBAR_CODE39]      = 9,
-        [ZBAR_I25]         = 10,
-        [ZBAR_PDF417]      = 11,
-        [ZBAR_QRCODE]      = 12,
-        [ZBAR_DATABAR]     = 13,
-        [ZBAR_DATABAR_EXP] = 14,
-        [ZBAR_CODE93]      = 15,
-        [ZBAR_EAN2]        = 16,
-        [ZBAR_EAN5]        = 17,
-        [ZBAR_COMPOSITE]   = 18,
-        [ZBAR_CODABAR]     = 19,
-
-        /* Please update NUM_SYMS accordingly */
-    };
     int h;
+    const signed char *hash = _init_hash();
 
     assert (sym >= ZBAR_PARTIAL && sym <= ZBAR_CODE128);
 
