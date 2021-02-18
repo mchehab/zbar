@@ -35,7 +35,7 @@
 # define HAVE_THREADS
 # define ZTHREAD DWORD WINAPI
 
-typedef ZTHREAD (zbar_thread_proc_t)(void*);
+typedef DWORD (WINAPI zbar_thread_proc_t)(void*);
 
 typedef DWORD zbar_thread_id_t;
 
