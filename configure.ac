@@ -728,7 +728,7 @@ AC_ARG_WITH([java],
   [],
   [with_java="check"])
 
-JAVAC=${JAVAC/ecj/ecj -1.5}
+JAVAC=$(echo $JAVAC |sed 's/ecj/ecj -1.5/')
 
 dnl Javah was obsoleted on Java 8 and removed on Java 11. So, we need to
 dnl look strictly at the $JAVA_HOME in order to avoid mixing different versions
