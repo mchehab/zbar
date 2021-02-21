@@ -21,6 +21,8 @@
  *  http://sourceforge.net/projects/zbar
  *------------------------------------------------------------------------*/
 
+#include <config.h>
+
 #include <fcntl.h>
 #include <ftw.h>
 #include <stdio.h>
@@ -32,8 +34,9 @@
 
 #include <sys/ioctl.h>
 #include <sys/stat.h>
-#include <sys/sysmacros.h>
-
+#ifdef MAJOR_IN_SYSMACROS
+#  include <sys/sysmacros.h>
+#endif
 typedef void (cb_t) (void *userdata, const char *device);
 
 struct devnodes {
