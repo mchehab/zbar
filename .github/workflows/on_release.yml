@@ -32,10 +32,7 @@ jobs:
         .github/workflows/debuilder.sh
     - name: generating tarball
       run: |
-        DIR="${PWD}"
-        cd ..
-        tar cvfz zbar-ubuntu-20.04.tar.gz *.deb
-        cd ${DIR}
+        (cd ..; tar cvfz zbar-ubuntu-20.04.tar.gz *deb)
 
     - name: upload
       env:
