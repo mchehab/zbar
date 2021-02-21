@@ -7,6 +7,8 @@ on:
       - published
       - edited
 
+  workflow_dispatch:
+
 jobs:
   Ubuntu:
     name: Build for Ubuntu 20.04
@@ -38,7 +40,7 @@ jobs:
     - name: upload
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      uses: actions/upload-release-asset@v1
+      uses: mchehab/upload-release-asset@v1.0.3
       with:
         upload_url: ${{ github.event.release.upload_url }}
         asset_path: ../zbar-ubuntu-20.04.tar.gz
@@ -74,7 +76,7 @@ jobs:
     - name: upload
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      uses: actions/upload-release-asset@v1
+      uses: mchehab/upload-release-asset@v1.0.3
       with:
         upload_url: ${{ github.event.release.upload_url }}
         asset_path: ./zbar-macos.tar.gz
@@ -142,7 +144,7 @@ jobs:
     - name: upload
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      uses: actions/upload-release-asset@v1
+      uses:  mchehab/upload-release-asset@v1.0.3
       with:
         upload_url: ${{ github.event.release.upload_url }}
         asset_path: ./zbar-win_${{ matrix.arch }}-${{ matrix.video }}.zip
