@@ -22,6 +22,8 @@
  *  http://sourceforge.net/projects/zbarw
  *------------------------------------------------------------------------*/
 
+#include <config.h>
+
 #include "video.h"
 #include "thread.h"
 #include "misc.h"
