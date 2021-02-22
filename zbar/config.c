@@ -21,7 +21,7 @@
  *  http://sourceforge.net/projects/zbar
  *------------------------------------------------------------------------*/
 
-#include <config.h>
+#include "config.h"
 #include <stdlib.h>     /* strtol */
 #include <string.h>     /* strchr, strncmp, strlen */
 #ifdef HAVE_ERRNO_H

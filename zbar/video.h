@@ -23,7 +23,7 @@
 #ifndef _VIDEO_H_
 #define _VIDEO_H_
 
-#include <config.h>
+#include "config.h"
 
 #ifdef HAVE_INTTYPES_H
 # include <inttypes.h>

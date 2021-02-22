@@ -22,7 +22,7 @@
  *  http://sourceforge.net/projects/zbarw
  *------------------------------------------------------------------------*/
 
-#include <config.h>
+#include "config.h"
 
 #include "video.h"
 #include "thread.h"

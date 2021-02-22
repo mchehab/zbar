@@ -23,7 +23,7 @@
 #ifndef _ZBAR_EVENT_H_
 #define _ZBAR_EVENT_H_
 
-#include <config.h>
+#include "config.h"
 #include "mutex.h"
 #include "timer.h"
 

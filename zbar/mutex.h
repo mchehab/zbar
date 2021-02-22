@@ -23,7 +23,7 @@
 #ifndef _ZBAR_MUTEX_H_
 #define _ZBAR_MUTEX_H_
 
-#include <config.h>
+#include "config.h"
 
 /* simple platform mutex abstraction
  */

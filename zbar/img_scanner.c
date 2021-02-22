@@ -21,7 +21,7 @@
  *  http://sourceforge.net/projects/zbar
  *------------------------------------------------------------------------*/
 
-#include <config.h>
+#include "config.h"
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
 #endif
