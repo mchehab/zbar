@@ -33,8 +33,14 @@ decoder_new (PyTypeObject *type,
              PyObject *args,
              PyObject *kwds)
 {
-    static char *kwlist[] = { NULL };
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, "", kwlist))
+    int use_utf8;
+#if PY_MAJOR_VERSION >= 3
+    use_utf8 = 1;
+#else
+    use_utf8 = 0;
+#endif
+    static char *kwlist[] = { "use_utf8", NULL };
+    if(!PyArg_ParseTupleAndKeywords(args, kwds, "|p", kwlist, &use_utf8))
         return(NULL);
 
     zbarDecoder *self = (zbarDecoder*)type->tp_alloc(type, 0);
@@ -48,6 +54,14 @@ decoder_new (PyTypeObject *type,
         return(NULL);
     }
 
+#if PY_MAJOR_VERSION >= 3
+    self->use_utf8 = use_utf8;
+#else
+    if(use_utf8 == 1) {
+        PyErr_SetString(PyExc_ValueError, "use_utf8=True not supported on Python2-ZBar");
+        return(-1);
+    }
+#endif
     return(self);
 }
 
@@ -130,8 +144,12 @@ decoder_get_data (zbarDecoder *self,
                   void *closure)
 {
 #if PY_MAJOR_VERSION >= 3
-    return(PyUnicode_FromStringAndSize(zbar_decoder_get_data(self->zdcode),
-                                     zbar_decoder_get_data_length(self->zdcode)));
+    if (self->use_utf8)
+        return(PyUnicode_FromStringAndSize(zbar_decoder_get_data(self->zdcode),
+                                           zbar_decoder_get_data_length(self->zdcode)));
+    else
+        return(PyBytes_FromStringAndSize(zbar_decoder_get_data(self->zdcode),
+                                         zbar_decoder_get_data_length(self->zdcode)));
 #else
     return(PyString_FromStringAndSize(zbar_decoder_get_data(self->zdcode),
                                       zbar_decoder_get_data_length(self->zdcode)));

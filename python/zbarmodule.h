@@ -89,6 +89,9 @@ typedef struct {
     PyObject_HEAD
     zbar_image_t *zimg;
     PyObject *data;
+#if PY_MAJOR_VERSION >= 3
+    int use_utf8;
+#endif
 } zbarImage;
 
 extern PyTypeObject zbarImage_Type;
@@ -113,6 +116,9 @@ typedef struct {
     const zbar_symbol_t *zsym;
     PyObject *data;
     PyObject *loc;
+#if PY_MAJOR_VERSION >= 3
+    int use_utf8;
+#endif
 } zbarSymbol;
 
 extern PyTypeObject zbarSymbol_Type;
@@ -153,6 +159,9 @@ typedef struct {
     zbar_decoder_t *zdcode;
     PyObject *handler;
     PyObject *args;
+#if PY_MAJOR_VERSION >= 3
+    int use_utf8;
+#endif
 } zbarDecoder;
 
 extern PyTypeObject zbarDecoder_Type;
