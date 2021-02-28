@@ -2,11 +2,11 @@
 *.lo
 *.o
 *~
-
+.idea/
 .deps/
 .dirstamp
 .libs/
-
+.vs/
 ABOUT-NLS
 aclocal.m4
 autom4te.cache/
