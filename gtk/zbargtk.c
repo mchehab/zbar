@@ -345,7 +345,7 @@ static void zbar_gtk_realize (GtkWidget *widget)
 
     gtk_widget_set_realized(widget, TRUE);
 
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 14
+#if GTK_CHECK_VERSION(3, 14, 0)
     // FIXME: this is deprecated after 3.14 - no idea what replaces it
 #else
     gtk_widget_set_double_buffered(widget, FALSE);
@@ -437,7 +437,7 @@ static void zbar_get_preferred_width(GtkWidget *widget,
      * arbitrary defaults otherwise.
      * video attributes maintained under main gui idle handler
      */
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 22
+#if GTK_CHECK_VERSION(3, 22, 0)
     GdkRectangle geo;
 
     GdkDisplay *display = gdk_display_get_default();
@@ -473,7 +473,7 @@ static void zbar_get_preferred_height(GtkWidget *widget,
      * arbitrary defaults otherwise.
      * video attributes maintained under main gui idle handler
      */
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 22
+#if GTK_CHECK_VERSION(3, 22, 0)
     GdkRectangle geo;
 
     GdkDisplay *display = gdk_display_get_default();
