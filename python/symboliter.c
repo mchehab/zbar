@@ -77,14 +77,16 @@ static zbarSymbol *symboliter_iternext(zbarSymbolIter *self)
 
 PyTypeObject zbarSymbolIter_Type = {
     PyVarObject_HEAD_INIT(NULL, 0).tp_name = "zbar.SymbolIter",
-    .tp_doc				   = symboliter_doc,
-    .tp_basicsize			   = sizeof(zbarSymbolIter),
+
     .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
-    .tp_traverse = (traverseproc)symboliter_traverse,
-    .tp_clear	 = (inquiry)symboliter_clear,
-    .tp_dealloc	 = (destructor)symboliter_dealloc,
-    .tp_iter	 = (getiterfunc)symboliter_iter,
-    .tp_iternext = (iternextfunc)symboliter_iternext,
+
+    .tp_doc	  = symboliter_doc,
+    .tp_basicsize = sizeof(zbarSymbolIter),
+    .tp_traverse  = (traverseproc)symboliter_traverse,
+    .tp_clear	  = (inquiry)symboliter_clear,
+    .tp_dealloc	  = (destructor)symboliter_dealloc,
+    .tp_iter	  = (getiterfunc)symboliter_iter,
+    .tp_iternext  = (iternextfunc)symboliter_iternext,
 };
 
 zbarSymbolIter *zbarSymbolIter_FromSymbolSet(zbarSymbolSet *syms)

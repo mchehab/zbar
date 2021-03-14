@@ -36,6 +36,8 @@ static zbarProcessor *processor_new(PyTypeObject *type, PyObject *args,
 {
     static char *kwlist[] = { "enable_threads", NULL };
     int threaded	  = -1;
+    zbarProcessor *self;
+
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&", kwlist, object_to_bool,
 				     &threaded))
 	return (NULL);
@@ -55,7 +57,7 @@ static zbarProcessor *processor_new(PyTypeObject *type, PyObject *args,
     threaded = 0;
 #endif
 
-    zbarProcessor *self = (zbarProcessor *)type->tp_alloc(type, 0);
+    self = (zbarProcessor *)type->tp_alloc(type, 0);
     if (!self)
 	return (NULL);
 
@@ -110,11 +112,13 @@ static PyObject *processor_get_bool(zbarProcessor *self, void *closure)
 static int processor_set_bool(zbarProcessor *self, PyObject *value,
 			      void *closure)
 {
+    int rc, val;
+
     if (!value) {
 	PyErr_SetString(PyExc_TypeError, "cannot delete attribute");
 	return (-1);
     }
-    int rc, val = PyObject_IsTrue(value);
+    val = PyObject_IsTrue(value);
     if (val < 0)
 	return (-1);
     switch ((intptr_t)closure) {
@@ -138,18 +142,20 @@ static int processor_set_bool(zbarProcessor *self, PyObject *value,
 static zbarSymbolSet *processor_get_results(zbarProcessor *self, void *closure)
 {
     const zbar_symbol_set_t *zsyms = zbar_processor_get_results(self->zproc);
+
     return (zbarSymbolSet_FromSymbolSet(zsyms));
 }
 
 static int processor_set_request_size(zbarProcessor *self, PyObject *value,
 				      void *closure)
 {
+    int dims[2];
+
     if (!value) {
 	zbar_processor_request_size(self->zproc, 0, 0);
 	return (0);
     }
 
-    int dims[2];
     if (parse_dimensions(value, dims, 2) || dims[0] < 0 || dims[1] < 0) {
 	PyErr_SetString(PyExc_ValueError,
 			"request_size must be a sequence of two positive ints");
@@ -185,6 +191,7 @@ static PyObject *processor_set_config(zbarProcessor *self, PyObject *args,
     zbar_config_t cfg	   = ZBAR_CFG_ENABLE;
     int val		   = 1;
     static char *kwlist[]  = { "symbology", "config", "value", NULL };
+
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "|iii", kwlist, &sym, &cfg,
 				     &val))
 	return (NULL);
@@ -202,6 +209,7 @@ static PyObject *processor_init_(zbarProcessor *self, PyObject *args,
     const char *dev	  = "";
     int disp		  = 1;
     static char *kwlist[] = { "video_device", "enable_display", NULL };
+
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "|zO&", kwlist, &dev,
 				     object_to_bool, &disp))
 	return (NULL);
@@ -216,6 +224,7 @@ static PyObject *processor_parse_config(zbarProcessor *self, PyObject *args,
 {
     const char *cfg	  = NULL;
     static char *kwlist[] = { "config", NULL };
+
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "s", kwlist, &cfg))
 	return (NULL);
 
@@ -230,6 +239,7 @@ static PyObject *processor_parse_config(zbarProcessor *self, PyObject *args,
 static int object_to_timeout(PyObject *obj, int *val)
 {
     long tmp;
+
     if (PyFloat_Check(obj))
 	tmp = PyFloat_AS_DOUBLE(obj) * 1000;
     else
@@ -248,12 +258,13 @@ static PyObject *processor_user_wait(zbarProcessor *self, PyObject *args,
 				     PyObject *kwds)
 {
     int timeout		  = -1;
+    int rc		  = -1;
     static char *kwlist[] = { "timeout", NULL };
+
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&", kwlist,
 				     object_to_timeout, &timeout))
 	return (NULL);
 
-    int rc		      = -1;
     Py_BEGIN_ALLOW_THREADS rc = zbar_processor_user_wait(self->zproc, timeout);
     Py_END_ALLOW_THREADS
 
@@ -269,12 +280,13 @@ static PyObject *processor_process_one(zbarProcessor *self, PyObject *args,
 				       PyObject *kwds)
 {
     int timeout		  = -1;
+    int rc		  = -1;
     static char *kwlist[] = { "timeout", NULL };
+
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&", kwlist,
 				     object_to_timeout, &timeout))
 	return (NULL);
 
-    int rc		      = -1;
     Py_BEGIN_ALLOW_THREADS rc = zbar_process_one(self->zproc, timeout);
     Py_END_ALLOW_THREADS
 
@@ -291,6 +303,7 @@ static PyObject *processor_process_image(zbarProcessor *self, PyObject *args,
 {
     zbarImage *img	  = NULL;
     static char *kwlist[] = { "image", NULL };
+
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!", kwlist, &zbarImage_Type,
 				     &img))
 	return (NULL);
@@ -314,13 +327,14 @@ void process_handler(zbar_image_t *zimg, const void *userdata)
 {
     PyGILState_STATE gstate;
     gstate = PyGILState_Ensure();
+    zbarImage *img;
 
     zbarProcessor *self = (zbarProcessor *)userdata;
     assert(self);
     assert(self->handler);
     assert(self->closure);
 
-    zbarImage *img = zbar_image_get_userdata(zimg);
+    img = zbar_image_get_userdata(zimg);
     if (!img || img->zimg != zimg) {
 	img = zbarImage_FromImage(zimg);
 	if (!img) {
@@ -428,13 +442,15 @@ static PyMethodDef processor_methods[] = {
 
 PyTypeObject zbarProcessor_Type = {
     PyVarObject_HEAD_INIT(NULL, 0).tp_name = "zbar.Processor",
-    .tp_doc				   = processor_doc,
-    .tp_basicsize			   = sizeof(zbarProcessor),
+
     .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
-    .tp_new   = (newfunc)processor_new,
-    .tp_traverse = (traverseproc)processor_traverse,
-    .tp_clear	 = (inquiry)processor_clear,
-    .tp_dealloc	 = (destructor)processor_dealloc,
-    .tp_getset	 = processor_getset,
-    .tp_methods	 = processor_methods,
+
+    .tp_doc	  = processor_doc,
+    .tp_basicsize = sizeof(zbarProcessor),
+    .tp_new	  = (newfunc)processor_new,
+    .tp_traverse  = (traverseproc)processor_traverse,
+    .tp_clear	  = (inquiry)processor_clear,
+    .tp_dealloc	  = (destructor)processor_dealloc,
+    .tp_getset	  = processor_getset,
+    .tp_methods	  = processor_methods,
 };

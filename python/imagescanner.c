@@ -183,11 +183,13 @@ static PyMethodDef imagescanner_methods[] = {
 
 PyTypeObject zbarImageScanner_Type = {
     PyVarObject_HEAD_INIT(NULL, 0).tp_name = "zbar.ImageScanner",
-    .tp_doc				   = imagescanner_doc,
-    .tp_basicsize			   = sizeof(zbarImageScanner),
-    .tp_flags	= Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    .tp_new	= (newfunc)imagescanner_new,
-    .tp_dealloc = (destructor)imagescanner_dealloc,
-    .tp_getset	= imagescanner_getset,
-    .tp_methods = imagescanner_methods,
+
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+
+    .tp_doc	  = imagescanner_doc,
+    .tp_basicsize = sizeof(zbarImageScanner),
+    .tp_new	  = (newfunc)imagescanner_new,
+    .tp_dealloc	  = (destructor)imagescanner_dealloc,
+    .tp_getset	  = imagescanner_getset,
+    .tp_methods	  = imagescanner_methods,
 };

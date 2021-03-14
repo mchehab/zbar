@@ -21,9 +21,10 @@
  *  http://sourceforge.net/projects/zbar
  *------------------------------------------------------------------------*/
 
-#include <vfw.h>
 #include "thread.h"
 #include "video.h"
+
+#include <vfw.h>
 
 #include <assert.h>
 

@@ -527,6 +527,6 @@ static inline std::ostream &operator<<(std::ostream &out, const Symbol &sym)
     return (out);
 }
 
-}
+} // namespace zbar
 
 #endif

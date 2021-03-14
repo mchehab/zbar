@@ -219,6 +219,6 @@ private:
     zbar_video_t *_video;
 };
 
-}
+} // namespace zbar
 
 #endif

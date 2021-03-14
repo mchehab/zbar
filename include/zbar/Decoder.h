@@ -198,6 +198,6 @@ private:
     }
 };
 
-}
+} // namespace zbar
 
 #endif

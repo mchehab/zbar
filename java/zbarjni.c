@@ -44,6 +44,7 @@ static struct {
 static inline void throw_exc(JNIEnv *env, const char *name, const char *msg)
 {
     jclass cls = (*env)->FindClass(env, name);
+
     if (cls)
 	(*env)->ThrowNew(env, cls, msg);
     (*env)->DeleteLocalRef(env, cls);
@@ -167,6 +168,7 @@ JNIEXPORT jstring JNICALL Java_net_sourceforge_zbar_Symbol_getData(JNIEnv *env,
 								   jobject obj)
 {
     const char *data = zbar_symbol_get_data(GET_PEER(Symbol, obj));
+
     return ((*env)->NewStringUTF(env, data));
 }
 
@@ -176,6 +178,7 @@ Java_net_sourceforge_zbar_Symbol_getDataBytes(JNIEnv *env, jobject obj)
     const zbar_symbol_t *zsym = GET_PEER(Symbol, obj);
     const void *data	      = zbar_symbol_get_data(zsym);
     unsigned long datalen     = zbar_symbol_get_data_length(zsym);
+
     if (!data || !datalen)
 	return (NULL);
 
@@ -226,8 +229,9 @@ Java_net_sourceforge_zbar_Symbol_getOrientation(JNIEnv *env, jobject obj)
 JNIEXPORT jlong JNICALL Java_net_sourceforge_zbar_Symbol_getComponents(
     JNIEnv *env, jobject obj, jlong peer)
 {
-    const zbar_symbol_set_t *zsyms =
-	zbar_symbol_get_components(PEER_CAST(peer));
+    const zbar_symbol_set_t *zsyms;
+
+    zsyms = zbar_symbol_get_components(PEER_CAST(peer));
     if (zsyms) {
 	zbar_symbol_set_ref(zsyms, 1);
 	stats.SymbolSet_create++;
@@ -332,8 +336,10 @@ JNIEXPORT jstring JNICALL Java_net_sourceforge_zbar_Image_getFormat(JNIEnv *env,
 								    jobject obj)
 {
     uint32_t fourcc = zbar_image_get_format(GET_PEER(Image, obj));
+
     if (!fourcc)
 	return (NULL);
+
     char fmtstr[5] = { fourcc, fourcc >> 8, fourcc >> 16, fourcc >> 24, 0 };
     return ((*env)->NewStringUTF(env, fmtstr));
 }
@@ -343,6 +349,7 @@ JNIEXPORT void JNICALL Java_net_sourceforge_zbar_Image_setFormat(JNIEnv *env,
 								 jstring format)
 {
     uint32_t fourcc = format_to_fourcc(env, format);
+
     if (!fourcc)
 	return;
     zbar_image_set_format(GET_PEER(Image, obj), fourcc);

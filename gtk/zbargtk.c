@@ -65,6 +65,7 @@ G_DEFINE_TYPE(ZBarGtk, zbar_gtk, GTK_TYPE_WIDGET);
 void zbar_gtk_release_pixbuf(zbar_image_t *img)
 {
     GdkPixbuf *pixbuf = zbar_image_get_userdata(img);
+
     g_assert(GDK_IS_PIXBUF(pixbuf));
 
     /* remove reference */
@@ -76,16 +77,23 @@ void zbar_gtk_release_pixbuf(zbar_image_t *img)
 
 gboolean zbar_gtk_image_from_pixbuf(zbar_image_t *zimg, GdkPixbuf *pixbuf)
 {
+    unsigned pitch, width, height;
+    GdkColorspace colorspace;
+    unsigned long datalen;
+    int nchannels, bps;
+    long type;
+
     /* apparently should always be packed RGB? */
-    GdkColorspace colorspace = gdk_pixbuf_get_colorspace(pixbuf);
+    colorspace = gdk_pixbuf_get_colorspace(pixbuf);
+
     if (colorspace != GDK_COLORSPACE_RGB) {
 	g_warning("non-RGB color space not supported: %d\n", colorspace);
 	return (FALSE);
     }
 
-    int nchannels = gdk_pixbuf_get_n_channels(pixbuf);
-    int bps	  = gdk_pixbuf_get_bits_per_sample(pixbuf);
-    long type	  = 0;
+    nchannels = gdk_pixbuf_get_n_channels(pixbuf);
+    bps	      = gdk_pixbuf_get_bits_per_sample(pixbuf);
+    type      = 0;
 
     /* these are all guesses... */
     if (nchannels == 3 && bps == 8)
@@ -108,16 +116,18 @@ gboolean zbar_gtk_image_from_pixbuf(zbar_image_t *zimg, GdkPixbuf *pixbuf)
     /* FIXME we don't deal w/bpl...
      * this will cause problems w/unpadded pixbufs :|
      */
-    unsigned pitch = gdk_pixbuf_get_rowstride(pixbuf);
-    unsigned width = pitch / ((nchannels * bps) / 8);
+    pitch = gdk_pixbuf_get_rowstride(pixbuf);
+    width = pitch / ((nchannels * bps) / 8);
+
     if ((width * nchannels * 8 / bps) != pitch) {
 	g_warning("unsupported: width=%d nchannels=%d bps=%d rowstride=%d\n",
 		  width, nchannels, bps, pitch);
 	return (FALSE);
     }
-    unsigned height = gdk_pixbuf_get_height(pixbuf);
+    height = gdk_pixbuf_get_height(pixbuf);
     /* FIXME this isn't correct either */
-    unsigned long datalen = width * height * nchannels;
+    datalen = width * height * nchannels;
+
     zbar_image_set_size(zimg, width, height);
 
     /* when the zbar image is released, the pixbuf will be
@@ -198,7 +208,10 @@ static inline gboolean zbar_gtk_video_open(ZBarGtk *self,
 
 static inline int zbar_gtk_process_image(ZBarGtk *self, zbar_image_t *image)
 {
-    ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
+    ZBarGtkPrivate *zbar;
+    int rc;
+
+    zbar = ZBAR_GTK_PRIVATE(self->_private);
 
     if (!image)
 	return (-1);
@@ -209,7 +222,7 @@ static inline int zbar_gtk_process_image(ZBarGtk *self, zbar_image_t *image)
 	return (-1);
 
     zbar_image_scanner_recycle_image(zbar->scanner, image);
-    int rc = zbar_scan_image(zbar->scanner, tmp);
+    rc = zbar_scan_image(zbar->scanner, tmp);
     zbar_image_set_symbols(image, zbar_image_get_symbols(tmp));
     zbar_image_destroy(tmp);
     if (rc < 0)
@@ -246,8 +259,9 @@ static gboolean zbar_processing_idle_callback(gpointer data)
 {
     ZBarGtk *self	 = data;
     ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
+    GValue *msg		 = g_async_queue_try_pop(zbar->queue);
+    GType type;
 
-    GValue *msg = g_async_queue_try_pop(zbar->queue);
     if (!msg) {
 	if (zbar->video_enabled_state) {
 	    zbar_image_t *image = zbar_video_next_image(zbar->video);
@@ -280,7 +294,7 @@ static gboolean zbar_processing_idle_callback(gpointer data)
 
     g_assert(G_IS_VALUE(msg));
 
-    GType type = G_VALUE_TYPE(msg);
+    type = G_VALUE_TYPE(msg);
     if (type == G_TYPE_INT) {
 	/* video state change */
 	int state = g_value_get_int(msg);
@@ -294,12 +308,14 @@ static gboolean zbar_processing_idle_callback(gpointer data)
 	zbar->video_enabled_state = (state != 0);
     } else if (type == G_TYPE_STRING) {
 	/* open new video device */
-	const char *video_device  = g_value_get_string(msg);
+	const char *video_device = g_value_get_string(msg);
+
 	zbar->video_enabled_state = zbar_gtk_video_open(self, video_device);
     } else if (type == GDK_TYPE_PIXBUF) {
 	/* scan provided image and broadcast results */
 	zbar_image_t *image = zbar_image_create();
 	GdkPixbuf *pixbuf   = GDK_PIXBUF(g_value_dup_object(msg));
+
 	if (zbar_gtk_image_from_pixbuf(image, pixbuf))
 	    zbar_gtk_process_image(self, image);
 	else
@@ -307,6 +323,7 @@ static gboolean zbar_processing_idle_callback(gpointer data)
 	zbar_image_destroy(image);
     } else {
 	gchar *dbg = g_strdup_value_contents(msg);
+
 	g_warning("unknown message type (%x) received: %s\n", (unsigned)type,
 		  dbg);
 	g_free(dbg);
@@ -336,9 +353,13 @@ static gboolean zbar_processing_idle_callback(gpointer data)
 static void zbar_gtk_realize(GtkWidget *widget)
 {
     ZBarGtk *self = ZBAR_GTK(widget);
+    ZBarGtkPrivate *zbar;
+    GdkWindowAttr attributes;
+    GtkAllocation allocation;
+
     if (!self->_private)
 	return;
-    ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
+    zbar = ZBAR_GTK_PRIVATE(self->_private);
 
     gtk_widget_set_realized(widget, TRUE);
 
@@ -347,8 +368,6 @@ static void zbar_gtk_realize(GtkWidget *widget)
 #else
     gtk_widget_set_double_buffered(widget, FALSE);
 #endif
-    GdkWindowAttr attributes;
-    GtkAllocation allocation;
 
     gtk_widget_get_allocation(widget, &allocation);
     attributes.x	   = allocation.x;
@@ -387,16 +406,18 @@ static inline GValue *zbar_gtk_new_value(GType type)
 
 static void zbar_gtk_unrealize(GtkWidget *widget)
 {
+    ZBarGtkPrivate *zbar;
     GdkWindow *window;
+    ZBarGtk *self;
 
     if (gtk_widget_get_mapped(widget))
 	gtk_widget_unmap(widget);
 
     gtk_widget_set_mapped(widget, FALSE);
-    ZBarGtk *self = ZBAR_GTK(widget);
+    self = ZBAR_GTK(widget);
     if (!self->_private)
 	return;
-    ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
+    zbar = ZBAR_GTK_PRIVATE(self->_private);
 
     if (zbar->video_enabled) {
 	zbar->video_enabled = FALSE;
@@ -420,25 +441,32 @@ static void zbar_gtk_unrealize(GtkWidget *widget)
 static void zbar_get_preferred_width(GtkWidget *widget, gint *minimum_width,
 				     gint *natural_width)
 {
-    ZBarGtk *self = ZBAR_GTK(widget);
+    unsigned int screen_width;
+    ZBarGtkPrivate *zbar;
+    ZBarGtk *self;
+#if GTK_CHECK_VERSION(3, 22, 0)
+    GdkDisplay *display;
+    GdkMonitor *monitor;
+    GdkRectangle geo;
+#endif
+    self = ZBAR_GTK(widget);
+
     if (!self->_private)
 	return;
-    ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
+    zbar = ZBAR_GTK_PRIVATE(self->_private);
 
     /* use native video size (max) if available,
      * arbitrary defaults otherwise.
      * video attributes maintained under main gui idle handler
      */
 #if GTK_CHECK_VERSION(3, 22, 0)
-    GdkRectangle geo;
-
-    GdkDisplay *display = gdk_display_get_default();
-    GdkMonitor *monitor = gdk_display_get_monitor(display, 0);
+    display = gdk_display_get_default();
+    monitor = gdk_display_get_monitor(display, 0);
     gdk_monitor_get_geometry(monitor, &geo);
 
-    unsigned int screen_width = geo.width;
+    screen_width = geo.width;
 #else
-    unsigned int screen_width = gdk_screen_width();
+    screen_width = gdk_screen_width();
 #endif
 
     if (zbar->req_width > screen_width) {
@@ -456,6 +484,13 @@ static void zbar_get_preferred_height(GtkWidget *widget, gint *minimum_height,
 				      gint *natural_height)
 {
     ZBarGtk *self = ZBAR_GTK(widget);
+    unsigned int screen_height;
+#if GTK_CHECK_VERSION(3, 22, 0)
+    GdkDisplay *display;
+    GdkMonitor *monitor;
+    GdkRectangle geo;
+#endif
+
     if (!self->_private)
 	return;
     ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
@@ -465,15 +500,13 @@ static void zbar_get_preferred_height(GtkWidget *widget, gint *minimum_height,
      * video attributes maintained under main gui idle handler
      */
 #if GTK_CHECK_VERSION(3, 22, 0)
-    GdkRectangle geo;
-
-    GdkDisplay *display = gdk_display_get_default();
-    GdkMonitor *monitor = gdk_display_get_monitor(display, 0);
+    display = gdk_display_get_default();
+    monitor = gdk_display_get_monitor(display, 0);
     gdk_monitor_get_geometry(monitor, &geo);
 
-    unsigned int screen_height = geo.height;
+    screen_height = geo.height;
 #else
-    unsigned int screen_height = gdk_screen_height();
+    screen_height = gdk_screen_height();
 #endif
 
     if (zbar->req_height > screen_height) {
@@ -492,6 +525,7 @@ static gboolean zbar_gtk_scale_draw(GtkWidget *widget, cairo_t *cr)
     // NOTE: should we change something here?
 
     ZBarGtk *self = ZBAR_GTK(widget);
+
     if (!self->_private)
 	return (FALSE);
     ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
@@ -507,9 +541,11 @@ static void zbar_gtk_size_request(GtkWidget *widget,
 				  GtkRequisition *requisition)
 {
     ZBarGtk *self = ZBAR_GTK(widget);
+    ZBarGtkPrivate *zbar;
+
     if (!self->_private)
 	return;
-    ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
+    zbar = ZBAR_GTK_PRIVATE(self->_private);
 
     /* use native video size (max) if available,
      * arbitrary defaults otherwise.
@@ -522,9 +558,11 @@ static void zbar_gtk_size_request(GtkWidget *widget,
 static gboolean zbar_gtk_expose(GtkWidget *widget, GdkEventExpose *event)
 {
     ZBarGtk *self = ZBAR_GTK(widget);
+    ZBarGtkPrivate *zbar;
+
     if (!self->_private)
 	return (FALSE);
-    ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
+    zbar = ZBAR_GTK_PRIVATE(self->_private);
 
     if (gtk_widget_get_visible(widget) && gtk_widget_get_mapped(widget) &&
 	zbar_window_redraw(zbar->window))
@@ -536,9 +574,11 @@ static gboolean zbar_gtk_expose(GtkWidget *widget, GdkEventExpose *event)
 static void zbar_gtk_size_allocate(GtkWidget *widget, GtkAllocation *allocation)
 {
     ZBarGtk *self = ZBAR_GTK(widget);
+    ZBarGtkPrivate *zbar;
+
     if (!self->_private)
 	return;
-    ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
+    zbar = ZBAR_GTK_PRIVATE(self->_private);
 
     (*GTK_WIDGET_CLASS(zbar_gtk_parent_class)->size_allocate)(widget,
 							      allocation);
@@ -548,9 +588,11 @@ static void zbar_gtk_size_allocate(GtkWidget *widget, GtkAllocation *allocation)
 
 void zbar_gtk_scan_image(ZBarGtk *self, GdkPixbuf *img)
 {
+    ZBarGtkPrivate *zbar;
+
     if (!self->_private)
 	return;
-    ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
+    zbar = ZBAR_GTK_PRIVATE(self->_private);
 
     g_object_ref(G_OBJECT(img));
 
@@ -566,9 +608,11 @@ void zbar_gtk_scan_image(ZBarGtk *self, GdkPixbuf *img)
 
 const char *zbar_gtk_get_video_device(ZBarGtk *self)
 {
+    ZBarGtkPrivate *zbar;
+
     if (!self->_private)
 	return (NULL);
-    ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
+    zbar = ZBAR_GTK_PRIVATE(self->_private);
     if (zbar->video_device)
 	return (zbar->video_device);
     else
@@ -577,9 +621,10 @@ const char *zbar_gtk_get_video_device(ZBarGtk *self)
 
 void zbar_gtk_set_video_device(ZBarGtk *self, const char *video_device)
 {
+    ZBarGtkPrivate *zbar;
     if (!self->_private)
 	return;
-    ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
+    zbar = ZBAR_GTK_PRIVATE(self->_private);
 
     g_free((void *)zbar->video_device);
     zbar->video_device	= g_strdup(video_device);
@@ -601,17 +646,21 @@ void zbar_gtk_set_video_device(ZBarGtk *self, const char *video_device)
 
 gboolean zbar_gtk_get_video_enabled(ZBarGtk *self)
 {
+    ZBarGtkPrivate *zbar;
+
     if (!self->_private)
 	return (FALSE);
-    ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
+    zbar = ZBAR_GTK_PRIVATE(self->_private);
     return (zbar->video_enabled);
 }
 
 void zbar_gtk_set_video_enabled(ZBarGtk *self, gboolean video_enabled)
 {
+    ZBarGtkPrivate *zbar;
+
     if (!self->_private)
 	return;
-    ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
+    zbar = ZBAR_GTK_PRIVATE(self->_private);
 
     video_enabled = (video_enabled != FALSE);
     if (zbar->video_enabled != video_enabled) {
@@ -628,18 +677,22 @@ void zbar_gtk_set_video_enabled(ZBarGtk *self, gboolean video_enabled)
 
 gboolean zbar_gtk_get_video_opened(ZBarGtk *self)
 {
+    ZBarGtkPrivate *zbar;
+
     if (!self->_private)
 	return (FALSE);
-    ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
+    zbar = ZBAR_GTK_PRIVATE(self->_private);
 
     return (zbar->video_opened);
 }
 
 void zbar_gtk_request_video_size(ZBarGtk *self, int width, int height)
 {
+    ZBarGtkPrivate *zbar;
+
     if (!self->_private || width < 0 || height < 0)
 	return;
-    ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
+    zbar = ZBAR_GTK_PRIVATE(self->_private);
 
     zbar->req_width = zbar->video_width = width;
     zbar->req_height = zbar->video_height = height;
@@ -650,6 +703,7 @@ static void zbar_gtk_set_property(GObject *object, guint prop_id,
 				  const GValue *value, GParamSpec *pspec)
 {
     ZBarGtk *self = ZBAR_GTK(object);
+
     switch (prop_id) {
     case PROP_VIDEO_DEVICE:
 	zbar_gtk_set_video_device(self, g_value_get_string(value));
@@ -666,9 +720,11 @@ static void zbar_gtk_get_property(GObject *object, guint prop_id, GValue *value,
 				  GParamSpec *pspec)
 {
     ZBarGtk *self = ZBAR_GTK(object);
+    ZBarGtkPrivate *zbar;
+
     if (!self->_private)
 	return;
-    ZBarGtkPrivate *zbar = ZBAR_GTK_PRIVATE(self->_private);
+    zbar = ZBAR_GTK_PRIVATE(self->_private);
 
     switch (prop_id) {
     case PROP_VIDEO_DEVICE:
@@ -716,6 +772,7 @@ static void zbar_gtk_init(ZBarGtk *self)
 static void zbar_gtk_dispose(GObject *object)
 {
     ZBarGtk *self = ZBAR_GTK(object);
+
     if (!self->_private)
 	return;
 
@@ -767,6 +824,8 @@ static void zbar_gtk_private_finalize(GObject *object)
 
 static void zbar_gtk_class_init(ZBarGtkClass *klass)
 {
+    GParamSpec *p;
+
     zbar_gtk_parent_class = g_type_class_peek_parent(klass);
 
     GObjectClass *object_class = G_OBJECT_CLASS(klass);
@@ -801,8 +860,7 @@ static void zbar_gtk_class_init(ZBarGtkClass *klass)
 	G_STRUCT_OFFSET(ZBarGtkClass, decoded_text), NULL, NULL,
 	g_cclosure_marshal_VOID__STRING, G_TYPE_NONE, 1, G_TYPE_STRING);
 
-    GParamSpec *p =
-	g_param_spec_string("video-device", "Video device",
+    p = g_param_spec_string("video-device", "Video device",
 			    "the platform specific name of the video device",
 			    NULL, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
     g_object_class_install_property(object_class, PROP_VIDEO_DEVICE, p);
@@ -827,6 +885,7 @@ static void zbar_gtk_private_class_init(ZBarGtkPrivateClass *klass)
 static GType zbar_gtk_private_get_type(void)
 {
     static GType type = 0;
+
     if (!type) {
 	static const GTypeInfo info = {
 	    sizeof(ZBarGtkPrivateClass),

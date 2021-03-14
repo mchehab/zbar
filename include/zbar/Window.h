@@ -129,6 +129,6 @@ static inline void negotiate_format(Video &video, Window &window)
 	throw_exception(video);
 }
 
-}
+} // namespace zbar
 
 #endif

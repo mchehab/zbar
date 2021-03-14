@@ -34,6 +34,7 @@ static zbarScanner *scanner_new(PyTypeObject *type, PyObject *args,
 {
     zbarDecoder *decoder  = NULL;
     static char *kwlist[] = { "decoder", NULL };
+
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O!", kwlist, &decoder,
 				     zbarDecoder_Type))
 	return (NULL);
@@ -138,6 +139,7 @@ static zbarEnumItem *scanner_scan_y(zbarScanner *self, PyObject *args,
     /* FIXME should accept sequence of values */
     int y		  = 0;
     static char *kwlist[] = { "y", NULL };
+
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "i", kwlist, &y))
 	return (NULL);
 
@@ -177,13 +179,15 @@ static PyMethodDef scanner_methods[] = {
 
 PyTypeObject zbarScanner_Type = {
     PyVarObject_HEAD_INIT(NULL, 0).tp_name = "zbar.Scanner",
-    .tp_doc				   = scanner_doc,
-    .tp_basicsize			   = sizeof(zbarScanner),
+
     .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
-    .tp_new   = (newfunc)scanner_new,
-    .tp_traverse = (traverseproc)scanner_traverse,
-    .tp_clear	 = (inquiry)scanner_clear,
-    .tp_dealloc	 = (destructor)scanner_dealloc,
-    .tp_getset	 = scanner_getset,
-    .tp_methods	 = scanner_methods,
+
+    .tp_doc	  = scanner_doc,
+    .tp_basicsize = sizeof(zbarScanner),
+    .tp_new	  = (newfunc)scanner_new,
+    .tp_traverse  = (traverseproc)scanner_traverse,
+    .tp_clear	  = (inquiry)scanner_clear,
+    .tp_dealloc	  = (destructor)scanner_dealloc,
+    .tp_getset	  = scanner_getset,
+    .tp_methods	  = scanner_methods,
 };

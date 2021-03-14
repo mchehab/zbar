@@ -24,13 +24,17 @@
 
 #include "config.h"
 
-#include <amvideo.h> // include after ddraw.h has been included from any dshow header
 #include <assert.h>
-#include <control.h>
-#include <initguid.h>
 #include <objbase.h>
-#include <qedit.h>
 #include <strmif.h>
+#include <control.h>
+
+#include <qedit.h>
+
+#include <amvideo.h>    // include after ddraw.h has been included from any dshow header
+
+#include <initguid.h>
+
 #include "misc.h"
 #include "thread.h"
 #include "video.h"
@@ -690,7 +694,7 @@ static int dshow_set_format(zbar_video_t *vdo, uint32_t fmt)
     video_state_t *state;
     int_format_t *int_fmt;
     BYTE *caps;
-    AM_MEDIA_TYPE *mt, *currentmt;
+    AM_MEDIA_TYPE *mt = NULL, *currentmt = NULL;
     HRESULT hr;
     BITMAPINFOHEADER *bih;
 
@@ -707,9 +711,7 @@ static int dshow_set_format(zbar_video_t *vdo, uint32_t fmt)
     caps = malloc(state->caps_size);
     if (!caps)
 	err_capture(vdo, SEV_FATAL, ZBAR_ERR_NOMEM, __func__, "");
-    mt	      = NULL;
-    currentmt = NULL; // used later, but must be here
-		      // due to possible "goto cleanup"
+
     hr = IAMStreamConfig_GetStreamCaps(state->camstreamconfig,
 				       int_fmt->idx_caps, &mt, caps);
     free(caps);

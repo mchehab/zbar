@@ -215,6 +215,6 @@ private:
     zbar_processor_t *_processor;
 };
 
-}
+} // namespace zbar
 
 #endif

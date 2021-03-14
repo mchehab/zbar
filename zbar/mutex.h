@@ -25,6 +25,8 @@
 
 #include "config.h"
 
+#include <assert.h>
+
 /* simple platform mutex abstraction
  */
 

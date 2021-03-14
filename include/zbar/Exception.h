@@ -194,6 +194,6 @@ static inline std::exception throw_exception(const void *obj)
     }
 }
 
-}
+} // namespace zbar
 
 #endif
