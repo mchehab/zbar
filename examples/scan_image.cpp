@@ -1,14 +1,15 @@
+#include <Magick++.h>
 #include <iostream>
 #include <zbar.h>
-#include <Magick++.h>
 #define STR(s) #s
 
 using namespace std;
 using namespace zbar;
 
-int main (int argc, char **argv)
+int main(int argc, char **argv)
 {
-    if(argc < 2) return(1);
+    if (argc < 2)
+	return (1);
 
 #ifdef MAGICK_HOME
     // http://www.imagemagick.org/Magick++/
@@ -24,10 +25,10 @@ int main (int argc, char **argv)
     scanner.set_config(ZBAR_NONE, ZBAR_CFG_ENABLE, 1);
 
     // obtain image data
-    Magick::Image magick(argv[1]);  // read an image file
-    int width = magick.columns();   // extract dimensions
+    Magick::Image magick(argv[1]); // read an image file
+    int width  = magick.columns(); // extract dimensions
     int height = magick.rows();
-    Magick::Blob blob;              // extract the raw data
+    Magick::Blob blob; // extract the raw data
     magick.modifyImage();
     magick.write(&blob, "GRAY", 8);
     const void *raw = blob.data();
@@ -39,16 +40,15 @@ int main (int argc, char **argv)
     int n = scanner.scan(image);
 
     // extract results
-    for(Image::SymbolIterator symbol = image.symbol_begin();
-        symbol != image.symbol_end();
-        ++symbol) {
-        // do something useful with results
-        cout << "decoded " << symbol->get_type_name()
-             << " symbol \"" << symbol->get_data() << '"' << endl;
+    for (Image::SymbolIterator symbol = image.symbol_begin();
+	 symbol != image.symbol_end(); ++symbol) {
+	// do something useful with results
+	cout << "decoded " << symbol->get_type_name() << " symbol \""
+	     << symbol->get_data() << '"' << endl;
     }
 
     // clean up
     image.set_data(NULL, 0);
 
-    return(0);
+    return (0);
 }

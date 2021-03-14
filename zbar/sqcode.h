@@ -14,10 +14,8 @@ sq_reader *_zbar_sq_create(void);
 void _zbar_sq_destroy(sq_reader *reader);
 void _zbar_sq_reset(sq_reader *reader);
 
-int _zbar_sq_new_config(sq_reader *reader,
-                        unsigned config);
-int _zbar_sq_decode(sq_reader *reader,
-                    zbar_image_scanner_t *iscn,
-                    zbar_image_t *img);
+int _zbar_sq_new_config(sq_reader *reader, unsigned config);
+int _zbar_sq_decode(sq_reader *reader, zbar_image_scanner_t *iscn,
+		    zbar_image_t *img);
 
 #endif

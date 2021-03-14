@@ -24,22 +24,18 @@
 #include <gtk/gtk.h>
 #include <zbar/zbargtk.h>
 
-static GtkWidget *window = NULL;
+static GtkWidget *window       = NULL;
 static GtkWidget *status_image = NULL;
-static GtkTextView *results = NULL;
-static gchar *open_file = NULL;
+static GtkTextView *results    = NULL;
+static gchar *open_file	       = NULL;
 
-int scan_video(void *add_device,
-               void *userdata,
-               const char *default_device);
+int scan_video(void *add_device, void *userdata, const char *default_device);
 
 /* decode signal callback
  * puts the decoded result in the textbox
  */
-static void decoded (GtkWidget *widget,
-                     zbar_symbol_type_t symbol,
-                     const char *result,
-                     gpointer data)
+static void decoded(GtkWidget *widget, zbar_symbol_type_t symbol,
+		    const char *result, gpointer data)
 {
     GtkTextBuffer *resultbuf = gtk_text_view_get_buffer(results);
     GtkTextIter end;
@@ -51,29 +47,24 @@ static void decoded (GtkWidget *widget,
     gtk_text_view_scroll_to_iter(results, &end, 0, FALSE, 0, 0);
 }
 
-
 /* update button state when video state changes
  */
-static void video_enabled (GObject *object,
-                           GParamSpec *param,
-                           gpointer data)
+static void video_enabled(GObject *object, GParamSpec *param, gpointer data)
 {
-    ZBarGtk *zbar = ZBAR_GTK(object);
+    ZBarGtk *zbar    = ZBAR_GTK(object);
     gboolean enabled = zbar_gtk_get_video_enabled(zbar);
-    gboolean opened = zbar_gtk_get_video_opened(zbar);
+    gboolean opened  = zbar_gtk_get_video_opened(zbar);
 
     GtkToggleButton *button = GTK_TOGGLE_BUTTON(data);
-    gboolean active = gtk_toggle_button_get_active(button);
-    if(active != (opened && enabled))
-        gtk_toggle_button_set_active(button, enabled);
+    gboolean active	    = gtk_toggle_button_get_active(button);
+    if (active != (opened && enabled))
+	gtk_toggle_button_set_active(button, enabled);
 }
 
-static void video_opened (GObject *object,
-                          GParamSpec *param,
-                          gpointer data)
+static void video_opened(GObject *object, GParamSpec *param, gpointer data)
 {
-    ZBarGtk *zbar = ZBAR_GTK(object);
-    gboolean opened = zbar_gtk_get_video_opened(zbar);
+    ZBarGtk *zbar    = ZBAR_GTK(object);
+    gboolean opened  = zbar_gtk_get_video_opened(zbar);
     gboolean enabled = zbar_gtk_get_video_enabled(zbar);
 
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data), opened && enabled);
@@ -82,58 +73,53 @@ static void video_opened (GObject *object,
 
 /* (re)open the video when a new device is selected
  */
-static void video_changed (GtkWidget *widget,
-                           gpointer data)
+static void video_changed(GtkWidget *widget, gpointer data)
 {
     const char *video_device =
-        gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(widget));
-    zbar_gtk_set_video_device(ZBAR_GTK(data),
-                               ((video_device && video_device[0] != '<')
-                                ? video_device
-                                : NULL));
+	gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(widget));
+    zbar_gtk_set_video_device(
+	ZBAR_GTK(data),
+	((video_device && video_device[0] != '<') ? video_device : NULL));
 }
 
-static void status_button_toggled (GtkToggleButton *button,
-                                   gpointer data)
+static void status_button_toggled(GtkToggleButton *button, gpointer data)
 {
-    ZBarGtk *zbar = ZBAR_GTK(data);
-    gboolean opened = zbar_gtk_get_video_opened(zbar);
+    ZBarGtk *zbar    = ZBAR_GTK(data);
+    gboolean opened  = zbar_gtk_get_video_opened(zbar);
     gboolean enabled = zbar_gtk_get_video_enabled(zbar);
-    gboolean active = gtk_toggle_button_get_active(button);
-    if(opened && (active != enabled))
-        zbar_gtk_set_video_enabled(ZBAR_GTK(data), active);
+    gboolean active  = gtk_toggle_button_get_active(button);
+    if (opened && (active != enabled))
+	zbar_gtk_set_video_enabled(ZBAR_GTK(data), active);
     gtk_image_set_from_icon_name(GTK_IMAGE(status_image),
-                                 (opened && active) ? "gtk-yes" : "gtk-no",
-                                 GTK_ICON_SIZE_BUTTON);
-    gtk_button_set_label(GTK_BUTTON(button),
-                         (!opened) ? "closed" :
-                         (active) ? "enabled" : "disabled");
+				 (opened && active) ? "gtk-yes" : "gtk-no",
+				 GTK_ICON_SIZE_BUTTON);
+    gtk_button_set_label(GTK_BUTTON(button), (!opened) ? "closed" :
+					     (active)  ? "enabled" :
+							       "disabled");
 }
 
-static void open_button_clicked (GtkButton *button,
-                                 gpointer data)
+static void open_button_clicked(GtkButton *button, gpointer data)
 {
     GtkWidget *dialog =
-        gtk_file_chooser_dialog_new("Open Image File", GTK_WINDOW(window),
-                                    GTK_FILE_CHOOSER_ACTION_OPEN,
-                                    "gtk-cancel", GTK_RESPONSE_CANCEL,
-                                    "gtk-open", GTK_RESPONSE_ACCEPT,
-                                    NULL);
+	gtk_file_chooser_dialog_new("Open Image File", GTK_WINDOW(window),
+				    GTK_FILE_CHOOSER_ACTION_OPEN, "gtk-cancel",
+				    GTK_RESPONSE_CANCEL, "gtk-open",
+				    GTK_RESPONSE_ACCEPT, NULL);
     GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
-    if(open_file)
-        gtk_file_chooser_set_filename(chooser, open_file);
+    if (open_file)
+	gtk_file_chooser_set_filename(chooser, open_file);
 
-    if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
-        gchar *file = gtk_file_chooser_get_filename(chooser);
-        GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(file, NULL);
-        if(pixbuf)
-            zbar_gtk_scan_image(ZBAR_GTK(data), pixbuf);
-        else
-            fprintf(stderr, "ERROR: unable to open image file: %s\n", file);
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+	gchar *file	  = gtk_file_chooser_get_filename(chooser);
+	GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(file, NULL);
+	if (pixbuf)
+	    zbar_gtk_scan_image(ZBAR_GTK(data), pixbuf);
+	else
+	    fprintf(stderr, "ERROR: unable to open image file: %s\n", file);
 
-        if(open_file && file)
-            g_free(open_file);
-        open_file = file;
+	if (open_file && file)
+	    g_free(open_file);
+	open_file = file;
     }
     gtk_widget_destroy(dialog);
 }
@@ -143,67 +129,66 @@ static void open_button_clicked (GtkButton *button,
  *   - the zbar widget to display video
  *   - a non-editable text box to display any results
  */
-int main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     const char *video_arg = NULL;
 
     gtk_init(&argc, &argv);
 
-    if(argc > 1)
-        video_arg = argv[1];
+    if (argc > 1)
+	video_arg = argv[1];
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
     gtk_window_set_title(GTK_WINDOW(window), "test_gtk");
     gtk_container_set_border_width(GTK_CONTAINER(window), 8);
 
-    g_signal_connect(G_OBJECT(window), "destroy",
-                     G_CALLBACK(gtk_main_quit), NULL);
+    g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(gtk_main_quit),
+		     NULL);
 
     GtkWidget *zbar = zbar_gtk_new();
 
-    g_signal_connect(G_OBJECT(zbar), "decoded",
-                     G_CALLBACK(decoded), NULL);
+    g_signal_connect(G_OBJECT(zbar), "decoded", G_CALLBACK(decoded), NULL);
 
     /* video device list combo box */
     GtkWidget *video_list = gtk_combo_box_text_new();
 
-    g_signal_connect(G_OBJECT(video_list), "changed",
-                     G_CALLBACK(video_changed), zbar);
+    g_signal_connect(G_OBJECT(video_list), "changed", G_CALLBACK(video_changed),
+		     zbar);
 
     /* enable/disable status button */
     GtkWidget *status_button = gtk_toggle_button_new();
-    status_image = gtk_image_new_from_icon_name("gtk-no",
-                                                GTK_ICON_SIZE_BUTTON);
+    status_image = gtk_image_new_from_icon_name("gtk-no", GTK_ICON_SIZE_BUTTON);
     gtk_button_set_image(GTK_BUTTON(status_button), status_image);
     gtk_button_set_label(GTK_BUTTON(status_button), "closed");
     gtk_widget_set_sensitive(status_button, FALSE);
 
     /* bind status button state and video state */
     g_signal_connect(G_OBJECT(status_button), "toggled",
-                     G_CALLBACK(status_button_toggled), zbar);
+		     G_CALLBACK(status_button_toggled), zbar);
     g_signal_connect(G_OBJECT(zbar), "notify::video-enabled",
-                     G_CALLBACK(video_enabled), status_button);
+		     G_CALLBACK(video_enabled), status_button);
     g_signal_connect(G_OBJECT(zbar), "notify::video-opened",
-                     G_CALLBACK(video_opened), status_button);
+		     G_CALLBACK(video_opened), status_button);
 
     /* open image file button */
 #if GTK_MAJOR_VERSION >= 3
-    GtkWidget *open_button = gtk_button_new_from_icon_name("gtk-open",
-							   GTK_ICON_SIZE_BUTTON);
+    GtkWidget *open_button =
+	gtk_button_new_from_icon_name("gtk-open", GTK_ICON_SIZE_BUTTON);
 #else
     GtkWidget *open_button = gtk_button_new_from_stock(GTK_STOCK_OPEN);
 #endif
 
     g_signal_connect(G_OBJECT(open_button), "clicked",
-                     G_CALLBACK(open_button_clicked), zbar);
+		     G_CALLBACK(open_button_clicked), zbar);
 
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(video_list), "<none>");
-    int active = scan_video(gtk_combo_box_text_append_text, video_list, video_arg);
-    if(active >= 0)
-        gtk_combo_box_set_active(GTK_COMBO_BOX(video_list), active);
+    int active =
+	scan_video(gtk_combo_box_text_append_text, video_list, video_arg);
+    if (active >= 0)
+	gtk_combo_box_set_active(GTK_COMBO_BOX(video_list), active);
 
-    /* hbox for combo box and buttons */
+	/* hbox for combo box and buttons */
 #if GTK_MAJOR_VERSION >= 3
     GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
 #else
@@ -234,12 +219,12 @@ int main (int argc, char *argv[])
     gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(results), FALSE, FALSE, 0);
 
     GdkGeometry hints;
-    hints.min_width = 320;
+    hints.min_width  = 320;
     hints.min_height = 240;
     gtk_window_set_geometry_hints(GTK_WINDOW(window), zbar, &hints,
-                                  GDK_HINT_MIN_SIZE);
+				  GDK_HINT_MIN_SIZE);
 
     gtk_widget_show_all(window);
     gtk_main();
-    return(0);
+    return (0);
 }

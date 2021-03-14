@@ -25,22 +25,22 @@
 
 /* state of each parallel decode attempt */
 typedef struct ean_pass_s {
-    signed char state;          /* module position of w[idx] in symbol */
-#define STATE_REV   0x80        /*   scan direction reversed */
-#define STATE_ADDON 0x40        /*   scanning add-on */
-#define STATE_IDX   0x3f        /*   element offset into symbol */
-    unsigned width;             /* width of last character */
-    unsigned char raw[7];       /* decode in process */
+    signed char state;	 /* module position of w[idx] in symbol */
+#define STATE_REV   0x80 /*   scan direction reversed */
+#define STATE_ADDON 0x40 /*   scanning add-on */
+#define STATE_IDX   0x3f /*   element offset into symbol */
+    unsigned width;	  /* width of last character */
+    unsigned char raw[7]; /* decode in process */
 } ean_pass_t;
 
 /* EAN/UPC specific decode state */
 typedef struct ean_decoder_s {
-    ean_pass_t pass[4];         /* state of each parallel decode attempt */
-    zbar_symbol_type_t left;    /* current holding buffer contents */
+    ean_pass_t pass[4];	     /* state of each parallel decode attempt */
+    zbar_symbol_type_t left; /* current holding buffer contents */
     zbar_symbol_type_t right;
-    int direction;              /* scan direction */
-    unsigned s4, width;         /* character width */
-    signed char buf[18];        /* holding buffer */
+    int direction;	 /* scan direction */
+    unsigned s4, width;	 /* character width */
+    signed char buf[18]; /* holding buffer */
 
     signed char enable;
     unsigned ean13_config;
@@ -54,33 +54,42 @@ typedef struct ean_decoder_s {
 } ean_decoder_t;
 
 /* reset EAN/UPC pass specific state */
-static inline void ean_new_scan (ean_decoder_t *ean)
+static inline void ean_new_scan(ean_decoder_t *ean)
 {
     ean->pass[0].state = ean->pass[1].state = -1;
     ean->pass[2].state = ean->pass[3].state = -1;
-    ean->s4 = 0;
+    ean->s4				    = 0;
 }
 
 /* reset all EAN/UPC state */
-static inline void ean_reset (ean_decoder_t *ean)
+static inline void ean_reset(ean_decoder_t *ean)
 {
     ean_new_scan(ean);
     ean->left = ean->right = ZBAR_NONE;
 }
 
-static inline unsigned ean_get_config (ean_decoder_t *ean,
-                                       zbar_symbol_type_t sym)
+static inline unsigned ean_get_config(ean_decoder_t *ean,
+				      zbar_symbol_type_t sym)
 {
-    switch(sym) {
-    case ZBAR_EAN2:   return(ean->ean2_config);
-    case ZBAR_EAN5:   return(ean->ean5_config);
-    case ZBAR_EAN8:   return(ean->ean8_config);
-    case ZBAR_UPCE:   return(ean->upce_config);
-    case ZBAR_ISBN10: return(ean->isbn10_config);
-    case ZBAR_UPCA:   return(ean->upca_config);
-    case ZBAR_EAN13:  return(ean->ean13_config);
-    case ZBAR_ISBN13: return(ean->isbn13_config);
-    default:          return(0);
+    switch (sym) {
+    case ZBAR_EAN2:
+	return (ean->ean2_config);
+    case ZBAR_EAN5:
+	return (ean->ean5_config);
+    case ZBAR_EAN8:
+	return (ean->ean8_config);
+    case ZBAR_UPCE:
+	return (ean->upce_config);
+    case ZBAR_ISBN10:
+	return (ean->isbn10_config);
+    case ZBAR_UPCA:
+	return (ean->upca_config);
+    case ZBAR_EAN13:
+	return (ean->ean13_config);
+    case ZBAR_ISBN13:
+	return (ean->isbn13_config);
+    default:
+	return (0);
     }
 }
 

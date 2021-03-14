@@ -27,33 +27,34 @@
 /// C++ Exception definitions
 
 #ifndef _ZBAR_H_
-# error "include zbar.h in your application, **not** zbar/Exception.h"
+#error "include zbar.h in your application, **not** zbar/Exception.h"
 #endif
 
 #include <cstddef>
 #include <exception>
 #include <new>
 
-namespace zbar {
-
+namespace zbar
+{
 /// base class for exceptions defined by this API.
-class Exception : public std::exception {
-
+class Exception : public std::exception
+{
 public:
     /// create exception from C library error
-    Exception (const void *obj = NULL)
-        : std::exception(),
-          _obj(obj)
-    { }
+    Exception(const void *obj = NULL) : std::exception(), _obj(obj)
+    {
+    }
 
-    ~Exception () throw() { }
+    ~Exception() throw()
+    {
+    }
 
     /// retrieve error message
-    virtual const char* what () const throw()
+    virtual const char *what() const throw()
     {
-        if(!_obj)
-            return("zbar library unspecified generic error");
-        return(_zbar_error_string(_obj, 0));
+	if (!_obj)
+	    return ("zbar library unspecified generic error");
+	return (_zbar_error_string(_obj, 0));
     }
 
 private:
@@ -61,125 +62,135 @@ private:
 };
 
 /// internal library error.
-class InternalError : public Exception {
+class InternalError : public Exception
+{
 public:
     /// create exception from C library error
-    InternalError (const void *obj)
-        : Exception(obj)
-    { }
+    InternalError(const void *obj) : Exception(obj)
+    {
+    }
 };
 
 /// unsupported request.
-class UnsupportedError : public Exception {
+class UnsupportedError : public Exception
+{
 public:
     /// create exception from C library error
-    UnsupportedError (const void *obj)
-        : Exception(obj)
-    { }
+    UnsupportedError(const void *obj) : Exception(obj)
+    {
+    }
 };
 
 /// invalid request.
-class InvalidError : public Exception {
+class InvalidError : public Exception
+{
 public:
     /// create exception from C library error
-    InvalidError (const void *obj)
-        : Exception(obj)
-    { }
+    InvalidError(const void *obj) : Exception(obj)
+    {
+    }
 };
 
 /// failed system call.
-class SystemError : public Exception {
+class SystemError : public Exception
+{
 public:
     /// create exception from C library error
-    SystemError (const void *obj)
-        : Exception(obj)
-    { }
+    SystemError(const void *obj) : Exception(obj)
+    {
+    }
 };
 
 /// locking error.
-class LockingError : public Exception {
+class LockingError : public Exception
+{
 public:
     /// create exception from C library error
-    LockingError (const void *obj)
-        : Exception(obj)
-    { }
+    LockingError(const void *obj) : Exception(obj)
+    {
+    }
 };
 
 /// all resources busy.
-class BusyError : public Exception {
+class BusyError : public Exception
+{
 public:
     /// create exception from C library error
-    BusyError (const void *obj)
-        : Exception(obj)
-    { }
+    BusyError(const void *obj) : Exception(obj)
+    {
+    }
 };
 
 /// X11 display error.
-class XDisplayError : public Exception {
+class XDisplayError : public Exception
+{
 public:
     /// create exception from C library error
-    XDisplayError (const void *obj)
-        : Exception(obj)
-    { }
+    XDisplayError(const void *obj) : Exception(obj)
+    {
+    }
 };
 
 /// X11 protocol error.
-class XProtoError : public Exception {
+class XProtoError : public Exception
+{
 public:
     /// create exception from C library error
-    XProtoError (const void *obj)
-        : Exception(obj)
-    { }
+    XProtoError(const void *obj) : Exception(obj)
+    {
+    }
 };
 
 /// output window is closed.
-class ClosedError : public Exception {
+class ClosedError : public Exception
+{
 public:
     /// create exception from C library error
-    ClosedError (const void *obj)
-        : Exception(obj)
-    { }
+    ClosedError(const void *obj) : Exception(obj)
+    {
+    }
 };
 
 /// image format error
-class FormatError : public Exception {
+class FormatError : public Exception
+{
     // FIXME needs c equivalent
 
-    virtual const char* what () const throw()
+    virtual const char *what() const throw()
     {
-        // FIXME what format?
-        return("unsupported format");
+	// FIXME what format?
+	return ("unsupported format");
     }
 };
 
 /// @internal
 
 /// extract error information and create exception.
-static inline std::exception throw_exception (const void *obj)
+static inline std::exception throw_exception(const void *obj)
 {
-    switch(_zbar_get_error_code(obj)) {
+    switch (_zbar_get_error_code(obj)) {
     case ZBAR_ERR_NOMEM:
-        throw std::bad_alloc();
+	throw std::bad_alloc();
     case ZBAR_ERR_INTERNAL:
-        throw InternalError(obj);
+	throw InternalError(obj);
     case ZBAR_ERR_UNSUPPORTED:
-        throw UnsupportedError(obj);
+	throw UnsupportedError(obj);
     case ZBAR_ERR_INVALID:
-        throw InvalidError(obj);
+	throw InvalidError(obj);
     case ZBAR_ERR_SYSTEM:
-        throw SystemError(obj);
+	throw SystemError(obj);
     case ZBAR_ERR_LOCKING:
-        throw LockingError(obj);
+	throw LockingError(obj);
     case ZBAR_ERR_BUSY:
-        throw BusyError(obj);
+	throw BusyError(obj);
     case ZBAR_ERR_XDISPLAY:
-        throw XDisplayError(obj);
+	throw XDisplayError(obj);
     case ZBAR_ERR_XPROTO:
-        throw XProtoError(obj);
+	throw XProtoError(obj);
     case ZBAR_ERR_CLOSED:
-        throw ClosedError(obj);
+	throw ClosedError(obj);
     default:
-        throw Exception(obj);
+	throw Exception(obj);
     }
 }
 

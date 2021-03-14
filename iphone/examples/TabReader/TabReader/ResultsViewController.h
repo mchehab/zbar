@@ -7,9 +7,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ResultsViewController
-    : UIViewController
-{
+@interface ResultsViewController : UIViewController {
 }
 
 @property (nonatomic, retain) IBOutlet UIImageView *resultImage;

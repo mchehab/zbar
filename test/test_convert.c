@@ -23,14 +23,14 @@
 
 #include "config.h"
 #ifdef HAVE_INTTYPES_H
-# include <inttypes.h>
+#include <inttypes.h>
 #endif
 #ifdef HAVE_STDLIB_H
-# include <stdlib.h>
+#include <stdlib.h>
 #endif
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 #include <zbar.h>
 #include "test_images.h"
 
@@ -40,21 +40,21 @@ static uint32_t formats[] = {
 };
 #endif
 
-int main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     zbar_set_verbosity(10);
 
-    uint32_t srcfmt = fourcc('I','4','2','0');
-    if(argc > 1)
-        srcfmt = *(uint32_t*)argv[1];
+    uint32_t srcfmt = fourcc('I', '4', '2', '0');
+    if (argc > 1)
+	srcfmt = *(uint32_t *)argv[1];
 
     zbar_image_t *img = zbar_image_create();
     zbar_image_set_size(img, 640, 480);
     zbar_image_set_format(img, srcfmt);
-    if(test_image_bars(img))
-        return(2);
+    if (test_image_bars(img))
+	return (2);
 
-    if(zbar_image_write(img, "/tmp/base"))
-        return(1);
-    return(0);
+    if (zbar_image_write(img, "/tmp/base"))
+	return (1);
+    return (0);
 }

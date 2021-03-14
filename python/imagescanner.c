@@ -23,170 +23,171 @@
 
 #include "zbarmodule.h"
 
-static char imagescanner_doc[] = PyDoc_STR(
-    "scan images for barcodes.\n"
-    "\n"
-    "attaches symbols to image for each decoded result.");
+static char imagescanner_doc[] =
+    PyDoc_STR("scan images for barcodes.\n"
+	      "\n"
+	      "attaches symbols to image for each decoded result.");
 
-static zbarImageScanner*
-imagescanner_new (PyTypeObject *type,
-                  PyObject *args,
-                  PyObject *kwds)
+static zbarImageScanner *imagescanner_new(PyTypeObject *type, PyObject *args,
+					  PyObject *kwds)
 {
     static char *kwlist[] = { NULL };
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, "", kwlist))
-        return(NULL);
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "", kwlist))
+	return (NULL);
 
-    zbarImageScanner *self = (zbarImageScanner*)type->tp_alloc(type, 0);
-    if(!self)
-        return(NULL);
+    zbarImageScanner *self = (zbarImageScanner *)type->tp_alloc(type, 0);
+    if (!self)
+	return (NULL);
 
     self->zscn = zbar_image_scanner_create();
-    if(!self->zscn) {
-        Py_DECREF(self);
-        return(NULL);
+    if (!self->zscn) {
+	Py_DECREF(self);
+	return (NULL);
     }
 
-    return(self);
+    return (self);
 }
 
-static void
-imagescanner_dealloc (zbarImageScanner *self)
+static void imagescanner_dealloc(zbarImageScanner *self)
 {
     zbar_image_scanner_destroy(self->zscn);
-    ((PyObject*)self)->ob_type->tp_free((PyObject*)self);
+    ((PyObject *)self)->ob_type->tp_free((PyObject *)self);
 }
 
-static zbarSymbolSet*
-imagescanner_get_results (zbarImageScanner *self,
-                          void *closure)
+static zbarSymbolSet *imagescanner_get_results(zbarImageScanner *self,
+					       void *closure)
 {
-    const zbar_symbol_set_t *zsyms =
-        zbar_image_scanner_get_results(self->zscn);
-    return(zbarSymbolSet_FromSymbolSet(zsyms));
+    const zbar_symbol_set_t *zsyms = zbar_image_scanner_get_results(self->zscn);
+    return (zbarSymbolSet_FromSymbolSet(zsyms));
 }
 
 static PyGetSetDef imagescanner_getset[] = {
-    { "results", (getter)imagescanner_get_results, NULL, NULL, NULL},
-    {NULL}  /* Sentinel */
+    { "results", (getter)imagescanner_get_results, NULL, NULL, NULL },
+    { NULL } /* Sentinel */
 };
 
-static PyObject*
-imagescanner_set_config (zbarImageScanner *self,
-                         PyObject *args,
-                         PyObject *kwds)
+static PyObject *imagescanner_set_config(zbarImageScanner *self, PyObject *args,
+					 PyObject *kwds)
 {
     zbar_symbol_type_t sym = ZBAR_NONE;
-    zbar_config_t cfg = ZBAR_CFG_ENABLE;
-    int val = 1;
-    static char *kwlist[] = { "symbology", "config", "value", NULL };
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, "|iii", kwlist,
-                                    &sym, &cfg, &val))
-        return(NULL);
+    zbar_config_t cfg	   = ZBAR_CFG_ENABLE;
+    int val		   = 1;
+    static char *kwlist[]  = { "symbology", "config", "value", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|iii", kwlist, &sym, &cfg,
+				     &val))
+	return (NULL);
 
-    if(zbar_image_scanner_set_config(self->zscn, sym, cfg, val)) {
-        PyErr_SetString(PyExc_ValueError, "invalid configuration setting");
-        return(NULL);
+    if (zbar_image_scanner_set_config(self->zscn, sym, cfg, val)) {
+	PyErr_SetString(PyExc_ValueError, "invalid configuration setting");
+	return (NULL);
     }
     Py_RETURN_NONE;
 }
 
-static PyObject*
-imagescanner_parse_config (zbarImageScanner *self,
-                           PyObject *args,
-                           PyObject *kwds)
+static PyObject *imagescanner_parse_config(zbarImageScanner *self,
+					   PyObject *args, PyObject *kwds)
 {
-    const char *cfg = NULL;
+    const char *cfg	  = NULL;
     static char *kwlist[] = { "config", NULL };
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, "s", kwlist, &cfg))
-        return(NULL);
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "s", kwlist, &cfg))
+	return (NULL);
 
-    if(zbar_image_scanner_parse_config(self->zscn, cfg)) {
-        PyErr_Format(PyExc_ValueError, "invalid configuration setting: %s",
-                     cfg);
-        return(NULL);
+    if (zbar_image_scanner_parse_config(self->zscn, cfg)) {
+	PyErr_Format(PyExc_ValueError, "invalid configuration setting: %s",
+		     cfg);
+	return (NULL);
     }
     Py_RETURN_NONE;
 }
 
-static PyObject*
-imagescanner_enable_cache (zbarImageScanner *self,
-                           PyObject *args,
-                           PyObject *kwds)
+static PyObject *imagescanner_enable_cache(zbarImageScanner *self,
+					   PyObject *args, PyObject *kwds)
 {
-    unsigned char enable = 1;
+    unsigned char enable  = 1;
     static char *kwlist[] = { "enable", NULL };
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, "|O&", kwlist,
-                                    object_to_bool, &enable))
-        return(NULL);
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&", kwlist, object_to_bool,
+				     &enable))
+	return (NULL);
 
     zbar_image_scanner_enable_cache(self->zscn, enable);
     Py_RETURN_NONE;
 }
 
-static PyObject*
-imagescanner_recycle (zbarImageScanner *self,
-                      PyObject *args,
-                      PyObject *kwds)
+static PyObject *imagescanner_recycle(zbarImageScanner *self, PyObject *args,
+				      PyObject *kwds)
 {
-    zbarImage *img = NULL;
+    zbarImage *img	  = NULL;
     static char *kwlist[] = { "image", NULL };
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, "O!", kwlist,
-                                    &zbarImage_Type, &img))
-        return(NULL);
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!", kwlist, &zbarImage_Type,
+				     &img))
+	return (NULL);
 
     zbar_image_scanner_recycle_image(self->zscn, img->zimg);
     Py_RETURN_NONE;
 }
 
-static PyObject*
-imagescanner_scan (zbarImageScanner *self,
-                   PyObject *args,
-                   PyObject *kwds)
+static PyObject *imagescanner_scan(zbarImageScanner *self, PyObject *args,
+				   PyObject *kwds)
 {
-    zbarImage *img = NULL;
+    zbarImage *img	  = NULL;
     static char *kwlist[] = { "image", NULL };
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, "O!", kwlist,
-                                    &zbarImage_Type, &img))
-        return(NULL);
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!", kwlist, &zbarImage_Type,
+				     &img))
+	return (NULL);
 
-    if(zbarImage_validate(img))
-        return(NULL);
+    if (zbarImage_validate(img))
+	return (NULL);
 
     int n = zbar_scan_image(self->zscn, img->zimg);
-    if(n < 0) {
-        PyErr_Format(PyExc_ValueError, "unsupported image format");
-        return(NULL);
+    if (n < 0) {
+	PyErr_Format(PyExc_ValueError, "unsupported image format");
+	return (NULL);
     }
 #if PY_MAJOR_VERSION >= 3
-    return(PyLong_FromLong(n));
+    return (PyLong_FromLong(n));
 #else
-    return(PyInt_FromLong(n));
+    return (PyInt_FromLong(n));
 #endif
 }
 
 static PyMethodDef imagescanner_methods[] = {
-    { "set_config",   (PyCFunction)imagescanner_set_config,
-      METH_VARARGS | METH_KEYWORDS, },
-    { "parse_config", (PyCFunction)imagescanner_parse_config,
-      METH_VARARGS | METH_KEYWORDS, },
-    { "enable_cache",  (PyCFunction)imagescanner_enable_cache,
-      METH_VARARGS | METH_KEYWORDS, },
-    { "recycle",       (PyCFunction)imagescanner_recycle,
-      METH_VARARGS | METH_KEYWORDS, },
-    { "scan",          (PyCFunction)imagescanner_scan,
-      METH_VARARGS | METH_KEYWORDS, },
-    { NULL, },
+    {
+	"set_config",
+	(PyCFunction)imagescanner_set_config,
+	METH_VARARGS | METH_KEYWORDS,
+    },
+    {
+	"parse_config",
+	(PyCFunction)imagescanner_parse_config,
+	METH_VARARGS | METH_KEYWORDS,
+    },
+    {
+	"enable_cache",
+	(PyCFunction)imagescanner_enable_cache,
+	METH_VARARGS | METH_KEYWORDS,
+    },
+    {
+	"recycle",
+	(PyCFunction)imagescanner_recycle,
+	METH_VARARGS | METH_KEYWORDS,
+    },
+    {
+	"scan",
+	(PyCFunction)imagescanner_scan,
+	METH_VARARGS | METH_KEYWORDS,
+    },
+    {
+	NULL,
+    },
 };
 
 PyTypeObject zbarImageScanner_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name        = "zbar.ImageScanner",
-    .tp_doc         = imagescanner_doc,
-    .tp_basicsize   = sizeof(zbarImageScanner),
-    .tp_flags       = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    .tp_new         = (newfunc)imagescanner_new,
-    .tp_dealloc     = (destructor)imagescanner_dealloc,
-    .tp_getset      = imagescanner_getset,
-    .tp_methods     = imagescanner_methods,
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "zbar.ImageScanner",
+    .tp_doc				   = imagescanner_doc,
+    .tp_basicsize			   = sizeof(zbarImageScanner),
+    .tp_flags	= Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_new	= (newfunc)imagescanner_new,
+    .tp_dealloc = (destructor)imagescanner_dealloc,
+    .tp_getset	= imagescanner_getset,
+    .tp_methods = imagescanner_methods,
 };

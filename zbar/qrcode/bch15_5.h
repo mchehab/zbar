@@ -4,7 +4,7 @@
    Foundation; either version 2.1 of the License, or (at your option) any later
    version.*/
 #if !defined(_bch15_5_H)
-# define _bch15_5_H (1)
+#define _bch15_5_H (1)
 
 /*Encodes a raw 5-bit value _x into a 15-bit BCH(15,5) code.
   This is capable of correcting up to 3 bit errors, and detecting as many as

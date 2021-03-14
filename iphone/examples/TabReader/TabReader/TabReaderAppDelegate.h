@@ -8,11 +8,8 @@
 #import <UIKit/UIKit.h>
 
 @interface TabReaderAppDelegate
-    : NSObject
-    < UIApplicationDelegate,
-      UITabBarControllerDelegate,
-      ZBarReaderDelegate >
-{
+    : NSObject <UIApplicationDelegate, UITabBarControllerDelegate,
+		ZBarReaderDelegate> {
 }
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;

@@ -27,132 +27,132 @@
 /// Scanner C++ wrapper
 
 #ifndef _ZBAR_H_
-# error "include zbar.h in your application, **not** zbar/Scanner.h"
+#error "include zbar.h in your application, **not** zbar/Scanner.h"
 #endif
 
 #include <stdio.h>
 
-namespace zbar {
-
+namespace zbar
+{
 /// low-level linear intensity sample stream scanner interface.
 /// identifies "bar" edges and measures width between them.
 /// optionally passes to bar width Decoder
 
-class Scanner {
- public:
-
+class Scanner
+{
+public:
     /// constructor.
     /// @param decoder reference to a Decoder instance which will
     /// be passed scan results automatically
-    Scanner (Decoder& decoder)
+    Scanner(Decoder &decoder)
     {
-        _scanner = zbar_scanner_create(decoder._decoder);
+	_scanner = zbar_scanner_create(decoder._decoder);
     }
 
     /// constructor.
     /// @param decoder pointer to a Decoder instance which will
     /// be passed scan results automatically
-    Scanner (Decoder* decoder = NULL)
+    Scanner(Decoder *decoder = NULL)
     {
-        zbar_decoder_t *zdcode = NULL;
-        if(decoder)
-            zdcode = decoder->_decoder;
-        _scanner = zbar_scanner_create(zdcode);
+	zbar_decoder_t *zdcode = NULL;
+	if (decoder)
+	    zdcode = decoder->_decoder;
+	_scanner = zbar_scanner_create(zdcode);
     }
 
-    ~Scanner ()
+    ~Scanner()
     {
-        zbar_scanner_destroy(_scanner);
+	zbar_scanner_destroy(_scanner);
     }
 
     /// clear all scanner state.
     /// see zbar_scanner_reset()
-    void reset ()
+    void reset()
     {
-        zbar_scanner_reset(_scanner);
+	zbar_scanner_reset(_scanner);
     }
 
     /// mark start of a new scan pass.
     /// see zbar_scanner_new_scan()
-    zbar_symbol_type_t new_scan ()
+    zbar_symbol_type_t new_scan()
     {
-        _type = zbar_scanner_new_scan(_scanner);
-        return(_type);
+	_type = zbar_scanner_new_scan(_scanner);
+	return (_type);
     }
 
     /// flush scanner pipeline.
     /// see zbar_scanner_flush()
-    zbar_symbol_type_t flush ()
+    zbar_symbol_type_t flush()
     {
-        _type = zbar_scanner_flush(_scanner);
-        return(_type);
+	_type = zbar_scanner_flush(_scanner);
+	return (_type);
     }
 
     /// process next sample intensity value.
     /// see zbar_scan_y()
-    zbar_symbol_type_t scan_y (int y)
+    zbar_symbol_type_t scan_y(int y)
     {
-        _type = zbar_scan_y(_scanner, y);
-        return(_type);
+	_type = zbar_scan_y(_scanner, y);
+	return (_type);
     }
 
     /// process next sample intensity value.
     /// see zbar_scan_y()
-    Scanner& operator<< (int y)
+    Scanner &operator<<(int y)
     {
-        _type = zbar_scan_y(_scanner, y);
-        return(*this);
+	_type = zbar_scan_y(_scanner, y);
+	return (*this);
     }
 
     /// process next sample from RGB (or BGR) triple.
     /// see zbar_scan_rgb24()
-    zbar_symbol_type_t scan_rgb24 (unsigned char *rgb)
+    zbar_symbol_type_t scan_rgb24(unsigned char *rgb)
     {
-        _type = zbar_scan_rgb24(_scanner, rgb);
-        return(_type);
+	_type = zbar_scan_rgb24(_scanner, rgb);
+	return (_type);
     }
 
     /// process next sample from RGB (or BGR) triple.
     /// see zbar_scan_rgb24()
-    Scanner& operator<< (unsigned char *rgb)
+    Scanner &operator<<(unsigned char *rgb)
     {
-        _type = zbar_scan_rgb24(_scanner, rgb);
-        return(*this);
+	_type = zbar_scan_rgb24(_scanner, rgb);
+	return (*this);
     }
 
     /// retrieve last scanned width.
     /// see zbar_scanner_get_width()
-    unsigned get_width () const
+    unsigned get_width() const
     {
-        return(zbar_scanner_get_width(_scanner));
+	return (zbar_scanner_get_width(_scanner));
     }
 
     /// retrieve last scanned color.
     /// see zbar_scanner_get_color()
-    zbar_color_t get_color () const
+    zbar_color_t get_color() const
     {
-        return(zbar_scanner_get_color(_scanner));
+	return (zbar_scanner_get_color(_scanner));
     }
 
     /// retrieve last scan result.
-    zbar_symbol_type_t get_type () const
+    zbar_symbol_type_t get_type() const
     {
-        return(_type);
+	return (_type);
     }
 
     /// cast to C scanner
-    operator zbar_scanner_t* () const
+    operator zbar_scanner_t *() const
     {
-        return(_scanner);
+	return (_scanner);
     }
 
     /// retrieve C scanner
-    const zbar_scanner_t *get_c_scanner () const
+    const zbar_scanner_t *get_c_scanner() const
     {
-        return(_scanner);
+	return (_scanner);
     }
 
- private:
+private:
     zbar_scanner_t *_scanner;
     zbar_symbol_type_t _type;
 };

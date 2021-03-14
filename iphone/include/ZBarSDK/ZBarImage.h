@@ -31,8 +31,7 @@ using namespace zbar;
 
 // Obj-C wrapper for ZBar image
 
-@interface ZBarImage : NSObject
-{
+@interface ZBarImage : NSObject {
     zbar_image_t *zimg;
     double t_convert;
 }
@@ -47,20 +46,16 @@ using namespace zbar;
 @property (readonly, nonatomic) zbar_image_t *zbarImage;
 @property (readonly, nonatomic) UIImage *UIImage;
 
-- (id) initWithImage: (zbar_image_t*) image;
-- (id) initWithCGImage: (CGImageRef) image;
-- (id) initWithCGImage: (CGImageRef) image
-                  size: (CGSize) size;
-- (id) initWithCGImage: (CGImageRef) image
-                  crop: (CGRect) crop
-                  size: (CGSize) size;
+- (id)initWithImage:(zbar_image_t *)image;
+- (id)initWithCGImage:(CGImageRef)image;
+- (id)initWithCGImage:(CGImageRef)image size:(CGSize)size;
+- (id)initWithCGImage:(CGImageRef)image crop:(CGRect)crop size:(CGSize)size;
 
-- (void) setData: (const void*) data
-      withLength: (unsigned long) length;
-- (UIImage*) UIImageWithOrientation: (UIImageOrientation) imageOrientation;
-- (void) cleanup;
+- (void)setData:(const void *)data withLength:(unsigned long)length;
+- (UIImage *)UIImageWithOrientation:(UIImageOrientation)imageOrientation;
+- (void)cleanup;
 
-+ (unsigned long) fourcc: (NSString*) format;
++ (unsigned long)fourcc:(NSString *)format;
 
 #if 0
 - convertToFormat: (unsigned long) format;

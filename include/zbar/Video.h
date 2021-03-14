@@ -27,138 +27,139 @@
 /// Video Input C++ wrapper
 
 #ifndef _ZBAR_H_
-# error "include zbar.h in your application, **not** zbar/Video.h"
+#error "include zbar.h in your application, **not** zbar/Video.h"
 #endif
 
 #include "Image.h"
 
-namespace zbar {
-
+namespace zbar
+{
 /// mid-level video source abstraction.
 /// captures images from a video device
 
-class Video {
+class Video
+{
 public:
     /// constructor.
-    Video (zbar_video_t *video = NULL)
+    Video(zbar_video_t *video = NULL)
     {
-        if(video)
-            _video = video;
-        else
-            _video = zbar_video_create();
+	if (video)
+	    _video = video;
+	else
+	    _video = zbar_video_create();
     }
 
     /// constructor.
-    Video (std::string& device)
+    Video(std::string &device)
     {
-        _video = zbar_video_create();
-        open(device);
+	_video = zbar_video_create();
+	open(device);
     }
 
-    ~Video ()
+    ~Video()
     {
-        zbar_video_destroy(_video);
+	zbar_video_destroy(_video);
     }
 
     /// cast to C video object.
-    operator zbar_video_t* () const
+    operator zbar_video_t *() const
     {
-        return(_video);
+	return (_video);
     }
 
     /// open and probe a video device.
-    void open (std::string& device)
+    void open(std::string &device)
     {
-        if(zbar_video_open(_video, device.c_str()))
-            throw_exception(_video);
+	if (zbar_video_open(_video, device.c_str()))
+	    throw_exception(_video);
     }
 
     /// close video device if open.
-    void close ()
+    void close()
     {
-        if(zbar_video_open(_video, NULL))
-            throw_exception(_video);
+	if (zbar_video_open(_video, NULL))
+	    throw_exception(_video);
     }
 
     /// initialize video using a specific format for debug.
     /// see zbar_video_init()
-    void init (unsigned long fourcc)
+    void init(unsigned long fourcc)
     {
-        if(zbar_video_init(_video, fourcc))
-            throw_exception(_video);
+	if (zbar_video_init(_video, fourcc))
+	    throw_exception(_video);
     }
 
     /// initialize video using a specific format for debug.
     /// see zbar_video_init()
-    void init (std::string& format)
+    void init(std::string &format)
     {
-        unsigned int fourcc = zbar_fourcc_parse(format.c_str());
-        if(zbar_video_init(_video, fourcc))
-            throw_exception(_video);
+	unsigned int fourcc = zbar_fourcc_parse(format.c_str());
+	if (zbar_video_init(_video, fourcc))
+	    throw_exception(_video);
     }
 
     /// retrieve file descriptor associated with open *nix video device.
     /// see zbar_video_get_fd()
-    int get_fd ()
+    int get_fd()
     {
-        return(zbar_video_get_fd(_video));
+	return (zbar_video_get_fd(_video));
     }
 
     /// retrieve current output image width.
     /// see zbar_video_get_width()
-    int get_width ()
+    int get_width()
     {
-        return(zbar_video_get_width(_video));
+	return (zbar_video_get_width(_video));
     }
 
     /// retrieve current output image height.
     /// see zbar_video_get_height()
-    int get_height ()
+    int get_height()
     {
-        return(zbar_video_get_height(_video));
+	return (zbar_video_get_height(_video));
     }
 
     /// start/stop video capture.
     /// see zbar_video_enable()
-    void enable (bool enable = true)
+    void enable(bool enable = true)
     {
-        if(zbar_video_enable(_video, enable))
-            throw_exception(_video);
+	if (zbar_video_enable(_video, enable))
+	    throw_exception(_video);
     }
 
     /// retrieve next captured image.
     /// see zbar_video_next_image()
-    Image next_image ()
+    Image next_image()
     {
-        zbar_image_t *img = zbar_video_next_image(_video);
-        if(!img)
-            throw_exception(_video);
-        return(Image(img));
+	zbar_image_t *img = zbar_video_next_image(_video);
+	if (!img)
+	    throw_exception(_video);
+	return (Image(img));
     }
 
     /// request a preferred size for the video image from the device.
     /// see zbar_video_request_size()
     /// @since 0.6
-    void request_size (int width, int height)
+    void request_size(int width, int height)
     {
-        zbar_video_request_size(_video, width, height);
+	zbar_video_request_size(_video, width, height);
     }
 
     /// request a preferred driver interface version for debug/testing.
     /// see zbar_video_request_interface()
     /// @since 0.6
-    void request_interface (int version)
+    void request_interface(int version)
     {
-        zbar_video_request_interface(_video, version);
+	zbar_video_request_interface(_video, version);
     }
 
     /// request a preferred I/O mode for debug/testing.
     /// see zbar_video_request_iomode()
     /// @since 0.7
-    void request_iomode (int iomode)
+    void request_iomode(int iomode)
     {
-        if(zbar_video_request_iomode(_video, iomode))
-            throw_exception(_video);
+	if (zbar_video_request_iomode(_video, iomode))
+	    throw_exception(_video);
     }
 
     /// get the information about a control at a given index
@@ -166,48 +167,44 @@ public:
     /// @since 0.11
     struct video_controls_s *get_controls(int index)
     {
-        return(zbar_video_get_controls(_video, index));
+	return (zbar_video_get_controls(_video, index));
     }
 
     /// set the value on an integer control
     /// see zbar_video_set_control_n()
     /// @since 0.11
-    int set_control (const char *name,
-                     int value)
+    int set_control(const char *name, int value)
     {
-        return zbar_video_set_control (_video, name, value);
+	return zbar_video_set_control(_video, name, value);
     }
 
     /// set the value on a boolean control
     /// see zbar_video_set_control_b()
     /// @since 0.11
-    int set_control (const char *name,
-                     bool value)
+    int set_control(const char *name, bool value)
     {
-        return zbar_video_set_control (_video, name, value ? 1 : 0);
+	return zbar_video_set_control(_video, name, value ? 1 : 0);
     }
 
     /// get the value on a boolean control
     /// see zbar_video_get_control_b()
     /// @since 0.11
-    int get_control (const char *name,
-                     int *value)
+    int get_control(const char *name, int *value)
     {
-        return zbar_video_get_control (_video, name, value);
+	return zbar_video_get_control(_video, name, value);
     }
 
     /// get the value on an integer control
     /// see zbar_video_get_control_n()
     /// @since 0.11
-    int get_control (const char *name,
-                     bool *value)
+    int get_control(const char *name, bool *value)
     {
-        int __value;
-        int ret = zbar_video_get_control (_video, name, &__value);
+	int __value;
+	int ret = zbar_video_get_control(_video, name, &__value);
 
-        *value =  __value ? true : false;
+	*value = __value ? true : false;
 
-        return ret;
+	return ret;
     }
 
     /// get the information about a control at a given index
@@ -215,7 +212,7 @@ public:
     /// @since 0.22
     struct video_resolution_s *get_resolution(int index)
     {
-        return(zbar_video_get_resolutions(_video, index));
+	return (zbar_video_get_resolutions(_video, index));
     }
 
 private:

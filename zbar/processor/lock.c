@@ -21,8 +21,8 @@
  *  http://sourceforge.net/projects/zbar
  *------------------------------------------------------------------------*/
 
-#include "processor.h"
 #include <assert.h>
+#include "processor.h"
 
 /* the processor api lock is a recursive mutex with added capabilities
  * to completely drop all lock levels before blocking and atomically
@@ -37,78 +37,77 @@
  * http://www.profcon.com/profcon/cargill/jgf/9809/SpecificNotification.html
  */
 
-static inline proc_waiter_t *proc_waiter_queue (zbar_processor_t *proc)
+static inline proc_waiter_t *proc_waiter_queue(zbar_processor_t *proc)
 {
     proc_waiter_t *waiter = proc->free_waiter;
-    if(waiter) {
-        proc->free_waiter = waiter->next;
-        waiter->events = 0;
-    }
-    else {
-        waiter = calloc(1, sizeof(proc_waiter_t));
-        _zbar_event_init(&waiter->notify);
+    if (waiter) {
+	proc->free_waiter = waiter->next;
+	waiter->events	  = 0;
+    } else {
+	waiter = calloc(1, sizeof(proc_waiter_t));
+	_zbar_event_init(&waiter->notify);
     }
 
-    waiter->next = NULL;
+    waiter->next      = NULL;
     waiter->requester = _zbar_thread_self();
 
-    if(proc->wait_head)
-        proc->wait_tail->next = waiter;
+    if (proc->wait_head)
+	proc->wait_tail->next = waiter;
     else
-        proc->wait_head = waiter;
+	proc->wait_head = waiter;
     proc->wait_tail = waiter;
-    return(waiter);
+    return (waiter);
 }
 
-static inline proc_waiter_t *proc_waiter_dequeue (zbar_processor_t *proc)
+static inline proc_waiter_t *proc_waiter_dequeue(zbar_processor_t *proc)
 {
     proc_waiter_t *prev = proc->wait_next, *waiter;
-    if(prev)
-        waiter = prev->next;
+    if (prev)
+	waiter = prev->next;
     else
-        waiter = proc->wait_head;
-    while(waiter && (waiter->events & EVENTS_PENDING)) {
-        prev = waiter;
-        proc->wait_next = waiter;
-        waiter = waiter->next;
+	waiter = proc->wait_head;
+    while (waiter && (waiter->events & EVENTS_PENDING)) {
+	prev		= waiter;
+	proc->wait_next = waiter;
+	waiter		= waiter->next;
     }
 
-    if(waiter) {
-        if(prev)
-            prev->next = waiter->next;
-        else
-            proc->wait_head = waiter->next;
-        if(!waiter->next)
-            proc->wait_tail = prev;
-        waiter->next = NULL;
+    if (waiter) {
+	if (prev)
+	    prev->next = waiter->next;
+	else
+	    proc->wait_head = waiter->next;
+	if (!waiter->next)
+	    proc->wait_tail = prev;
+	waiter->next = NULL;
 
-        proc->lock_level = 1;
-        proc->lock_owner = waiter->requester;
+	proc->lock_level = 1;
+	proc->lock_owner = waiter->requester;
     }
-    return(waiter);
+    return (waiter);
 }
 
-static inline void proc_waiter_release (zbar_processor_t *proc,
-                                        proc_waiter_t *waiter)
+static inline void proc_waiter_release(zbar_processor_t *proc,
+				       proc_waiter_t *waiter)
 {
-    if(waiter) {
-        waiter->next = proc->free_waiter;
-        proc->free_waiter = waiter;
+    if (waiter) {
+	waiter->next	  = proc->free_waiter;
+	proc->free_waiter = waiter;
     }
 }
 
-int _zbar_processor_lock (zbar_processor_t *proc)
+int _zbar_processor_lock(zbar_processor_t *proc)
 {
     proc_waiter_t *waiter;
-    if(!proc->lock_level) {
-        proc->lock_owner = _zbar_thread_self();
-        proc->lock_level = 1;
-        return(0);
+    if (!proc->lock_level) {
+	proc->lock_owner = _zbar_thread_self();
+	proc->lock_level = 1;
+	return (0);
     }
 
-    if(_zbar_thread_is_self(proc->lock_owner)) {
-        proc->lock_level++;
-        return(0);
+    if (_zbar_thread_is_self(proc->lock_owner)) {
+	proc->lock_level++;
+	return (0);
     }
 
     waiter = proc_waiter_queue(proc);
@@ -118,110 +117,106 @@ int _zbar_processor_lock (zbar_processor_t *proc)
     assert(_zbar_thread_is_self(proc->lock_owner));
 
     proc_waiter_release(proc, waiter);
-    return(0);
+    return (0);
 }
 
-int _zbar_processor_unlock (zbar_processor_t *proc,
-                            int all)
+int _zbar_processor_unlock(zbar_processor_t *proc, int all)
 {
     assert(proc->lock_level > 0);
     assert(_zbar_thread_is_self(proc->lock_owner));
 
-    if(all)
-        proc->lock_level = 0;
+    if (all)
+	proc->lock_level = 0;
     else
-        proc->lock_level--;
+	proc->lock_level--;
 
-    if(!proc->lock_level) {
-        proc_waiter_t *waiter = proc_waiter_dequeue(proc);
-        if(waiter)
-            _zbar_event_trigger(&waiter->notify);
+    if (!proc->lock_level) {
+	proc_waiter_t *waiter = proc_waiter_dequeue(proc);
+	if (waiter)
+	    _zbar_event_trigger(&waiter->notify);
     }
-    return(0);
+    return (0);
 }
 
-void _zbar_processor_notify (zbar_processor_t *proc,
-                             unsigned events)
+void _zbar_processor_notify(zbar_processor_t *proc, unsigned events)
 {
     proc_waiter_t *waiter;
     proc->wait_next = NULL;
-    for(waiter = proc->wait_head; waiter; waiter = waiter->next)
-        waiter->events = ((waiter->events & ~events) |
-                          (events & EVENT_CANCELED));
+    for (waiter = proc->wait_head; waiter; waiter = waiter->next)
+	waiter->events =
+	    ((waiter->events & ~events) | (events & EVENT_CANCELED));
 
-    if(!proc->lock_level) {
-        waiter = proc_waiter_dequeue(proc);
-        if(waiter)
-            _zbar_event_trigger(&waiter->notify);
+    if (!proc->lock_level) {
+	waiter = proc_waiter_dequeue(proc);
+	if (waiter)
+	    _zbar_event_trigger(&waiter->notify);
     }
 }
 
-static inline int proc_wait_unthreaded (zbar_processor_t *proc,
-                                        proc_waiter_t *waiter,
-                                        zbar_timer_t *timeout)
+static inline int proc_wait_unthreaded(zbar_processor_t *proc,
+				       proc_waiter_t *waiter,
+				       zbar_timer_t *timeout)
 {
     int rc;
     int blocking = proc->streaming && zbar_video_get_fd(proc->video) < 0;
     _zbar_mutex_unlock(&proc->mutex);
 
     rc = 1;
-    while(rc > 0 && (waiter->events & EVENTS_PENDING)) {
-        int reltime;
-        /* FIXME lax w/the locking (though shouldn't matter...) */
-        if(blocking) {
-            zbar_image_t *img = zbar_video_next_image(proc->video);
-            if(!img) {
-                rc = -1;
-                break;
-            }
+    while (rc > 0 && (waiter->events & EVENTS_PENDING)) {
+	int reltime;
+	/* FIXME lax w/the locking (though shouldn't matter...) */
+	if (blocking) {
+	    zbar_image_t *img = zbar_video_next_image(proc->video);
+	    if (!img) {
+		rc = -1;
+		break;
+	    }
 
-            /* FIXME reacquire API lock! (refactor w/video thread?) */
-            _zbar_mutex_lock(&proc->mutex);
-            _zbar_process_image(proc, img);
-            zbar_image_destroy(img);
-            _zbar_mutex_unlock(&proc->mutex);
-        }
-        reltime = _zbar_timer_check(timeout);
-        if(blocking && (reltime < 0 || reltime > MAX_INPUT_BLOCK))
-            reltime = MAX_INPUT_BLOCK;
-        rc = _zbar_processor_input_wait(proc, NULL, reltime);
+	    /* FIXME reacquire API lock! (refactor w/video thread?) */
+	    _zbar_mutex_lock(&proc->mutex);
+	    _zbar_process_image(proc, img);
+	    zbar_image_destroy(img);
+	    _zbar_mutex_unlock(&proc->mutex);
+	}
+	reltime = _zbar_timer_check(timeout);
+	if (blocking && (reltime < 0 || reltime > MAX_INPUT_BLOCK))
+	    reltime = MAX_INPUT_BLOCK;
+	rc = _zbar_processor_input_wait(proc, NULL, reltime);
     }
     _zbar_mutex_lock(&proc->mutex);
-    return(rc);
+    return (rc);
 }
 
-int _zbar_processor_wait (zbar_processor_t *proc,
-                          unsigned events,
-                          zbar_timer_t *timeout)
+int _zbar_processor_wait(zbar_processor_t *proc, unsigned events,
+			 zbar_timer_t *timeout)
 {
     int save_level;
     proc_waiter_t *waiter;
     int rc;
 
     _zbar_mutex_lock(&proc->mutex);
-    save_level = proc->lock_level;
-    waiter = proc_waiter_queue(proc);
+    save_level	   = proc->lock_level;
+    waiter	   = proc_waiter_queue(proc);
     waiter->events = events & EVENTS_PENDING;
 
     _zbar_processor_unlock(proc, 1);
-    if(proc->threaded)
-        rc = _zbar_event_wait(&waiter->notify, &proc->mutex, timeout);
+    if (proc->threaded)
+	rc = _zbar_event_wait(&waiter->notify, &proc->mutex, timeout);
     else
-        rc = proc_wait_unthreaded(proc, waiter, timeout);
+	rc = proc_wait_unthreaded(proc, waiter, timeout);
 
-    if(rc <= 0 || !proc->threaded) {
-        /* reacquire api lock */
-        waiter->events &= EVENT_CANCELED;
-        proc->wait_next = NULL;
-        if(!proc->lock_level) {
-            proc_waiter_t *w = proc_waiter_dequeue(proc);
-            assert(w == waiter);
-        }
-        else
-            _zbar_event_wait(&waiter->notify, &proc->mutex, NULL);
+    if (rc <= 0 || !proc->threaded) {
+	/* reacquire api lock */
+	waiter->events &= EVENT_CANCELED;
+	proc->wait_next = NULL;
+	if (!proc->lock_level) {
+	    proc_waiter_t *w = proc_waiter_dequeue(proc);
+	    assert(w == waiter);
+	} else
+	    _zbar_event_wait(&waiter->notify, &proc->mutex, NULL);
     }
-    if(rc > 0 && (waiter->events & EVENT_CANCELED))
-        rc = -1;
+    if (rc > 0 && (waiter->events & EVENT_CANCELED))
+	rc = -1;
 
     assert(proc->lock_level == 1);
     assert(_zbar_thread_is_self(proc->lock_owner));
@@ -229,5 +224,5 @@ int _zbar_processor_wait (zbar_processor_t *proc,
     proc->lock_level = save_level;
     proc_waiter_release(proc, waiter);
     _zbar_mutex_unlock(&proc->mutex);
-    return(rc);
+    return (rc);
 }

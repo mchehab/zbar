@@ -29,43 +29,38 @@
 #include <qimage.h>
 #include <zbar.h>
 
-namespace zbar {
-
+namespace zbar
+{
 /// wrap a QImage and convert into a format suitable for scanning.
 
-class QZBarImage
-    : public Image
+class QZBarImage : public Image
 {
 public:
-
     /// construct a zbar library image based on an existing QImage.
 
-    QZBarImage (const QImage &qimg)
-        : qimg(qimg)
+    QZBarImage(const QImage &qimg) : qimg(qimg)
     {
-        QImage::Format fmt = qimg.format();
-        if(fmt != QImage::Format_RGB32 &&
-           fmt != QImage::Format_ARGB32 &&
-           fmt != QImage::Format_ARGB32_Premultiplied)
-            throw FormatError();
+	QImage::Format fmt = qimg.format();
+	if (fmt != QImage::Format_RGB32 && fmt != QImage::Format_ARGB32 &&
+	    fmt != QImage::Format_ARGB32_Premultiplied)
+	    throw FormatError();
 
-        unsigned bpl = qimg.bytesPerLine();
-        unsigned width = bpl / 4;
-        unsigned height = qimg.height();
-        set_size(width, height);
-        set_format(zbar_fourcc('B','G','R','4'));
-#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
-        unsigned long datalen = qimg.sizeInBytes();
-#elif QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-        unsigned long datalen = qimg.byteCount();
+	unsigned bpl	= qimg.bytesPerLine();
+	unsigned width	= bpl / 4;
+	unsigned height = qimg.height();
+	set_size(width, height);
+	set_format(zbar_fourcc('B', 'G', 'R', '4'));
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+	unsigned long datalen = qimg.sizeInBytes();
+#elif QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+	unsigned long datalen = qimg.byteCount();
 #else
-        unsigned long datalen = qimg.numBytes();
+	unsigned long datalen = qimg.numBytes();
 #endif
-        set_data(qimg.bits(), datalen);
+	set_data(qimg.bits(), datalen);
 
-        if((width * 4 != bpl) ||
-           (width * height * 4 > datalen))
-            throw FormatError();
+	if ((width * 4 != bpl) || (width * height * 4 > datalen))
+	    throw FormatError();
     }
 
 private:
@@ -73,6 +68,5 @@ private:
 };
 
 };
-
 
 #endif

@@ -28,7 +28,7 @@
 
 #include <pygobject.h>
 
-void zbarpygtk_register_classes(PyObject*);
+void zbarpygtk_register_classes(PyObject *);
 extern PyMethodDef zbarpygtk_functions[];
 
 DL_EXPORT(void)
@@ -36,11 +36,11 @@ initzbarpygtk(void)
 {
     init_pygobject();
 
-    PyObject *mod = Py_InitModule("zbarpygtk", zbarpygtk_functions);
+    PyObject *mod  = Py_InitModule("zbarpygtk", zbarpygtk_functions);
     PyObject *dict = PyModule_GetDict(mod);
 
     zbarpygtk_register_classes(dict);
 
-    if(PyErr_Occurred())
-        Py_FatalError("unable to initialise module zbarpygtk");
+    if (PyErr_Occurred())
+	Py_FatalError("unable to initialise module zbarpygtk");
 }
