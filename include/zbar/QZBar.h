@@ -202,6 +202,6 @@ private:
     bool _attached;
 };
 
-};
+}; // namespace zbar
 
 #endif

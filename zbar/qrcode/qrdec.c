@@ -3,12 +3,14 @@
    GNU Lesser General Public License as published by the Free Software
    Foundation; either version 2.1 of the License, or (at your option) any later
    version.*/
-#include "qrdec.h"
+
 #include "config.h"
+
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
 #include "bch15_5.h"
 #include "binarize.h"
 #include "error.h"
@@ -18,6 +20,8 @@
 #include "rs.h"
 #include "svg.h"
 #include "util.h"
+
+#include "qrdec.h"
 
 typedef int qr_line[3];
 

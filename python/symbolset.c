@@ -61,9 +61,11 @@ static PySequenceMethods symbolset_as_sequence = {
 
 PyTypeObject zbarSymbolSet_Type = {
     PyVarObject_HEAD_INIT(NULL, 0).tp_name = "zbar.SymbolSet",
-    .tp_doc				   = symbolset_doc,
-    .tp_basicsize			   = sizeof(zbarSymbolSet),
-    .tp_flags	    = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+
+    .tp_doc	    = symbolset_doc,
+    .tp_basicsize   = sizeof(zbarSymbolSet),
     .tp_dealloc	    = (destructor)symbolset_dealloc,
     .tp_iter	    = (getiterfunc)symbolset_iter,
     .tp_as_sequence = &symbolset_as_sequence,

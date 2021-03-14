@@ -67,6 +67,6 @@ private:
     QImage qimg;
 };
 
-};
+}; // namespace zbar
 
 #endif

@@ -21,10 +21,12 @@
  *  http://sourceforge.net/projects/zbar
  *------------------------------------------------------------------------*/
 
-#include "win.h"
 #include <ctype.h>
-#include "image.h"
+
 #include "window.h"
+#include "image.h"
+
+#include "win.h"
 
 int _zbar_window_vfw_init(zbar_window_t *w);
 int _zbar_window_dib_init(zbar_window_t *w);

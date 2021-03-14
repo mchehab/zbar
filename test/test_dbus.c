@@ -139,7 +139,8 @@ int main(int argc, char *argv[])
 	    continue;
 	}
 
-	// check if the message is a signal from the correct interface and with the correct name
+	// check if the message is a signal from the correct interface and with the
+	// correct name
 	if (dbus_message_is_signal(msg, ZBAR_INTERFACE, ZBAR_SIGNAL_CODE)) {
 	    // read the parameters
 	    if (!dbus_message_iter_init(msg, &args))

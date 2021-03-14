@@ -26,8 +26,10 @@ int main(int argc, char **argv)
 
     // obtain image data
     Magick::Image magick(argv[1]); // read an image file
+
     int width  = magick.columns(); // extract dimensions
     int height = magick.rows();
+
     Magick::Blob blob; // extract the raw data
     magick.modifyImage();
     magick.write(&blob, "GRAY", 8);

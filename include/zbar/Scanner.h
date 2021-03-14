@@ -157,6 +157,6 @@ private:
     zbar_symbol_type_t _type;
 };
 
-}
+} // namespace zbar
 
 #endif

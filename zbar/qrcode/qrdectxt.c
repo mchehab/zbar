@@ -4,10 +4,13 @@
    Foundation; either version 2.1 of the License, or (at your option) any later
    version.*/
 #include "config.h"
-#include <iconv.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <iconv.h>
+
 #include "decoder.h"
 #include "error.h"
 #include "image.h"

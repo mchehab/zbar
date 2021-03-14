@@ -21,8 +21,9 @@
  *  http://sourceforge.net/projects/zbar
  *------------------------------------------------------------------------*/
 
-#include <vfw.h>
 #include "window.h"
+
+#include <vfw.h>
 
 extern int _zbar_window_bih_init(zbar_window_t *w, zbar_image_t *img);
 

@@ -144,6 +144,6 @@ private:
     zbar_image_scanner_t *_scanner;
 };
 
-}
+} // namespace zbar
 
 #endif

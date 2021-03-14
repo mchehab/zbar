@@ -36,8 +36,9 @@
 #include <zbar.h>
 #include <zbar/QZBar.h>
 
-#define TEST_IMAGE_FORMATS \
-    "Image Files (*.png *.jpg *.jpeg *.bmp *.gif *.ppm *.pgm *.pbm *.tiff *.xpm *.xbm)"
+#define TEST_IMAGE_FORMATS                                                  \
+    "Image Files (*.png *.jpg *.jpeg *.bmp *.gif *.ppm *.pgm *.pbm *.tiff " \
+    "*.xpm *.xbm)"
 
 #define SYM_GROUP   "Symbology"
 #define CAM_GROUP   "Camera"
