@@ -3,7 +3,7 @@ name: CI
 # Should run only on branches and PR, as "on_tag.yml" will handle tags
 on:
   push:
-    branches: master
+    branches: master test
   pull_request:
     branches: master
 
@@ -35,7 +35,7 @@ jobs:
 
   Ubuntu_Gtk2:
     name: Ubuntu with Gtk2
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v2
     - name: prepare
