@@ -27,7 +27,7 @@
 
 struct window_state_s {
     HDC hdc;
-    void* hdd;
+    void *hdd;
 
     BITMAPINFOHEADER bih;
 
@@ -40,7 +40,6 @@ struct window_state_s {
     int font_height;
 };
 
-extern int _zbar_window_bih_init(zbar_window_t *w,
-                                 zbar_image_t *img);
+extern int _zbar_window_bih_init(zbar_window_t *w, zbar_image_t *img);
 
 #endif

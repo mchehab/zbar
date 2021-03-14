@@ -44,8 +44,7 @@ void resolution_list_add(resolution_list_t *list, resolution_t *resolution);
   * the <code>resolution</code> is unchanged.
   * If <code>resolution</code> is empty,
   * the biggest resolution is chosen. */
-void get_closest_resolution(resolution_t *resolution,
-                            resolution_list_t *list);
+void get_closest_resolution(resolution_t *resolution, resolution_list_t *list);
 
 /// Returns 1 if the struct is null, otherwise 0
 int is_struct_null_fun(const void *pdata, const int len);

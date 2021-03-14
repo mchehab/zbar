@@ -55,17 +55,22 @@
 G_BEGIN_DECLS
 
 /* --- type macros --- */
-#define ZBAR_TYPE_GTK              (zbar_gtk_get_type())
-#define ZBAR_GTK(object)           (G_TYPE_CHECK_INSTANCE_CAST((object), ZBAR_TYPE_GTK, ZBarGtk))
-#define ZBAR_GTK_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass),     ZBAR_TYPE_GTK, ZBarGtkClass))
-#define ZBAR_IS_GTK(object)        (G_TYPE_CHECK_INSTANCE_TYPE((object), ZBAR_TYPE_GTK))
-#define ZBAR_IS_GTK_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE((klass),     ZBAR_TYPE_GTK))
-#define ZBAR_GTK_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS((object),  ZBAR_TYPE_GTK, ZBarGtkClass))
+#define ZBAR_TYPE_GTK (zbar_gtk_get_type())
+#define ZBAR_GTK(object) \
+    (G_TYPE_CHECK_INSTANCE_CAST((object), ZBAR_TYPE_GTK, ZBarGtk))
+#define ZBAR_GTK_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass), ZBAR_TYPE_GTK, ZBarGtkClass))
+#define ZBAR_IS_GTK(object) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((object), ZBAR_TYPE_GTK))
+#define ZBAR_IS_GTK_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass), ZBAR_TYPE_GTK))
+#define ZBAR_GTK_GET_CLASS(object) \
+    (G_TYPE_INSTANCE_GET_CLASS((object), ZBAR_TYPE_GTK, ZBarGtkClass))
 
 /* --- typedefs & structures --- */
 
-typedef struct _ZBarGtk          ZBarGtk;
-typedef struct _ZBarGtkClass     ZBarGtkClass;
+typedef struct _ZBarGtk ZBarGtk;
+typedef struct _ZBarGtkClass ZBarGtkClass;
 
 /**
  * _ZBarGtk: (rename-to ZBarGtk) (ref-func zbar_gtk_new) (get-value-func zbar_gtk_get_type)
@@ -125,9 +130,8 @@ struct _ZBarGtkClass {
      * the symbol type and contained data are provided as separate
      * parameters
      */
-    void (*decoded) (ZBarGtk *zbar,
-                     zbar_symbol_type_t symbol_type,
-                     const char *data);
+    void (*decoded)(ZBarGtk *zbar, zbar_symbol_type_t symbol_type,
+		    const char *data);
 
     /**
      * ZBarGtk::decoded-text:
@@ -139,16 +143,14 @@ struct _ZBarGtkClass {
      * the symbol type name is prefixed to the data, separated by a
      * colon
      */
-    void (*decoded_text) (ZBarGtk *zbar,
-                          const char *text);
+    void (*decoded_text)(ZBarGtk *zbar, const char *text);
 
     /**
      * ZBarGtk:scan-image:
      * @widget: the object that received the signal
      * @image: the image to scan for barcodes
      */
-    void (*scan_image) (ZBarGtk *zbar,
-                        GdkPixbuf *image);
+    void (*scan_image)(ZBarGtk *zbar, GdkPixbuf *image);
 };
 
 /**
@@ -173,8 +175,7 @@ GtkWidget *zbar_gtk_new(void);
  * @image: the GdkPixbuf used to store the image
  *
  */
-void zbar_gtk_scan_image(ZBarGtk *zbar,
-                         GdkPixbuf *image);
+void zbar_gtk_scan_image(ZBarGtk *zbar, GdkPixbuf *image);
 
 /**
  * zbar_gtk_get_video_device:
@@ -195,8 +196,7 @@ const char *zbar_gtk_get_video_device(ZBarGtk *zbar);
  * @note since opening a device may take some time, this call will
  * return immediately and the device will be opened asynchronously
  */
-void zbar_gtk_set_video_device(ZBarGtk *zbar,
-                               const char *video_device);
+void zbar_gtk_set_video_device(ZBarGtk *zbar, const char *video_device);
 
 /**
  * zbar_gtk_get_video_enabled:
@@ -215,8 +215,7 @@ gboolean zbar_gtk_get_video_enabled(ZBarGtk *zbar);
  *
  * has no effect unless a video device is opened
  */
-void zbar_gtk_set_video_enabled(ZBarGtk *zbar,
-                                gboolean video_enabled);
+void zbar_gtk_set_video_enabled(ZBarGtk *zbar, gboolean video_enabled);
 
 /**
  * zbar_gtk_get_video_opened:
@@ -236,9 +235,7 @@ gboolean zbar_gtk_get_video_opened(ZBarGtk *zbar);
  *
  * @note this call must be made before video is initialized
  */
-void zbar_gtk_request_video_size(ZBarGtk *zbar,
-                                 int width,
-                                 int height);
+void zbar_gtk_request_video_size(ZBarGtk *zbar, int width, int height);
 
 /**
  * zbar_gtk_image_from_pixbuf:
@@ -249,8 +246,7 @@ void zbar_gtk_request_video_size(ZBarGtk *zbar,
  * Returns: TRUE if successful or FALSE if the conversion could not be
  * performed for some reason
  */
-gboolean zbar_gtk_image_from_pixbuf(zbar_image_t *image,
-                                    GdkPixbuf *pixbuf);
+gboolean zbar_gtk_image_from_pixbuf(zbar_image_t *image, GdkPixbuf *pixbuf);
 
 G_END_DECLS
 

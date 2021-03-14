@@ -28,7 +28,6 @@
 #ifndef _ZBARMODULE_H_
 #define _ZBARMODULE_H_
 
-
 #if PY_MAJOR_VERSION < 3
 typedef struct {
     PyBaseExceptionObject base;
@@ -38,56 +37,47 @@ typedef struct {
 extern PyTypeObject zbarException_Type;
 #endif
 
-
 extern struct PyModuleDef zbar_moduledef;
 
 #if PY_MAJOR_VERSION >= 3
-#define GETSTATE(m) ((struct module_state*)PyModule_GetState(m))
+#define GETSTATE(m)   ((struct module_state *)PyModule_GetState(m))
 #define GETMODSTATE() (GETSTATE(PyState_FindModule(&zbar_moduledef)))
 #else
 extern struct module_state zbar_state;
-#define GETSTATE(m) (&zbar_state)
+#define GETSTATE(m)   (&zbar_state)
 #define GETMODSTATE() (&zbar_state)
 #endif
-
 
 extern PyObject *zbarErr_Set(PyObject *self);
 
 typedef struct {
 #if PY_MAJOR_VERSION >= 3
-    PyLongObject val;           /* parent type is the long type */
+    PyLongObject val; /* parent type is the long type */
 #else
-    PyIntObject val;            /* integer value is super type */
+    PyIntObject val; /* integer value is super type */
 #endif
-    PyObject *name;             /* associated string name */
+    PyObject *name; /* associated string name */
 } zbarEnumItem;
 
 extern PyTypeObject zbarEnumItem_Type;
 
-extern zbarEnumItem *zbarEnumItem_New(PyObject *byname,
-                                        PyObject *byvalue,
-                                        int val,
-                                        const char *name);
+extern zbarEnumItem *zbarEnumItem_New(PyObject *byname, PyObject *byvalue,
+				      int val, const char *name);
 
 typedef struct {
-    PyObject_HEAD
-    PyObject *byname, *byvalue; /* zbarEnumItem content dictionaries */
+    PyObject_HEAD PyObject *byname,
+	*byvalue; /* zbarEnumItem content dictionaries */
 } zbarEnum;
 
 extern PyTypeObject zbarEnum_Type;
 
 extern zbarEnum *zbarEnum_New(void);
-extern int zbarEnum_Add(zbarEnum *self,
-                         int val,
-                         const char *name);
-extern zbarEnumItem *zbarEnum_LookupValue(zbarEnum *self,
-                                          int val);
-extern PyObject *zbarEnum_SetFromMask(zbarEnum *self,
-                                      unsigned int mask);
+extern int zbarEnum_Add(zbarEnum *self, int val, const char *name);
+extern zbarEnumItem *zbarEnum_LookupValue(zbarEnum *self, int val);
+extern PyObject *zbarEnum_SetFromMask(zbarEnum *self, unsigned int mask);
 
 typedef struct {
-    PyObject_HEAD
-    zbar_image_t *zimg;
+    PyObject_HEAD zbar_image_t *zimg;
     PyObject *data;
 } zbarImage;
 
@@ -97,20 +87,18 @@ extern zbarImage *zbarImage_FromImage(zbar_image_t *zimg);
 extern int zbarImage_validate(zbarImage *image);
 
 typedef struct {
-    PyObject_HEAD
-    const zbar_symbol_set_t *zsyms;
+    PyObject_HEAD const zbar_symbol_set_t *zsyms;
 } zbarSymbolSet;
 
 extern PyTypeObject zbarSymbolSet_Type;
 
-extern zbarSymbolSet*
+extern zbarSymbolSet *
 zbarSymbolSet_FromSymbolSet(const zbar_symbol_set_t *zsyms);
 
 #define zbarSymbolSet_Check(obj) PyObject_TypeCheck(obj, &zbarSymbolSet_Type)
 
 typedef struct {
-    PyObject_HEAD
-    const zbar_symbol_t *zsym;
+    PyObject_HEAD const zbar_symbol_t *zsym;
     PyObject *data;
     PyObject *loc;
 } zbarSymbol;
@@ -121,8 +109,7 @@ extern zbarSymbol *zbarSymbol_FromSymbol(const zbar_symbol_t *zsym);
 extern zbarEnumItem *zbarSymbol_LookupEnum(zbar_symbol_type_t type);
 
 typedef struct {
-    PyObject_HEAD
-    const zbar_symbol_t *zsym;
+    PyObject_HEAD const zbar_symbol_t *zsym;
     zbarSymbolSet *syms;
 } zbarSymbolIter;
 
@@ -131,8 +118,7 @@ extern PyTypeObject zbarSymbolIter_Type;
 extern zbarSymbolIter *zbarSymbolIter_FromSymbolSet(zbarSymbolSet *syms);
 
 typedef struct {
-    PyObject_HEAD
-    zbar_processor_t *zproc;
+    PyObject_HEAD zbar_processor_t *zproc;
     PyObject *handler;
     PyObject *closure;
 } zbarProcessor;
@@ -142,15 +128,13 @@ extern PyTypeObject zbarProcessor_Type;
 #define zbarProcessor_Check(obj) PyObject_TypeCheck(obj, &zbarProcessor_Type)
 
 typedef struct {
-    PyObject_HEAD
-    zbar_image_scanner_t *zscn;
+    PyObject_HEAD zbar_image_scanner_t *zscn;
 } zbarImageScanner;
 
 extern PyTypeObject zbarImageScanner_Type;
 
 typedef struct {
-    PyObject_HEAD
-    zbar_decoder_t *zdcode;
+    PyObject_HEAD zbar_decoder_t *zdcode;
     PyObject *handler;
     PyObject *args;
 } zbarDecoder;
@@ -158,19 +142,14 @@ typedef struct {
 extern PyTypeObject zbarDecoder_Type;
 
 typedef struct {
-    PyObject_HEAD
-    zbar_scanner_t *zscn;
+    PyObject_HEAD zbar_scanner_t *zscn;
     zbarDecoder *decoder;
 } zbarScanner;
 
 extern PyTypeObject zbarScanner_Type;
 
-extern int object_to_bool(PyObject *obj,
-                          int *val);
-extern int parse_dimensions(PyObject *seq,
-                            int *dims,
-                            int n);
-
+extern int object_to_bool(PyObject *obj, int *val);
+extern int parse_dimensions(PyObject *seq, int *dims, int n);
 
 struct module_state {
     PyObject *zbar_exc[ZBAR_ERR_NUM];

@@ -21,87 +21,79 @@
 //  http://sourceforge.net/projects/zbar
 //------------------------------------------------------------------------
 
-#include <iostream>
 #include "QZBarThread.h"
+#include <iostream>
 
 using namespace zbar;
 
 static const QString textFormat("%1:%2");
 
-QZBarThread::QZBarThread (int verbosity)
-    : _videoOpened(false),
-      reqWidth(DEFAULT_WIDTH),
-      reqHeight(DEFAULT_HEIGHT),
-      video(NULL),
-      image(NULL),
-      running(true),
-      videoRunning(false),
+QZBarThread::QZBarThread(int verbosity)
+    : _videoOpened(false), reqWidth(DEFAULT_WIDTH), reqHeight(DEFAULT_HEIGHT),
+      video(NULL), image(NULL), running(true), videoRunning(false),
       videoEnabled(false)
 {
     zbar_set_verbosity(verbosity);
     scanner.set_handler(*this);
 }
 
-void QZBarThread::image_callback (Image &image)
+void QZBarThread::image_callback(Image &image)
 {
-    for(Image::SymbolIterator sym = image.symbol_begin();
-        sym != image.symbol_end();
-        ++sym)
-        if(!sym->get_count()) {
-            QString data = QString::fromStdString(sym->get_data());
-            emit decoded(sym->get_type(), data);
+    for (Image::SymbolIterator sym = image.symbol_begin();
+	 sym != image.symbol_end(); ++sym)
+	if (!sym->get_count()) {
+	    QString data = QString::fromStdString(sym->get_data());
+	    emit decoded(sym->get_type(), data);
 
-            emit decodedText(textFormat.arg(
-                QString::fromStdString(sym->get_type_name()),
-                data));
-        }
+	    emit decodedText(textFormat.arg(
+		QString::fromStdString(sym->get_type_name()), data));
+	}
 }
 
-void QZBarThread::processImage (Image &image)
+void QZBarThread::processImage(Image &image)
 {
     {
-        scanner.recycle_image(image);
-        Image tmp = image.convert(*(long*)"Y800");
-        scanner.scan(tmp);
-        image.set_symbols(tmp.get_symbols());
+	scanner.recycle_image(image);
+	Image tmp = image.convert(*(long *)"Y800");
+	scanner.scan(tmp);
+	image.set_symbols(tmp.get_symbols());
     }
     window.draw(image);
-    if(this->image && this->image != &image) {
-        delete this->image;
-        this->image = NULL;
+    if (this->image && this->image != &image) {
+	delete this->image;
+	this->image = NULL;
     }
     emit update();
 }
 
-void QZBarThread::enableVideo (bool enable)
+void QZBarThread::enableVideo(bool enable)
 {
-    if(!video) {
-        videoRunning = videoEnabled = false;
-        return;
+    if (!video) {
+	videoRunning = videoEnabled = false;
+	return;
     }
     try {
-        scanner.enable_cache(enable);
-        video->enable(enable);
-        videoRunning = enable;
+	scanner.enable_cache(enable);
+	video->enable(enable);
+	videoRunning = enable;
+    } catch (std::exception &e) {
+	std::cerr << "ERROR: " << e.what() << std::endl;
     }
-    catch(std::exception &e) {
-        std::cerr << "ERROR: " << e.what() << std::endl;
-    }
-    if(!enable) {
-        // release video image and revert to logo
-        clear();
-        emit update();
+    if (!enable) {
+	// release video image and revert to logo
+	clear();
+	emit update();
     }
 }
 
-void QZBarThread::openVideo (const QString &device)
+void QZBarThread::openVideo(const QString &device)
 {
-    if(videoRunning)
-        enableVideo(false);
+    if (videoRunning)
+	enableVideo(false);
 
     {
-        QMutexLocker locker(&mutex);
-        videoEnabled = _videoOpened = false;
+	QMutexLocker locker(&mutex);
+	videoEnabled = _videoOpened = false;
     }
 
     // ensure old video doesn't have image ref
@@ -109,205 +101,200 @@ void QZBarThread::openVideo (const QString &device)
     clear();
     emit update();
 
-    if(video) {
-        delete video;
-        video = NULL;
-        emit videoOpened(false);
+    if (video) {
+	delete video;
+	video = NULL;
+	emit videoOpened(false);
     }
 
-    if(device.isEmpty())
-        return;
+    if (device.isEmpty())
+	return;
 
     try {
-        std::string devstr = device.toStdString();
-        video = new Video(devstr);
+	std::string devstr = device.toStdString();
+	video		   = new Video(devstr);
 
-        if (reqWidth != DEFAULT_WIDTH || reqHeight != DEFAULT_HEIGHT)
-            video->request_size(reqWidth, reqHeight);
+	if (reqWidth != DEFAULT_WIDTH || reqHeight != DEFAULT_HEIGHT)
+	    video->request_size(reqWidth, reqHeight);
 
-        negotiate_format(*video, window);
-        {
-            QMutexLocker locker(&mutex);
-            videoEnabled = _videoOpened = true;
-            reqWidth = video->get_width();
-            reqHeight = video->get_height();
-        }
-        currentDevice = device;
+	negotiate_format(*video, window);
+	{
+	    QMutexLocker locker(&mutex);
+	    videoEnabled = _videoOpened = true;
+	    reqWidth			= video->get_width();
+	    reqHeight			= video->get_height();
+	}
+	currentDevice = device;
 
-        emit videoOpened(true);
-    }
-    catch(std::exception &e) {
-        std::cerr << "ERROR: " << e.what() << std::endl;
-        emit videoOpened(false);
+	emit videoOpened(true);
+    } catch (std::exception &e) {
+	std::cerr << "ERROR: " << e.what() << std::endl;
+	emit videoOpened(false);
     }
 }
 
-void QZBarThread::videoDeviceEvent (VideoDeviceEvent *e)
+void QZBarThread::videoDeviceEvent(VideoDeviceEvent *e)
 {
     openVideo(e->device);
 }
 
-void QZBarThread::videoEnabledEvent (VideoEnabledEvent *e)
+void QZBarThread::videoEnabledEvent(VideoEnabledEvent *e)
 {
-    if(videoRunning && !e->enabled)
-        enableVideo(false);
+    if (videoRunning && !e->enabled)
+	enableVideo(false);
     videoEnabled = e->enabled;
 }
 
-void QZBarThread::scanImageEvent (ScanImageEvent *e)
+void QZBarThread::scanImageEvent(ScanImageEvent *e)
 {
-    if(videoRunning)
-        enableVideo(false);
+    if (videoRunning)
+	enableVideo(false);
 
     try {
-        image = new QZBarImage(e->image);
-        processImage(*image);
-    }
-    catch(std::exception &e) {
-        std::cerr << "ERROR: " << e.what() << std::endl;
-        clear();
+	image = new QZBarImage(e->image);
+	processImage(*image);
+    } catch (std::exception &e) {
+	std::cerr << "ERROR: " << e.what() << std::endl;
+	clear();
     }
 }
 
-bool QZBarThread::event (QEvent *e)
+bool QZBarThread::event(QEvent *e)
 {
-    switch((EventType)e->type()) {
+    switch ((EventType)e->type()) {
     case VideoDevice:
-        videoDeviceEvent((VideoDeviceEvent*)e);
-        break;
+	videoDeviceEvent((VideoDeviceEvent *)e);
+	break;
     case VideoEnabled:
-        videoEnabledEvent((VideoEnabledEvent*)e);
-        break;
+	videoEnabledEvent((VideoEnabledEvent *)e);
+	break;
     case ScanImage:
-        scanImageEvent((ScanImageEvent*)e);
-        break;
+	scanImageEvent((ScanImageEvent *)e);
+	break;
     case Exit:
-        if(videoRunning)
-            enableVideo(false);
-        running = false;
-        break;
+	if (videoRunning)
+	    enableVideo(false);
+	running = false;
+	break;
     case ReOpen:
-        openVideo(currentDevice);
-        break;
+	openVideo(currentDevice);
+	break;
     default:
-        return(false);
+	return (false);
     }
-    return(true);
+    return (true);
 }
 
-
-void QZBarThread::run ()
+void QZBarThread::run()
 {
     QEvent *e = NULL;
-    while(running) {
-        if(!videoEnabled) {
-            QMutexLocker locker(&mutex);
-            while(queue.isEmpty())
-                newEvent.wait(&mutex);
-            e = queue.takeFirst();
-        }
-        else {
-            // release reference to any previous QImage
-            clear();
-            enableVideo(true);
+    while (running) {
+	if (!videoEnabled) {
+	    QMutexLocker locker(&mutex);
+	    while (queue.isEmpty())
+		newEvent.wait(&mutex);
+	    e = queue.takeFirst();
+	} else {
+	    // release reference to any previous QImage
+	    clear();
+	    enableVideo(true);
 
-            while(videoRunning && !e) {
-                try {
-                    Image image = video->next_image();
-                    processImage(image);
-                }
-                catch(std::exception &e) {
-                    std::cerr << "ERROR: " << e.what() << std::endl;
-                    enableVideo(false);
-                    openVideo("");
-                }
-                QMutexLocker locker(&mutex);
-                if(!queue.isEmpty())
-                    e = queue.takeFirst();
-            }
+	    while (videoRunning && !e) {
+		try {
+		    Image image = video->next_image();
+		    processImage(image);
+		} catch (std::exception &e) {
+		    std::cerr << "ERROR: " << e.what() << std::endl;
+		    enableVideo(false);
+		    openVideo("");
+		}
+		QMutexLocker locker(&mutex);
+		if (!queue.isEmpty())
+		    e = queue.takeFirst();
+	    }
 
-            if(videoRunning)
-                enableVideo(false);
-        }
-        if(e) {
-            event(e);
-            delete e;
-            e = NULL;
-        }
+	    if (videoRunning)
+		enableVideo(false);
+	}
+	if (e) {
+	    event(e);
+	    delete e;
+	    e = NULL;
+	}
     }
     clear();
     openVideo("");
 }
 
-QVector< QPair< int , QString > > QZBarThread::get_menu(int index)
+QVector<QPair<int, QString> > QZBarThread::get_menu(int index)
 {
-    QVector< QPair< int , QString > > vector;
+    QVector<QPair<int, QString> > vector;
     struct video_controls_s *ctrl;
 
-    if(!video)
-        return vector;
+    if (!video)
+	return vector;
 
     ctrl = video->get_controls(index);
     if (!ctrl)
-        return vector;
+	return vector;
 
     for (unsigned int i = 0; i < ctrl->menu_size; i++)
-        vector.append(qMakePair((int)ctrl->menu[i].value,
-                                QString::fromUtf8(ctrl->menu[i].name)));
+	vector.append(qMakePair((int)ctrl->menu[i].value,
+				QString::fromUtf8(ctrl->menu[i].name)));
 
     return vector;
 }
 
 int QZBarThread::get_controls(int index, char **name, char **group,
-                              enum QZBar::ControlType *type,
-                              int *min, int *max, int *def, int *step)
+			      enum QZBar::ControlType *type, int *min, int *max,
+			      int *def, int *step)
 {
     struct video_controls_s *ctrl;
 
-    if(!video)
-        return 0;
+    if (!video)
+	return 0;
 
     ctrl = video->get_controls(index);
     if (!ctrl)
-        return 0;
+	return 0;
 
     if (name)
-        *name = ctrl->name;
+	*name = ctrl->name;
     if (group)
-        *group = ctrl->group;
+	*group = ctrl->group;
     if (min)
-        *min = ctrl->min;
+	*min = ctrl->min;
     if (max)
-        *max = ctrl->max;
+	*max = ctrl->max;
     if (def)
-        *def = ctrl->def;
+	*def = ctrl->def;
     if (step)
-        *step = ctrl->step;
+	*step = ctrl->step;
 
     if (type) {
-        switch (ctrl->type) {
-        case VIDEO_CNTL_INTEGER:
-            *type = QZBar::Integer;
-            break;
-        case VIDEO_CNTL_MENU:
-            *type = QZBar::Menu;
-            break;
-        case VIDEO_CNTL_BUTTON:
-            *type = QZBar::Button;
-            break;
-        case VIDEO_CNTL_INTEGER64:
-            *type = QZBar::Integer64;
-            break;
-        case VIDEO_CNTL_STRING:
-            *type = QZBar::String;
-            break;
-        case VIDEO_CNTL_BOOLEAN:
-            *type = QZBar::Boolean;
-            break;
-        default:
-            *type = QZBar::Unknown;
-            break;
-        }
+	switch (ctrl->type) {
+	case VIDEO_CNTL_INTEGER:
+	    *type = QZBar::Integer;
+	    break;
+	case VIDEO_CNTL_MENU:
+	    *type = QZBar::Menu;
+	    break;
+	case VIDEO_CNTL_BUTTON:
+	    *type = QZBar::Button;
+	    break;
+	case VIDEO_CNTL_INTEGER64:
+	    *type = QZBar::Integer64;
+	    break;
+	case VIDEO_CNTL_STRING:
+	    *type = QZBar::String;
+	    break;
+	case VIDEO_CNTL_BOOLEAN:
+	    *type = QZBar::Boolean;
+	    break;
+	default:
+	    *type = QZBar::Unknown;
+	    break;
+	}
     }
 
     return 1;
@@ -315,55 +302,56 @@ int QZBarThread::get_controls(int index, char **name, char **group,
 
 int QZBarThread::set_control(char *name, bool value)
 {
-    if(!video)
-        return 0;
+    if (!video)
+	return 0;
 
     return video->set_control(name, value);
 }
 
 int QZBarThread::set_control(char *name, int value)
 {
-    if(!video)
-        return 0;
+    if (!video)
+	return 0;
 
     return video->set_control(name, value);
 }
 
 int QZBarThread::get_control(char *name, bool *value)
 {
-    if(!video)
-        return 0;
+    if (!video)
+	return 0;
 
     return video->get_control(name, value);
 }
 
 int QZBarThread::get_control(char *name, int *value)
 {
-    if(!video)
-        return 0;
+    if (!video)
+	return 0;
 
     return video->get_control(name, value);
 }
 
 void QZBarThread::request_size(unsigned width, unsigned height)
 {
-    reqWidth = width;
+    reqWidth  = width;
     reqHeight = height;
 }
 
-int QZBarThread::get_resolution(int index, unsigned &width, unsigned &height, float &max_fps)
+int QZBarThread::get_resolution(int index, unsigned &width, unsigned &height,
+				float &max_fps)
 {
     struct video_resolution_s *res;
 
-    if(!video)
-        return 0;
+    if (!video)
+	return 0;
 
     res = video->get_resolution(index);
     if (!res)
-        return 0;
+	return 0;
 
-    width = res->width;
-    height = res->height;
+    width   = res->width;
+    height  = res->height;
     max_fps = res->max_fps;
 
     return 1;

@@ -26,22 +26,22 @@
 #include "window.h"
 
 #ifdef HAVE_X
-# include <X11/Xlib.h>
-# include <X11/Xutil.h>
-# ifdef HAVE_X11_EXTENSIONS_XSHM_H
-#  include <X11/extensions/XShm.h>
-# endif
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#ifdef HAVE_X11_EXTENSIONS_XSHM_H
+#include <X11/extensions/XShm.h>
+#endif
 #ifdef HAVE_X11_EXTENSIONS_XVLIB_H
-#  include <X11/extensions/Xvlib.h>
+#include <X11/extensions/Xvlib.h>
 #endif
 #endif
 
 struct window_state_s {
-    unsigned long colors[8];    /* pre-allocated colors */
+    unsigned long colors[8]; /* pre-allocated colors */
 
-    GC gc;                      /* graphics context */
-    Region exposed;             /* region to redraw */
-    XFontStruct *font;          /* overlay font */
+    GC gc;	       /* graphics context */
+    Region exposed;    /* region to redraw */
+    XFontStruct *font; /* overlay font */
 
     /* pre-calculated logo geometries */
     int logo_scale;
@@ -51,24 +51,24 @@ struct window_state_s {
     XRectangle logo_bars[5];
 
 #ifdef HAVE_X11_EXTENSIONS_XSHM_H
-    XShmSegmentInfo shm;        /* shared memory segment */
+    XShmSegmentInfo shm; /* shared memory segment */
 #endif
 
     union {
-        XImage *x;
+	XImage *x;
 #ifdef HAVE_X11_EXTENSIONS_XVLIB_H
-        XvImage *xv;
+	XvImage *xv;
 #endif
     } img;
 
-    XID img_port;               /* current format port */
-    XID *xv_ports;              /* best port for format */
-    int num_xv_adaptors;        /* number of adaptors */
-    XID *xv_adaptors;           /* port grabbed for each adaptor */
+    XID img_port;	 /* current format port */
+    XID *xv_ports;	 /* best port for format */
+    int num_xv_adaptors; /* number of adaptors */
+    XID *xv_adaptors;	 /* port grabbed for each adaptor */
 };
 
-extern int _zbar_window_probe_ximage(zbar_window_t*);
-extern int _zbar_window_probe_xshm(zbar_window_t*);
-extern int _zbar_window_probe_xv(zbar_window_t*);
+extern int _zbar_window_probe_ximage(zbar_window_t *);
+extern int _zbar_window_probe_xshm(zbar_window_t *);
+extern int _zbar_window_probe_xv(zbar_window_t *);
 
 #endif

@@ -22,79 +22,119 @@
  *------------------------------------------------------------------------*/
 
 #include "config.h"
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 
 #include <zbar.h>
 #include "symbol.h"
 
-const char *zbar_get_symbol_name (zbar_symbol_type_t sym)
+const char *zbar_get_symbol_name(zbar_symbol_type_t sym)
 {
-    switch(sym & ZBAR_SYMBOL) {
-    case ZBAR_EAN2: return("EAN-2");
-    case ZBAR_EAN5: return("EAN-5");
-    case ZBAR_EAN8: return("EAN-8");
-    case ZBAR_UPCE: return("UPC-E");
-    case ZBAR_ISBN10: return("ISBN-10");
-    case ZBAR_UPCA: return("UPC-A");
-    case ZBAR_EAN13: return("EAN-13");
-    case ZBAR_ISBN13: return("ISBN-13");
-    case ZBAR_COMPOSITE: return("COMPOSITE");
-    case ZBAR_I25: return("I2/5");
-    case ZBAR_DATABAR: return("DataBar");
-    case ZBAR_DATABAR_EXP: return("DataBar-Exp");
-    case ZBAR_CODABAR: return("Codabar");
-    case ZBAR_CODE39: return("CODE-39");
-    case ZBAR_CODE93: return("CODE-93");
-    case ZBAR_CODE128: return("CODE-128");
-    case ZBAR_PDF417: return("PDF417");
-    case ZBAR_QRCODE: return("QR-Code");
-    case ZBAR_SQCODE: return("SQ-Code");
-    default: return("UNKNOWN");
+    switch (sym & ZBAR_SYMBOL) {
+    case ZBAR_EAN2:
+	return ("EAN-2");
+    case ZBAR_EAN5:
+	return ("EAN-5");
+    case ZBAR_EAN8:
+	return ("EAN-8");
+    case ZBAR_UPCE:
+	return ("UPC-E");
+    case ZBAR_ISBN10:
+	return ("ISBN-10");
+    case ZBAR_UPCA:
+	return ("UPC-A");
+    case ZBAR_EAN13:
+	return ("EAN-13");
+    case ZBAR_ISBN13:
+	return ("ISBN-13");
+    case ZBAR_COMPOSITE:
+	return ("COMPOSITE");
+    case ZBAR_I25:
+	return ("I2/5");
+    case ZBAR_DATABAR:
+	return ("DataBar");
+    case ZBAR_DATABAR_EXP:
+	return ("DataBar-Exp");
+    case ZBAR_CODABAR:
+	return ("Codabar");
+    case ZBAR_CODE39:
+	return ("CODE-39");
+    case ZBAR_CODE93:
+	return ("CODE-93");
+    case ZBAR_CODE128:
+	return ("CODE-128");
+    case ZBAR_PDF417:
+	return ("PDF417");
+    case ZBAR_QRCODE:
+	return ("QR-Code");
+    case ZBAR_SQCODE:
+	return ("SQ-Code");
+    default:
+	return ("UNKNOWN");
     }
 }
 
-const char *zbar_get_addon_name (zbar_symbol_type_t sym)
+const char *zbar_get_addon_name(zbar_symbol_type_t sym)
 {
-    return("");
+    return ("");
 }
 
-const char *zbar_get_config_name (zbar_config_t cfg)
+const char *zbar_get_config_name(zbar_config_t cfg)
 {
-    switch(cfg) {
-    case ZBAR_CFG_ENABLE: return("ENABLE");
-    case ZBAR_CFG_ADD_CHECK: return("ADD_CHECK");
-    case ZBAR_CFG_EMIT_CHECK: return("EMIT_CHECK");
-    case ZBAR_CFG_ASCII: return("ASCII");
-    case ZBAR_CFG_BINARY: return("BINARY");
-    case ZBAR_CFG_MIN_LEN: return("MIN_LEN");
-    case ZBAR_CFG_MAX_LEN: return("MAX_LEN");
-    case ZBAR_CFG_UNCERTAINTY: return("UNCERTAINTY");
-    case ZBAR_CFG_POSITION: return("POSITION");
-    case ZBAR_CFG_X_DENSITY: return("X_DENSITY");
-    case ZBAR_CFG_Y_DENSITY: return("Y_DENSITY");
-    default: return("");
+    switch (cfg) {
+    case ZBAR_CFG_ENABLE:
+	return ("ENABLE");
+    case ZBAR_CFG_ADD_CHECK:
+	return ("ADD_CHECK");
+    case ZBAR_CFG_EMIT_CHECK:
+	return ("EMIT_CHECK");
+    case ZBAR_CFG_ASCII:
+	return ("ASCII");
+    case ZBAR_CFG_BINARY:
+	return ("BINARY");
+    case ZBAR_CFG_MIN_LEN:
+	return ("MIN_LEN");
+    case ZBAR_CFG_MAX_LEN:
+	return ("MAX_LEN");
+    case ZBAR_CFG_UNCERTAINTY:
+	return ("UNCERTAINTY");
+    case ZBAR_CFG_POSITION:
+	return ("POSITION");
+    case ZBAR_CFG_X_DENSITY:
+	return ("X_DENSITY");
+    case ZBAR_CFG_Y_DENSITY:
+	return ("Y_DENSITY");
+    default:
+	return ("");
     }
 }
 
-const char *zbar_get_modifier_name (zbar_modifier_t mod)
+const char *zbar_get_modifier_name(zbar_modifier_t mod)
 {
-    switch(mod) {
-    case ZBAR_MOD_GS1: return("GS1");
-    case ZBAR_MOD_AIM: return("AIM");
-    default: return("");
+    switch (mod) {
+    case ZBAR_MOD_GS1:
+	return ("GS1");
+    case ZBAR_MOD_AIM:
+	return ("AIM");
+    default:
+	return ("");
     }
 }
 
-const char *zbar_get_orientation_name (zbar_orientation_t orient)
+const char *zbar_get_orientation_name(zbar_orientation_t orient)
 {
-    switch(orient) {
-    case ZBAR_ORIENT_UP: return("UP");
-    case ZBAR_ORIENT_RIGHT: return("RIGHT");
-    case ZBAR_ORIENT_DOWN: return("DOWN");
-    case ZBAR_ORIENT_LEFT: return("LEFT");
-    default: return("UNKNOWN");
+    switch (orient) {
+    case ZBAR_ORIENT_UP:
+	return ("UP");
+    case ZBAR_ORIENT_RIGHT:
+	return ("RIGHT");
+    case ZBAR_ORIENT_DOWN:
+	return ("DOWN");
+    case ZBAR_ORIENT_LEFT:
+	return ("LEFT");
+    default:
+	return ("UNKNOWN");
     }
 }
 
@@ -106,35 +146,39 @@ static const signed char _zbar_symbol_hash[ZBAR_CODE128 + 1] = {
     [ZBAR_SQCODE]      = 1,
     [ZBAR_CODE128]     = 2,
     [ZBAR_EAN13]       = 3,
-    [ZBAR_UPCA]        = 4,
-    [ZBAR_EAN8]        = 5,
-    [ZBAR_UPCE]        = 6,
+    [ZBAR_UPCA]	       = 4,
+    [ZBAR_EAN8]	       = 5,
+    [ZBAR_UPCE]	       = 6,
     [ZBAR_ISBN13]      = 7,
     [ZBAR_ISBN10]      = 8,
     [ZBAR_CODE39]      = 9,
-    [ZBAR_I25]         = 10,
+    [ZBAR_I25]	       = 10,
     [ZBAR_PDF417]      = 11,
     [ZBAR_QRCODE]      = 12,
     [ZBAR_DATABAR]     = 13,
     [ZBAR_DATABAR_EXP] = 14,
     [ZBAR_CODE93]      = 15,
-    [ZBAR_EAN2]        = 16,
-    [ZBAR_EAN5]        = 17,
+    [ZBAR_EAN2]	       = 16,
+    [ZBAR_EAN5]	       = 17,
     [ZBAR_COMPOSITE]   = 18,
     [ZBAR_CODABAR]     = 19,
 
     /* Please update NUM_SYMS accordingly */
 };
 
-static const signed char *_init_hash() { return _zbar_symbol_hash; };
+static const signed char *_init_hash()
+{
+    return _zbar_symbol_hash;
+};
 #else
 /*
  * Needed By Microsoft C. Even on Visual Studio 2019, C99 designated
  * identifiers aren't supported! So, we need this hack.
  */
-static const signed char *_init_hash() {
+static const signed char *_init_hash()
+{
     static signed char hash[ZBAR_CODE128 + 1] = { -1 };
-    static int was_initialized = 0;
+    static int was_initialized		      = 0;
 
     if (was_initialized)
 	return (const signed char *)hash;
@@ -142,25 +186,13 @@ static const signed char *_init_hash() {
     memset(hash, -1, sizeof(hash));
 
     /* Keep in sync with the C99 implementation */
-    hash[ZBAR_SQCODE]      = 1,
-    hash[ZBAR_CODE128]     = 2,
-    hash[ZBAR_EAN13]       = 3,
-    hash[ZBAR_UPCA]        = 4,
-    hash[ZBAR_EAN8]        = 5,
-    hash[ZBAR_UPCE]        = 6,
-    hash[ZBAR_ISBN13]      = 7,
-    hash[ZBAR_ISBN10]      = 8,
-    hash[ZBAR_CODE39]      = 9,
-    hash[ZBAR_I25]         = 10,
-    hash[ZBAR_PDF417]      = 11,
-    hash[ZBAR_QRCODE]      = 12,
-    hash[ZBAR_DATABAR]     = 13,
-    hash[ZBAR_DATABAR_EXP] = 14,
-    hash[ZBAR_CODE93]      = 15,
-    hash[ZBAR_EAN2]        = 16,
-    hash[ZBAR_EAN5]        = 17,
-    hash[ZBAR_COMPOSITE]   = 18,
-    hash[ZBAR_CODABAR]     = 19;
+    hash[ZBAR_SQCODE] = 1, hash[ZBAR_CODE128] = 2, hash[ZBAR_EAN13] = 3,
+    hash[ZBAR_UPCA] = 4, hash[ZBAR_EAN8] = 5, hash[ZBAR_UPCE] = 6,
+    hash[ZBAR_ISBN13] = 7, hash[ZBAR_ISBN10] = 8, hash[ZBAR_CODE39] = 9,
+    hash[ZBAR_I25] = 10, hash[ZBAR_PDF417] = 11, hash[ZBAR_QRCODE] = 12,
+    hash[ZBAR_DATABAR] = 13, hash[ZBAR_DATABAR_EXP] = 14,
+    hash[ZBAR_CODE93] = 15, hash[ZBAR_EAN2] = 16, hash[ZBAR_EAN5] = 17,
+    hash[ZBAR_COMPOSITE] = 18, hash[ZBAR_CODABAR] = 19;
 
     was_initialized = 1;
 
@@ -168,315 +200,314 @@ static const signed char *_init_hash() {
 };
 #endif
 
-int _zbar_get_symbol_hash (zbar_symbol_type_t sym)
+int _zbar_get_symbol_hash(zbar_symbol_type_t sym)
 {
     int h;
     const signed char *hash = _init_hash();
 
-    assert (sym >= ZBAR_PARTIAL && sym <= ZBAR_CODE128);
+    assert(sym >= ZBAR_PARTIAL && sym <= ZBAR_CODE128);
 
     h = hash[sym];
-    assert (h >= 0 && h < NUM_SYMS);
+    assert(h >= 0 && h < NUM_SYMS);
 
     return h;
 }
 
-void _zbar_symbol_free (zbar_symbol_t *sym)
+void _zbar_symbol_free(zbar_symbol_t *sym)
 {
-    if(sym->syms) {
-        zbar_symbol_set_ref(sym->syms, -1);
-        sym->syms = NULL;
+    if (sym->syms) {
+	zbar_symbol_set_ref(sym->syms, -1);
+	sym->syms = NULL;
     }
-    if(sym->pts)
-        free(sym->pts);
-    if(sym->data_alloc && sym->data)
-        free(sym->data);
+    if (sym->pts)
+	free(sym->pts);
+    if (sym->data_alloc && sym->data)
+	free(sym->data);
     free(sym);
 }
 
-void zbar_symbol_ref (const zbar_symbol_t *sym,
-                      int refs)
+void zbar_symbol_ref(const zbar_symbol_t *sym, int refs)
 {
-    zbar_symbol_t *ncsym = (zbar_symbol_t*)sym;
+    zbar_symbol_t *ncsym = (zbar_symbol_t *)sym;
     _zbar_symbol_refcnt(ncsym, refs);
 }
 
-zbar_symbol_type_t zbar_symbol_get_type (const zbar_symbol_t *sym)
+zbar_symbol_type_t zbar_symbol_get_type(const zbar_symbol_t *sym)
 {
-    return(sym->type);
+    return (sym->type);
 }
 
-unsigned int zbar_symbol_get_configs (const zbar_symbol_t *sym)
+unsigned int zbar_symbol_get_configs(const zbar_symbol_t *sym)
 {
-    return(sym->configs);
+    return (sym->configs);
 }
 
-unsigned int zbar_symbol_get_modifiers (const zbar_symbol_t *sym)
+unsigned int zbar_symbol_get_modifiers(const zbar_symbol_t *sym)
 {
-    return(sym->modifiers);
+    return (sym->modifiers);
 }
 
-const char *zbar_symbol_get_data (const zbar_symbol_t *sym)
+const char *zbar_symbol_get_data(const zbar_symbol_t *sym)
 {
-    return(sym->data);
+    return (sym->data);
 }
 
-unsigned int zbar_symbol_get_data_length (const zbar_symbol_t *sym)
+unsigned int zbar_symbol_get_data_length(const zbar_symbol_t *sym)
 {
-    return(sym->datalen);
+    return (sym->datalen);
 }
 
-int zbar_symbol_get_count (const zbar_symbol_t *sym)
+int zbar_symbol_get_count(const zbar_symbol_t *sym)
 {
-    return(sym->cache_count);
+    return (sym->cache_count);
 }
 
-int zbar_symbol_get_quality (const zbar_symbol_t *sym)
+int zbar_symbol_get_quality(const zbar_symbol_t *sym)
 {
-    return(sym->quality);
+    return (sym->quality);
 }
 
-unsigned zbar_symbol_get_loc_size (const zbar_symbol_t *sym)
+unsigned zbar_symbol_get_loc_size(const zbar_symbol_t *sym)
 {
-    return(sym->npts);
+    return (sym->npts);
 }
 
-int zbar_symbol_get_loc_x (const zbar_symbol_t *sym,
-                           unsigned idx)
+int zbar_symbol_get_loc_x(const zbar_symbol_t *sym, unsigned idx)
 {
-    if(idx < sym->npts)
-        return(sym->pts[idx].x);
+    if (idx < sym->npts)
+	return (sym->pts[idx].x);
     else
-        return(-1);
+	return (-1);
 }
 
-int zbar_symbol_get_loc_y (const zbar_symbol_t *sym,
-                           unsigned idx)
+int zbar_symbol_get_loc_y(const zbar_symbol_t *sym, unsigned idx)
 {
-    if(idx < sym->npts)
-        return(sym->pts[idx].y);
+    if (idx < sym->npts)
+	return (sym->pts[idx].y);
     else
-        return(-1);
+	return (-1);
 }
 
-zbar_orientation_t zbar_symbol_get_orientation (const zbar_symbol_t *sym)
+zbar_orientation_t zbar_symbol_get_orientation(const zbar_symbol_t *sym)
 {
-    return(sym->orient);
+    return (sym->orient);
 }
 
-const zbar_symbol_t *zbar_symbol_next (const zbar_symbol_t *sym)
+const zbar_symbol_t *zbar_symbol_next(const zbar_symbol_t *sym)
 {
-    return((sym) ? sym->next : NULL);
+    return ((sym) ? sym->next : NULL);
 }
 
-const zbar_symbol_set_t*
-zbar_symbol_get_components (const zbar_symbol_t *sym)
+const zbar_symbol_set_t *zbar_symbol_get_components(const zbar_symbol_t *sym)
 {
-    return(sym->syms);
+    return (sym->syms);
 }
 
-const zbar_symbol_t *zbar_symbol_first_component (const zbar_symbol_t *sym)
+const zbar_symbol_t *zbar_symbol_first_component(const zbar_symbol_t *sym)
 {
-    return((sym && sym->syms) ? sym->syms->head : NULL);
+    return ((sym && sym->syms) ? sym->syms->head : NULL);
 }
 
-
-unsigned base64_encode (char *dst,
-                        const char *src,
-                        unsigned srclen)
+unsigned base64_encode(char *dst, const char *src, unsigned srclen)
 {
     static const char alphabet[] =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     char *start = dst;
-    int nline = 19;
-    for(; srclen; srclen -= 3) {
-        unsigned int buf = *(src++) << 16;
-        if(srclen > 1) buf |= *(src++) << 8;
-        if(srclen > 2) buf |= *(src++);
-        *(dst++) = alphabet[(buf >> 18) & 0x3f];
-        *(dst++) = alphabet[(buf >> 12) & 0x3f];
-        *(dst++) = (srclen > 1) ? alphabet[(buf >> 6) & 0x3f] : '=';
-        *(dst++) = (srclen > 2) ? alphabet[buf & 0x3f] : '=';
-        if(srclen < 3) break;
-        if(!--nline) { *(dst++) = '\n'; nline = 19; }
+    int nline	= 19;
+    for (; srclen; srclen -= 3) {
+	unsigned int buf = *(src++) << 16;
+	if (srclen > 1)
+	    buf |= *(src++) << 8;
+	if (srclen > 2)
+	    buf |= *(src++);
+	*(dst++) = alphabet[(buf >> 18) & 0x3f];
+	*(dst++) = alphabet[(buf >> 12) & 0x3f];
+	*(dst++) = (srclen > 1) ? alphabet[(buf >> 6) & 0x3f] : '=';
+	*(dst++) = (srclen > 2) ? alphabet[buf & 0x3f] : '=';
+	if (srclen < 3)
+	    break;
+	if (!--nline) {
+	    *(dst++) = '\n';
+	    nline    = 19;
+	}
     }
     *(dst++) = '\n';
     *(dst++) = '\0';
-    return(dst - start - 1);
+    return (dst - start - 1);
 }
 
-enum {
+enum
+{
     TMPL_START,
-    TMPL_MOD_START, TMPL_MOD_ITEM, TMPL_MOD_END,
+    TMPL_MOD_START,
+    TMPL_MOD_ITEM,
+    TMPL_MOD_END,
     TMPL_COUNT,
-    TMPL_DATA_START, TMPL_FORMAT, TMPL_CDATA,
+    TMPL_DATA_START,
+    TMPL_FORMAT,
+    TMPL_CDATA,
     TMPL_NL,
     TMPL_END,
 };
 
 /* FIXME suspect... */
-#define MAX_STATIC 256
-#define MAX_MOD (5 * ZBAR_MOD_NUM)
-#define MAX_CFG (10 * ZBAR_CFG_NUM)
+#define MAX_STATIC     256
+#define MAX_MOD	       (5 * ZBAR_MOD_NUM)
+#define MAX_CFG	       (10 * ZBAR_CFG_NUM)
 #define MAX_INT_DIGITS 10
 
-#define TMPL_COPY(t) do {             \
-        static const char *_st = (t); \
-        i = strlen(_st);              \
-        memcpy(*buf + n, _st, i + 1); \
-        n += i;                       \
-        assert(n <= maxlen);          \
-    } while(0)
+#define TMPL_COPY(t)                          \
+    do {                                      \
+	static const char *_st = (t);         \
+	i		       = strlen(_st); \
+	memcpy(*buf + n, _st, i + 1);         \
+	n += i;                               \
+	assert(n <= maxlen);                  \
+    } while (0)
 
-#define TMPL_FMT(t, ...) do {                                 \
-        static const char *_st = (t);                         \
-        i = snprintf(*buf + n, maxlen - n, _st, __VA_ARGS__); \
-        assert(i > 0);                                        \
-        n += i;                                               \
-        assert(n <= maxlen);                                  \
-    } while(0)
+#define TMPL_FMT(t, ...)                                      \
+    do {                                                      \
+	static const char *_st = (t);                         \
+	i = snprintf(*buf + n, maxlen - n, _st, __VA_ARGS__); \
+	assert(i > 0);                                        \
+	n += i;                                               \
+	assert(n <= maxlen);                                  \
+    } while (0)
 
-char *zbar_symbol_xml (const zbar_symbol_t *sym,
-                       char **buf,
-                       unsigned *len)
+char *zbar_symbol_xml(const zbar_symbol_t *sym, char **buf, unsigned *len)
 {
     unsigned int mods, cfgs;
     unsigned int datalen, maxlen;
     int i, n = 0;
 
-    const char *type = zbar_get_symbol_name(sym->type);
+    const char *type   = zbar_get_symbol_name(sym->type);
     const char *orient = zbar_get_orientation_name(sym->orient);
 
     /* check for binary data */
-    unsigned char *data = (unsigned char*)sym->data;
-    char binary = ((data[0] == 0xff && data[1] == 0xfe) ||
-                   (data[0] == 0xfe && data[1] == 0xff) ||
-                   !strncmp(sym->data, "<?xml", 5));
-    for(i = 0; !binary && i < sym->datalen; i++) {
-        unsigned char c = sym->data[i];
-        binary = ((c < 0x20 && ((~0x00002600 >> c) & 1)) ||
-                  (c >= 0x7f && c < 0xa0) ||
-                  (c == ']' && i + 2 < sym->datalen &&
-                   sym->data[i + 1] == ']' &&
-                   sym->data[i + 2] == '>'));
+    unsigned char *data = (unsigned char *)sym->data;
+    char binary		= ((data[0] == 0xff && data[1] == 0xfe) ||
+		   (data[0] == 0xfe && data[1] == 0xff) ||
+		   !strncmp(sym->data, "<?xml", 5));
+    for (i = 0; !binary && i < sym->datalen; i++) {
+	unsigned char c = sym->data[i];
+	binary		= ((c < 0x20 && ((~0x00002600 >> c) & 1)) ||
+		   (c >= 0x7f && c < 0xa0) ||
+		   (c == ']' && i + 2 < sym->datalen &&
+		    sym->data[i + 1] == ']' && sym->data[i + 2] == '>'));
     }
 
     datalen = strlen(sym->data);
-    if(binary)
-        datalen = (sym->datalen + 2) / 3 * 4 + sym->datalen / 57 + 3;
+    if (binary)
+	datalen = (sym->datalen + 2) / 3 * 4 + sym->datalen / 57 + 3;
 
-    maxlen = (MAX_STATIC + strlen(type) + strlen(orient) +
-              datalen + MAX_INT_DIGITS + 1);
-    mods = sym->modifiers;
-    if(mods)
-        maxlen += MAX_MOD;
+    maxlen = (MAX_STATIC + strlen(type) + strlen(orient) + datalen +
+	      MAX_INT_DIGITS + 1);
+    mods   = sym->modifiers;
+    if (mods)
+	maxlen += MAX_MOD;
     cfgs = sym->configs & ~(1 << ZBAR_CFG_ENABLE);
-    if(cfgs)
-        maxlen += MAX_CFG;
-    if(binary)
-        maxlen += MAX_INT_DIGITS;
+    if (cfgs)
+	maxlen += MAX_CFG;
+    if (binary)
+	maxlen += MAX_INT_DIGITS;
 
-    if(!*buf || (*len < maxlen)) {
-        if(*buf)
-            free(*buf);
-        *buf = malloc(maxlen);
-        /* FIXME check OOM */
-        *len = maxlen;
+    if (!*buf || (*len < maxlen)) {
+	if (*buf)
+	    free(*buf);
+	*buf = malloc(maxlen);
+	/* FIXME check OOM */
+	*len = maxlen;
     }
 
-    TMPL_FMT("<symbol type='%s' quality='%d' orientation='%s'",
-             type, sym->quality, orient);
+    TMPL_FMT("<symbol type='%s' quality='%d' orientation='%s'", type,
+	     sym->quality, orient);
 
-    if(mods) {
-        int j;
-        TMPL_COPY(" modifiers='");
-        for(j = 0; mods && j < ZBAR_MOD_NUM; j++, mods >>= 1)
-            if(mods & 1)
-                TMPL_FMT("%s ", zbar_get_modifier_name(j));
-        /* cleanup trailing space */
-        n--;
-        TMPL_COPY("'");
+    if (mods) {
+	int j;
+	TMPL_COPY(" modifiers='");
+	for (j = 0; mods && j < ZBAR_MOD_NUM; j++, mods >>= 1)
+	    if (mods & 1)
+		TMPL_FMT("%s ", zbar_get_modifier_name(j));
+	/* cleanup trailing space */
+	n--;
+	TMPL_COPY("'");
     }
 
-    if(cfgs) {
-        int j;
-        TMPL_COPY(" configs='");
-        for(j = 0; cfgs && j < ZBAR_CFG_NUM; j++, cfgs >>= 1)
-            if(cfgs & 1)
-                TMPL_FMT("%s ", zbar_get_config_name(j));
-        /* cleanup trailing space */
-        n--;
-        TMPL_COPY("'");
+    if (cfgs) {
+	int j;
+	TMPL_COPY(" configs='");
+	for (j = 0; cfgs && j < ZBAR_CFG_NUM; j++, cfgs >>= 1)
+	    if (cfgs & 1)
+		TMPL_FMT("%s ", zbar_get_config_name(j));
+	/* cleanup trailing space */
+	n--;
+	TMPL_COPY("'");
     }
 
-    if(sym->cache_count)
-        TMPL_FMT(" count='%d'", sym->cache_count);
+    if (sym->cache_count)
+	TMPL_FMT(" count='%d'", sym->cache_count);
 
     TMPL_COPY("><data");
-    if(binary)
-        TMPL_FMT(" format='base64' length='%d'", sym->datalen);
+    if (binary)
+	TMPL_FMT(" format='base64' length='%d'", sym->datalen);
     TMPL_COPY("><![CDATA[");
 
-    if(!binary) {
-        memcpy(*buf + n, sym->data, sym->datalen + 1);
-        n += sym->datalen;
-    }
-    else {
-        TMPL_COPY("\n");
-        n += base64_encode(*buf + n, sym->data, sym->datalen);
+    if (!binary) {
+	memcpy(*buf + n, sym->data, sym->datalen + 1);
+	n += sym->datalen;
+    } else {
+	TMPL_COPY("\n");
+	n += base64_encode(*buf + n, sym->data, sym->datalen);
     }
     assert(n <= maxlen);
 
     TMPL_COPY("]]></data></symbol>");
 
     *len = n;
-    return(*buf);
+    return (*buf);
 }
 
-
-zbar_symbol_set_t *_zbar_symbol_set_create ()
+zbar_symbol_set_t *_zbar_symbol_set_create()
 {
     zbar_symbol_set_t *syms = calloc(1, sizeof(*syms));
     _zbar_refcnt(&syms->refcnt, 1);
-    return(syms);
+    return (syms);
 }
 
-inline void _zbar_symbol_set_free (zbar_symbol_set_t *syms)
+inline void _zbar_symbol_set_free(zbar_symbol_set_t *syms)
 {
     zbar_symbol_t *sym, *next;
-    for(sym = syms->head; sym; sym = next) {
-        next = sym->next;
-        sym->next = NULL;
-        _zbar_symbol_refcnt(sym, -1);
+    for (sym = syms->head; sym; sym = next) {
+	next	  = sym->next;
+	sym->next = NULL;
+	_zbar_symbol_refcnt(sym, -1);
     }
     syms->head = NULL;
     free(syms);
 }
 
-void zbar_symbol_set_ref (const zbar_symbol_set_t *syms,
-                          int delta)
+void zbar_symbol_set_ref(const zbar_symbol_set_t *syms, int delta)
 {
-    zbar_symbol_set_t *ncsyms = (zbar_symbol_set_t*)syms;
-    if(!_zbar_refcnt(&ncsyms->refcnt, delta) && delta <= 0)
-        _zbar_symbol_set_free(ncsyms);
+    zbar_symbol_set_t *ncsyms = (zbar_symbol_set_t *)syms;
+    if (!_zbar_refcnt(&ncsyms->refcnt, delta) && delta <= 0)
+	_zbar_symbol_set_free(ncsyms);
 }
 
-int zbar_symbol_set_get_size (const zbar_symbol_set_t *syms)
+int zbar_symbol_set_get_size(const zbar_symbol_set_t *syms)
 {
-    return(syms->nsyms);
+    return (syms->nsyms);
 }
 
-const zbar_symbol_t*
-zbar_symbol_set_first_symbol (const zbar_symbol_set_t *syms)
+const zbar_symbol_t *zbar_symbol_set_first_symbol(const zbar_symbol_set_t *syms)
 {
     zbar_symbol_t *sym = syms->tail;
-    if(sym)
-        return(sym->next);
-    return(syms->head);
+    if (sym)
+	return (sym->next);
+    return (syms->head);
 }
 
-const zbar_symbol_t*
-zbar_symbol_set_first_unfiltered (const zbar_symbol_set_t *syms)
+const zbar_symbol_t *
+zbar_symbol_set_first_unfiltered(const zbar_symbol_set_t *syms)
 {
-    return(syms->head);
+    return (syms->head);
 }

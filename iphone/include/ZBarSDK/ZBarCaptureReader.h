@@ -31,21 +31,19 @@
 
 // called when a new barcode is detected.  the image refers to the
 // video buffer and must not be retained for long
-- (void)       captureReader: (ZBarCaptureReader*) captureReader
-  didReadNewSymbolsFromImage: (ZBarImage*) image;
+- (void)captureReader:(ZBarCaptureReader *)captureReader
+    didReadNewSymbolsFromImage:(ZBarImage *)image;
 
 @optional
 // called when a potential/uncertain barcode is detected.  will also
 // be called *after* captureReader:didReadNewSymbolsFromImage:
 // when good barcodes are detected
-- (void) captureReader: (ZBarCaptureReader*) captureReader
-       didTrackSymbols: (ZBarSymbolSet*) symbols;
+- (void)captureReader:(ZBarCaptureReader *)captureReader
+      didTrackSymbols:(ZBarSymbolSet *)symbols;
 
 @end
 
-@interface ZBarCaptureReader
-    : NSObject
-{
+@interface ZBarCaptureReader : NSObject {
 #if !TARGET_IPHONE_SIMULATOR
     AVCaptureVideoDataOutput *captureOutput;
     id<ZBarCaptureDelegate> captureDelegate;
@@ -67,20 +65,20 @@
 }
 
 // supply a pre-configured image scanner
-- (id) initWithImageScanner: (ZBarImageScanner*) imageScanner;
+- (id)initWithImageScanner:(ZBarImageScanner *)imageScanner;
 
 // this must be called before the session is started
-- (void) willStartRunning;
+- (void)willStartRunning;
 
 // this must be called *before* the session is stopped
-- (void) willStopRunning;
+- (void)willStopRunning;
 
 // clear the internal result cache
-- (void) flushCache;
+- (void)flushCache;
 
 // capture the next frame after processing.  the captured image will
 // follow the same delegate path as an image with decoded symbols.
-- (void) captureFrame;
+- (void)captureFrame;
 
 // the capture output.  add this to an instance of AVCaptureSession
 @property (nonatomic, readonly) AVCaptureOutput *captureOutput;

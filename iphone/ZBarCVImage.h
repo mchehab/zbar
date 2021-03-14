@@ -21,21 +21,19 @@
 //  http://sourceforge.net/projects/zbar
 //------------------------------------------------------------------------
 
-#import <ZBarSDK/ZBarImage.h>
 #import <CoreVideo/CoreVideo.h>
+#import <ZBarSDK/ZBarImage.h>
 
 // ZBarImage referring to a CVPixelBuffer.  used internally to handle
 // asynchronous conversion to UIImage
 
-@interface ZBarCVImage
-    : ZBarImage
-{
+@interface ZBarCVImage : ZBarImage {
     CVPixelBufferRef pixelBuffer;
     void *rgbBuffer;
     NSInvocationOperation *conversion;
 }
 
-- (void) waitUntilConverted;
+- (void)waitUntilConverted;
 
 @property (nonatomic) CVPixelBufferRef pixelBuffer;
 @property (nonatomic, readonly) void *rgbBuffer;

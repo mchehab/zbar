@@ -8,9 +8,7 @@
 #import <UIKit/UIKit.h>
 
 @interface EmbedReaderViewController
-    : UIViewController
-    < ZBarReaderViewDelegate >
-{
+    : UIViewController <ZBarReaderViewDelegate> {
     ZBarReaderView *readerView;
     UITextView *resultText;
     ZBarCameraSimulator *cameraSim;

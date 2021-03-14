@@ -32,35 +32,33 @@ typedef struct qr_finder_line qr_finder_line;
       pos[v]-boffs
   Here v is 0 for horizontal and 1 for vertical lines.*/
 struct qr_finder_line {
-  /*The location of the upper/left endpoint of the line.
+    /*The location of the upper/left endpoint of the line.
     The left/upper edge of the center section is used, since other lines must
      cross in this region.*/
-  qr_point pos;
-  /*The length of the center section.
+    qr_point pos;
+    /*The length of the center section.
     This extends to the right/bottom of the center section, since other lines
      must cross in this region.*/
-  int      len;
-  /*The offset to the midpoint of the upper/left section (part of the outside
+    int len;
+    /*The offset to the midpoint of the upper/left section (part of the outside
      ring), or 0 if we couldn't identify the edge of the beginning section.
     We use the midpoint instead of the edge because it can be located more
      reliably.*/
-  int      boffs;
-  /*The offset to the midpoint of the end section (part of the outside ring),
+    int boffs;
+    /*The offset to the midpoint of the end section (part of the outside ring),
      or 0 if we couldn't identify the edge of the end section.
     We use the midpoint instead of the edge because it can be located more
      reliably.*/
-  int      eoffs;
+    int eoffs;
 };
 
 qr_reader *_zbar_qr_create(void);
 void _zbar_qr_destroy(qr_reader *reader);
 void _zbar_qr_reset(qr_reader *reader);
 
-int _zbar_qr_found_line(qr_reader *reader,
-                        int direction,
-                        const qr_finder_line *line);
-int _zbar_qr_decode(qr_reader *reader,
-                    zbar_image_scanner_t *iscn,
-                    zbar_image_t *img);
+int _zbar_qr_found_line(qr_reader *reader, int direction,
+			const qr_finder_line *line);
+int _zbar_qr_decode(qr_reader *reader, zbar_image_scanner_t *iscn,
+		    zbar_image_t *img);
 
 #endif

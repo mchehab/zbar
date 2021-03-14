@@ -23,68 +23,61 @@
 
 #include "zbarmodule.h"
 
-static char symbolset_doc[] = PyDoc_STR(
-    "symbol result container.\n"
-    "\n"
-    "collection of symbols.");
+static char symbolset_doc[] = PyDoc_STR("symbol result container.\n"
+					"\n"
+					"collection of symbols.");
 
-static int
-symbolset_clear (zbarSymbolSet *self)
+static int symbolset_clear(zbarSymbolSet *self)
 {
-    if(self->zsyms) {
-        zbar_symbol_set_t *zsyms = (zbar_symbol_set_t*)self->zsyms;
-        self->zsyms = NULL;
-        zbar_symbol_set_ref(zsyms, -1);
+    if (self->zsyms) {
+	zbar_symbol_set_t *zsyms = (zbar_symbol_set_t *)self->zsyms;
+	self->zsyms		 = NULL;
+	zbar_symbol_set_ref(zsyms, -1);
     }
-    return(0);
+    return (0);
 }
 
-static void
-symbolset_dealloc (zbarSymbolSet *self)
+static void symbolset_dealloc(zbarSymbolSet *self)
 {
     symbolset_clear(self);
-    ((PyObject*)self)->ob_type->tp_free((PyObject*)self);
+    ((PyObject *)self)->ob_type->tp_free((PyObject *)self);
 }
 
-static zbarSymbolIter*
-symbolset_iter (zbarSymbolSet *self)
+static zbarSymbolIter *symbolset_iter(zbarSymbolSet *self)
 {
-    return(zbarSymbolIter_FromSymbolSet(self));
+    return (zbarSymbolIter_FromSymbolSet(self));
 }
 
-Py_ssize_t
-symbolset_length (zbarSymbolSet *self)
+Py_ssize_t symbolset_length(zbarSymbolSet *self)
 {
-    if(self->zsyms)
-        return(zbar_symbol_set_get_size(self->zsyms));
-    return(0);
+    if (self->zsyms)
+	return (zbar_symbol_set_get_size(self->zsyms));
+    return (0);
 }
 
 static PySequenceMethods symbolset_as_sequence = {
-    .sq_length      = (lenfunc)symbolset_length,
+    .sq_length = (lenfunc)symbolset_length,
 };
 
 PyTypeObject zbarSymbolSet_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name        = "zbar.SymbolSet",
-    .tp_doc         = symbolset_doc,
-    .tp_basicsize   = sizeof(zbarSymbolSet),
-    .tp_flags       = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    .tp_dealloc     = (destructor)symbolset_dealloc,
-    .tp_iter        = (getiterfunc)symbolset_iter,
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "zbar.SymbolSet",
+    .tp_doc				   = symbolset_doc,
+    .tp_basicsize			   = sizeof(zbarSymbolSet),
+    .tp_flags	    = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_dealloc	    = (destructor)symbolset_dealloc,
+    .tp_iter	    = (getiterfunc)symbolset_iter,
     .tp_as_sequence = &symbolset_as_sequence,
 };
 
-zbarSymbolSet*
-zbarSymbolSet_FromSymbolSet(const zbar_symbol_set_t *zsyms)
+zbarSymbolSet *zbarSymbolSet_FromSymbolSet(const zbar_symbol_set_t *zsyms)
 {
     zbarSymbolSet *self = PyObject_New(zbarSymbolSet, &zbarSymbolSet_Type);
-    if(!self)
-        return(NULL);
-    if(zsyms) {
-        zbar_symbol_set_t *ncsyms = (zbar_symbol_set_t*)zsyms;
-        zbar_symbol_set_ref(ncsyms, 1);
+    if (!self)
+	return (NULL);
+    if (zsyms) {
+	zbar_symbol_set_t *ncsyms = (zbar_symbol_set_t *)zsyms;
+	zbar_symbol_set_ref(ncsyms, 1);
     }
     self->zsyms = zsyms;
-    return(self);
+    return (self);
 }

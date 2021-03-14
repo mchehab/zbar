@@ -26,10 +26,10 @@
 
 // orientation set support
 #define ZBarOrientationMask(orient) (1 << orient)
-#define ZBarOrientationMaskAll \
-    (ZBarOrientationMask(UIInterfaceOrientationPortrait) | \
+#define ZBarOrientationMaskAll                                       \
+    (ZBarOrientationMask(UIInterfaceOrientationPortrait) |           \
      ZBarOrientationMask(UIInterfaceOrientationPortraitUpsideDown) | \
-     ZBarOrientationMask(UIInterfaceOrientationLandscapeLeft) | \
+     ZBarOrientationMask(UIInterfaceOrientationLandscapeLeft) |      \
      ZBarOrientationMask(UIInterfaceOrientationLandscapeRight))
 
 @class ZBarReaderView, ZBarCameraSimulator;
@@ -40,11 +40,9 @@
 // Automatically falls back to a ZBarReaderController if video APIs
 // are unavailable (eg for OS < 4.0)
 
-@interface ZBarReaderViewController
-    : UIViewController
-{
+@interface ZBarReaderViewController : UIViewController {
     ZBarImageScanner *scanner;
-    id <ZBarReaderDelegate> readerDelegate;
+    id<ZBarReaderDelegate> readerDelegate;
     ZBarReaderView *readerView;
     UIView *cameraOverlayView;
     CGAffineTransform cameraViewTransform;
@@ -65,7 +63,7 @@
 @property (nonatomic, readonly) ZBarImageScanner *scanner;
 
 // barcode result recipient
-@property (nonatomic, assign) id <ZBarReaderDelegate> readerDelegate;
+@property (nonatomic, assign) id<ZBarReaderDelegate> readerDelegate;
 
 // whether to use alternate control set
 @property (nonatomic) BOOL showsZBarControls;
@@ -94,19 +92,23 @@
 
 // display the built-in help browser.  the argument will be passed to
 // the onZBarHelp() javascript function.
-- (void) showHelpWithReason: (NSString*) reason;
+- (void)showHelpWithReason:(NSString *)reason;
 
 // capture the next frame and send it over the usual delegate path.
-- (void) takePicture;
+- (void)takePicture;
 
 // these attempt to emulate UIImagePickerController
-+ (BOOL) isCameraDeviceAvailable: (UIImagePickerControllerCameraDevice) cameraDevice;
-+ (BOOL) isFlashAvailableForCameraDevice: (UIImagePickerControllerCameraDevice) cameraDevice;
-+ (NSArray*) availableCaptureModesForCameraDevice: (UIImagePickerControllerCameraDevice) cameraDevice;
-@property(nonatomic) UIImagePickerControllerCameraDevice cameraDevice;
-@property(nonatomic) UIImagePickerControllerCameraFlashMode cameraFlashMode;
-@property(nonatomic) UIImagePickerControllerCameraCaptureMode cameraCaptureMode;
-@property(nonatomic) UIImagePickerControllerQualityType videoQuality;
++ (BOOL)isCameraDeviceAvailable:
+    (UIImagePickerControllerCameraDevice)cameraDevice;
++ (BOOL)isFlashAvailableForCameraDevice:
+    (UIImagePickerControllerCameraDevice)cameraDevice;
++ (NSArray *)availableCaptureModesForCameraDevice:
+    (UIImagePickerControllerCameraDevice)cameraDevice;
+@property (nonatomic) UIImagePickerControllerCameraDevice cameraDevice;
+@property (nonatomic) UIImagePickerControllerCameraFlashMode cameraFlashMode;
+@property (nonatomic)
+    UIImagePickerControllerCameraCaptureMode cameraCaptureMode;
+@property (nonatomic) UIImagePickerControllerQualityType videoQuality;
 
 // direct access to the ZBarReaderView
 @property (nonatomic, readonly) ZBarReaderView *readerView;
@@ -117,14 +119,14 @@
 // these are present only for backward compatibility.
 // they will error if inappropriate/unsupported values are set
 @property (nonatomic) UIImagePickerControllerSourceType sourceType; // Camera
-@property (nonatomic) BOOL allowsEditing; // NO
-@property (nonatomic) BOOL allowsImageEditing; // NO
-@property (nonatomic) BOOL showsCameraControls; // NO
-@property (nonatomic) BOOL showsHelpOnFail; // ignored
-@property (nonatomic) ZBarReaderControllerCameraMode cameraMode; // Sampling
-@property (nonatomic) BOOL takesPicture; // NO
-@property (nonatomic) NSInteger maxScanDimension; // ignored
+@property (nonatomic) BOOL allowsEditing;			    // NO
+@property (nonatomic) BOOL allowsImageEditing;			    // NO
+@property (nonatomic) BOOL showsCameraControls;			    // NO
+@property (nonatomic) BOOL showsHelpOnFail;			    // ignored
+@property (nonatomic) ZBarReaderControllerCameraMode cameraMode;    // Sampling
+@property (nonatomic) BOOL takesPicture;			    // NO
+@property (nonatomic) NSInteger maxScanDimension;		    // ignored
 
-+ (BOOL) isSourceTypeAvailable: (UIImagePickerControllerSourceType) sourceType;
++ (BOOL)isSourceTypeAvailable:(UIImagePickerControllerSourceType)sourceType;
 
 @end

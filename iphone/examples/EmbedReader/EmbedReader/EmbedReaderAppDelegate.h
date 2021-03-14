@@ -9,13 +9,11 @@
 
 @class EmbedReaderViewController;
 
-@interface EmbedReaderAppDelegate
-    : NSObject
-    < UIApplicationDelegate >
-{
+@interface EmbedReaderAppDelegate : NSObject <UIApplicationDelegate> {
 }
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;
-@property (nonatomic, retain) IBOutlet EmbedReaderViewController *viewController;
+@property (nonatomic, retain)
+    IBOutlet EmbedReaderViewController *viewController;
 
 @end

@@ -34,19 +34,19 @@ G_BEGIN_DECLS
 #define ZBAR_TYPE_GTK_PRIVATE (zbar_gtk_private_get_type())
 #define ZBAR_GTK_PRIVATE(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj), ZBAR_TYPE_GTK_PRIVATE, ZBarGtkPrivate))
-#define ZBAR_GTK_PRIVATE_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((klass), ZBAR_TYPE_GTK_PRIVATE, ZBarGtkPrivateClass))
+#define ZBAR_GTK_PRIVATE_CLASS(klass)                        \
+    (G_TYPE_CHECK_CLASS_CAST((klass), ZBAR_TYPE_GTK_PRIVATE, \
+			     ZBarGtkPrivateClass))
 #define ZBAR_IS_GTK_PRIVATE(obj) \
     (G_TYPE_CHECK_INSTANCE_TYPE((obj), ZBAR_TYPE_GTK_PRIVATE))
 #define ZBAR_IS_GTK_PRIVATE_CLASS(klass) \
     (G_TYPE_CHECK_CLASS_TYPE((klass), ZBAR_TYPE_GTK_PRIVATE))
-#define ZBAR_GTK_PRIVATE_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS((obj), ZBAR_TYPE_GTK_PRIVATE, ZBarGtkPrivateClass))
-
+#define ZBAR_GTK_PRIVATE_GET_CLASS(obj)                      \
+    (G_TYPE_INSTANCE_GET_CLASS((obj), ZBAR_TYPE_GTK_PRIVATE, \
+			       ZBarGtkPrivateClass))
 
 /* zbar widget processor thread shared/private data */
-typedef struct _ZBarGtkPrivate
-{
+typedef struct _ZBarGtkPrivate {
     GObject object;
 
     /* these are all owned by the main gui thread */
@@ -86,13 +86,10 @@ typedef struct _ZBarGtkPrivate
 
 } ZBarGtkPrivate;
 
-
-typedef struct _ZBarGtkPrivateClass
-{
+typedef struct _ZBarGtkPrivateClass {
     GObjectClass parent_class;
 
 } ZBarGtkPrivateClass;
-
 
 static GType zbar_gtk_private_get_type(void) G_GNUC_CONST;
 
