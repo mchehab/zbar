@@ -22,6 +22,7 @@
  *------------------------------------------------------------------------*/
 
 #include <assert.h>
+#include <WinSock2.h>
 #include <windows.h>
 #include "processor.h"
 
