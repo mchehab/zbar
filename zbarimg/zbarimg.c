@@ -83,18 +83,19 @@ static const char *note_usage = N_(
     "scan and decode bar codes from one or more image files\n"
     "\n"
     "options:\n"
-    "    -h, --help      display this help text\n"
-    "    --version       display version information and exit\n"
-    "    -q, --quiet     minimal output, only print decoded symbol data\n"
-    "    -v, --verbose   increase debug output level\n"
-    "    --verbose=N     set specific debug output level\n"
-    "    -d, --display   enable display of following images to the screen\n"
-    "    -D, --nodisplay disable display of following images (default)\n"
-    "    --xml, --noxml  enable/disable XML output format\n"
-    "    --raw           output decoded symbol data without converting charsets\n"
-    "    -1, --oneshot   exit after scanning one bar code\n"
+    "    -h, --help       display this help text\n"
+    "    --version        display version information and exit\n"
+    "    -q, --quiet      minimal output, only print decoded symbol data\n"
+    "    -v, --verbose    increase debug output level\n"
+    "    --verbose=N      set specific debug output level\n"
+    "    -d, --display    enable display of following images to the screen\n"
+    "    -D, --nodisplay  disable display of following images (default)\n"
+    "    --xml, --noxml   enable/disable XML output format\n"
+    "    --raw            output decoded symbol data without converting charsets\n"
+    "    --rawnodelimiter same as --raw, but without newlines between symbol data\n"
+    "    -1, --oneshot    exit after scanning one bar code\n"
     "    -S<CONFIG>[=<VALUE>], --set <CONFIG>[=<VALUE>]\n"
-    "                    set decoder/scanner <CONFIG> to <VALUE> (or 1)\n"
+    "                     set decoder/scanner <CONFIG> to <VALUE> (or 1)\n"
     // FIXME overlay level
     "\n");
 
@@ -132,6 +133,7 @@ static int num_images = 0, num_symbols = 0;
 static int xmllvl  = 0;
 static int oneshot = 0;
 static int binary  = 0;
+static int no_delimiter = 0;
 
 char *xmlbuf	   = NULL;
 unsigned xmlbuflen = 0;
@@ -236,7 +238,7 @@ static int scan_image(const char *filename)
 		    if (xmllvl >= 0)
 			printf("\n");
 		    break;
-		} else
+		} else if (!no_delimiter)
 		    printf("\n");
 	    }
 	}
@@ -380,6 +382,10 @@ int main(int argc, const char *argv[])
 	} else if (!strcmp(arg, "--raw")) {
 	    // RAW mode takes precedence
 	    xmllvl = -1;
+	} else if (!strcmp(arg, "--rawnodelimiter")) {
+	    // RAW mode takes precedence
+	    xmllvl = -1;
+	    no_delimiter = 1;
 	} else if (!strcmp(arg, "--nodisplay") || !strcmp(arg, "--set") ||
 		   !strncmp(arg, "--set=", 6))
 	    continue;
