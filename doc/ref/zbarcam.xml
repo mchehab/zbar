@@ -116,6 +116,16 @@
       </varlistentry>
 
       <varlistentry>
+        <term><option>--rawnodelimiter</option></term>
+        <listitem>
+          <simpara>Use raw symbol data output format.  This format
+          prints symbol data without the additional symbology type
+          information that is printed by default. Same as --raw
+          but without newlines between symbols.</simpara>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
         <term><option>--prescale=<replaceable
           class="parameter">W</replaceable>x<replaceable
           class="parameter">H</replaceable></option></term>

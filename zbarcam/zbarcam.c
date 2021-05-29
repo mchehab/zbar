@@ -51,20 +51,21 @@ static const char *note_usage = N_(
     "\n"
     "scan and decode bar codes from a video stream\n"
     "\n"
-    "options:\n"
-    "    -h, --help      display this help text\n"
-    "    --version       display version information and exit\n"
-    "    -q, --quiet     disable beep when symbol is decoded\n"
-    "    -v, --verbose   increase debug output level\n"
-    "    --verbose=N     set specific debug output level\n"
-    "    --xml           use XML output format\n"
-    "    --raw           output decoded symbol data without converting charsets\n"
-    "    -1, --oneshot   exit after scanning one bar code\n"
-    "    --nodisplay     disable video display window\n"
+    "options:\n" 
+    "    -h, --help       display this help text\n"
+    "    --version        display version information and exit\n"
+    "    -q, --quiet      disable beep when symbol is decoded\n"
+    "    -v, --verbose    increase debug output level\n"
+    "    --verbose=N      set specific debug output level\n"
+    "    --xml            use XML output format\n"
+    "    --raw            output decoded symbol data without converting charsets\n"
+    "    --rawnodelimiter same as --raw, but without newlines between symbol data\n"
+    "    -1, --oneshot    exit after scanning one bar code\n"
+    "    --nodisplay      disable video display window\n"
     "    --prescale=<W>x<H>\n"
-    "                    request alternate video image size from driver\n"
+    "                     request alternate video image size from driver\n"
     "    -S<CONFIG>[=<VALUE>], --set <CONFIG>[=<VALUE>]\n"
-    "                    set decoder/scanner <CONFIG> to <VALUE> (or 1)\n"
+    "                     set decoder/scanner <CONFIG> to <VALUE> (or 1)\n"
     /* FIXME overlay level */
     "\n");
 
@@ -84,6 +85,7 @@ static enum
 {
     DEFAULT,
     RAW,
+    RAW_NO_DELIMITER,
     XML
 } format = DEFAULT;
 
@@ -133,7 +135,7 @@ static void data_handler(zbar_image_t *img, const void *userdata)
 	    if (fwrite(zbar_symbol_get_data(sym),
 		       zbar_symbol_get_data_length(sym), 1, stdout) != 1)
 		continue;
-	} else if (format == RAW) {
+	} else if (format == RAW || format == RAW_NO_DELIMITER) {
 	    if (fwrite(zbar_symbol_get_data(sym),
 		       zbar_symbol_get_data_length(sym), 1, stdout) != 1)
 		continue;
@@ -147,10 +149,11 @@ static void data_handler(zbar_image_t *img, const void *userdata)
 	n++;
 
 	if (oneshot) {
-	    if (format != RAW)
+	    if (format != RAW && format != RAW_NO_DELIMITER)
 		printf("\n");
 	    break;
 	} else
+        if (format != RAW_NO_DELIMITER)
 	    printf("\n");
     }
 
@@ -255,6 +258,8 @@ int main(int argc, const char *argv[])
 	    format = XML;
 	else if (!strcmp(argv[i], "--raw"))
 	    format = RAW;
+	else if (!strcmp(argv[i], "--rawnodelimiter"))
+	    format = RAW_NO_DELIMITER;
 	else if (!strcmp(argv[i], "--nodbus"))
 #ifdef HAVE_DBUS
 	    dbus = 0;
@@ -310,7 +315,7 @@ int main(int argc, const char *argv[])
 	return (zbar_processor_error_spew(proc, 0));
 
 #ifdef _WIN32
-    if (format == XML || format == RAW) {
+    if (format == XML || format == RAW || format == RAW_NO_DELIMITER) {
 	fflush(stdout);
 	if (_setmode(_fileno(stdout), _O_BINARY) == -1) {
 	    fprintf(stderr, "ERROR: failed to set stdout mode: %i\n", errno);
