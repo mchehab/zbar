@@ -149,7 +149,7 @@ static void data_handler(zbar_image_t *img, const void *userdata)
 	n++;
 
 	if (oneshot) {
-	    if (format != RAW || format != RAW_NO_DELIMITER)
+	    if (format != RAW && format != RAW_NO_DELIMITER)
 		printf("\n");
 	    break;
 	} else
@@ -315,7 +315,7 @@ int main(int argc, const char *argv[])
 	return (zbar_processor_error_spew(proc, 0));
 
 #ifdef _WIN32
-    if (format == XML || format == RAW) {
+    if (format == XML || format == RAW || format == RAW_NO_DELIMITER) {
 	fflush(stdout);
 	if (_setmode(_fileno(stdout), _O_BINARY) == -1) {
 	    fprintf(stderr, "ERROR: failed to set stdout mode: %i\n", errno);
