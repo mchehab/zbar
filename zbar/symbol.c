@@ -378,7 +378,7 @@ char *zbar_symbol_xml(const zbar_symbol_t *sym, char **buf, unsigned *len)
 {
     unsigned int mods, cfgs;
     unsigned int datalen, maxlen;
-    int i, n = 0;
+    int i, n = 0, p;
 
     const char *type   = zbar_get_symbol_name(sym->type);
     const char *orient = zbar_get_orientation_name(sym->orient);
@@ -447,7 +447,13 @@ char *zbar_symbol_xml(const zbar_symbol_t *sym, char **buf, unsigned *len)
     if (sym->cache_count)
 	TMPL_FMT(" count='%d'", sym->cache_count);
 
-    TMPL_COPY("><data");
+    TMPL_COPY("><polygon points='");
+    if (sym->npts > 0 )
+	TMPL_FMT("%+d,%+d", sym->pts[0].x, sym->pts[0].y);
+    for(p = 1; p < sym->npts; p++)
+	TMPL_FMT(" %+d,%+d", sym->pts[p].x, sym->pts[p].y);
+
+    TMPL_COPY("'/><data");
     if (binary)
 	TMPL_FMT(" format='base64' length='%d'", sym->datalen);
     TMPL_COPY("><![CDATA[");
