@@ -17,6 +17,7 @@
     <cmdsynopsis>
       <command>zbarimg</command>
       <arg><option>-qv</option></arg>
+      <arg><option>--polygon</option></arg>
       <arg><option>--quiet</option></arg>
       <arg><option>--verbose<arg>=<replaceable
       class="parameter">n</replaceable></arg></option></arg>
@@ -83,6 +84,15 @@
 
     <variablelist>
       &refcommonoptions;
+
+      <varlistentry>
+        <term><option>--polygon</option></term>
+        <listitem>
+          <simpara>Ouput points of the polygon containing the code bar.
+          Using a format compatible with The &lt;polygon&gt; element
+          of the Scalable Vector Graphics (SVG) markup language</simpara>
+        </listitem>
+      </varlistentry>
 
       <varlistentry>
         <term><option>-q</option></term>

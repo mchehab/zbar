@@ -85,6 +85,7 @@ static const char *note_usage = N_(
     "options:\n"
     "    -h, --help      display this help text\n"
     "    --version       display version information and exit\n"
+    "    --polygon       output points delimiting code zone with decoded symbol data\n"
     "    -q, --quiet     minimal output, only print decoded symbol data\n"
     "    -v, --verbose   increase debug output level\n"
     "    --verbose=N     set specific debug output level\n"
@@ -130,6 +131,7 @@ static const char *xml_foot = "</barcodes>\n";
 static int notfound = 0, exit_code = 0;
 static int num_images = 0, num_symbols = 0;
 static int xmllvl  = 0;
+static int polygon = 0;
 static int oneshot = 0;
 static int binary  = 0;
 
@@ -212,6 +214,14 @@ static int scan_image(const char *filename)
 	    else if (xmllvl <= 0) {
 		if (!xmllvl)
 		    printf("%s:", zbar_get_symbol_name(typ));
+		if (polygon) {
+		    int p;
+		    if (zbar_symbol_get_loc_size(sym) > 0)
+			printf("%+d,%+d", zbar_symbol_get_loc_x(sym,0), zbar_symbol_get_loc_y(sym,0));
+		    for (p = 1; p < zbar_symbol_get_loc_size(sym); p++)
+			printf(" %+d,%+d", zbar_symbol_get_loc_x(sym,p), zbar_symbol_get_loc_y(sym,p));
+		    printf(":");
+		}
 		if (len &&
 		    fwrite(zbar_symbol_get_data(sym), len, 1, stdout) != 1) {
 		    exit_code = 1;
@@ -380,6 +390,8 @@ int main(int argc, const char *argv[])
 	} else if (!strcmp(arg, "--raw")) {
 	    // RAW mode takes precedence
 	    xmllvl = -1;
+	} else if (!strcmp(arg, "--polygon")) {
+	    polygon = 1;
 	} else if (!strcmp(arg, "--nodisplay") || !strcmp(arg, "--set") ||
 		   !strncmp(arg, "--set=", 6))
 	    continue;
