@@ -30,16 +30,18 @@ get it from Github, use:
     autoreconf -vfi
 
 This will generate ./configure and all that other foo you usually get with
-a release.  You will need to have recent versions of some basic "developer
+a release. You will need to have recent versions of some basic "developer
 tools" installed in order for this to work, particularly GNU autotools.
 These versions of autotools are known to work (newer versions should also
 be fine):
+
     GNU autoconf 2.61
     GNU automake 1.10.1
     GNU libtool 2.2.6
     GNU gettext 0.18.1.1
     GNU pkg-config 0.25
     xmlto 0.0.20-5 (for docs building)
+
 All above mentioned tools (except xmlto) must be installed in the same
 prefix. Mixing prefixes (e.g. /usr/bin and /usr/local/bin) may lead to
 errors in configuration stages.
@@ -72,7 +74,7 @@ patches and then push again to your clone, asking the patch merge using
 the GUI.
 
 Although we prefer if you submit patches via either Github or
-Gitlab, you can  also submit them via e-mail to:
+Gitlab, you can also submit them via e-mail to:
 
 	linux-media@vger.kernel.org
 
@@ -80,11 +82,9 @@ If you opt to do so, please place [PATCH ZBar] at the subject of
 your e-mails for us to not mix them with patches for the Kernel
 or for other media tools.
 
+To make your patch, run:
 
- To make your patch, run:
-
-    git diff  > hacked.patch
-
+    git diff > hacked.patch
 
 Other things for you to read, in order to know more about how
 to submit your work for upstreaming processes in general, that

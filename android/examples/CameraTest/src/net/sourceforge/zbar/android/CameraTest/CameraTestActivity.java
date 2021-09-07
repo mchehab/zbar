@@ -1,7 +1,7 @@
 /*
  * Basic no frills app which integrates the ZBar barcode scanner with
  * the camera.
- * 
+ *
  * Created by lisah0 on 2012-02-24
  */
 package net.sourceforge.zbar.android.CameraTest;
@@ -52,7 +52,7 @@ public class CameraTestActivity extends Activity
 
     static {
         System.loadLibrary("iconv");
-    } 
+    }
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -131,12 +131,12 @@ public class CameraTestActivity extends Activity
                 barcode.setData(data);
 
                 int result = scanner.scanImage(barcode);
-                
+
                 if (result != 0) {
                     previewing = false;
                     mCamera.setPreviewCallback(null);
                     mCamera.stopPreview();
-                    
+
                     SymbolSet syms = scanner.getResults();
                     for (Symbol sym : syms) {
                         scanText.setText("barcode result " + sym.getData());

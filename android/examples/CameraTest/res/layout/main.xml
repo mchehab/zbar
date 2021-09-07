@@ -15,7 +15,7 @@
   <TextView
     android:id="@+id/scanText"
     android:text="Scanning..."
-    android:layout_height="wrap_content" 
+    android:layout_height="wrap_content"
     android:layout_width="match_parent">
   </TextView>
   <Button

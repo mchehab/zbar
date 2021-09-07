@@ -1,4 +1,4 @@
-<!-- 
+<!--
 Ant build file to compile the ZBar JNI files using Android NDK tool
 targets:
   zbar-clean     - removes build generated files, build dir, jar and zip files
@@ -63,4 +63,3 @@ targets:
       </zip>
   </target>
 </project>
-

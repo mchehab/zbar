@@ -1,6 +1,6 @@
 /*
  * Barebones implementation of displaying camera preview.
- * 
+ *
  * Created by lisah0 on 2012-02-24
  */
 package net.sourceforge.zbar.android.CameraTest;
@@ -39,7 +39,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         previewCallback = previewCb;
         autoFocusCallback = autoFocusCb;
 
-        /* 
+        /*
          * Set camera to continuous focus if supported, otherwise use
          * software auto-focus. Only works for API level >=9.
          */
