@@ -35,7 +35,7 @@ Version 0.21 (2019-02-12)
 
   Added support for SQ code, and the ability of compiling ZBar with the
   LLVM/Clang compiler. Several bugs fixes and enhancements are also found
-  in this release; qexisting users are encouraged to upgrade.
+  in this release; existing users are encouraged to upgrade.
 
 Version 0.20.1 (2018-08-08)
 ===========================

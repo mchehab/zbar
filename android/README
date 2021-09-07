@@ -19,7 +19,7 @@ http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt
 Copyright 2008-2012 © Jeff Brown <spadix@users.sourceforge.net> et al
 
 The Android distribution also includes pre-compiled binaries of
-supporting libaries, for which copyright, license and source code
+supporting libraries, for which copyright, license and source code
 locations are as follows:
   * The GNU libiconv character set conversion library
     Copyright (C) 1999-2011 Free Software Foundation, Inc.
@@ -47,7 +47,7 @@ Option 2 - via Eclipse
   Right click on Android Project
   Select "Import" -> "File System"
   Select "Browse" (next to "From directory File" and select the
-    ZBar-Android-SDK-<verion>/libs directory and click "Open".
+    ZBar-Android-SDK-<version>/libs directory and click "Open".
   Click the check box next to "libs" and the "Options" "Create top-level folder"
   check box (below).
   Then click "Finish".
@@ -63,7 +63,7 @@ You have to add the zbar.jar file to your build path
   2) right-click, select "Build Path" -> "Add to Build Path"
   
 Via command-line
-You are all set; ant will automatcially find jar files under the "libs"
+You are all set; ant will automatically find jar files under the "libs"
 subdirectory.
 
 Documentation

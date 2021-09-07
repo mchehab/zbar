@@ -6,7 +6,7 @@ from various sources, such as video streams, image files and raw intensity
 sensors. It supports EAN-13/UPC-A, UPC-E, EAN-8, Code 128, Code 93, Code 39,
 Codabar, Interleaved 2 of 5 and QR Code.  Included with the library are basic
 applications for decoding captured bar code images and using a video device
-(eg, webcam) as a bar code scanner.  For application developers, language
+(e.g. webcam) as a bar code scanner.  For application developers, language
 bindings are included for C, C++, Python and Perl as well as GUI widgets for
 Qt, GTK and PyGTK.
 
@@ -199,7 +199,7 @@ To start the webcam reader using the default camera, type:
 
     zbarcam
 
-To decode an image file, type eg:
+To decode an image file, type e.g.:
 
     zbarimg -d examples\barcode.png
 
