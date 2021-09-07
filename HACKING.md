@@ -22,7 +22,7 @@ Gitlab:
 You can use git clone to get the latest version from any of the
 above repositories.
 
-if you haven't already, grab the ZBar git repository. For example, to
+If you haven't already, grab the ZBar git repository. For example, to
 get it from Github, use:
 
     git clone https://github.com/mchehab/zbar.git
@@ -30,9 +30,9 @@ get it from Github, use:
     autoreconf -vfi
 
 This will generate ./configure and all that other foo you usually get with
-a release.  you will need to have recent versions of some basic "developer
+a release.  You will need to have recent versions of some basic "developer
 tools" installed in order for this to work, particularly GNU autotools.
-these versions of autotools are known to work (newer versions should also
+These versions of autotools are known to work (newer versions should also
 be fine):
     GNU autoconf 2.61
     GNU automake 1.10.1
@@ -40,9 +40,9 @@ be fine):
     GNU gettext 0.18.1.1
     GNU pkg-config 0.25
     xmlto 0.0.20-5 (for docs building)
-all above mentioned tools (except xmlto) must be installed in the same
-prefix. mixing prefixes (i.g. /usr/bin and /usr/local/bin) may lead to
-errors in configuration stages
+All above mentioned tools (except xmlto) must be installed in the same
+prefix. Mixing prefixes (e.g. /usr/bin and /usr/local/bin) may lead to
+errors in configuration stages.
 
 Writing descriptions for your patches
 =====================================
@@ -60,7 +60,7 @@ In practice, please add:
 
 	Signed-off-by: your name <your@email>
 
-on your pathes.
+on your patches.
 
 Submitting patches
 ==================
@@ -81,7 +81,7 @@ your e-mails for us to not mix them with patches for the Kernel
 or for other media tools.
 
 
- and want to make your patch, run:
+ To make your patch, run:
 
     git diff  > hacked.patch
 
