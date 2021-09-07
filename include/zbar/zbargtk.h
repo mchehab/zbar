@@ -125,7 +125,7 @@ struct _ZBarGtkClass {
      * @widget: the object that received the signal
      * @symbol_type: the type of symbol decoded (a zbar_symbol_type_t)
      * @data: the data decoded from the symbol
-     * 
+     *
      * emitted when a barcode is decoded from an image.
      * the symbol type and contained data are provided as separate
      * parameters

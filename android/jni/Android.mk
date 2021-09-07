@@ -1,7 +1,7 @@
 #
-# Android NDK makefile 
+# Android NDK makefile
 #
-# build - <ndk path>/ndk-build ICONV_SRC=<iconv library src> 
+# build - <ndk path>/ndk-build ICONV_SRC=<iconv library src>
 # clean -  <ndk path>/ndk-build clean
 #
 MY_LOCAL_PATH := $(call my-dir)
@@ -69,7 +69,7 @@ LOCAL_SRC_FILES := ../../java/zbarjni.c \
 
 LOCAL_C_INCLUDES := ../include \
 		    ../zbar \
-		    $(ICONV_SRC)/include 
+		    $(ICONV_SRC)/include
 
 LOCAL_SHARED_LIBRARIES := libiconv
 

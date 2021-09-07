@@ -154,7 +154,6 @@ jobs:
 #
 # Mac OS
 #
-
   Mac_OS:
     name: Mac OS
     runs-on: macos-latest

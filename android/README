@@ -51,7 +51,7 @@ Option 2 - via Eclipse
   Click the check box next to "libs" and the "Options" "Create top-level folder"
   check box (below).
   Then click "Finish".
-      
+
   You should then see a "libs" folder under your project.
 
 Building
@@ -61,7 +61,7 @@ Via Eclipse
 You have to add the zbar.jar file to your build path
   1) select zbar.jar under libs
   2) right-click, select "Build Path" -> "Add to Build Path"
-  
+
 Via command-line
 You are all set; ant will automatically find jar files under the "libs"
 subdirectory.
@@ -88,7 +88,7 @@ ZBar image scanner with the camera.
 
 Manually building ZBar JNI library
 ----------------------------------
-First download and unzip the iconv library source from 
+First download and unzip the iconv library source from
   http://www.gnu.org/software/libiconv/
 
 Then kick off the build from the ZBar android directory. You will
@@ -96,7 +96,7 @@ need to run the android tools to setup the local.properties file which
 setups sdk.dir.
 
   1) cd <zbar project>/android
-  2) android update project --path . 
+  2) android update project --path .
   3) ant -Dndk.dir=<NDK path> -Diconv.src=<iconv library src> zbar-all
 
 This will rebuild all source files, create zbar.jar and
@@ -108,5 +108,3 @@ To clean run:
   ant -Dndk.dir=<NDK path> zbar-clean
 
 See build-ndk.xml for additional target options.
-
-

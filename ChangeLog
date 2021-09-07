@@ -709,7 +709,7 @@ version 0.2:
     - moved EAN/UPC specific decoding into it's own module
   * fix confusing configure behavior which quietly avoided building
     targets with missing dependencies(?!)
-    configure will now fail with a descriptive error message if you 
+    configure will now fail with a descriptive error message if you
     do not have Magick++ and fail to specify --without-imagemagick or
     do not have SDL and fail to specify --without-sdl
   * add configure summary describing what will be built (req #1698196)
