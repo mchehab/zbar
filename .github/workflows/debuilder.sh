@@ -15,26 +15,26 @@ BUILDDIR=${ZBARDIR}/../build
 
 echo "Generating an origin tarball"
 
-cd ${ZBARDIR}
+cd "${ZBARDIR}"
 
-VER=$(cat ${ZBARDIR}/configure.ac|grep AC_INIT|perl -ne 'print $1 if /(\d+[.\d]+)/')
+VER=$(cat "${ZBARDIR}/configure.ac" | grep AC_INIT | perl -ne 'print $1 if /(\d+[.\d]+)/')
 TAR=${ZBARDIR}/../zbar_${VER}.orig.tar.gz
 
-git archive --format tgz -o ${TAR} HEAD
+git archive --format tgz -o "${TAR}" HEAD
 
 echo "Retrieving Debian ruleset"
-lftp -e "mget -c ${DEB_FNAME}; exit" ${DEB_URL}
+lftp -e "mget -c ${DEB_FNAME}; exit" "${DEB_URL}"
 
 # Ensure to use just one version, in case multiple ones were downloaded
-DEB_FNAME=$(ls -1 ${DEB_FNAME}|tail -1)
+DEB_FNAME=$(ls -1 ${DEB_FNAME} | tail -1)
 
 echo "Preparing build environment"
-rm -rf ${BUILDDIR}/ | true
-mkdir -p ${BUILDDIR}
-cd ${BUILDDIR}
+rm -rf "${BUILDDIR}/" || true
+mkdir -p "${BUILDDIR}"
+cd "${BUILDDIR}"
 
-tar xf ${TAR}
-tar xf ${ZBARDIR}/${DEB_FNAME}
+tar xf "${TAR}"
+tar xf "${ZBARDIR}/${DEB_FNAME}"
 
 # Ensure that debhelper-compat will use the one expected by the build distro
 sed -E "s#debhelper-compat.*,#debhelper-compat (= $COMPAT),#" -i debian/control
@@ -56,7 +56,7 @@ zbar (${VER}) unstable; urgency=medium
  -- LinuxTV bot <linuxtv-commits@linuxtv.org>  $(date -R)
 EOF
 
-OS_VERSION=$(. /etc/os-release && echo $ID-$VERSION_ID)
+OS_VERSION=$(. /etc/os-release && echo "$ID-$VERSION_ID")
 
 echo "Building ZBar packages for ${OS_VERSION}"
 debuild -us -uc
