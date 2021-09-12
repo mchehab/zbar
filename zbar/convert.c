@@ -1169,7 +1169,7 @@ int zbar_negotiate_format(zbar_video_t *vdo, zbar_window_t *win)
             continue;
         }
         zprintf(4, "%.4s(%08" PRIx32 ") -> %.4s(%08" PRIx32 ") (%d)\n",
-                (char*)fmt, *fmt, (char*)&win_fmt, win_fmt, cost);
+                (char *)fmt, *fmt, (char *)&win_fmt, win_fmt, cost);
         if (min_cost > cost) {
             min_cost = cost;
             min_fmt = *fmt;
