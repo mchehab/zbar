@@ -1164,8 +1164,8 @@ int zbar_negotiate_format(zbar_video_t *vdo, zbar_window_t *win)
             continue;
         cost = _zbar_best_format(*fmt, &win_fmt, dsts);
         if (cost < 0) {
-            zprintf(4, "%.4s(%08" PRIx32 ") -> ? (unsupported)\n",
-                    (char*)fmt, *fmt);
+            zprintf(4, "%.4s(%08" PRIx32 ") -> ? (unsupported)\n", (char *)fmt,
+                    *fmt);
             continue;
         }
         zprintf(4, "%.4s(%08" PRIx32 ") -> %.4s(%08" PRIx32 ") (%d)\n",
@@ -1202,11 +1202,11 @@ int zbar_negotiate_format(zbar_video_t *vdo, zbar_window_t *win)
             cost = _zbar_best_format(*fmt, &win_fmt, dsts);
             if (cost < 0) {
                 zprintf(4, "%.4s(%08" PRIx32 ") -> ? (unsupported)\n",
-                        (char*)fmt, *fmt);
+                        (char *)fmt, *fmt);
                 continue;
             }
             zprintf(4, "%.4s(%08" PRIx32 ") -> %.4s(%08" PRIx32 ") (%d)\n",
-                    (char*)fmt, *fmt, (char*)&win_fmt, win_fmt, cost);
+                    (char *)fmt, *fmt, (char *)&win_fmt, win_fmt, cost);
             if (min_cost > cost) {
                 min_cost = cost;
                 min_fmt = *fmt;
@@ -1224,6 +1224,6 @@ int zbar_negotiate_format(zbar_video_t *vdo, zbar_window_t *win)
                            "no supported image formats available"));
 
     zprintf(2, "setting best format %.4s(%08" PRIx32 ") (%d)\n",
-            (char*)&min_fmt, min_fmt, min_cost);
+            (char *)&min_fmt, min_fmt, min_cost);
     return (zbar_video_init(vdo, min_fmt));
 }
