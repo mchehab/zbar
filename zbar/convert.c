@@ -1125,100 +1125,105 @@ int _zbar_best_format(uint32_t src, uint32_t *dst, const uint32_t *dsts)
 
 int zbar_negotiate_format(zbar_video_t *vdo, zbar_window_t *win)
 {
+    static const uint32_t y800[2] = { fourcc('Y','8','0','0'), 0 };
     errinfo_t *errdst;
     const uint32_t *srcs, *dsts;
     unsigned min_cost = -1;
-    uint32_t min_fmt  = 0;
+    uint32_t min_fmt = 0;
     const uint32_t *fmt;
 
-    if (!vdo && !win)
-	return (0);
+    if (!vdo)
+        return (0);
 
-    (void)window_lock(win);
+    if (win)
+        (void)window_lock(win);
 
     errdst = &vdo->err;
     if (verify_format_sort()) {
-	(void)window_unlock(win);
-	return (err_capture(errdst, SEV_FATAL, ZBAR_ERR_INTERNAL, __func__,
-			    "image format list is not sorted!?"));
+        if (win)
+            (void)window_unlock(win);
+        return (err_capture(errdst, SEV_FATAL, ZBAR_ERR_INTERNAL, __func__,
+                           "image format list is not sorted!?"));
     }
 
-    if (!vdo->format || !win->formats) {
-	(void)window_unlock(win);
-	return (err_capture(errdst, SEV_ERROR, ZBAR_ERR_UNSUPPORTED, __func__,
-			    "no input or output formats available"));
+    if (!vdo->formats || (win && !win->formats)) {
+        if (win)
+            (void)window_unlock(win);
+        return (err_capture(errdst, SEV_ERROR, ZBAR_ERR_UNSUPPORTED, __func__,
+                           "no input or output formats available"));
     }
 
     srcs = vdo->formats;
-    dsts = win->formats;
+    dsts = (win) ? win->formats : y800;
 
     for (fmt = _zbar_formats; *fmt; fmt++) {
-	/* only consider formats supported by video device */
-	uint32_t win_fmt = 0;
-	int cost;
-	if (!has_format(*fmt, srcs))
-	    continue;
-	cost = _zbar_best_format(*fmt, &win_fmt, dsts);
-	if (cost < 0) {
-	    zprintf(4, "%.4s(%08" PRIx32 ") -> ? (unsupported)\n", (char *)fmt,
-		    *fmt);
-	    continue;
-	}
-	zprintf(4, "%.4s(%08" PRIx32 ") -> %.4s(%08" PRIx32 ") (%d)\n",
-		(char *)fmt, *fmt, (char *)&win_fmt, win_fmt, cost);
-	if (min_cost > cost) {
-	    min_cost = cost;
-	    min_fmt  = *fmt;
-	    if (!cost)
-		break;
-	}
+        /* only consider formats supported by video device */
+        uint32_t win_fmt = 0;
+        int cost;
+        if (!has_format(*fmt, srcs))
+            continue;
+        cost = _zbar_best_format(*fmt, &win_fmt, dsts);
+        if (cost < 0) {
+            zprintf(4, "%.4s(%08" PRIx32 ") -> ? (unsupported)\n",
+                    (char*)fmt, *fmt);
+            continue;
+        }
+        zprintf(4, "%.4s(%08" PRIx32 ") -> %.4s(%08" PRIx32 ") (%d)\n",
+                (char*)fmt, *fmt, (char*)&win_fmt, win_fmt, cost);
+        if (min_cost > cost) {
+            min_cost = cost;
+            min_fmt = *fmt;
+            if (!cost)
+                break;
+        }
     }
     if (!min_fmt && vdo->emu_formats) {
-	/* As vdo->formats aren't compatible, just free them */
-	free(vdo->formats);
-	vdo->formats	 = vdo->emu_formats;
-	vdo->emu_formats = NULL;
+        /* As vdo->formats aren't compatible, just free them */
+        free(vdo->formats);
+        vdo->formats = vdo->emu_formats;
+        vdo->emu_formats = NULL;
 
-	srcs = vdo->formats;
-	dsts = win->formats;
+        srcs = vdo->formats;
+        dsts = (win) ? win->formats : y800;
 
-	/*
+        /*
         * Use the same cost algorithm to select emulated formats.
         * This might select a sub-optimal conversion, but, in practice,
         * it will select a conversion to YUV at libv4l, and a YUY->Y8
         * in zbar, with it is OK. Yet, it is better to not select the
         * most performatic conversion than to not support the webcam.
         */
-	for (fmt = _zbar_formats; *fmt; fmt++) {
-	    /* only consider formats supported by video device */
-	    uint32_t win_fmt = 0;
-	    int cost;
-	    if (!has_format(*fmt, srcs))
-		continue;
-	    cost = _zbar_best_format(*fmt, &win_fmt, dsts);
-	    if (cost < 0) {
-		zprintf(4, "%.4s(%08" PRIx32 ") -> ? (unsupported)\n",
-			(char *)fmt, *fmt);
-		continue;
-	    }
-	    zprintf(4, "%.4s(%08" PRIx32 ") -> %.4s(%08" PRIx32 ") (%d)\n",
-		    (char *)fmt, *fmt, (char *)&win_fmt, win_fmt, cost);
-	    if (min_cost > cost) {
-		min_cost = cost;
-		min_fmt	 = *fmt;
-		if (!cost)
-		    break;
-	    }
-	}
+        for (fmt = _zbar_formats; *fmt; fmt++) {
+            /* only consider formats supported by video device */
+            uint32_t win_fmt = 0;
+            int cost;
+            if (!has_format(*fmt, srcs))
+                continue;
+            cost = _zbar_best_format(*fmt, &win_fmt, dsts);
+            if (cost < 0) {
+                zprintf(4, "%.4s(%08" PRIx32 ") -> ? (unsupported)\n",
+                        (char*)fmt, *fmt);
+                continue;
+            }
+            zprintf(4, "%.4s(%08" PRIx32 ") -> %.4s(%08" PRIx32 ") (%d)\n",
+                    (char*)fmt, *fmt, (char*)&win_fmt, win_fmt, cost);
+            if (min_cost > cost) {
+                min_cost = cost;
+                min_fmt = *fmt;
+                if (!cost)
+                    break;
+            }
+        }
     }
 
-    (void)window_unlock(win);
+    if (win)
+        (void)window_unlock(win);
 
     if (!min_fmt)
-	return (err_capture(errdst, SEV_ERROR, ZBAR_ERR_UNSUPPORTED, __func__,
-			    "no supported image formats available"));
+        return (err_capture(errdst, SEV_ERROR, ZBAR_ERR_UNSUPPORTED, __func__,
+                           "no supported image formats available"));
 
     zprintf(2, "setting best format %.4s(%08" PRIx32 ") (%d)\n",
-	    (char *)&min_fmt, min_fmt, min_cost);
+            (char*)&min_fmt, min_fmt, min_cost);
     return (zbar_video_init(vdo, min_fmt));
 }
