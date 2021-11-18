@@ -136,7 +136,7 @@ You need to install the following packages:
 	autoconf automake autotools-dev libdbus-1-dev \
 	pkg-config binutils-mingw-w64-i686 gcc-mingw-w64 \
 	mingw-w64-i686-dev mingw-w64-common win-iconv-mingw-w64-dev \
-	xmlto
+	xmlto autopoint
 
 Then, build Zbar with:
 
