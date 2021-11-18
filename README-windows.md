@@ -136,7 +136,7 @@ You need to install the following packages:
 	autoconf automake autotools-dev libdbus-1-dev \
 	pkg-config binutils-mingw-w64-i686 gcc-mingw-w64 \
 	mingw-w64-i686-dev mingw-w64-common win-iconv-mingw-w64-dev \
-	xmlto
+	xmlto autopoint
 
 Then, build Zbar with:
 
@@ -169,7 +169,7 @@ With Cocolatey installed, ensure that you have minGw and needed deps with:
 Then use pacman to install the needed packages:
 
     pacman -Syu --noconfirm autoconf libtool automake make \
-	autoconf-archive pkg-config
+	autoconf-archive pkg-config autopoint gettext-devel
 
 Once you have everything needed and set the PATH to the places where the
 building environment is, you can build ZBar with:
