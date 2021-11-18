@@ -169,7 +169,7 @@ With Cocolatey installed, ensure that you have minGw and needed deps with:
 Then use pacman to install the needed packages:
 
     pacman -Syu --noconfirm autoconf libtool automake make \
-	autoconf-archive pkg-config
+	autoconf-archive pkg-config autopoint
 
 Once you have everything needed and set the PATH to the places where the
 building environment is, you can build ZBar with:
