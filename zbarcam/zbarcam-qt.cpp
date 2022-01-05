@@ -32,6 +32,12 @@
 #include <QTextEdit>
 #include <QWidget>
 #include <QtGlobal>
+#if QT_VERSION >= 0x050000
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#endif
 #include <config.h>
 #include <zbar.h>
 #include <zbar/QZBar.h>
@@ -43,6 +49,7 @@
 #define SYM_GROUP   "Symbology"
 #define CAM_GROUP   "Camera"
 #define DBUS_NAME   "D-Bus"
+#define API_TOKEN   "API-Token"
 #define OPTION_BAR  "option_bar.enable"
 #define CONTROL_BAR "control_bar.enable"
 
@@ -447,7 +454,7 @@ public:
 	zbar->setAcceptDrops(true);
 
 	// text box for results
-	QTextEdit *results = new QTextEdit;
+	results = new QTextEdit;
 	results->setReadOnly(true);
 
 	QGridLayout *grid = new QGridLayout;
@@ -513,6 +520,23 @@ public:
 		    &SettingsButton::button_clicked);
 	}
 
+        // ean-search.org API lookup
+        QLabel * token_label = new QLabel(tr("ean-search.org API token:"));
+        optionsBoxLayout->addWidget(token_label, ++pos, 0, 1, 2,
+				    Qt::AlignTop | Qt::AlignLeft);
+        QLineEdit * api_token_edit = new QLineEdit();
+        api_token_edit->setObjectName(API_TOKEN);
+        api_token_edit->setText(api_token);
+        QFont font("", 0);
+        QFontMetrics fm(font);
+        int pixelsWide = fm.width(QString(31 - api_token.size() , ' ') + api_token + " ");
+        int pixelsHigh = fm.height() + 4;
+        api_token_edit->setFixedSize(pixelsWide, pixelsHigh);
+        optionsBoxLayout->addWidget(api_token_edit, ++pos, 0, 1, 2,
+				    Qt::AlignTop | Qt::AlignLeft);
+        connect(api_token_edit, SIGNAL(textChanged(const QString &)), this,
+                SLOT(text_changed(const QString &)));
+
 	// Allow showing/hiding options/controls menus
 	QPushButton *showOptionsButton, *showControlsButton;
 
@@ -572,8 +596,8 @@ public:
 	connect(openButton, SIGNAL(clicked()), SLOT(openImage()));
 
 	// directly connect video scanner decode result to display in text box
-	connect(zbar, SIGNAL(decodedText(const QString &)), results,
-		SLOT(append(const QString &)));
+	connect(zbar, SIGNAL(decodedText(const QString &)), this,
+		SLOT(append_barcode(const QString &)));
 
 	if (active >= 0)
 	    videoList->setCurrentIndex(active);
@@ -621,6 +645,48 @@ public Q_SLOTS:
 		return;
 	    }
 	}
+    }
+
+    void text_changed(const QString & str)
+    {
+        QLineEdit *edit = qobject_cast<QLineEdit *>(sender());
+	if (!edit)
+	    return;
+
+	QString name = edit->objectName();
+        if (name == API_TOKEN) {
+            api_token = str;
+        }
+    }
+
+    void append_barcode(const QString & str)
+    {
+#if QT_VERSION >= 0x050000
+        results->append(str);
+        QStringList part = str.split(":");
+        if (part[0] == "EAN-13" || part[0] == "UPC-A" || part[0] == "ISBN-13") {
+            if (!api_token.isEmpty()) {
+                QNetworkRequest request = QNetworkRequest(QUrl("https://api.ean-search.org/api?token=" +
+                        api_token + "&format=json&op=barcode-lookup&ean=" + part[1]));
+                request.setRawHeader("User-Agent", "zbarcam-qt (Qt)");
+                QNetworkReply* reply = network_manager.get(request);
+                // connect to signal when its done using lambda
+                QObject::connect(reply, &QNetworkReply::finished, [=]() {
+                    QString ReplyText = reply->readAll();
+                    reply->deleteLater(); // clean up
+                    if (ReplyText.contains("error") && ReplyText.contains("Invalid token")) {
+                        results->append("Invalid ean-search.org API token");
+                        api_token = "";
+                        return;
+                    }
+                    QJsonDocument doc = QJsonDocument::fromJson(ReplyText.toUtf8());
+                    QJsonValue obj0 = doc.array()[0];
+                    QString name = obj0[QString("name")].toString();
+                    results->append(name);
+                });
+            }
+        }
+#endif
     }
 
     void clearLayout(QLayout *layout)
@@ -815,6 +881,9 @@ private:
     QGridLayout *controlBoxLayout;
     QSignalMapper *signalMapper;
     bool dbus_enabled, show_options, show_controls;
+    QTextEdit *results;
+    QNetworkAccessManager network_manager;
+    QString api_token;
     QByteArray geometry;
     QVector<struct CamRes> res;
     unsigned curWidth, curHeight;
@@ -848,6 +917,8 @@ private:
 	qVal	     = qSettings.value(key, false);
 	dbus_enabled = qVal.toBool();
 #endif
+
+	api_token    = qSettings.value(API_TOKEN, "").toString();
 
 	qSettings.beginGroup(SYM_GROUP);
 
@@ -941,6 +1012,7 @@ private:
 	key = DBUS_NAME ".enable";
 	qSettings.setValue(key, dbus_enabled);
 #endif
+	qSettings.setValue(API_TOKEN, api_token);
 
 	qSettings.beginGroup(SYM_GROUP);
 	for (i = 0; i < CONFIGS_SIZE; i++) {

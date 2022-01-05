@@ -671,7 +671,7 @@ AS_IF([test "x$have_x" = "xyes"],
 
 AS_IF([test "x$with_qt" != "xno"],
       [PKG_CHECK_MODULES([QT],
-		         [Qt5Core >= 5 Qt5Gui >= 5 Qt5Widgets >= 5.0 $qt_extra],,
+		         [Qt5Core >= 5 Qt5Gui >= 5 Qt5Widgets >= 5.0 Qt5Network >= 5.0 $qt_extra],,
 		         [with_qt5="no"
 		          PKG_CHECK_MODULES([QT],
 					    [QtCore >= 4 QtGui >= 4],,
