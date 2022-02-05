@@ -16,11 +16,23 @@ WriteMakefile(
     VERSION_FROM      => "ZBar.pm",
     ABSTRACT_FROM     => "ZBar.pm",
     AUTHOR            => 'Jeff Brown <spadix@users.sourceforge.net>',
-    LICENSE           => 'lgpl',
+    LICENSE           => 'lgpl_2_1',
     LIBS              => ['-lzbar'],
     META_MERGE        => {
+        "meta-spec" => {
+            version => '2',
+            url     => 'https://metacpan.org/pod/CPAN::Meta::Spec',
+        },
         build_requires => {
             'Test::More'    => 0,
-        }
+        },
+        resources         => {
+            homepage    => 'https://metacpan.org/pod/Barcode::ZBar/',
+            repository  => {
+                type => 'git',
+                url  => 'https://github.com/mchehab/zbar.git',
+                web  => 'https://github.com/mchehab/zbar',
+            }
+        },
     },
 );
