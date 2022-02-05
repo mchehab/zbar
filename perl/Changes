@@ -1,5 +1,13 @@
 Revision history for Perl extension Barcode::ZBar.
 
+0.05  2022-02-05 - Updates from mchehab/zbar
+	* 0d1d582 perl some packaging improvements
+	* 5b3c33d Enforce a coding style
+	* 2b841d5 Update ZBar's main URL location
+	* d1397ff Fix typos found by codespell.
+	* edcf08b Add support for using versions with major.minor.patch
+	* cd5b63e Update to the very latest version of zbar
+
 current spadix
 	* add Symbol orientation and Decoder direction interfaces
 
