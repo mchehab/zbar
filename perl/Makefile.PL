@@ -18,6 +18,7 @@ WriteMakefile(
     AUTHOR            => 'Jeff Brown <spadix@users.sourceforge.net>',
     LICENSE           => 'lgpl_2_1',
     LIBS              => ['-lzbar'],
+    MIN_PERL_VERSION  => '5.006',
     META_MERGE        => {
         "meta-spec" => {
             version => '2',
@@ -34,5 +35,15 @@ WriteMakefile(
                 web  => 'https://github.com/mchehab/zbar',
             }
         },
+        provides => {
+            'Barcode::ZBar' => {
+                file    => 'ZBar.pm',
+                version => '0.06',
+            },
+            'Barcode::ZBar::Error' => {
+                file    => 'ZBar.pm',
+                version => '0.06',
+            },
+        }
     },
 );
