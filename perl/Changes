@@ -1,5 +1,10 @@
 Revision history for Perl extension Barcode::ZBar.
 
+0.07  2022-02-06
+	* d0428ef Barcode::ZBar - Image::Magick not installed skip 3 more tests
+	* 576355e Fixes rt.cpan.org 122061 - test fails when DISPLAY not set
+	* e9a0cf2 Update Barcode::ZBar Changes
+
 0.06  2022-02-06
 	* 93564a5 Add provides and min-perl version to meta files
 	* b01a86f perl module Increment version for cpan release and update changes
