@@ -77,19 +77,23 @@ $proc->set_data_handler(sub {
 
 #########################
 
-$proc->init($ENV{VIDEO_DEVICE});
-ok(!$proc->is_visible(), 'initial visibility');
+SKIP: {
+    skip "no display", 3 unless defined $ENV{'DISPLAY'};
 
-#########################
+    $proc->init($ENV{VIDEO_DEVICE});
+    ok(!$proc->is_visible(), 'initial visibility');
 
-$proc->set_visible();
-ok($proc->is_visible(), 'enabled visiblity');
+    #########################
 
-#########################
+    $proc->set_visible();
+    ok($proc->is_visible(), 'enabled visiblity');
 
-ok($proc->user_wait(1.1) >= 0, 'wait w/timeout');
+    #########################
 
-#########################
+    ok($proc->user_wait(1.1) >= 0, 'wait w/timeout');
+
+    #########################
+}
 
 SKIP: {
     # FIXME factor out image read utility
