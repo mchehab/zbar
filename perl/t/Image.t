@@ -71,7 +71,7 @@ is_deeply([$image->get_crop()], [0, 0, 114, 80], 'crop reset');
 # FIXME avoid skipping these (eg embed image vs ImageMagick)
 SKIP: {
     eval { require Image::Magick };
-    skip "Image::Magick not installed", 13 if $@;
+    skip "Image::Magick not installed", 16 if $@;
 
     my $im = Image::Magick->new();
     my $err = $im->Read('t/barcode.png');
