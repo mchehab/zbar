@@ -1,5 +1,9 @@
 Revision history for Perl extension Barcode::ZBar.
 
+0.06  2022-02-06
+	* 93564a5 Add provides and min-perl version to meta files
+	* b01a86f perl module Increment version for cpan release and update changes
+
 0.05  2022-02-05 - Updates from mchehab/zbar
 	* 0d1d582 perl some packaging improvements
 	* 5b3c33d Enforce a coding style
