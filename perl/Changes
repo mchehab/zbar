@@ -1,6 +1,10 @@
 Revision history for Perl extension Barcode::ZBar.
 
+0.10  2022-02-08 Official Release to CPAN
+	* Barcode::ZBar 0.10 update version
+
 0.09  2022-02-08
+	* bdf1a10 Barcode::ZBar 0.09 update version and Changes
 	* 08ac997 Barcode::ZBar fix test
 
 0.08  2022-02-07
