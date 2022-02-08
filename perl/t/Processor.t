@@ -111,6 +111,10 @@ SKIP: {
          interlace => 'Plane')
     );
 
+SKIP {
+    if ( ! defined $ENV{'DISPLAY'} ) {
+        skip "no display", 11;
+    }
     my $rc = $proc->process_image($image);
     ok(!$rc, 'process result');
 
@@ -119,6 +123,7 @@ SKIP: {
     #########################
 
     is($explicit_closure, 1, 'handler explicit closure');
+    }
 }
 
 #########################
