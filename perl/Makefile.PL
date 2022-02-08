@@ -24,8 +24,23 @@ WriteMakefile(
             version => '2',
             url     => 'https://metacpan.org/pod/CPAN::Meta::Spec',
         },
-        build_requires => {
-            'Test::More'    => 0,
+        prereqs       => {
+            build => {
+                requires => {
+                    'Test::More'    => 0,
+                },
+            },
+            test => {
+                recommends => {
+                    'Image::Magick' => 0,
+                },
+            },
+            develop => {
+                recommends => {
+                    'Test::Pod::Coverage' => 0,
+                    'Test::Pod' => 0,
+                },
+            }
         },
         resources         => {
             homepage    => 'https://metacpan.org/pod/Barcode::ZBar/',
