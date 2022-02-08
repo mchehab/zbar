@@ -32,7 +32,7 @@ our @ISA = qw(Exporter);
 our @EXPORT_OK = qw(SPACE BAR
                     version increase_verbosity set_verbosity);
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 require XSLoader;
 XSLoader::load('Barcode::ZBar', $VERSION);

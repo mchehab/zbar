@@ -1,5 +1,9 @@
 Revision history for Perl extension Barcode::ZBar.
 
+0.08  2022-02-07
+	* 889cc66 perl skip more tests if DISPLAY not set and set prereqs in Makefile.PL
+	* c77594e Barcode::ZBar Update Changes and Increment Version
+
 0.07  2022-02-06
 	* d0428ef Barcode::ZBar - Image::Magick not installed skip 3 more tests
 	* 576355e Fixes rt.cpan.org 122061 - test fails when DISPLAY not set
