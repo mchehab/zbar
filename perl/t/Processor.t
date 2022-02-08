@@ -111,10 +111,9 @@ SKIP: {
          interlace => 'Plane')
     );
 
-SKIP {
-    if ( ! defined $ENV{'DISPLAY'} ) {
-        skip "no display", 11;
-    }
+SKIP: {
+    skip "no display", 11 unless defined $ENV{'DISPLAY'};
+
     my $rc = $proc->process_image($image);
     ok(!$rc, 'process result');
 
