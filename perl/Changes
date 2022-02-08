@@ -1,6 +1,10 @@
 Revision history for Perl extension Barcode::ZBar.
 
+0.09  2022-02-08
+	* 08ac997 Barcode::ZBar fix test
+
 0.08  2022-02-07
+	* 0a2fa55 Barcode::ZBar update version for release
 	* 889cc66 perl skip more tests if DISPLAY not set and set prereqs in Makefile.PL
 	* c77594e Barcode::ZBar Update Changes and Increment Version
 
