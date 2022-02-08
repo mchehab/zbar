@@ -53,11 +53,11 @@ WriteMakefile(
         provides => {
             'Barcode::ZBar' => {
                 file    => 'ZBar.pm',
-                version => '0.07',
+                version => '0.08',
             },
             'Barcode::ZBar::Error' => {
                 file    => 'ZBar.pm',
-                version => '0.07',
+                version => '0.08',
             },
         }
     },
