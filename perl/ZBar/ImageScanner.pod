@@ -65,6 +65,10 @@ convert from other supported formats to Y800 before scanning.
 
 Enable the inter-image result consistency cache.
 
+=item set_config(I<symbology>, I<config>, I<value>)
+
+Set config for indicated symbology (0 for all) to specified value.
+
 =item parse_config(I<configstr>)
 
 Apply a decoder configuration setting.  See the documentation for

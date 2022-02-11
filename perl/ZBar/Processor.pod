@@ -121,6 +121,16 @@ Request a preferred size for the video image from the device.  The
 request may be adjusted or completely ignored by the driver.  Must be
 called before C<init()>
 
+=item force_format(I<input>, I<output>)
+
+force specific input and output formats for debug/testing.
+
+=item set_config(I<symbology>, I<config>, I<value>)
+
+Set config for indicated symbology (0 for all) to specified value.
+@returns 0 for success, non-0 for failure (config does not apply to
+specified symbology, or value out of range)
+
 =back
 
 =head1 SEE ALSO

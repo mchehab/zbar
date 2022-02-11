@@ -108,13 +108,16 @@ Return/specify the raw image data as a binary string.
 Return a list of scanned Barcode::ZBar::Symbol results attached to
 this image.
 
+=item convert_resize(I<format>, I<width>, I<height>)
+
 =item convert(I<format>)
 
 Return a new Barcode::ZBar::Image object converted to the indicated
 fourcc format.  Returns C<undef> if the conversion is not supported.
 Conversion complexity ranges from CPU intensive to trivial depending
 on the formats involved.  Note that only a few conversions retain
-color information.
+color information.  convert actually calls convert_resize using the
+source width and height.
 
 =back
 

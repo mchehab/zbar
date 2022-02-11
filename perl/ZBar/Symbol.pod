@@ -83,6 +83,21 @@ indication of symbol orientation.
 Components of a composite result.  This yields an array of physical
 component symbols that were combined to form a composite result.
 
+=item get_configs()
+
+Retrieve symbology boolean config settings.  Returns a bitmask
+indicating which configs were set for the detected
+symbology during decoding.
+
+=item get_modifiers()
+
+Retrieve symbology modifier flag settings.  Returns a bitmask
+indicating which characteristics were detected during decoding.
+
+=item get_loc()
+
+Retrieve an array of symbol location points (x,y)
+
 =over 2
 
 =item *
