@@ -654,13 +654,6 @@ AC_ARG_WITH([qt],
   [],
   [with_qt="yes"])
 
-dnl Qt5
-AC_ARG_WITH([qt5],
-  [AS_HELP_STRING([--without-qt5],
-    [If --with-qt, ignore support for Qt5 widget])],
-  [],
-  [with_qt5="yes"])
-
 dnl Qt6
 AC_ARG_WITH([qt6],
   [AS_HELP_STRING([--with-qt6],
@@ -679,22 +672,15 @@ AS_IF([test "x$with_qt" != "xno"],
                                 qt_pkgconfig_file="zbar-qt5.pc"
                                ],
                                [with_qt6="no"]))
-       AS_IF([(test "x$with_qt6" = "xno") && (test "x$with_qt5" != "xno")],
+       AS_IF([test "x$with_qt6" = "xno"],
              PKG_CHECK_MODULES([QT],
                                [Qt5Core >= 5 Qt5Gui >= 5 Qt5Widgets >= 5.0 Qt5X11Extras >= 5.0],
                                [MOC=`pkg-config Qt5 --variable=moc`
                                 QT_VERSION=`$PKG_CONFIG Qt5 --modversion`
                                 qt_pkgconfig_file="zbar-qt5.pc"
                                ],
-                               [with_qt5="no"]))
-       AS_IF([(test "x$with_qt6" = "xno") && (test "x$with_qt5" = "xno")],
-             PKG_CHECK_MODULES([QT],
-                               [Qt >= 4 QtGui >= 4],
-                               [MOC=`pkg-config Qt --variable=moc`
-                                QT_VERSION=`$PKG_CONFIG Qt --modversion`
-                                qt_pkgconfig_file="zbar-qt.pc"
-                               ],
-                               [with_qt="no"]))])
+                               [with_qt="no"]))
+      ])
 
 AC_ARG_VAR([MOC], [full path to Qt moc program])
 
