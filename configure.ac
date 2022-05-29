@@ -1,7 +1,7 @@
 changecom()dnl
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.68])
-AC_INIT([zbar], [0.23.92], [mchehab+huawei@kernel.org])
+AC_INIT([zbar],[0.23.92],[mchehab+huawei@kernel.org])
 m4_ifndef([AC_LANG_DEFINES_PROVIDED],
           [m4_define([AC_LANG_DEFINES_PROVIDED])])
 AC_CONFIG_AUX_DIR(config)
@@ -85,7 +85,6 @@ dnl programs
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CXX
-AC_PROG_CC_STDC
 
 PKG_PROG_PKG_CONFIG
 
@@ -329,8 +328,7 @@ AS_IF([test "x$with_dbus" = "xyes"],
   [CPPFLAGS="$CPPFLAGS $DBUS_CFLAGS"
   AC_ARG_VAR([DBUS_LIBS], [linker flags for building dbus])
   AC_DEFINE([HAVE_DBUS], [1], [Define to 1 to use dbus])
-  AC_ARG_WITH(dbusconfdir, AC_HELP_STRING([--with-dbusconfdir=PATH],
-  [path to D-Bus config directory]),
+  AC_ARG_WITH(dbusconfdir, AS_HELP_STRING([--with-dbusconfdir=PATH],[path to D-Bus config directory]),
   [path_dbusconf=$withval],
   [path_dbusconf="`$PKG_CONFIG --variable=sysconfdir dbus-1`"])
   AS_IF([test -z "$path_dbusconf"],
@@ -659,48 +657,57 @@ AC_ARG_WITH([qt],
 dnl Qt5
 AC_ARG_WITH([qt5],
   [AS_HELP_STRING([--without-qt5],
-    [disable support for Qt5 widget. if --with-qt, it will seek only for Qt4])],
+    [If --with-qt, ignore support for Qt5 widget])],
   [],
   [with_qt5="yes"])
 
+dnl Qt6
+AC_ARG_WITH([qt6],
+  [AS_HELP_STRING([--with-qt6],
+    [If --with-qt, enable experimental support for Qt6 widget (currently broken)])],
+  [],
+  [with_qt6="no"])
+
+AS_IF([test "x$with_qt" != "xno"],
+      [AS_IF([test "x$with_qt6" != "xno"],
+	     PKG_CHECK_MODULES([QT],
+                               [Qt6],
+                               [MOC=`pkg-config Qt6 --variable=moc`
+                                QT_VERSION=`$PKG_CONFIG Qt6 --modversion`
+                                QT6_HEADERS=`pkg-config Qt6 --variable=headerdir`
+                                CPPFLAGS="$CPPFLAGS -I$QT6_HEADERS -I$QT6_HEADERS/QtWidgets -I$QT6_HEADERS/QtCore -I$QT6_HEADERS/QtGui"
+                                qt_pkgconfig_file="zbar-qt5.pc"
+                               ],
+                               [with_qt6="no"]))
+       AS_IF([(test "x$with_qt6" = "xno") && (test "x$with_qt5" != "xno")],
+             PKG_CHECK_MODULES([QT],
+                               [Qt5Core >= 5 Qt5Gui >= 5 Qt5Widgets >= 5.0 Qt5X11Extras >= 5.0],
+                               [MOC=`pkg-config Qt5 --variable=moc`
+                                QT_VERSION=`$PKG_CONFIG Qt5 --modversion`
+                                qt_pkgconfig_file="zbar-qt5.pc"
+                               ],
+                               [with_qt5="no"]))
+       AS_IF([(test "x$with_qt6" = "xno") && (test "x$with_qt5" = "xno")],
+             PKG_CHECK_MODULES([QT],
+                               [Qt >= 4 QtGui >= 4],
+                               [MOC=`pkg-config Qt --variable=moc`
+                                QT_VERSION=`$PKG_CONFIG Qt --modversion`
+                                qt_pkgconfig_file="zbar-qt.pc"
+                               ],
+                               [with_qt="no"]))])
+
 AC_ARG_VAR([MOC], [full path to Qt moc program])
-
-AS_IF([test "x$have_x" = "xyes"],
-      [qt_extra="Qt5X11Extras >= 5.0"],
-      [qt_extra=""])
-
-AS_IF([test "x$with_qt" != "xno"],
-      [PKG_CHECK_MODULES([QT],
-		         [Qt5Core >= 5 Qt5Gui >= 5 Qt5Widgets >= 5.0 $qt_extra],,
-		         [with_qt5="no"
-		          PKG_CHECK_MODULES([QT],
-					    [QtCore >= 4 QtGui >= 4],,
-					    [with_qt="no"])])])
-
-AS_IF([test "x$with_qt" != "xno"],
-   [AS_IF([test "x$with_qt5" != "xno"],
-    [AC_CHECK_PROGS(MOC, [moc-qt5 moc])
-     AC_MSG_NOTICE([using moc from $MOC])
-     QT_VERSION=`$PKG_CONFIG Qt5Gui --modversion`
-     CPPFLAGS="$CPPFLAGS $QT_CPPFLAGS"
-dnl -fPIC has no effect on Windows and breaks windres
-     AS_IF([test "x$win32" = "xno"], [CPPFLAGS="$CPPFLAGS -fPIC"])
-     AC_MSG_NOTICE([using Qt version $QT_VERSION])
-     qt_pkgconfig_file="zbar-qt5.pc"
-     ],
-
-    [MOC=`$PKG_CONFIG QtGui --variable=moc_location`
-     AC_MSG_NOTICE([using moc from $MOC])
-     QT_VERSION=`$PKG_CONFIG QtGui --modversion`
-     AC_MSG_NOTICE([using Qt version $QT_VERSION])
-     qt_pkgconfig_file="zbar-qt.pc"
-     ])])
 
 AM_CONDITIONAL([HAVE_QT], [test "x$with_qt" = "xyes"])
 
 AM_COND_IF([HAVE_QT],
-     [AC_CONFIG_FILES([zbar-qt.pc:"${qt_pkgconfig_file}.in"])]
-)
+           [AC_MSG_NOTICE([using Qt version $QT_VERSION])
+            AC_MSG_NOTICE([using moc from $MOC])
+            CPPFLAGS="$CPPFLAGS $QT_CPPFLAGS"
+            LIBS="$LIBS $QT_LIBS"
+            AC_CONFIG_FILES([zbar-qt.pc:"${qt_pkgconfig_file}.in"])
+            #dnl -fPIC has no effect on Windows and breaks windres
+            AS_IF([test "x$win32" = "xno"], [CPPFLAGS="$CPPFLAGS -fPIC"])])
 
 dnl Java
 have_java="maybe"
