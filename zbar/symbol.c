@@ -350,8 +350,9 @@ enum
     TMPL_END,
 };
 
-/* FIXME suspect... */
-#define MAX_STATIC     256
+/* FIXME should be big enough to store XML extra data */
+#define MAX_STATIC     (1 << 16)
+
 #define MAX_MOD	       (5 * ZBAR_MOD_NUM)
 #define MAX_CFG	       (10 * ZBAR_CFG_NUM)
 #define MAX_INT_DIGITS 10
