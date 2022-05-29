@@ -134,7 +134,7 @@ def run_zbarimg(images):
 
     # FIXME trim usage from error msg
     assert rc in (0, 4), \
-           'zbarimg returned error status (%d)\n' % rc + err
+           'zbarimg returned error status (%d):\n\t%s\n' % (rc, err.decode())
 
     assert not err, err
 
