@@ -1,5 +1,6 @@
 /*------------------------------------------------------------------------
  *  Copyright 2008-2009 (c) Jeff Brown <spadix@users.sourceforge.net>
+ *  Copyright 2022 (c) Pier Angelo Vendrame <vogliadifarniente@gmail.com>
  *
  *  This file is part of the ZBar Bar Code Reader.
  *
@@ -21,26 +22,33 @@
  *  http://sourceforge.net/projects/zbar
  *------------------------------------------------------------------------*/
 
-/* avoid "multiple definition" darwin link errors
- * for symbols defined in pygobject.h (bug #2052681)
- */
-#define NO_IMPORT_PYGOBJECT
+#include "Python.h"
+#include "pygobject.h"
+#include "zbar/zbargtk.h"
 
-#include <pygobject.h>
-
-void zbarpygtk_register_classes(PyObject *);
-extern PyMethodDef zbarpygtk_functions[];
-
-DL_EXPORT(void)
-initzbarpygtk(void)
+static PyObject *create_widget(PyObject *self, PyObject *args)
 {
-    init_pygobject();
+    GtkWidget *widget = zbar_gtk_new();
+    if (!widget) {
+        return PyErr_NoMemory();
+    }
+    return pygobject_new(G_OBJECT(widget));
+}
 
-    PyObject *mod  = Py_InitModule("zbarpygtk", zbarpygtk_functions);
-    PyObject *dict = PyModule_GetDict(mod);
+static PyMethodDef ZbargtkMethods[] = {
+    { "create_widget", create_widget, METH_NOARGS, "Create a new barcode reader widget instance without any associated video device or image." },
+    { NULL, NULL, 0, NULL }
+};
 
-    zbarpygtk_register_classes(dict);
+static struct PyModuleDef zbargtkmozule = {
+    PyModuleDef_HEAD_INIT, "zbargtk", "", -1, ZbargtkMethods
+};
 
-    if (PyErr_Occurred())
-	Py_FatalError("unable to initialise module zbarpygtk");
+PyMODINIT_FUNC PyInit_zbargtk(void)
+{
+    PyObject *module = PyModule_Create(&zbargtkmozule);
+    if (!module)
+        return NULL;
+    pygobject_init(-1, -1, -1);
+    return module;
 }

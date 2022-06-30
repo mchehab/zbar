@@ -1,6 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 #------------------------------------------------------------------------
 #  Copyright 2008-2009 (c) Jeff Brown <spadix@users.sourceforge.net>
+#  Copyright 2022 (c) Pier Angelo Vendrame <vogliadifarniente@gmail.com>
 #
 #  This file is part of the ZBar Bar Code Reader.
 #
@@ -21,9 +22,14 @@
 #
 #  http://sourceforge.net/projects/zbar
 #------------------------------------------------------------------------
-import sys, os, stat
-import pygtk, gtk
-import zbarpygtk
+import os
+import stat
+import sys
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk  # noqa: E402
+import zbargtk  # noqa: E402
+
 
 def decoded(zbar, data):
     """callback invoked when a barcode is decoded by the zbar widget.
@@ -32,25 +38,28 @@ def decoded(zbar, data):
     buf = results.props.buffer
     end = buf.get_end_iter()
     buf.insert(end, data + "\n")
-    results.scroll_to_iter(end, 0)
+    results.scroll_to_iter(end, 0, False, 0, 0)
+
 
 def video_enabled(zbar, param):
     """callback invoked when the zbar widget enables or disables
     video streaming.  updates the status button state to reflect the
     current video state
     """
-    enabled = zbar.get_video_enabled()
+    enabled = zbar.props.video_enabled
     if status_button.get_active() != enabled:
         status_button.set_active(enabled)
+
 
 def video_opened(zbar, param):
     """callback invoked when the zbar widget opens or closes a video
     device.  also called when a device is closed due to error.
     updates the status button state to reflect the current video state
     """
-    opened = zbar.get_video_opened()
+    opened = zbar.props.video_opened
     status_button.set_sensitive(opened)
-    set_status_label(opened, zbar.get_video_enabled())
+    set_status_label(opened, zbar.props.video_enabled)
+
 
 def video_changed(widget):
     """callback invoked when a new video device is selected from the
@@ -60,7 +69,8 @@ def video_changed(widget):
     dev = video_list.get_active_text()
     if dev[0] == '<':
         dev = ''
-    zbar.set_video_device(dev)
+    zbar.props.video_device = dev
+
 
 def status_button_toggled(button):
     """callback invoked when the status button changes state
@@ -68,15 +78,16 @@ def status_button_toggled(button):
     video streaming state is consistent and updates the display of the
     button to represent the current state
     """
-    opened = zbar.get_video_opened()
+    opened = zbar.props.video_opened
     active = status_button.get_active()
-    if opened and (active != zbar.get_video_enabled()):
-        zbar.set_video_enabled(active)
+    if opened and (active != zbar.props.video_enabled):
+        zbar.props.video_enabled = active
     set_status_label(opened, active)
     if active:
-        status_image.set_from_stock(gtk.STOCK_YES, gtk.ICON_SIZE_BUTTON)
+        status_image.set_from_icon_name(Gtk.STOCK_YES, Gtk.IconSize.BUTTON)
     else:
-        status_image.set_from_stock(gtk.STOCK_NO, gtk.ICON_SIZE_BUTTON)
+        status_image.set_from_icon_name(Gtk.STOCK_NO, Gtk.IconSize.BUTTON)
+
 
 def open_button_clicked(button):
     """callback invoked when the 'Open' button is clicked.  pops up an
@@ -85,21 +96,23 @@ def open_button_clicked(button):
     widget which displays it and scans it for barcodes.  results are
     returned using the same hook used to report video results
     """
-    dialog = gtk.FileChooserDialog("Open Image File", window,
-                                   gtk.FILE_CHOOSER_ACTION_OPEN,
-                                   (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                                    gtk.STOCK_OPEN, gtk.RESPONSE_ACCEPT))
+    dialog = Gtk.FileChooserDialog(
+        title="Open Image File", action=Gtk.FileChooserAction.OPEN)
+    dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                       Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT)
     global open_file
     if open_file:
         dialog.set_filename(open_file)
     try:
-        if dialog.run() == gtk.RESPONSE_ACCEPT:
+        if dialog.run() == Gtk.ResponseType.ACCEPT:
             open_file = dialog.get_filename()
-            pixbuf = gtk.gdk.pixbuf_new_from_file(open_file)
+            pixbuf = Gtk.gdk.pixbuf_new_from_file(open_file)
             if pixbuf:
+                # FIXME: Not implemented!
                 zbar.scan_image(pixbuf)
     finally:
         dialog.destroy()
+
 
 def set_status_label(opened, enabled):
     """update status button label to reflect indicated state."""
@@ -111,30 +124,28 @@ def set_status_label(opened, enabled):
         label = "disabled"
     status_button.set_label(label)
 
+
 open_file = None
 video_device = None
 if len(sys.argv) > 1:
     video_device = sys.argv[1]
 
-# threads *must* be properly initialized to use zbarpygtk
-gtk.gdk.threads_init()
-gtk.gdk.threads_enter()
-
-window = gtk.Window()
+window = Gtk.Window()
 window.set_title("test_pygtk")
 window.set_border_width(8)
-window.connect("destroy", gtk.main_quit)
+window.connect("destroy", Gtk.main_quit)
 
-zbar = zbarpygtk.Gtk()
+zbar = zbargtk.create_widget()
 zbar.connect("decoded-text", decoded)
 
 # video device list combo box
-video_list = gtk.combo_box_new_text()
+video_list = Gtk.ComboBoxText()
 video_list.connect("changed", video_changed)
 
 # enable/disable status button
-status_button = gtk.ToggleButton("closed")
-status_image = gtk.image_new_from_stock(gtk.STOCK_NO, gtk.ICON_SIZE_BUTTON)
+status_button = Gtk.ToggleButton(label="closed")
+status_image = Gtk.Image.new_from_icon_name(
+    "Gtk.STOCK_NO", Gtk.IconSize.BUTTON)
 status_button.set_image(status_image)
 status_button.set_sensitive(False)
 
@@ -144,7 +155,7 @@ zbar.connect("notify::video-enabled", video_enabled)
 zbar.connect("notify::video-opened", video_opened)
 
 # open image file button
-open_button = gtk.Button(stock=gtk.STOCK_OPEN)
+open_button = Gtk.Button.new_with_mnemonic("_Open")
 open_button.connect("clicked", open_button_clicked)
 
 # populate video devices in combo box
@@ -168,26 +179,24 @@ if video_device is not None:
     video_device = None
 
 # combine combo box and buttons horizontally
-hbox = gtk.HBox(spacing=8)
-hbox.pack_start(video_list)
-hbox.pack_start(status_button, expand=False)
-hbox.pack_start(open_button, expand=False)
+hbox = Gtk.HBox(spacing=8)
+hbox.pack_start(video_list, True, True, 0)
+hbox.pack_start(status_button, False, True, 0)
+hbox.pack_start(open_button, False, True, 0)
 
 # text box for holding results
-results = gtk.TextView()
+results = Gtk.TextView()
 results.set_size_request(320, 64)
 results.props.editable = results.props.cursor_visible = False
 results.set_left_margin(4)
 
 # combine inputs, scanner, and results vertically
-vbox = gtk.VBox(spacing=8)
-vbox.pack_start(hbox, expand=False)
-vbox.pack_start(zbar)
-vbox.pack_start(results, expand=False)
+vbox = Gtk.VBox(spacing=8)
+vbox.pack_start(hbox, False, True, 0)
+vbox.pack_start(zbar, True, True, 0)
+vbox.pack_start(results, False, True, 0)
 
 window.add(vbox)
-window.set_geometry_hints(zbar, min_width=320, min_height=240)
 window.show_all()
 
-gtk.main()
-gtk.gdk.threads_leave()
+Gtk.main()

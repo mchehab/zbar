@@ -104,8 +104,8 @@ check-convert: test/test_convert
 	   echo "convert FAILED"; else echo "convert PASSED."; fi
 	@rm /tmp/base.I420.zimg 2>/dev/null
 
-if HAVE_PYGTK2
-check-pygtk: pygtk/zbarpygtk.la
+if HAVE_PYGTK
+check-pygtk: pygtk/zbargtk.la
 	PYTHONPATH=@abs_top_srcdir@/pygtk/.libs/ \
 		@PYTHON@ @abs_top_srcdir@/test/test_pygtk.py
 else

@@ -53,6 +53,8 @@ enum
     PROP_VIDEO_DEVICE,
     PROP_VIDEO_ENABLED,
     PROP_VIDEO_OPENED,
+    PROP_VIDEO_WIDTH,
+    PROP_VIDEO_HEIGHT,
 };
 
 static guint zbar_gtk_signals[LAST_SIGNAL] = { 0 };
@@ -703,6 +705,11 @@ static void zbar_gtk_set_property(GObject *object, guint prop_id,
 				  const GValue *value, GParamSpec *pspec)
 {
     ZBarGtk *self = ZBAR_GTK(object);
+    ZBarGtkPrivate *zbar;
+
+    if (!self->_private)
+	return;
+    zbar = ZBAR_GTK_PRIVATE(self->_private);
 
     switch (prop_id) {
     case PROP_VIDEO_DEVICE:
@@ -710,6 +717,14 @@ static void zbar_gtk_set_property(GObject *object, guint prop_id,
 	break;
     case PROP_VIDEO_ENABLED:
 	zbar_gtk_set_video_enabled(self, g_value_get_boolean(value));
+	break;
+    case PROP_VIDEO_WIDTH:
+	zbar_gtk_request_video_size(self, g_value_get_int(value),
+				    zbar->video_height);
+	break;
+    case PROP_VIDEO_HEIGHT:
+	zbar_gtk_request_video_size(self, zbar->video_width,
+				    g_value_get_int(value));
 	break;
     default:
 	G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
@@ -738,6 +753,12 @@ static void zbar_gtk_get_property(GObject *object, guint prop_id, GValue *value,
 	break;
     case PROP_VIDEO_OPENED:
 	g_value_set_boolean(value, zbar->video_opened);
+	break;
+    case PROP_VIDEO_WIDTH:
+	g_value_set_int(value, zbar->video_width);
+	break;
+    case PROP_VIDEO_HEIGHT:
+	g_value_set_int(value, zbar->video_height);
 	break;
     default:
 	G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
@@ -874,6 +895,16 @@ static void zbar_gtk_class_init(ZBarGtkClass *klass)
 			     "current opened state of the video device", FALSE,
 			     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
     g_object_class_install_property(object_class, PROP_VIDEO_OPENED, p);
+
+    p = g_param_spec_int("video-width", "Video width",
+			     "controls the width of the video", 0, INT_MAX, DEFAULT_WIDTH,
+			     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+    g_object_class_install_property(object_class, PROP_VIDEO_WIDTH, p);
+
+    p = g_param_spec_int("video-height", "Video height",
+			     "controls the height of the video", 0, INT_MAX, DEFAULT_HEIGHT,
+			     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+    g_object_class_install_property(object_class, PROP_VIDEO_HEIGHT, p);
 }
 
 static void zbar_gtk_private_class_init(ZBarGtkPrivateClass *klass)

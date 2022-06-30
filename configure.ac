@@ -560,10 +560,6 @@ AC_ARG_VAR([PYTHON_CONFIG], [full path to python-config program])
 AC_ARG_VAR([PYTHON_CFLAGS], [compiler flags for building python extensions])
 AC_ARG_VAR([PYTHON_LDFLAGS], [linker flags for building python extensions])
 
-AC_ARG_VAR([PYGTK_H2DEF], [full path to PyGTK h2def.py module (python2 only)])
-AC_ARG_VAR([PYGTK_CODEGEN], [full path to pygtk-codegen program (python2 only)])
-AC_ARG_VAR([PYGTK_DEFS], [directory where PyGTK definitions may be found (python2 only)])
-
 AS_IF([test -z "$PYTHON"],
       [AS_IF([test "x$with_python" = "xauto"],
              [AC_PATH_PROGS([PYTHON], [python3 python2 python], [:], [$PATH])],
@@ -613,24 +609,15 @@ Install the development package for python-$am_cv_python_version, or configure
    CPPFLAGS="$CPPFLAGS_save"
 
    dnl PyGTK
-   dnl disable pygtk when we're on Python 3
    AS_IF([test "x$with_gtk" != "xno"],
-     [AS_IF([test "x$PYTHON_VERSION_MAJOR" = "x2"],
-       [PKG_CHECK_MODULES([PYGTK], [pygtk-2.0], [with_pygtk2="yes"], [with_pygtk2="no"])
-        AC_CHECK_PROGS([PYGTK_CODEGEN], [pygobject-codegen-2.0 pygtk-codegen-2.0 pygtk-codegen], [:])
-
-        AS_IF([test "x$PYGTK_H2DEF" = "x"],
-          [PYGTK_H2DEF=`$PKG_CONFIG pygtk-2.0 --variable=codegendir`/h2def.py
-           AS_IF([test -f "$PYGTK_H2DEF"], [], [PYGTK_H2DEF=":"])])
-        AS_IF([test "x$PYGTK_DEFS" = "x"],
-          [PYGTK_DEFS=`$PKG_CONFIG pygtk-2.0 --variable=defsdir`])
+     [AS_IF([test "x$PYTHON_VERSION_MAJOR" = "x3"],
+       [PKG_CHECK_MODULES([PYGOBJECT], [pygobject-3.0], [with_pygtk="yes"], [with_pygtk="no"])], [:])
      ])
-   ])
 ], [with_python="no"])
 
-AS_IF([test "x$PYTHON_VERSION_MAJOR" != "x2"], [with_pygtk2="no"])
+AS_IF([test "x$PYTHON_VERSION_MAJOR" != "x3"], [with_pygtk="no"])
 AM_CONDITIONAL([HAVE_PYTHON], [test "x$with_python" != "xno"])
-AM_CONDITIONAL([HAVE_PYGTK2], [test "x$with_pygtk2" != "xno"])
+AM_CONDITIONAL([HAVE_PYGTK], [test "x$with_pygtk" != "xno"])
 
 dnl GObject Introspection (GIR)
 
@@ -910,8 +897,8 @@ AS_IF([test "x$have_GM" = "xyes"],
   [echo "        => ImageMagick is preferred, as GraphicsMagick doesn't support https"])
 AS_IF([test "x$with_gtk" = "xno"],
   [echo "        => GTK support will *NOT* be built"])
-AS_IF([test "x$with_pygtk2" != "xyes" && test "xPYTHON_VERSION_MAJOR" = "x2"],
-  [echo "        => the Python 2 GTK widget wrapper will *NOT* be built"])
+AS_IF([test "x$with_pygtk" != "xyes" && test "xPYTHON_VERSION_MAJOR" = "x3"],
+  [echo "        => the Python GTK widget wrapper will *NOT* be built"])
 AS_IF([test "x$with_qt" != "xyes"],
   [echo "        => the Qt widget will *NOT* be built"])
 AS_IF([test "x$with_qt" = "xyes" && test "x$enable_static_qt" = "xyes" ],
