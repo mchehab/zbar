@@ -167,6 +167,10 @@ static int scan_image(const char *filename)
 
     int found	       = 0;
     MagickWand *images = NewMagickWand();
+
+    // default is a measly 72dpi for pdf
+    MagickSetResolution(images, 900, 900);
+
     if (!MagickReadImage(images, filename) && dump_error(images))
 	return (-1);
 
