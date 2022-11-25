@@ -304,7 +304,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list *_qrlist,
 					if (!err) {
 					    sa_ntext = out - sa_text;
 					    enc_list_mtf(enc_list, utf8_cd);
-					    continue;
+					    bytebuf_ntext = 0;
 					}
 					in	= bytebuf_text;
 					inleft	= bytebuf_ntext;
