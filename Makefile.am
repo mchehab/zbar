@@ -92,7 +92,7 @@ dbusconfdir = @DBUS_CONFDIR@
 dbusconf_DATA = $(srcdir)/dbus/org.linuxtv.Zbar.conf
 endif
 
-EXTRA_DIST += zbar.ico zbar.nsi zbar-qt5.pc.in zbar-qt.pc.in \
+EXTRA_DIST += zbar.ico zbar.nsi zbar-qt5.pc.in \
     dbus/org.linuxtv.Zbar.conf
 
 EXTRA_DIST += examples/*.png examples/sha1sum \
