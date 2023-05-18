@@ -3,27 +3,24 @@
 
 from __future__ import print_function
 
-import sys
 import re
+import sys
 import unittest as UT
 import xml.etree.ElementTree as ET
-from os import path, getcwd
+
 from errno import EISDIR, EINVAL, EACCES
+from io import StringIO
+from os import path, getcwd
 from subprocess import Popen, PIPE
 from traceback import format_exception
 
 try:
-    from io import StringIO
-except BaseException:
-    from StringIO import StringIO
-
-try:
-    from urllib2 import urlopen, HTTPError
-    from urlparse import urljoin, urlunparse
-except BaseException:
-    from urllib.request import urlopen
     from urllib.error import HTTPError
     from urllib.parse import urljoin, urlunparse
+    from urllib.request import urlopen
+except ImportError:
+    from urllib2 import urlopen, HTTPError
+    from urlparse import urljoin, urlunparse
 
 debug = False
 
