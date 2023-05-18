@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# pylint: disable=C0103,C0114,C0115,C0116,C0209,R0912,R0915,W0511
+# pylint: disable=C0103,C0114,C0115,C0116,C0209,R0912,R0915,W0511,W0603,W0613,W0707,W0212
 
 from __future__ import print_function
 
@@ -71,7 +71,7 @@ def hexdump(data):
 
 
 # search for a file in the distribution
-def distdir_search(subdir, base, suffixes=('',)):
+def distdir_search(search_subdir, base, suffixes=('',)):
     # start with current dir,
     # then try script invocation path
     rundir = path.dirname(sys.argv[0])
@@ -86,11 +86,11 @@ def distdir_search(subdir, base, suffixes=('',)):
                     if vpath and vpath != rundir:
                         search.append(vpath)
                     break
-    except BaseException:
+    except IOError:
         pass
 
     # poke around for subdir
-    subdirs = tuple((subdir, path.join('..', subdir), '..', ''))
+    subdirs = tuple((search_subdir, path.join('..', search_subdir), '..', ''))
 
     for prefix in search:
         for subdir in subdirs:
@@ -152,6 +152,10 @@ class TestCase(UT.TestCase):
     must have source attribute set to an ET.Element representation of a
     bc:source tag before test is run.
     """
+
+    def __init__(self, methodName):
+        UT.TestCase.__init__(self, methodName)
+        self.source = None
 
     def shortDescription(self):
         return self.source.get('href')
@@ -227,12 +231,12 @@ def compare_maps(expect, actual, compare_func):
 def compare_sources(expect, actual):
     assert actual.tag == ET.QName(BC, 'source')
     assert actual.get('href').endswith(expect.get('href')), \
-        'source href mismatch: %s != %s' % (acthref, exphref)
+        'source href mismatch: %s != %s' % (actual, expect)
 
     # FIXME process/trim test:* contents
 
     def map_source(src):
-        if not len(src) or src[0].tag != ET.QName(BC, 'index'):
+        if src == '' or src[0].tag != ET.QName(BC, 'index'):
             # insert artificial hierarchy
             syms = src[:]
             del src[:]
