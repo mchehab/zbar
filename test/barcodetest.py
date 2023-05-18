@@ -1,8 +1,12 @@
 #!/usr/bin/env python
+# pylint: disable=C0103,C0114,C0115,C0116,C0209,R0912,R0915,W0511
 
 from __future__ import print_function
 
-import sys, re, unittest as UT, xml.etree.ElementTree as ET
+import sys
+import re
+import unittest as UT
+import xml.etree.ElementTree as ET
 from os import path, getcwd
 from errno import EISDIR, EINVAL, EACCES
 from subprocess import Popen, PIPE
@@ -10,13 +14,13 @@ from traceback import format_exception
 
 try:
     from io import StringIO
-except:
+except BaseException:
     from StringIO import StringIO
 
 try:
     from urllib2 import urlopen, HTTPError
     from urlparse import urljoin, urlunparse
-except:
+except BaseException:
     from urllib.request import urlopen
     from urllib.error import HTTPError
     from urllib.parse import urljoin, urlunparse
@@ -26,7 +30,7 @@ debug = False
 # program to run - None means we still need to search for it
 zbarimg = None
 # arguments to said program
-zbarimg_args = [ '-q', '--xml', '--nodbus' ]
+zbarimg_args = ['-q', '--xml', '--nodbus']
 
 
 # namespace support
@@ -49,13 +53,16 @@ register_namespace('test', TS)
 def fixtag(node):
     return str(node.tag).split('}', 1)[-1]
 
+
 def toxml(node):
     s = StringIO()
     ET.ElementTree(node).write(s)
     return s.getvalue()
 
+
 def hexdump(data):
     print(data)
+    c = 0
     for i, c in enumerate(data):
         if i & 0x7 == 0:
             print('[%04x]' % i, end=' ')
@@ -71,11 +78,10 @@ def distdir_search(subdir, base, suffixes=('',)):
     # start with current dir,
     # then try script invocation path
     rundir = path.dirname(sys.argv[0])
-    search = [ '', rundir ]
+    search = ['', rundir]
 
     # finally, attempt to follow VPATH if present
     try:
-        import re
         with open('Makefile', 'r') as makefile:
             for line in makefile:
                 if re.match(r'^VPATH\s*=', line):
@@ -83,7 +89,7 @@ def distdir_search(subdir, base, suffixes=('',)):
                     if vpath and vpath != rundir:
                         search.append(vpath)
                     break
-    except:
+    except BaseException:
         pass
 
     # poke around for subdir
@@ -94,7 +100,7 @@ def distdir_search(subdir, base, suffixes=('',)):
             for suffix in suffixes:
                 file = path.realpath(path.join(prefix, subdir, base + suffix))
                 if path.isfile(file):
-                    return(file)
+                    return file
     return None
 
 
@@ -118,14 +124,14 @@ def run_zbarimg(images):
 
     return results as an ET.Element
     """
-    args = [ zbarimg ]
+    args = [zbarimg]
     args.extend(zbarimg_args)
     args.extend(images)
     if debug:
         print('running:', ' '.join(args))
 
     # FIXME should be able to pipe (feed) parser straight from output
-    child = Popen(args, stdout = PIPE, stderr = PIPE)
+    child = Popen(args, stdout=PIPE, stderr=PIPE)
     (xml, err) = child.communicate()
 
     rc = child.returncode
@@ -134,7 +140,7 @@ def run_zbarimg(images):
 
     # FIXME trim usage from error msg
     assert rc in (0, 4), \
-           'zbarimg returned error status (%d):\n\t%s\n' % (rc, err.decode())
+        'zbarimg returned error status (%d):\n\t%s\n' % (rc, str(err.decode()))
 
     assert not err, err
 
@@ -149,6 +155,7 @@ class TestCase(UT.TestCase):
     must have source attribute set to an ET.Element representation of a
     bc:source tag before test is run.
     """
+
     def shortDescription(self):
         return self.source.get('href')
 
@@ -198,7 +205,7 @@ def compare_maps(expect, actual, compare_func):
 
         try:
             compare_func(iexp, iact)
-        except:
+        except BaseException:
             errors.append(''.join(format_exception(*sys.exc_info())))
 
         if iexp.get(str(ET.QName(TS, 'exception'))) == 'TODO':
@@ -209,9 +216,9 @@ def compare_maps(expect, actual, compare_func):
         exc = iexp.get(str(ET.QName(TS, 'exception')))
 
         if exc == 'TODO':
-               notes.append('TODO missing expected result:\n' + toxml(iexp))
+            notes.append('TODO missing expected result:\n' + toxml(iexp))
         elif exc is not None:
-               errors.append('missing expected result:\n' + toxml(iexp))
+            errors.append('missing expected result:\n' + toxml(iexp))
 
     if len(notes) == 1:
         print('(TODO)', end=' ', file=sys.stderr)
@@ -223,7 +230,7 @@ def compare_maps(expect, actual, compare_func):
 def compare_sources(expect, actual):
     assert actual.tag == ET.QName(BC, 'source')
     assert actual.get('href').endswith(expect.get('href')), \
-           'source href mismatch: %s != %s' % (acthref, exphref)
+        'source href mismatch: %s != %s' % (acthref, exphref)
 
     # FIXME process/trim test:* contents
 
@@ -237,13 +244,13 @@ def compare_sources(expect, actual):
             exc = src.get(str(ET.QName(TS, 'exception')))
             if exc is not None:
                 idx.set(str(ET.QName(TS, 'exception')), exc)
-            return { '0': idx }
+            return {'0': idx}
         elif len(src):
             assert src[0].tag != ET.QName(BC, 'symbol'), \
-                   'invalid source element: ' + \
-                   'expecting "index" or "symbol", got "%s"' % fixtag(src[0])
+                'invalid source element: ' + \
+                'expecting "index" or "symbol", got "%s"' % fixtag(src[0])
 
-        srcmap = { }
+        srcmap = {}
         for idx in src:
             srcmap[idx.get('num')] = idx
         return srcmap
@@ -258,7 +265,7 @@ def compare_indices(expect, actual):
     # FIXME process/trim test:* contents
 
     def map_index(idx):
-        idxmap = { }
+        idxmap = {}
         for sym in idx:
             assert sym.tag == ET.QName(BC, 'symbol')
             typ = sym.get('type')
@@ -281,6 +288,8 @@ def compare_symbols(expect, actual):
         assert actual.get('orientation') == orient
 
 # override unittest.TestLoader to populate tests from xml description
+
+
 class TestLoader:
     suiteClass = UT.TestSuite
 
@@ -293,7 +302,7 @@ class TestLoader:
         return self.suiteClass([BuiltinTestCase()])
 
     def loadTestsFromNames(self, names, module=None):
-        suites = [ self.loadTestsFromName(name, module) for name in names ]
+        suites = [self.loadTestsFromName(name, module) for name in names]
         return self.suiteClass(suites)
 
     def loadTestsFromURL(self, url=None, file=None):
@@ -314,7 +323,7 @@ class TestLoader:
                     print('trying:', url)
                 file = urlopen(url)
                 content = file.info().get('Content-Type')
-            except HTTPError as e:
+            except HTTPError:
                 # possible remote directory
                 pass
             except IOError as e:
@@ -324,7 +333,7 @@ class TestLoader:
 
             if (not file or
                 content == 'text/html' or
-                (isinstance(file, HTTPError) and file.code != 200)):
+                    (isinstance(file, HTTPError) and file.code != 200)):
                 # could be directory, try opening index
                 try:
                     tmp = urljoin(url + '/', 'index.xml')
@@ -376,7 +385,7 @@ class TestLoader:
             elif src.tag == ET.QName(TS, 'index'):
                 suite.addTest(self.loadTestsFromURL(urljoin(url, href)))
             else:
-                raise AssertionError('malformed test index') # FIXME detail
+                raise AssertionError('malformed test index')  # FIXME detail
 
         assert suite.countTestCases(), 'empty test index: %s' % url
         return suite
