@@ -230,7 +230,7 @@ inline zbar_symbol_t *_zbar_image_scanner_alloc_sym(zbar_image_scanner_t *iscn,
 	if (datalen <= 1 << (i * 2))
 	    break;
 
-    for (; i > 0; i--)
+    for (; i >= 0; i--)
 	if ((sym = iscn->recycle[i].head)) {
 	    STAT(sym_recycle[i]);
 	    break;
