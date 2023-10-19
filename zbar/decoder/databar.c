@@ -23,6 +23,8 @@
 
 #include "config.h"
 #include <zbar.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #ifdef DEBUG_DATABAR
 #define DEBUG_LEVEL (DEBUG_DATABAR)
@@ -631,8 +633,8 @@ static inline zbar_symbol_type_t match_segment(zbar_decoder_t *dcode,
     return (ZBAR_DATABAR);
 }
 
-static inline unsigned lookup_sequence(databar_segment_t *seg, int fixed,
-				       int seq[22])
+static inline signed lookup_sequence(databar_segment_t *seg, int fixed,
+				       int seq[22], const size_t maxsize)
 {
     unsigned n = seg->data / 211, i;
     const unsigned char *p;
@@ -641,6 +643,13 @@ static inline unsigned lookup_sequence(databar_segment_t *seg, int fixed,
     i = (i * i) / 4;
     dbprintf(2, " {%d,%d:", i, n);
     p = exp_sequences + i;
+
+	if (n >= maxsize-1) {
+	// The loop below checks i<n and increments i by one within the loop
+	// when accessing seq[22]. For this to be safe, n needs to be < 21.
+	// See CVE-2023-40890.
+	  return -1;
+    }
 
     fixed >>= 1;
     seq[0] = 0;
@@ -717,12 +726,17 @@ match_segment_exp(zbar_decoder_t *dcode, databar_segment_t *seg, int dir)
 	    }
 
 	    if (!i) {
-		if (!lookup_sequence(seg, fixed, seq)) {
-		    dbprintf(2, "[nf]");
-		    continue;
-		}
-		width = seg->width;
-		dbprintf(2, " A00@%d", j);
+			signed int lu = lookup_sequence(seg, fixed, seq, sizeof(seq)/sizeof(seq[0]));
+			if(!lu) {
+			   dbprintf(2, "[nf]");
+			   continue;
+			}
+			if(lu < 0) {
+				dbprintf(1, " [aborted]\n");
+				goto abort;
+			}
+			width = seg->width;
+			dbprintf(2, " A00@%d", j);
 	    } else {
 		width = (width + seg->width) / 2;
 		dbprintf(2, " %c%x%x@%d", 'A' + seg->finder, seg->color,
@@ -790,6 +804,8 @@ match_segment_exp(zbar_decoder_t *dcode, databar_segment_t *seg, int dir)
     dcode->direction = (1 - 2 * (seg->side ^ seg->color)) * dir;
     dcode->modifiers = MOD(ZBAR_MOD_GS1);
     return (ZBAR_DATABAR_EXP);
+abort:
+    return (ZBAR_NONE);
 }
 #undef IDX
 
