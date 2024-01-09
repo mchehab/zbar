@@ -663,23 +663,23 @@ AC_ARG_WITH([qt6],
 
 AS_IF([test "x$with_qt" != "xno"],
       [AS_IF([test "x$with_qt6" != "xno"],
-	     PKG_CHECK_MODULES([QT],
+	     [PKG_CHECK_MODULES([QT],
                                [Qt6],
-                               [MOC=`pkg-config Qt6 --variable=moc`
+                               [MOC=`$PKG_CONFIG Qt6 --variable=moc`
                                 QT_VERSION=`$PKG_CONFIG Qt6 --modversion`
-                                QT6_HEADERS=`pkg-config Qt6 --variable=headerdir`
+                                QT6_HEADERS=`$PKG_CONFIG Qt6 --variable=headerdir`
                                 CPPFLAGS="$CPPFLAGS -I$QT6_HEADERS -I$QT6_HEADERS/QtWidgets -I$QT6_HEADERS/QtCore -I$QT6_HEADERS/QtGui"
                                 qt_pkgconfig_file="zbar-qt5.pc"
                                ],
-                               [with_qt6="no"]))
+                               [with_qt6="no"])])
        AS_IF([test "x$with_qt6" = "xno"],
-             PKG_CHECK_MODULES([QT],
+             [PKG_CHECK_MODULES([QT],
                                [Qt5Core >= 5 Qt5Gui >= 5 Qt5Widgets >= 5.0 Qt5X11Extras >= 5.0],
-                               [MOC=`pkg-config Qt5 --variable=moc`
+                               [MOC=`$PKG_CONFIG Qt5 --variable=moc`
                                 QT_VERSION=`$PKG_CONFIG Qt5 --modversion`
                                 qt_pkgconfig_file="zbar-qt5.pc"
                                ],
-                               [with_qt="no"]))
+                               [with_qt="no"])])
       ])
 
 AC_ARG_VAR([MOC], [full path to Qt moc program])
