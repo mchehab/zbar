@@ -1,7 +1,7 @@
 changecom()dnl
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.68])
-AC_INIT([zbar],[0.23.92],[mchehab+huawei@kernel.org])
+AC_INIT([zbar],[0.23.93],[mchehab+huawei@kernel.org])
 m4_ifndef([AC_LANG_DEFINES_PROVIDED],
           [m4_define([AC_LANG_DEFINES_PROVIDED])])
 AC_CONFIG_AUX_DIR(config)

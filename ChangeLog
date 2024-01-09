@@ -1,3 +1,32 @@
+0.23.93:
+  * Set a better dpi resolution when parsing PDF files
+  * Fix memory recycle bug of empty symbols
+  * Fix compilation with python 3.11 and 3.12
+  * CVE-2023-40889: Fix array out-of-bounds access
+  * Stop ignoring non-binary entries that follow binary ones
+  * Increase allocated buffer memory for symbols
+  * barcodetest.py: fix error code print logic
+  * convert: Crash fixing while using camera
+  * Add some pod information for additional functions
+  * perl skip more tests if DISPLAY not set and set prereqs in Makefile.PL
+  * Fixes rt.cpan.org 122061 - test fails when DISPLAY not set
+  * Update Barcode::ZBar
+  * isaac: ensure proper order of parsing expression
+  * Enforce x11 backend even on wayland
+  * zbarimg: add the --polygon option
+  * xml output: Add polygon containing code bar.
+  * configure.ac: drop support for Qt4 and prepare for Qt6 support
+  * win: fix compiling error in Visual studio
+  * Enforce a coding style
+  * configure.ac: fix some issues with gtk parameter
+  * zbargtk: fix version check macros
+  * zbar: Address some header issues
+  * zbar, test: fix compilation issues with FreeBSD
+  * zbar: Function stdcall declaration issue.
+  * symbol: make it compatible with MSC
+  * zbar: change the code to make it c90 standard compatible
+  * test: fix decode test
+
 0.23.92:
 
   * Added a --enable-static option to make easier to distribute
