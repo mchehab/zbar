@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zbar 0.23\n"
 "Report-Msgid-Bugs-To: https://github.com/mchehab/zbar/issues\n"
-"POT-Creation-Date: 2020-04-13 10:36+0200\n"
+"POT-Creation-Date: 2024-01-09 10:11+0100\n"
 "PO-Revision-Date: 2020-04-12 17:01+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -65,11 +65,32 @@ msgstr ""
 "                    configura parâmetro <CONFIG> para <VALUE> (ou 1)\n"
 "\n"
 
-#: zbarcam/zbarcam.c:73 zbarimg/zbarimg.c:103
+#: zbarcam/zbarcam.c:73 zbarimg/zbarimg.c:104
 msgid "    --nodbus        disable dbus message\n"
 msgstr "    --nodbus        desabilita mensagens no dbus\n"
 
 #: zbarimg/zbarimg.c:81
+#, fuzzy
+#| msgid ""
+#| "usage: zbarimg [options] <image>...\n"
+#| "\n"
+#| "scan and decode bar codes from one or more image files\n"
+#| "\n"
+#| "options:\n"
+#| "    -h, --help      display this help text\n"
+#| "    --version       display version information and exit\n"
+#| "    -q, --quiet     minimal output, only print decoded symbol data\n"
+#| "    -v, --verbose   increase debug output level\n"
+#| "    --verbose=N     set specific debug output level\n"
+#| "    -d, --display   enable display of following images to the screen\n"
+#| "    -D, --nodisplay disable display of following images (default)\n"
+#| "    --xml, --noxml  enable/disable XML output format\n"
+#| "    --raw           output decoded symbol data without converting "
+#| "charsets\n"
+#| "    -1, --oneshot   exit after scanning one bar code\n"
+#| "    -S<CONFIG>[=<VALUE>], --set <CONFIG>[=<VALUE>]\n"
+#| "                    set decoder/scanner <CONFIG> to <VALUE> (or 1)\n"
+#| "\n"
 msgid ""
 "usage: zbarimg [options] <image>...\n"
 "\n"
@@ -78,6 +99,8 @@ msgid ""
 "options:\n"
 "    -h, --help      display this help text\n"
 "    --version       display version information and exit\n"
+"    --polygon       output points delimiting code zone with decoded symbol "
+"data\n"
 "    -q, --quiet     minimal output, only print decoded symbol data\n"
 "    -v, --verbose   increase debug output level\n"
 "    --verbose=N     set specific debug output level\n"
@@ -112,7 +135,7 @@ msgstr ""
 "                    configura parâmetro <CONFIG> para <VALUE> (ou 1)\n"
 "\n"
 
-#: zbarimg/zbarimg.c:107
+#: zbarimg/zbarimg.c:108
 msgid ""
 "\n"
 "WARNING: barcode data was not detected in some image(s)\n"
@@ -126,7 +149,7 @@ msgstr ""
 "  - Há suporte para códigos de barras desse tipo? As simbologias suportadas "
 "são:\n"
 
-#: zbarimg/zbarimg.c:113
+#: zbarimg/zbarimg.c:114
 msgid ""
 "  - is the barcode large enough in the image?\n"
 "  - is the barcode mostly in focus?\n"
@@ -157,54 +180,54 @@ msgstr ""
 "    $ zbarimg -Sisbn10.enable <files>\n"
 "\n"
 
-#: zbarimg/zbarimg.c:501
+#: zbarimg/zbarimg.c:517
 #, c-format
 msgid ""
 "\t. EAN/UPC (EAN-13, EAN-8, EAN-2, EAN-5, UPC-A, UPC-E, ISBN-10, ISBN-13)\n"
 msgstr ""
 "\t. EAN/UPC (EAN-13, EAN-8, EAN-2, EAN-5, UPC-A, UPC-E, ISBN-10, ISBN-13)\n"
 
-#: zbarimg/zbarimg.c:504
+#: zbarimg/zbarimg.c:520
 #, c-format
 msgid "\t. DataBar, DataBar Expanded\n"
 msgstr "\t. DataBar, DataBar Expandido\n"
 
-#: zbarimg/zbarimg.c:507
+#: zbarimg/zbarimg.c:523
 #, c-format
 msgid "\t. Code 128\n"
 msgstr "\t. Código 128\n"
 
-#: zbarimg/zbarimg.c:510
+#: zbarimg/zbarimg.c:526
 #, c-format
 msgid "\t. Code 93\n"
 msgstr "\t. Código 93\n"
 
-#: zbarimg/zbarimg.c:513
+#: zbarimg/zbarimg.c:529
 #, c-format
 msgid "\t. Code 39\n"
 msgstr "\t. Código 39\n"
 
-#: zbarimg/zbarimg.c:516
+#: zbarimg/zbarimg.c:532
 #, c-format
 msgid "\t. Codabar\n"
 msgstr "\t. Codabar\n"
 
-#: zbarimg/zbarimg.c:519
+#: zbarimg/zbarimg.c:535
 #, c-format
 msgid "\t. Interleaved 2 of 5\n"
 msgstr "\t. Entrelaçado 2 de 5\n"
 
-#: zbarimg/zbarimg.c:522
+#: zbarimg/zbarimg.c:538
 #, c-format
 msgid "\t. QR code\n"
 msgstr "\t. Código QR\n"
 
-#: zbarimg/zbarimg.c:525
+#: zbarimg/zbarimg.c:541
 #, c-format
 msgid "\t. SQ code\n"
 msgstr "\t. Código SQ\n"
 
-#: zbarimg/zbarimg.c:528
+#: zbarimg/zbarimg.c:544
 #, c-format
 msgid "\t. PDF 417\n"
 msgstr "\t. PDF 417\n"
