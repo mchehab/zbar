@@ -675,8 +675,8 @@ AS_IF([test "x$with_qt" != "xno"],
        AS_IF([test "x$with_qt6" = "xno"],
              [PKG_CHECK_MODULES([QT],
                                [Qt5Core >= 5 Qt5Gui >= 5 Qt5Widgets >= 5.0 Qt5X11Extras >= 5.0],
-                               [MOC=`$PKG_CONFIG Qt5 --variable=moc`
-                                QT_VERSION=`$PKG_CONFIG Qt5 --modversion`
+                               [AC_CHECK_PROGS([MOC], [moc-qt5 moc])
+                                QT_VERSION=`$PKG_CONFIG Qt5Gui --modversion`;
                                 qt_pkgconfig_file="zbar-qt5.pc"
                                ],
                                [with_qt="no"])])
