@@ -423,6 +423,16 @@ char *zbar_symbol_xml(const zbar_symbol_t *sym, char **buf, unsigned *len)
     TMPL_FMT("<symbol type='%s' quality='%d' orientation='%s'", type,
 	     sym->quality, orient);
 
+    if (sym->npts) {
+	int j;
+	TMPL_COPY(" bbox='");
+	for (j=0; j< sym->npts;j++)
+		TMPL_FMT("%d,%d ",sym->pts[j].x,sym->pts[j].y);
+	/* cleanup trailing space */
+	n--;
+	TMPL_COPY("'");
+    }
+
     if (mods) {
 	int j;
 	TMPL_COPY(" modifiers='");
