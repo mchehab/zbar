@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #------------------------------------------------------------------------
-#  Copyright 2009 (c) Jeff Brown <spadix@users.sourceforge.net>
+#  Copyright 2009-2024 (c) Jeff Brown <spadix@users.sourceforge.net>
 #
 #  This file is part of the ZBar Bar Code Reader.
 #
