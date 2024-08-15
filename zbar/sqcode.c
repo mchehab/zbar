@@ -371,7 +371,7 @@ found_start:;
 	    border_len = 1;
 	    top_border = malloc(sizeof(sq_point));
 	    if (!top_border)
-		return 1;
+		goto free_borders;
 	    top_border[0] = top_left_dot.center;
 	}
     }
@@ -471,7 +471,7 @@ found_start:;
 	}
     }
     if (cur_len != border_len || border_len < 6)
-	return 1;
+	goto free_borders;
     inc_x	      = right_border[5].x - right_border[3].x;
     inc_y	      = right_border[5].y - right_border[3].y;
     right_border[2].x = right_border[3].x - 0.5 * inc_x;
