@@ -48,14 +48,23 @@ static int text_is_big5(const unsigned char *_text, int _len)
     for (i = 0; i < _len; i++) {
 	if (_text[i] == 0xFF)
 	    return 0;
-	else if (_text[i] >= 0x80) { // first byte is big5
-	    i++;
-	    if (i >= _len) // second byte not exists
+	else if (_text[i] >= 0x81) { // possible Big5 start byte
+	    int w = _text[i] << 8;
+	    if (++i == _len) // second byte does not exist
 		return 0;
-	    if (_text[i] < 0x40 || (_text[i] > 0x7E && _text[i] < 0xA1) ||
-		_text[i] > 0xFE) { // second byte not in range
-		return 0;
-	    }
+	    w |= _text[i];
+	    /* non user-defined ranges */
+	    if ((w >= 0xA140 && w <= 0xA3BF) ||
+	        (w >= 0xA3C0 && w <= 0xA3FE) ||
+	        (w >= 0xA440 && w <= 0xC67E) ||
+	        (w >= 0xC940 && w <= 0xF9D5))
+		    continue;
+	    /* user-defined ranges */
+	    if ((w >= 0x8140 && w <= 0xA0FE) ||
+	        (w >= 0xC6A1 && w <= 0xC8FE) ||
+	        (w >= 0xF9D6 && w <= 0xFEFE))
+		    continue;
+	    return 0;
 	} else { // normal ascii encoding, it's okay
 	}
     }
