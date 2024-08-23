@@ -46,8 +46,10 @@ static int text_is_big5(const unsigned char *_text, int _len)
 {
     int i;
     for (i = 0; i < _len; i++) {
-	if (_text[i] == 0xFF)
+	if (_text[i] == 0xFF || _text[i] == 0x80) // not possible in Big5
 	    return 0;
+	else if (_text[i] <= 0x7F) // accept mix with single-byte ASCII
+		continue;
 	else if (_text[i] >= 0x81) { // possible Big5 start byte
 	    int w = _text[i] << 8;
 	    if (++i == _len) // second byte does not exist
@@ -64,8 +66,8 @@ static int text_is_big5(const unsigned char *_text, int _len)
 	        (w >= 0xC6A1 && w <= 0xC8FE) ||
 	        (w >= 0xF9D6 && w <= 0xFEFE))
 		    continue;
+	    /* otherwise not valid Big5 double-character */
 	    return 0;
-	} else { // normal ascii encoding, it's okay
 	}
     }
     return 1;
