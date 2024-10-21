@@ -167,20 +167,22 @@ static int scan_image(const char *filename)
 
     int found	       = 0;
     MagickWand *images = NewMagickWand();
+    if (!images)
+        return (-1);
 
     // default is a measly 72dpi for pdf
     MagickSetResolution(images, 900, 900);
 
     if (!MagickReadImage(images, filename) && dump_error(images))
-	return (-1);
+        goto error;
 
     unsigned seq, n = MagickGetNumberImages(images);
     for (seq = 0; seq < n; seq++) {
 	if (exit_code == 3)
-	    return (-1);
+	    goto error;
 
 	if (!MagickSetImageIndex(images, seq) && dump_error(images))
-	    return (-1);
+	    goto error;
 
 	zbar_image_t *zimage = zbar_image_create();
 	assert(zimage);
@@ -195,11 +197,16 @@ static int scan_image(const char *filename)
 	// (but only if it's a color image)
 	size_t bloblen	    = width * height;
 	unsigned char *blob = malloc(bloblen);
+        if (!blob)
+            goto error;
+
 	zbar_image_set_data(zimage, blob, bloblen, zbar_image_free_data);
 
 	if (!MagickGetImagePixels(images, 0, 0, width, height, "I", CharPixel,
-				  blob))
-	    return (-1);
+				  blob)) {
+            free(blob);
+            goto error;
+        }
 
 	if (xmllvl == 1) {
 	    xmllvl++;
@@ -229,7 +236,8 @@ static int scan_image(const char *filename)
 		if (len &&
 		    fwrite(zbar_symbol_get_data(sym), len, 1, stdout) != 1) {
 		    exit_code = 1;
-		    return (-1);
+		    free(blob);
+		    goto error;
 		}
 	    } else {
 		if (xmllvl < 3) {
@@ -239,7 +247,8 @@ static int scan_image(const char *filename)
 		zbar_symbol_xml(sym, &xmlbuf, &xmlbuflen);
 		if (fwrite(xmlbuf, xmlbuflen, 1, stdout) != 1) {
 		    exit_code = 1;
-		    return (-1);
+		    free(blob);
+		    goto error;
 		}
 	    }
 	    found++;
@@ -280,6 +289,10 @@ static int scan_image(const char *filename)
 
     DestroyMagickWand(images);
     return (0);
+
+error:
+    DestroyMagickWand(images);
+    return (-1);
 }
 
 int usage(int rc, const char *msg, const char *arg)
@@ -421,7 +434,7 @@ int main(int argc, const char *argv[])
 
     if (zbar_processor_init(processor, NULL, display)) {
 	zbar_processor_error_spew(processor, 0);
-	return (1);
+	goto error;
     }
 
     if (xmllvl > 0) {
@@ -445,14 +458,17 @@ int main(int argc, const char *argv[])
 #endif
 
 	if (arg[0] != '-' || !arg[1]) {
-	    if (scan_image(arg))
+	    if (scan_image(arg)) {
+		zbar_processor_destroy(processor);
+		DestroyMagick();
 		return (exit_code);
+	    }
 	} else if (arg[1] != '-')
 	    for (j = 1; arg[j]; j++) {
 		if (arg[j] == 'S') {
 		    if ((arg[++j]) ? parse_config(arg + j, "-S") :
-					   parse_config(argv[++i], "-S"))
-			return (1);
+			parse_config(argv[++i], "-S"))
+			goto error;
 		    break;
 		}
 		switch (arg[j]) {
@@ -471,16 +487,19 @@ int main(int argc, const char *argv[])
 
 	else if (!strcmp(arg, "--set")) {
 	    if (parse_config(argv[++i], "--set"))
-		return (1);
+		goto error;
 	} else if (!strncmp(arg, "--set=", 6)) {
 	    if (parse_config(arg + 6, "--set="))
-		return (1);
+		goto error;
 	} else if (!strcmp(arg, "--"))
 	    break;
     }
     for (i++; i < argc; i++)
-	if (scan_image(argv[i]))
+	if (scan_image(argv[i])) {
+	    zbar_processor_destroy(processor);
+	    DestroyMagick();
 	    return (exit_code);
+	}
 
     /* ignore quit during last image */
     if (exit_code == 3)
@@ -552,4 +571,9 @@ int main(int argc, const char *argv[])
     zbar_processor_destroy(processor);
     DestroyMagick();
     return (exit_code);
+
+error:
+    zbar_processor_destroy(processor);
+    DestroyMagick();
+    return (1);
 }
