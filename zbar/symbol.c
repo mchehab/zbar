@@ -315,11 +315,11 @@ unsigned base64_encode(char *dst, const char *src, unsigned srclen)
     char *start = dst;
     int nline	= 19;
     for (; srclen; srclen -= 3) {
-	unsigned int buf = *(src++) << 16;
+	unsigned int buf = ((unsigned char)*(src++)) << 16;
 	if (srclen > 1)
-	    buf |= *(src++) << 8;
+	    buf |= ((unsigned char)*(src++)) << 8;
 	if (srclen > 2)
-	    buf |= *(src++);
+	    buf |= ((unsigned char)*(src++));
 	*(dst++) = alphabet[(buf >> 18) & 0x3f];
 	*(dst++) = alphabet[(buf >> 12) & 0x3f];
 	*(dst++) = (srclen > 1) ? alphabet[(buf >> 6) & 0x3f] : '=';
