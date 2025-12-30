@@ -1182,7 +1182,7 @@ static void qr_finder_ransac(qr_finder *_f, const qr_aff *_hom,
 	    if (edge_pts[i].extent & 2) {
 		if (j < i) {
 		    qr_finder_edge_pt tmp;
-		    *&tmp	    = *(edge_pts + i);
+		    *&tmp	    = *(edge_pts + j);
 		    *(edge_pts + j) = *(edge_pts + i);
 		    *(edge_pts + i) = *&tmp;
 		}
