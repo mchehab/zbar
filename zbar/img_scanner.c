@@ -690,6 +690,38 @@ static inline void quiet_border(zbar_image_scanner_t *iscn)
     zbar_scanner_new_scan(scn);
 }
 
+/* Generated QR pages can have antialiased edges while still being effectively
+ * bilevel. Scanning those as grayscale can shift finder edges enough to miss
+ * otherwise valid symbols.
+ */
+static int image_is_high_contrast(const uint8_t *data, unsigned w, unsigned h)
+{
+    size_t n = (size_t)w * h;
+    size_t min_pixels = n / 100;
+    size_t nblack = 0, nwhite = 0, nmid = 0;
+    size_t i;
+
+    for (i = 0; i < n; i++) {
+	uint8_t g = data[i];
+
+	if (g <= 16)
+	    nblack++;
+	else if (g >= 239)
+	    nwhite++;
+	else
+	    nmid++;
+    }
+
+    if (!min_pixels)
+	min_pixels = 1;
+    return (nblack >= min_pixels && nwhite >= min_pixels && nmid <= n / 4);
+}
+
+static inline uint8_t high_contrast_sample(uint8_t y)
+{
+    return (y < 128) ? 0 : 255;
+}
+
 #ifdef HAVE_DBUS
 static int dict_add_property(DBusMessageIter *property, const char *key,
 			     const char *value, unsigned int value_length,
@@ -872,6 +904,7 @@ static void *_zbar_scan_image(zbar_image_scanner_t *iscn, zbar_image_t *img)
     zbar_scanner_t *scn = iscn->scn;
     unsigned w, h, cx1, cy1;
     int density;
+    int high_contrast;
     char filter;
     int nean, naddon;
 
@@ -912,6 +945,7 @@ static void *_zbar_scan_image(zbar_image_scanner_t *iscn, zbar_image_t *img)
     cy1 = img->crop_y + img->crop_h;
     assert(cy1 <= h);
     data = img->data;
+    high_contrast = image_is_high_contrast(data, w, h);
 
     zbar_image_write_png(img, "debug.png");
     svg_open("debug.svg", 0, 0, w, h);
@@ -944,6 +978,8 @@ static void *_zbar_scan_image(zbar_image_scanner_t *iscn, zbar_image_t *img)
 	    iscn->umin		= cx0;
 	    while (x < cx1) {
 		uint8_t d = *p;
+		if (high_contrast)
+		    d = high_contrast_sample(d);
 		movedelta(1, 0);
 		zbar_scan_y(scn, d);
 	    }
@@ -962,6 +998,8 @@ static void *_zbar_scan_image(zbar_image_scanner_t *iscn, zbar_image_t *img)
 	    iscn->umin		= cx1;
 	    while (x >= cx0) {
 		uint8_t d = *p;
+		if (high_contrast)
+		    d = high_contrast_sample(d);
 		movedelta(-1, 0);
 		zbar_scan_y(scn, d);
 	    }
@@ -998,6 +1036,8 @@ static void *_zbar_scan_image(zbar_image_scanner_t *iscn, zbar_image_t *img)
 	    iscn->umin		= cy0;
 	    while (y < cy1) {
 		uint8_t d = *p;
+		if (high_contrast)
+		    d = high_contrast_sample(d);
 		movedelta(0, 1);
 		zbar_scan_y(scn, d);
 	    }
@@ -1016,6 +1056,8 @@ static void *_zbar_scan_image(zbar_image_scanner_t *iscn, zbar_image_t *img)
 	    iscn->umin		= cy1;
 	    while (y >= cy0) {
 		uint8_t d = *p;
+		if (high_contrast)
+		    d = high_contrast_sample(d);
 		movedelta(0, -1);
 		zbar_scan_y(scn, d);
 	    }

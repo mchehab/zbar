@@ -31,6 +31,22 @@ test()
 	fi
 }
 
+test_issue_306()
+{
+	i="$DIR/test/issue306/flaky_qr.png"
+	OUT=`$ZBARIMG "$i" 2>/dev/null`
+
+	for CODE in 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48; do
+		if ! echo "$OUT" | grep -q "^QR-Code:N$CODE/56 "; then
+			echo "FAILED: $i (missing N$CODE/56)"
+			echo -e "\tcmd: $ZBARIMG '$i'"
+			echo -e "\tresults:"
+			echo "$OUT"
+			ERR=1
+		fi
+	done
+}
+
 if [ "@ENABLE_CODE128@" == "1" ]; then
 	test code-128.png
 fi
@@ -70,6 +86,7 @@ if [ "@ENABLE_QRCODE@" == "1" ]; then
         test qr-code.png
         test -Stest-inverted qr-code-inverted.png
         test '--raw --oneshot -Sbinary' qr-code-binary.png
+        test_issue_306
 fi
 
 if [ "@ENABLE_SQCODE@" == "1" ]; then
@@ -88,4 +105,3 @@ if [ "$ERR" == "" ]; then
 else
 	exit 1
 fi
-

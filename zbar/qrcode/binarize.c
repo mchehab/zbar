@@ -520,6 +520,43 @@ void qr_binarize(unsigned char *_img,int _width,int _height){
 /*A simplified adaptive thresholder.
   This compares the current pixel value to the mean value of a (large) window
    surrounding it.*/
+/* Keep generated high-contrast images bilevel instead of applying the adaptive
+   threshold, which can erode valid QR modules on antialiased pages. */
+static int qr_binarize_high_contrast(unsigned char *_mask,
+				     const unsigned char *_img, int _width,
+				     int _height)
+{
+    size_t n;
+    size_t min_pixels;
+    size_t nblack;
+    size_t nwhite;
+    size_t nmid;
+    size_t i;
+
+    n = (size_t)_width * _height;
+    min_pixels = n / 100;
+    nblack = nwhite = nmid = 0;
+    for (i = 0; i < n; i++) {
+	unsigned char g = _img[i];
+
+	if (g <= 16)
+	    nblack++;
+	else if (g >= 239)
+	    nwhite++;
+	else
+	    nmid++;
+    }
+
+    if (!min_pixels)
+	min_pixels = 1;
+    if (nblack < min_pixels || nwhite < min_pixels || nmid > n / 4)
+	return (0);
+
+    for (i = 0; i < n; i++)
+	_mask[i] = -(_img[i] < 128) & 0xFF;
+    return (1);
+}
+
 unsigned char *qr_binarize(const unsigned char *_img, int _width, int _height)
 {
     unsigned char *mask = NULL;
@@ -546,6 +583,9 @@ unsigned char *qr_binarize(const unsigned char *_img, int _width, int _height)
 	    ;
 	windw	 = 1 << logwindw;
 	windh	 = 1 << logwindh;
+	if (qr_binarize_high_contrast(mask, _img, _width, _height)) {
+	    return (mask);
+	}
 	col_sums = (unsigned *)malloc(_width * sizeof(*col_sums));
 	/*Initialize sums down each column.*/
 	for (x = 0; x < _width; x++) {

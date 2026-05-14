@@ -51,7 +51,8 @@ test_test_dbus_SOURCES = test/test_dbus.c
 test_test_dbus_LDFLAGS = $(DBUS_LIBS)
 endif
 
-EXTRA_DIST += test/test_pygtk.py test/test_perl.pl test/test_gi.py test/test_python.py
+EXTRA_DIST += test/test_pygtk.py test/test_perl.pl test/test_gi.py test/test_python.py \
+	      test/issue306/flaky_qr.png
 
 # automake bug in "monolithic mode"?
 CLEANFILES += test/.libs/test_decode test/.libs/test_proc \
