@@ -91,7 +91,7 @@ static char *base64_encode_buffer(const char *s, size_t size)
     for (;;) {
 	unsigned char c = (*s >> 2) & 0x3f;
 	*e++		= base64_table[c];
-	c		= (*s++ << 4) & 0x30;
+	c		= ((unsigned char)*s++ << 4) & 0x30;
 	if (!--size) {
 	    *e++ = base64_table[c];
 	    *e++ = '=';
@@ -100,7 +100,7 @@ static char *base64_encode_buffer(const char *s, size_t size)
 	}
 	c |= (*s >> 4) & 0x0f;
 	*e++ = base64_table[c];
-	c    = (*s++ << 2) & 0x3c;
+	c    = ((unsigned char)*s++ << 2) & 0x3c;
 	if (!--size) {
 	    *e++ = base64_table[c];
 	    *e++ = '=';
