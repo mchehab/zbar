@@ -6,8 +6,8 @@
 #if !defined(_qrcode_util_H)
 #define _qrcode_util_H (1)
 
-#define QR_MAXI(_a, _b) ((_a) - ((_a) - (_b) & -((_b) > (_a))))
-#define QR_MINI(_a, _b) ((_a) + ((_b) - (_a) & -((_b) < (_a))))
+#define QR_MAXI(_a, _b) ((_a) - ((int)((unsigned)(_a) - (unsigned)(_b)) & -((_b) > (_a))))
+#define QR_MINI(_a, _b) ((_a) + ((int)((unsigned)(_b) - (unsigned)(_a)) & -((_b) < (_a))))
 #define QR_SIGNI(_x)	(((_x) > 0) - ((_x) < 0))
 #define QR_SIGNMASK(_x) (-((_x) < 0))
 /*Unlike copysign(), simply inverts the sign of _a if _b is negative.*/

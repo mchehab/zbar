@@ -89,7 +89,7 @@ static inline int validate_sig(int sig)
 	e = sig & 3;
 	sig >>= 2;
 	sum = e - sum;
-	sig0 <<= 4;
+	sig0 = (unsigned)sig0 << 4;
 	if (emin > sum)
 	    emin = sum;
 	sig0 += sum;
@@ -98,7 +98,7 @@ static inline int validate_sig(int sig)
 
     dbprintf(3, " emin=%d sig=%03x/%03x", emin, sig1 & 0xfff, sig0 & 0xfff);
 
-    emin = emin + (emin << 4) + (emin << 8);
+    emin = emin + ((unsigned)emin << 4) + ((unsigned)emin << 8);
     sig0 -= emin;
     sig1 += emin;
 
