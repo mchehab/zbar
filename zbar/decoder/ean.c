@@ -211,8 +211,8 @@ static inline signed char decode4(zbar_decoder_t *dcode)
 	return (-1);
 
     /* create compacted encoding for direct lookup */
-    code = ((decode_e(e1, dcode->ean.s4, 7) << 2) |
-	    decode_e(e2, dcode->ean.s4, 7));
+    code = (((unsigned)decode_e(e1, dcode->ean.s4, 7) << 2) |
+	    (unsigned)decode_e(e2, dcode->ean.s4, 7));
     if (code < 0)
 	return (-1);
     dbprintf(2, " code=%x", code);

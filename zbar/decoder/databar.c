@@ -963,8 +963,8 @@ decode_char(zbar_decoder_t *dcode, databar_segment_t *seg, int off, int dir)
     }
 
     diff = emin[~n & 1];
-    diff = diff + (diff << 4);
-    diff = diff + (diff << 8);
+    diff = diff + ((unsigned)diff << 4);
+    diff = diff + ((unsigned)diff << 8);
 
     sig0 -= diff;
     sig1 += diff;
@@ -1144,8 +1144,8 @@ static inline zbar_symbol_type_t decode_finder(zbar_decoder_t *dcode)
     if (s < 12)
 	return (ZBAR_NONE);
 
-    sig = ((decode_e(e3, s, 14) << 8) | (decode_e(e2, s, 14) << 4) |
-	   decode_e(e1, s, 14));
+    sig = (((unsigned)decode_e(e3, s, 14) << 8) | ((unsigned)decode_e(e2, s, 14) << 4) |
+	   (unsigned)decode_e(e1, s, 14));
     dbprintf(2, " sig=%04x", sig & 0xfff);
     if (sig < 0 || ((sig >> 4) & 0xf) < 8 || ((sig >> 4) & 0xf) > 10 ||
 	(sig & 0xf) >= 10 || ((sig >> 8) & 0xf) >= 10 ||

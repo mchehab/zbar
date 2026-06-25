@@ -272,7 +272,7 @@ zbar_symbol_type_t zbar_scan_y(zbar_scanner_t *scn, int y)
 		scn->cur_edge >>= 1;
 	    else if (y2_1)
 		/* interpolate zero crossing */
-		scn->cur_edge -= ((y2_1 << ZBAR_FIXED) + 1) / d;
+		scn->cur_edge -= (int)(((unsigned)y2_1 << ZBAR_FIXED) + 1) / d;
 	    scn->cur_edge += x << ZBAR_FIXED;
 	    dbprintf(1, "\n");
 	}

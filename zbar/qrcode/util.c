@@ -75,7 +75,7 @@ unsigned qr_ihypot(int _x, int _y)
 	v    = _y + r >> 2 * i;
 	mask = -(_y < 0);
 	x += v + mask ^ mask;
-	_y = _y - (u + mask ^ mask) << 1;
+	_y = _y - ((unsigned)(u + mask ^ mask) << 1);
     }
     return x + ((1U << shift) >> 1) >> shift;
 }
