@@ -140,6 +140,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list *_qrlist,
            parity alone are too ambiguous.*/
 			if (qrdata[j].sa_size == sa_size &&
 			    qrdata[j].sa_parity == sa_parity &&
+			    qrdata[j].sa_index < sa_size &&
 			    sa[qrdata[j].sa_index] < 0) {
 			    sa[qrdata[j].sa_index] = j;
 			    mark[j]		   = 1;
