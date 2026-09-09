@@ -199,6 +199,7 @@ static inline signed char aux_mid(zbar_decoder_t *dcode)
 static inline signed char decode4(zbar_decoder_t *dcode)
 {
     signed char code;
+    int c1, c2;
 
     /* calculate similar edge measurements */
     unsigned e1 = ((get_color(dcode) == ZBAR_BAR) ?
@@ -211,10 +212,11 @@ static inline signed char decode4(zbar_decoder_t *dcode)
 	return (-1);
 
     /* create compacted encoding for direct lookup */
-    code = ((decode_e(e1, dcode->ean.s4, 7) << 2) |
-	    decode_e(e2, dcode->ean.s4, 7));
-    if (code < 0)
+    c1 = decode_e(e1, dcode->ean.s4, 7);
+    c2 = decode_e(e2, dcode->ean.s4, 7);
+    if (c1 < 0 || c2 < 0)
 	return (-1);
+    code = (c1 << 2) | c2;
     dbprintf(2, " code=%x", code);
 
     /* 4 combinations require additional determinant (D2)

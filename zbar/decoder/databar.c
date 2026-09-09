@@ -1119,7 +1119,7 @@ static inline zbar_symbol_type_t decode_finder(zbar_decoder_t *dcode)
     unsigned e0 = pair_width(dcode, 1);
     unsigned e2 = pair_width(dcode, 3);
     unsigned e1, e3, s, finder, dir;
-    int sig, iseg;
+    int sig, iseg, f1, f2, f3;
     int rc, i;
 
     dbprintf(2, "      databar: e0=%d e2=%d", e0, e2);
@@ -1144,10 +1144,14 @@ static inline zbar_symbol_type_t decode_finder(zbar_decoder_t *dcode)
     if (s < 12)
 	return (ZBAR_NONE);
 
-    sig = ((decode_e(e3, s, 14) << 8) | (decode_e(e2, s, 14) << 4) |
-	   decode_e(e1, s, 14));
+    f3 = decode_e(e3, s, 14);
+    f2 = decode_e(e2, s, 14);
+    f1 = decode_e(e1, s, 14);
+    if (f1 < 0 || f2 < 0 || f3 < 0)
+	return (ZBAR_NONE);
+    sig = (f3 << 8) | (f2 << 4) | f1;
     dbprintf(2, " sig=%04x", sig & 0xfff);
-    if (sig < 0 || ((sig >> 4) & 0xf) < 8 || ((sig >> 4) & 0xf) > 10 ||
+    if (((sig >> 4) & 0xf) < 8 || ((sig >> 4) & 0xf) > 10 ||
 	(sig & 0xf) >= 10 || ((sig >> 8) & 0xf) >= 10 ||
 	(((sig >> 8) + sig) & 0xf) != 10)
 	return (ZBAR_NONE);
