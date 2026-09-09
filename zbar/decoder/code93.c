@@ -74,7 +74,10 @@ static inline int encode6(zbar_decoder_t *dcode)
 
 static inline int validate_sig(int sig)
 {
-    int i, sum = 0, emin = 0, sig0 = 0, sig1 = 0;
+    int i, sum = 0, emin = 0;
+    /* the running sums go negative and get shifted, so keep them
+     * unsigned like databar does; only the low nibbles are looked at */
+    unsigned sig0 = 0, sig1 = 0;
     dbprintf(3, " sum=0");
     for (i = 3; --i >= 0;) {
 	int e = sig & 3;
@@ -98,7 +101,9 @@ static inline int validate_sig(int sig)
 
     dbprintf(3, " emin=%d sig=%03x/%03x", emin, sig1 & 0xfff, sig0 & 0xfff);
 
-    emin = emin + (emin << 4) + (emin << 8);
+    /* spread emin over all three nibbles; a multiply rather than shifts,
+     * because emin is negative here and shifting that is undefined */
+    emin *= 0x111;
     sig0 -= emin;
     sig1 += emin;
 

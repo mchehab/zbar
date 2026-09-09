@@ -962,9 +962,9 @@ decode_char(zbar_decoder_t *dcode, databar_segment_t *seg, int off, int dir)
 	sig0 += sum;
     }
 
-    diff = emin[~n & 1];
-    diff = diff + (diff << 4);
-    diff = diff + (diff << 8);
+    /* spread emin over all four nibbles; a multiply rather than shifts,
+     * because emin is negative here and shifting that is undefined */
+    diff = emin[~n & 1] * 0x1111;
 
     sig0 -= diff;
     sig1 += diff;
