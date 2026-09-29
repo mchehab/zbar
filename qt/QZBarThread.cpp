@@ -54,7 +54,7 @@ void QZBarThread::processImage(Image &image)
 {
     {
 	scanner.recycle_image(image);
-	Image tmp = image.convert(*(long *)"Y800");
+	Image tmp = image.convert(zbar_fourcc('Y', '8', '0', '0'));
 	scanner.scan(tmp);
 	image.set_symbols(tmp.get_symbols());
     }
