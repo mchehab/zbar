@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-# A debian ruleset file which runs on Github's distro
-DEB_FNAME="zbar_0.23.90-*.debian.tar.xz"
+# Download Debian packaging metadata and build the Meson project with debuild.
+DEB_FNAME="zbar_*.debian.tar.xz"
 DEB_URL="http://deb.debian.org/debian/pool/main/z/zbar/"
 
 # Should be the same version as provided by the host OS
@@ -17,7 +17,7 @@ echo "Generating an origin tarball"
 
 cd "${ZBARDIR}"
 
-VER=$(cat "${ZBARDIR}/configure.ac" | grep AC_INIT | perl -ne 'print $1 if /(\d+[.\d]+)/')
+VER=$(perl -ne 'print $1 if /^project\('\''zbar'\'',.*version:\s*'\''([\d.]+)'\''/' "${ZBARDIR}/meson.build")
 TAR=${ZBARDIR}/../zbar_${VER}.orig.tar.gz
 
 git archive --format tgz -o "${TAR}" HEAD
@@ -38,6 +38,11 @@ tar xf "${ZBARDIR}/${DEB_FNAME}"
 
 # Ensure that debhelper-compat will use the one expected by the build distro
 sed -E "s#debhelper-compat.*,#debhelper-compat (= $COMPAT),#" -i debian/control
+
+# Make debhelper route all standard configure/build/install steps through Meson.
+if ! grep -q -- '--buildsystem=meson' debian/rules; then
+    sed -i 's/dh \$@/dh $@ --buildsystem=meson/' debian/rules
+fi
 
 # Ignore missing SONAME for libs, if any, as it is not a build robot's task
 # to update ${DEB_FNAME} ruleset

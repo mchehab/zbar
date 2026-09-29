@@ -56,20 +56,17 @@ managed platform.
 BUILDING
 ========
 
-See `INSTALL.md` for generic configuration and build instructions.
+See `INSTALL.md` for build instructions. ZBar uses Meson and Ninja:
 
-Please notice that at least autotools related packages and a
-C compiler are needed, in order to generate the configure script.
-
-So, on Debian, at least those packages are needed:
-	autoconf autopoint pkg-config libtool gcc make
-
-If you have installed all needed dependencies, all you need to do is to run:
-
+```sh
+meson setup builddir
+meson compile -C builddir
 ```
-autoreconf -vfi
-./configure
-make
+
+Optional features are configured with Meson options, for example:
+
+```sh
+meson setup builddir -Dgtk=gtk3 -Dpython=python3 -Dvideo=false
 ```
 
 
@@ -85,19 +82,6 @@ make
      Linux, Windows and MacOS, that could be helpful. Please see
      the `.travis.yml` file, and the corresponding scripts under `travis/`.
 
-  2) On version 0.23, since the support for gtk3 and python3 are new,
-     the default is to use gtk2 and python2.
-
-     If you want to use gtk3 and python3, you should have the development
-     packages for them, and run:
-```
-autoreconf -vfi
-./configure --with-gtk=auto --with-python=auto
-make
-```
-
-  This will make the building system to seek for the latest versions
-  for gtk and python.
 
 The scanner/decoder library itself only requires a few standard
 library functions which should be available almost anywhere.
@@ -164,9 +148,8 @@ it, you need the required dependencies for GIR development. The actual
 package depends on the distribution. On Fedora, it is `pygobject3-devel`.
 On Debian/Ubuntu, it is `libgirepository1.0-dev` and `gir1.2-gtk-3.0`.
 While GIR builds with Gtk2, It is strongly recommended to use GTK+
-version 3.x, as there are known issues with version 2.x and GIR, with
-will likely make it to fail. A test script can be built and run with:
-`make check-gi`. Instructions about how to use are GIR on Python are
+version 3.x, as there are known issues with version 2.x and GIR. Instructions
+about how to use GIR on Python are
 available at:
 
 - <https://pygobject.readthedocs.io/en/latest/>
@@ -189,7 +172,7 @@ available from:
 - <http://www.perl.org/>
 
 If required libraries are not available you may disable building for
-the corresponding component using configure (see configure --help).
+the corresponding component using Meson options (see `meson configure builddir`).
 
 The Perl bindings must be built separately after installing the
 library.  see:
@@ -208,7 +191,7 @@ widget will contain machine-dependent code. It works with Java version
 RUNNING
 =======
 
-`make install` will install the library and application programs.  Run
+`meson install -C builddir` installs the library and application programs. Run
 `zbarcam-qt` or `zbarcam` to start the video scanner. Use `zbarimg <file>`
 to decode a saved image file.
 
@@ -221,16 +204,17 @@ In order to test if dbus is working, you could use:
 
 	$ dbus-monitor --system interface=org.linuxtv.Zbar1.Code
 
-or build the test programs with:
+or build and run the test programs with Meson:
 
-	$ make test_progs
+	$ meson compile -C builddir
+	$ meson test -C builddir
 
 And run:
-	$ ./test/test_dbus
+	$ ./builddir/test/test_dbus
 
 With that, running this command on a separate shell:
 
-	$ ./zbarimg/zbarimg examples/code-128.png
+	$ ./builddir/zbarimg/zbarimg examples/code-128.png
 	CODE-128:https://github.com/mchehab/zbar
 	scanned 1 barcode symbols from 1 images in 0.01 seconds
 

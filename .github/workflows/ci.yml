@@ -3,153 +3,130 @@ name: CI
 # Should run only on branches and PR, as "on_tag.yml" will handle tags
 on:
   push:
-    branches: master test
+    branches: [master, test]
   pull_request:
-    branches: master
+    branches: [master]
 
 jobs:
-
 #
 # Linux
 #
   Ubuntu:
     name: Ubuntu debuild
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v2
-    - name: prepare
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y autoconf automake autopoint autotools-dev \
-                                gettext libdbus-1-dev pkg-config xmlto \
-                                devscripts build-essential lintian \
-                                debhelper-compat \
-                                dh-exec libdbus-1-dev \
-                                libmagick++-dev libv4l-dev python3-dev \
-                                libgtk-3-dev lftp \
-                                dh-sequence-python3 libgtk2.0-dev \
-                                libqt5x11extras5-dev qtbase5-dev
-    - name: build
-      run: |
-        .github/workflows/debuilder.sh
+      - uses: actions/checkout@v7
+      - name: prepare
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y meson ninja-build pkg-config build-essential \
+            devscripts debhelper-compat dh-exec dh-sequence-python3 \
+            dh-sequence-meson lftp libdbus-1-dev libjpeg-dev \
+            libmagick++-dev libv4l-dev libgtk-3-dev libgtk2.0-dev \
+            libqt5x11extras5-dev qtbase5-dev python3-dev
+      - name: build
+        run: .github/workflows/debuilder.sh
 
   Ubuntu_Gtk2:
     name: Ubuntu with Gtk2
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: prepare
-      run: |
-        sudo apt update
-        sudo apt-get install -y autoconf automake autopoint autotools-dev \
-            gettext libdbus-1-dev libgtk2.0-dev libmagick++-dev \
-            libqt5x11extras5-dev libv4l-dev libx11-dev openjdk-8-jdk-headless \
-            perl pkg-config python-all-dev python-all-dbg python-gtk2-dev \
-            qt5-default xmlto
+      - uses: actions/checkout@v7
+      - name: prepare
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential pkg-config meson ninja-build \
+            libdbus-1-dev libjpeg-dev libv4l-dev libx11-dev libxext-dev libgtk2.0-dev
+      - name: configure
+        run: meson setup builddir -Dgtk=gtk2 -Dpython=no -Dqt=false -Djava=disabled -Ddoc=false
+      - name: build
+        run: meson compile -C builddir
+      - name: check
+        run: meson test -C builddir --print-errorlogs
+      - name: install
+        run: DESTDIR="$PWD/stage" meson install -C builddir
 
-    - name: configure
-      run: |
-        autoreconf -vfi
-        export QT_SELECT=5
-        ./configure
-    - name: build
-      run:
-        make
-    - name: check
-      run:
-        make check-local
-    - name: install
-      run:
-        sudo make install
   Ubuntu_Gtk3:
     name: Ubuntu with Gtk3
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: prepare
-      run: |
-        sudo apt update
-        sudo apt-get install -y autoconf automake autopoint autotools-dev \
-            gettext libdbus-1-dev gir1.2-gtk-3.0 libgtk-3-dev \
-            libgirepository1.0-dev libmagick++-dev libqt5x11extras5-dev \
-            libv4l-dev libx11-dev openjdk-8-jdk-headless perl \
-            pkg-config python3-minimal python3-dev python3 python3-gi \
-            qt5-default xmlto
-    - name: configure
-      run: |
-        autoreconf -vfi
+      - uses: actions/checkout@v7
+      - name: prepare
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential pkg-config meson ninja-build \
+            libdbus-1-dev libjpeg-dev libv4l-dev libx11-dev libxext-dev libgtk-3-dev
+      - name: configure
+        run: meson setup builddir -Dgtk=gtk3 -Dpython=no -Dqt=false -Djava=disabled -Ddoc=false
+      - name: build
+        run: meson compile -C builddir
+      - name: check
+        run: meson test -C builddir --print-errorlogs
+      - name: install
+        run: DESTDIR="$PWD/stage" meson install -C builddir
 
-        # Let configure get this
-        unset PYTHON_CFLAGS PYTHON
-
-        export QT_SELECT=5
-        ./configure --with-gtk=gtk3 --with-python=python3
-    - name: build
-      run:
-        make
-    - name: check
-      run:
-        make check-local
-    - name: install
-      run:
-        sudo make install
   Mingw_w64_VfW:
     name: Mingw-w64 VfW
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: prepare
-      run: |
-        sudo apt update
-        sudo apt-get install -y autoconf automake autopoint autotools-dev \
-        gettext libdbus-1-dev pkg-config win-iconv-mingw-w64-dev \
-        binutils-mingw-w64-i686 gcc-mingw-w64 mingw-w64-i686-dev \
-        mingw-w64-common xmlto
-    - name: configure
-      run: |
-        export PKG_CONFIG_PATH=/usr/x86_64-w64-mingw32/lib/pkgconfig
+      - uses: actions/checkout@v7
+      - name: prepare
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y meson ninja-build pkg-config gcc-mingw-w64 mingw-w64-i686-dev
+      - name: configure
+        run: |
+          cat > mingw-cross.ini <<'EOF'
+          [binaries]
+          c = 'i686-w64-mingw32-gcc'
+          cpp = 'i686-w64-mingw32-g++'
+          ar = 'i686-w64-mingw32-ar'
+          strip = 'i686-w64-mingw32-strip'
+          [host_machine]
+          system = 'windows'
+          cpu_family = 'x86'
+          cpu = 'i686'
+          endian = 'little'
+          EOF
+          meson setup builddir --cross-file mingw-cross.ini \
+            -Dgtk=no -Dpython=no -Dqt=false -Djava=disabled \
+            -Dimagemagick=disabled -Djpeg=disabled -Ddbus=disabled -Dvideo=true
+      - name: build
+        run: meson compile -C builddir
+      - name: install
+        run: DESTDIR="$PWD/stage" meson install -C builddir
 
-        autoreconf -vfi
-
-        CC=i686-w64-mingw32-gcc ./configure \
-            --host=i686-w64-mingw32 --prefix=/usr/local/win32 \
-            --without-gtk --without-python --without-qt --without-java \
-            --without-imagemagick --enable-pthread
-    - name: build
-      run:
-        make
-    - name: install
-      run:
-        sudo make install
   Mingw_w64_DShow:
     name: Mingw-w64 DShow
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: prepare
-      run: |
-        sudo apt update
-        sudo apt-get install -y autoconf automake autopoint autotools-dev \
-        gettext libdbus-1-dev pkg-config win-iconv-mingw-w64-dev \
-        binutils-mingw-w64-i686 gcc-mingw-w64 mingw-w64-i686-dev \
-        mingw-w64-common xmlto
-    - name: configure
-      run: |
-        export PKG_CONFIG_PATH=/usr/x86_64-w64-mingw32/lib/pkgconfig
-
-        autoreconf -vfi
-
-        CC=i686-w64-mingw32-gcc ./configure \
-            --host=i686-w64-mingw32 --prefix=/usr/local/win32 \
-            --without-gtk --without-python --without-qt --without-java \
-            --without-imagemagick --enable-pthread \
-            --with-directshow
-    - name: build
-      run:
-        make
-    - name: install
-      run:
-        sudo make install
+      - uses: actions/checkout@v7
+      - name: prepare
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y meson ninja-build pkg-config gcc-mingw-w64 mingw-w64-i686-dev
+      - name: configure
+        run: |
+          cat > mingw-cross.ini <<'EOF'
+          [binaries]
+          c = 'i686-w64-mingw32-gcc'
+          cpp = 'i686-w64-mingw32-g++'
+          ar = 'i686-w64-mingw32-ar'
+          strip = 'i686-w64-mingw32-strip'
+          [host_machine]
+          system = 'windows'
+          cpu_family = 'x86'
+          cpu = 'i686'
+          endian = 'little'
+          EOF
+          meson setup builddir --cross-file mingw-cross.ini \
+            -Dgtk=no -Dpython=no -Dqt=false -Djava=disabled \
+            -Dimagemagick=disabled -Djpeg=disabled -Ddbus=disabled \
+            -Dvideo=true -Ddirectshow=true
+      - name: build
+        run: meson compile -C builddir
+      - name: install
+        run: DESTDIR="$PWD/stage" meson install -C builddir
 
 #
 # Mac OS
@@ -158,24 +135,17 @@ jobs:
     name: Mac OS
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: prepare
-      run: |
-        brew install gettext autoconf automake libiconv libtool \
-                    gs graphicsmagick python xmlto pkg-config ccache
-
-        brew unlink libtool && brew link libtool
-        brew unlink gettext && brew link gettext
-    - name: configure
-      run:
-        autoreconf -vfi
-
-        ./configure --disable-video --disable-nls --with-python=python3
-
-    - name: build
-      run: |
-        make
-        sudo make install
+      - uses: actions/checkout@v7
+      - name: prepare
+        run: brew install meson ninja pkg-config libjpeg-turbo
+      - name: configure
+        run: meson setup builddir -Dvideo=false -Dpython=no -Dgtk=no -Dqt=false -Djava=disabled -Ddoc=false
+      - name: build
+        run: meson compile -C builddir
+      - name: check
+        run: meson test -C builddir --print-errorlogs
+      - name: install
+        run: DESTDIR="$PWD/stage" meson install -C builddir
 
 #
 # Windows
@@ -183,56 +153,24 @@ jobs:
   Windows:
     name: Windows
     runs-on: windows-latest
-    strategy:
-      matrix:
-        arch: [x86_64, i686]
-        video: [VfW, DShow]
-        include:
-          - arch: x86_64
-            msystem: MINGW64
-            grep: x86-64
-          - arch: i686
-            msystem: MINGW32
-            grep: 386
-          - video: DShow
-            extra: --with-directshow
-          - video: VfW
-            extra:
     defaults:
       run:
         shell: msys2 {0}
-
-    env:
-      CPPFLAGS: -D__USE_MINGW_ANSI_STDIO=1
-
     steps:
-    - uses: msys2/setup-msys2@v2
-      with:
-        msystem: ${{ matrix.msystem }}
-        update: false
-        install: >-
-          mingw-w64-${{ matrix.arch }}-gcc
-          mingw-w64-${{ matrix.arch }}-iconv
-          mingw-w64-${{ matrix.arch }}-imagemagick
-          mingw-w64-${{ matrix.arch }}-python
-          base-devel git xmlto
-          autoconf libtool automake gettext make autoconf-archive pkg-config
-
-    - uses: actions/checkout@v2
-
-    - name: configure
-      shell: msys2 {0}
-      run: |
-        autoreconf -vfi
-        ./configure LDFLAGS="-static" \
-                    --enable-pthread --disable-dependency-tracking \
-                    ${{ matrix.extra }}
-
-    - name: build
-      shell: msys2 {0}
-      run:
-        make
-    - name: install
-      shell: msys2 {0}
-      run:
-        make install
+      - uses: msys2/setup-msys2@v2.32.0
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-pkgconf
+            meson
+            ninja
+            git
+      - uses: actions/checkout@v7
+      - name: configure
+        run: meson setup builddir -Dvideo=false -Dgtk=no -Dpython=no -Dqt=false -Djava=disabled -Ddoc=false -Ddbus=disabled
+      - name: build
+        run: meson compile -C builddir
+      - name: check
+        run: meson test -C builddir --print-errorlogs

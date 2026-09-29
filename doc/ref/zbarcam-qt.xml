@@ -1,0 +1,29 @@
+<refentry xml:id="zbarcam-qt">
+  <refmeta>
+    <refentrytitle>zbarcam-qt</refentrytitle>
+    <manvolnum>1</manvolnum>
+  </refmeta>
+  <refnamediv>
+    <refname>zbarcam-qt</refname>
+    <refpurpose>scan bar codes from a video device with the Qt interface
+    </refpurpose>
+  </refnamediv>
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>zbarcam-qt</command>
+      <arg choice="opt"><option>--verbose</option></arg>
+      <arg choice="opt"><replaceable>device</replaceable></arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+  <refsection>
+    <title>Description</title>
+    <para><command>zbarcam-qt</command> displays a Qt window for scanning
+    bar codes from a video device. The optional device path selects the
+    camera to open. Decoded symbols appear in the results area.</para>
+  </refsection>
+  <refsection>
+    <title>See Also</title>
+    <para><citerefentry><refentrytitle>zbarcam</refentrytitle>
+    <manvolnum>1</manvolnum></citerefentry></para>
+  </refsection>
+</refentry>

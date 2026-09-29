@@ -1,0 +1,140 @@
+option(
+  'codes',
+  type: 'string',
+  value: 'ean,databar,code128,code93,code39,codabar,i25,qrcode,sqcode',
+  description: 'Comma separated symbologies, or all',
+)
+option(
+  'static_qt',
+  type: 'boolean',
+  value: false,
+  description: 'Build Qt library statically',
+)
+option(
+  'pthread',
+  type: 'boolean',
+  value: true,
+  description: 'Enable threaded application support',
+)
+option(
+  'doc',
+  type: 'boolean',
+  value: true,
+  description: 'Build documentation',
+)
+option(
+  'video',
+  type: 'boolean',
+  value: true,
+  description: 'Build video scanner support',
+)
+option(
+  'directshow',
+  type: 'boolean',
+  value: false,
+  description: 'Use DirectShow on Windows',
+)
+option(
+  'xshm',
+  type: 'feature',
+  value: 'auto',
+  description: 'X shared memory support',
+)
+option(
+  'xv',
+  type: 'feature',
+  value: 'auto',
+  description: 'XVideo support',
+)
+option(
+  'dbus',
+  type: 'feature',
+  value: 'auto',
+  description: 'D-Bus support',
+)
+option(
+  'dbusconfdir',
+  type: 'string',
+  value: '',
+  description: 'Base config directory for dbus-1/system.d policy files',
+)
+option(
+  'jpeg',
+  type: 'feature',
+  value: 'auto',
+  description: 'JPEG image conversion support',
+)
+option(
+  'imagemagick',
+  type: 'feature',
+  value: 'auto',
+  description: 'ImageMagick scanning support',
+)
+option(
+  'graphicsmagick',
+  type: 'feature',
+  value: 'auto',
+  description: 'Prefer GraphicsMagick',
+)
+option(
+  'npapi',
+  type: 'feature',
+  value: 'disabled',
+  description: 'Mozilla NPAPI plugin',
+)
+option(
+  'gtk',
+  type: 'combo',
+  choices: ['no', 'auto', 'gtk2', 'gtk3'],
+  value: 'auto',
+  description: 'GTK support',
+)
+option(
+  'gir',
+  type: 'boolean',
+  value: true,
+  description: 'GObject Introspection support',
+)
+option(
+  'python',
+  type: 'combo',
+  choices: ['no', 'auto', 'python2', 'python3'],
+  value: 'auto',
+  description: 'Python bindings',
+)
+option(
+  'qt',
+  type: 'boolean',
+  value: true,
+  description: 'Qt widget support',
+)
+option(
+  'qt6',
+  type: 'boolean',
+  value: false,
+  description: 'Use experimental Qt6 support',
+)
+option(
+  'java',
+  type: 'feature',
+  value: 'auto',
+  description: 'Java interface',
+)
+option(
+  'build_tests',
+  type: 'boolean',
+  value: true,
+  description: 'Build test programs',
+)
+option(
+  'nls',
+  type: 'feature',
+  value: 'auto',
+  description: 'Native language support',
+)
+option(
+  'x11',
+  type: 'feature',
+  value: 'auto',
+  description: 'X11 output window support',
+)

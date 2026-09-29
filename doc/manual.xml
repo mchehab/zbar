@@ -9,6 +9,8 @@
   <!ENTITY refcommonoptions SYSTEM "ref/commonoptions.xml">
   <!ENTITY refzbarimg SYSTEM "ref/zbarimg.xml">
   <!ENTITY refzbarcam SYSTEM "ref/zbarcam.xml">
+  <!ENTITY refzbarcamgtk SYSTEM "ref/zbarcam-gtk.xml">
+  <!ENTITY refzbarcamqt SYSTEM "ref/zbarcam-qt.xml">
 ]>
 
 <book>
@@ -44,6 +46,8 @@
     <title>ZBar Barcode Reader - Command Reference</title>
 
     &refzbarcam;
+    &refzbarcamgtk;
+    &refzbarcamqt;
     &refzbarimg;
 
   </reference>

@@ -127,26 +127,23 @@ Section "ZBar Core Files (required)" SecCore
     FileWrite $0 "@set PATH=%PATH%;$INSTDIR\bin$\n"
     FileWrite $0 "@cd /D $INSTDIR$\n"
     FileWrite $0 "@echo For basic command instructions type:$\n"
+!ifdef HAVE_ZBARCAM
     FileWrite $0 "@echo     zbarcam --help$\n"
+!endif
+!ifdef HAVE_ZBARIMG
     FileWrite $0 "@echo     zbarimg --help$\n"
     FileWrite $0 "@echo Try running:$\n"
     FileWrite $0 "@echo     zbarimg -d examples\barcode.png$\n"
+!endif
     FileClose $0
 
     SetOutPath $INSTDIR\bin
-    File bin\libzbar-0.dll
+    File bin\*.dll
+!ifdef HAVE_ZBARIMG
     File bin\zbarimg.exe
+!endif
+!ifdef HAVE_ZBARCAM
     File bin\zbarcam.exe
-
-    # dependencies
-    File ${PREFIX}\bin\zlib1.dll
-    File ${PREFIX}\bin\libjpeg-7.dll
-    File ${PREFIX}\bin\libpng12-0.dll
-    File ${PREFIX}\bin\libtiff-3.dll
-    File ${PREFIX}\bin\libxml2-2.dll
-    File ${PREFIX}\bin\libiconv-2.dll
-    File ${PREFIX}\bin\libMagickCore-2.dll
-    File ${PREFIX}\bin\libMagickWand-2.dll
 
     FileOpen $0 zbarcam.bat w
     FileWrite $0 "@set PATH=%PATH%;$INSTDIR\bin$\n"
@@ -159,6 +156,7 @@ Section "ZBar Core Files (required)" SecCore
     FileWrite $0 "@zbarcam.exe --prescale=640x480$\n"
     FileWrite $0 "@if errorlevel 1 pause$\n"
     FileClose $0
+!endif
 
     SetOutPath $INSTDIR\doc
     File share\doc\zbar\html\*
@@ -174,8 +172,10 @@ SectionEnd
         SetOutPath "${SMPROG_ZBAR}"
         #CreateShortCut "${SMPROG_ZBAR}\ZBar.lnk" "$INSTDIR\ZBar.exe"
         CreateDirectory "${SMPROG_ZBAR}"
+!ifdef HAVE_ZBARCAM
         CreateShortCut "zbarcam.lnk" "$\"$INSTDIR\bin\zbarcam.bat$\"" "" \
                        "$INSTDIR\bin\zbarcam.exe"
+!endif
         ExpandEnvStrings $0 '%comspec%'
         CreateShortCut "ZBar Command Prompt.lnk" \
                        $0 "/k $\"$\"$INSTDIR\zbarvars.bat$\"$\"" $0
@@ -232,7 +232,11 @@ Section -post
     WriteRegStr HKLM ${UNINSTALL_KEY} "InstallLocation" "$\"$INSTDIR$\""
 
     WriteRegStr HKLM ${UNINSTALL_KEY} "DisplayName" "ZBar Bar Code Reader"
+!ifdef HAVE_ZBARIMG
     WriteRegStr HKLM ${UNINSTALL_KEY} "DisplayIcon" "$INSTDIR\bin\zbarimg.exe,0"
+!else
+    WriteRegStr HKLM ${UNINSTALL_KEY} "DisplayIcon" "$INSTDIR\bin\libzbar-0.dll,0"
+!endif
     WriteRegStr HKLM ${UNINSTALL_KEY} "DisplayVersion" "${VERSION}"
 
     WriteRegStr HKLM ${UNINSTALL_KEY} "URLInfoAbout" "http://zbar.sf.net/"

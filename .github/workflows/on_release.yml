@@ -9,76 +9,59 @@ on:
 
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   Ubuntu:
-    name: Build for Ubuntu 20.04
-    runs-on: ubuntu-20.04
+    name: Build for Ubuntu 22.04
+    runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v7
     - name: prepare
       run: |
         sudo apt-get update
-        sudo apt-get install -y autoconf automake autopoint autotools-dev \
-                                gettext libdbus-1-dev pkg-config xmlto \
-                                devscripts build-essential lintian \
-                                debhelper-compat \
-                                dh-exec libdbus-1-dev \
-                                libmagick++-dev libv4l-dev python3-dev \
-                                libgtk-3-dev lftp \
-                                dh-sequence-python3 libgtk2.0-dev \
-                                libqt5x11extras5-dev qtbase5-dev
-    - name: build
+        sudo apt-get install -y meson ninja-build build-essential pkg-config \
+                                devscripts debhelper-compat dh-exec \
+                                dh-sequence-python3 dh-sequence-meson lftp \
+                                libdbus-1-dev libjpeg-dev libmagickwand-dev \
+                                libv4l-dev libgtk-3-dev libgtk2.0-dev \
+                                libqt5x11extras5-dev qtbase5-dev python3-dev
+    - name: Debian package build
       run: |
         .github/workflows/debuilder.sh
-    - name: generating tarball
-      run: |
-        (cd ..; tar cvfz zbar-ubuntu-20.04.tar.gz *deb)
+        (cd ..; tar czf zbar-ubuntu-22.04.tar.gz *deb)
 
     - name: upload
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      uses: mchehab/upload-release-asset@v1.0.3
+      uses: softprops/action-gh-release@v3.0.3
       with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ../zbar-ubuntu-20.04.tar.gz
-        asset_name: zbar-ubuntu-20.04.tar.gz
-        asset_content_type: application/gzip
+        tag_name: ${{ github.event.release.tag_name }}
+        files: ../zbar-ubuntu-22.04.tar.gz
+        token: ${{ secrets.GITHUB_TOKEN }}
 
   Mac_OS:
     name: Build for Mac OS
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v7
     - name: prepare
       run: |
-        brew install gettext autoconf automake libiconv libtool \
-                    gs graphicsmagick python xmlto pkg-config ccache
-
-        brew unlink libtool && brew link libtool
-        brew unlink gettext && brew link gettext
-    - name: configure
-      run:
-        autoreconf -vfi
-
-        ./configure --disable-video --disable-nls --with-python=python3
-
-    - name: build
+        brew install meson ninja libiconv graphicsmagick python pkg-config ccache
+    - name: configure and build
       run: |
-        make
-        DESTDIR=${PWD}/macos make install
+        meson setup builddir --prefix=/usr/local -Dvideo=false -Dpython=python3
+        meson compile -C builddir
+        DESTDIR="$PWD/macos" meson install -C builddir
     - name: generating tarball
       run: |
         DIR="$PWD"
         tar c -C ${PWD}/macos -f ${DIR}/zbar-macos.tar.gz -z .
     - name: upload
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      uses: mchehab/upload-release-asset@v1.0.3
+      uses: softprops/action-gh-release@v3.0.3
       with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./zbar-macos.tar.gz
-        asset_name: zbar-macos.tar.gz
-        asset_content_type: application/gzip
+        tag_name: ${{ github.event.release.tag_name }}
+        files: ./zbar-macos.tar.gz
+        token: ${{ secrets.GITHUB_TOKEN }}
 
   Windows:
     name: Build for Windows
@@ -86,18 +69,11 @@ jobs:
     strategy:
       matrix:
         arch: [x86_64, i686]
-        video: [VfW, DShow]
         include:
           - arch: x86_64
             msystem: MINGW64
-            grep: x86-64
           - arch: i686
             msystem: MINGW32
-            grep: 386
-          - video: DShow
-            extra: --with-directshow
-          - video: VfW
-            extra:
     defaults:
       run:
         shell: msys2 {0}
@@ -106,44 +82,33 @@ jobs:
       CPPFLAGS: -D__USE_MINGW_ANSI_STDIO=1
 
     steps:
-    - uses: msys2/setup-msys2@v2
+    - uses: msys2/setup-msys2@v2.32.0
       with:
         msystem: ${{ matrix.msystem }}
         update: false
         install: >-
           mingw-w64-${{ matrix.arch }}-gcc
-          mingw-w64-${{ matrix.arch }}-iconv
-          mingw-w64-${{ matrix.arch }}-imagemagick
-          mingw-w64-${{ matrix.arch }}-python
-          base-devel git xmlto zip
-          autoconf libtool automake gettext make autoconf-archive pkg-config
+          base-devel git zip
+          meson
+          ninja
+          pkgconf
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v7
 
-    - name: configure
+    - name: configure and build
       shell: msys2 {0}
       run: |
-        autoreconf -vfi
-        ./configure LDFLAGS="-static" \
-                    --enable-pthread --disable-dependency-tracking \
-                    ${{ matrix.extra }}
-
-    - name: build
-      shell: msys2 {0}
-      run:
-        make
+        meson setup builddir --prefix=/usr -Dvideo=false -Dgtk=no -Dpython=no -Dqt=false -Djava=disabled -Dimagemagick=disabled -Ddbus=disabled -Dpthread=true
+        meson compile -C builddir
     - name: generating zip
       shell: msys2 {0}
       run: |
-        DESTDIR=${PWD}/win_${{ matrix.arch }}-${{ matrix.video }} make install
-        (cd ${PWD}/win_${{ matrix.arch }}-${{ matrix.video }}; zip -r ../zbar-win_${{ matrix.arch }}-${{ matrix.video }}.zip .)
+        DESTDIR=${PWD}/win_${{ matrix.arch }} meson install -C builddir
+        (cd ${PWD}/win_${{ matrix.arch }}; zip -r ../zbar-win_${{ matrix.arch }}.zip .)
 
     - name: upload
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      uses:  mchehab/upload-release-asset@v1.0.3
+      uses: softprops/action-gh-release@v3.0.3
       with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./zbar-win_${{ matrix.arch }}-${{ matrix.video }}.zip
-        asset_name: zbar-win_${{ matrix.arch }}-${{ matrix.video }}.zip
-        asset_content_type: application/gzip
+        tag_name: ${{ github.event.release.tag_name }}
+        files: ./zbar-win_${{ matrix.arch }}.zip
+        token: ${{ secrets.GITHUB_TOKEN }}

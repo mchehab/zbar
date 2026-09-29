@@ -11,21 +11,19 @@ jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
       - name: Release changelog
         run: .github/workflows/gen_release.pl body_file.tmp
 
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v3.0.3
         with:
           tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          name: Release ${{ github.ref }}
           body_path: body_file.tmp
           draft: false
           prerelease: true
+          token: ${{ secrets.GITHUB_TOKEN }}

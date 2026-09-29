@@ -1,0 +1,28 @@
+<refentry xml:id="zbarcam-gtk">
+  <refmeta>
+    <refentrytitle>zbarcam-gtk</refentrytitle>
+    <manvolnum>1</manvolnum>
+  </refmeta>
+  <refnamediv>
+    <refname>zbarcam-gtk</refname>
+    <refpurpose>scan bar codes from a video device with the GTK interface
+    </refpurpose>
+  </refnamediv>
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>zbarcam-gtk</command>
+      <arg choice="opt"><replaceable>device</replaceable></arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+  <refsection>
+    <title>Description</title>
+    <para><command>zbarcam-gtk</command> displays a GTK window for scanning
+    bar codes from a video device. The optional device path selects the
+    camera to open. Decoded symbols appear in the results area.</para>
+  </refsection>
+  <refsection>
+    <title>See Also</title>
+    <para><citerefentry><refentrytitle>zbarcam</refentrytitle>
+    <manvolnum>1</manvolnum></citerefentry></para>
+  </refsection>
+</refentry>

@@ -22,29 +22,15 @@ Gitlab:
 You can use git clone to get the latest version from any of the
 above repositories.
 
-If you haven't already, grab the ZBar git repository. For example, to
-get it from Github, use:
+If you haven't already, grab the ZBar git repository. For example:
 
     git clone https://github.com/mchehab/zbar.git
     cd zbar
-    autoreconf -vfi
+    meson setup builddir
+    meson compile -C builddir
 
-This will generate ./configure and all that other foo you usually get with
-a release. You will need to have recent versions of some basic "developer
-tools" installed in order for this to work, particularly GNU autotools.
-These versions of autotools are known to work (newer versions should also
-be fine):
-
-    GNU autoconf 2.61
-    GNU automake 1.10.1
-    GNU libtool 2.2.6
-    GNU gettext 0.18.1.1
-    GNU pkg-config 0.25
-    xmlto 0.0.20-5 (for docs building)
-
-All above mentioned tools (except xmlto) must be installed in the same
-prefix. Mixing prefixes (e.g. /usr/bin and /usr/local/bin) may lead to
-errors in configuration stages.
+Meson and Ninja are required. Optional feature dependencies are detected by
+Meson and can be selected or disabled with `meson configure builddir`.
 
 Writing descriptions for your patches
 =====================================

@@ -1,0 +1,7 @@
+{
+    global:
+        zbar_*;
+        _zbar*_error_*;
+    local:
+        *;
+};

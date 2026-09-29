@@ -4,9 +4,9 @@ my $body_path = shift or die "Need a file name to store the release body";
 
 my $ver;
 
-open IN, "configure.ac" or die;
+open IN, "meson.build" or die;
 while (<IN>) {
-	if (m/^[^\#]*AC_INIT\s*\(\s*\[\s*zbar\s*\]\s*,\s*\[(\d+[\.\d]+)/) {
+	if (m/^project\('zbar',.*version:\s*'([\d.]+)'/) {
 		$ver=$1;
 		last;
 	}
