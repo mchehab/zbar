@@ -25,10 +25,13 @@
 
 package net.sourceforge.zbar;
 
+import java.lang.ref.Cleaner;
+
 /** Immutable container for decoded result symbols associated with an image
  * or a composite symbol.
  */
 public class Symbol
+    implements AutoCloseable
 {
     /** No symbol decoded. */
     public static final int NONE = 0;
@@ -68,6 +71,7 @@ public class Symbol
 
     /** C pointer to a zbar_symbol_t. */
     private long peer;
+    private final Cleaner.Cleanable cleanable;
 
     /** Cached attributes. */
     private int type;
@@ -83,24 +87,29 @@ public class Symbol
     Symbol (long peer)
     {
         this.peer = peer;
-    }
-
-    protected void finalize ()
-    {
-        destroy();
+        final long nativePeer = peer;
+        cleanable = nativePeer == 0 ? null :
+            NativeCleanup.register(this, () -> destroyPeer(nativePeer));
     }
 
     /** Clean up native data associated with an instance. */
     public synchronized void destroy ()
     {
         if(peer != 0) {
-            destroy(peer);
             peer = 0;
+            cleanable.clean();
         }
     }
 
+    /** Clean up native data when used with try-with-resources. */
+    @Override
+    public void close ()
+    {
+        destroy();
+    }
+
     /** Release the associated peer instance.  */
-    private native void destroy(long peer);
+    private static native void destroyPeer(long peer);
 
     /** Retrieve type of decoded symbol. */
     public int getType ()

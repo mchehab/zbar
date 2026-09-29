@@ -25,14 +25,18 @@
 
 package net.sourceforge.zbar;
 
+import java.lang.ref.Cleaner;
+
 /** Immutable container for decoded result symbols associated with an image
  * or a composite symbol.
  */
 public class SymbolSet
     extends java.util.AbstractCollection<Symbol>
+    implements AutoCloseable
 {
     /** C pointer to a zbar_symbol_set_t. */
     private long peer;
+    private final Cleaner.Cleanable cleanable;
 
     static
     {
@@ -45,24 +49,29 @@ public class SymbolSet
     SymbolSet (long peer)
     {
         this.peer = peer;
-    }
-
-    protected void finalize ()
-    {
-        destroy();
+        final long nativePeer = peer;
+        cleanable = nativePeer == 0 ? null :
+            NativeCleanup.register(this, () -> destroyPeer(nativePeer));
     }
 
     /** Clean up native data associated with an instance. */
     public synchronized void destroy ()
     {
         if(peer != 0) {
-            destroy(peer);
             peer = 0;
+            cleanable.clean();
         }
     }
 
+    /** Clean up native data when used with try-with-resources. */
+    @Override
+    public void close ()
+    {
+        destroy();
+    }
+
     /** Release the associated peer instance.  */
-    private native void destroy(long peer);
+    private static native void destroyPeer(long peer);
 
     /** Retrieve an iterator over the Symbol elements in this collection. */
     public java.util.Iterator<Symbol> iterator ()

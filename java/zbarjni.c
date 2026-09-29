@@ -101,9 +101,8 @@ JNIEXPORT void JNICALL Java_net_sourceforge_zbar_SymbolSet_init(JNIEnv *env,
     SymbolSet_peer = (*env)->GetFieldID(env, cls, "peer", "J");
 }
 
-JNIEXPORT void JNICALL Java_net_sourceforge_zbar_SymbolSet_destroy(JNIEnv *env,
-								   jobject obj,
-								   jlong peer)
+JNIEXPORT void JNICALL Java_net_sourceforge_zbar_SymbolSet_destroyPeer(
+	JNIEnv *env, jclass cls, jlong peer)
 {
     zbar_symbol_set_ref(PEER_CAST(peer), -1);
     stats.SymbolSet_destroy++;
@@ -137,9 +136,8 @@ JNIEXPORT void JNICALL Java_net_sourceforge_zbar_Symbol_init(JNIEnv *env,
     Symbol_peer = (*env)->GetFieldID(env, cls, "peer", "J");
 }
 
-JNIEXPORT void JNICALL Java_net_sourceforge_zbar_Symbol_destroy(JNIEnv *env,
-								jobject obj,
-								jlong peer)
+JNIEXPORT void JNICALL Java_net_sourceforge_zbar_Symbol_destroyPeer(
+	JNIEnv *env, jclass cls, jlong peer)
 {
     zbar_symbol_ref(PEER_CAST(peer), -1);
     stats.Symbol_destroy++;
@@ -307,9 +305,8 @@ JNIEXPORT jlong JNICALL Java_net_sourceforge_zbar_Image_create(JNIEnv *env,
     return ((intptr_t)zimg);
 }
 
-JNIEXPORT void JNICALL Java_net_sourceforge_zbar_Image_destroy(JNIEnv *env,
-							       jobject obj,
-							       jlong peer)
+JNIEXPORT void JNICALL Java_net_sourceforge_zbar_Image_destroyPeer(
+	JNIEnv *env, jclass cls, jlong peer)
 {
     zbar_image_ref(PEER_CAST(peer), -1);
     stats.Image_destroy++;
@@ -561,8 +558,8 @@ Java_net_sourceforge_zbar_ImageScanner_create(JNIEnv *env, jobject obj)
     return ((intptr_t)zscn);
 }
 
-JNIEXPORT void JNICALL Java_net_sourceforge_zbar_ImageScanner_destroy(
-    JNIEnv *env, jobject obj, jlong peer)
+JNIEXPORT void JNICALL Java_net_sourceforge_zbar_ImageScanner_destroyPeer(
+	    JNIEnv *env, jclass cls, jlong peer)
 {
     zbar_image_scanner_destroy(PEER_CAST(peer));
     stats.ImageScanner_destroy++;

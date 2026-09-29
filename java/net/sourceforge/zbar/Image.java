@@ -25,13 +25,17 @@
 
 package net.sourceforge.zbar;
 
+import java.lang.ref.Cleaner;
+
 /** stores image data samples along with associated format and size
  * metadata.
  */
 public class Image
+    implements AutoCloseable
 {
     /** C pointer to a zbar_symbol_t. */
     private long peer;
+    private final Cleaner.Cleanable cleanable;
     private Object data;
 
     static
@@ -43,7 +47,10 @@ public class Image
 
     public Image ()
     {
-        peer = create();
+        final long nativePeer = create();
+        peer = nativePeer;
+        cleanable = nativePeer == 0 ? null :
+            NativeCleanup.register(this, () -> destroyPeer(nativePeer));
     }
 
     public Image (int width, int height)
@@ -68,27 +75,32 @@ public class Image
     Image (long peer)
     {
         this.peer = peer;
+        final long nativePeer = peer;
+        cleanable = nativePeer == 0 ? null :
+            NativeCleanup.register(this, () -> destroyPeer(nativePeer));
     }
 
     /** Create an associated peer instance. */
     private native long create();
 
-    protected void finalize ()
-    {
-        destroy();
-    }
-
     /** Clean up native data associated with an instance. */
     public synchronized void destroy ()
     {
         if(peer != 0) {
-            destroy(peer);
             peer = 0;
+            cleanable.clean();
         }
     }
 
+    /** Clean up native data when used with try-with-resources. */
+    @Override
+    public void close ()
+    {
+        destroy();
+    }
+
     /** Destroy the associated peer instance.  */
-    private native void destroy(long peer);
+    private static native void destroyPeer(long peer);
 
     /** Image format conversion.
      * @returns a @em new image with the sample data from the original

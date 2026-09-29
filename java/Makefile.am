@@ -15,7 +15,7 @@ MAINTAINERCLEANFILES = $(nodist_libzbarjni_la_SOURCES)
 zbar_jar_SRCS = \
     $(PKG)/Config.java $(PKG)/Modifier.java $(PKG)/Orientation.java \
     $(PKG)/Symbol.java $(PKG)/SymbolIterator.java $(PKG)/SymbolSet.java \
-    $(PKG)/Image.java $(PKG)/ImageScanner.java
+    $(PKG)/Image.java $(PKG)/ImageScanner.java $(PKG)/NativeCleanup.java
 
 zbar_jar_CLASSES = $(zbar_jar_SRCS:.java=.class)
 

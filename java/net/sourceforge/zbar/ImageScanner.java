@@ -25,12 +25,16 @@
 
 package net.sourceforge.zbar;
 
+import java.lang.ref.Cleaner;
+
 /** Read barcodes from 2-D images.
  */
 public class ImageScanner
+    implements AutoCloseable
 {
     /** C pointer to a zbar_image_scanner_t. */
     private long peer;
+    private final Cleaner.Cleanable cleanable;
 
     static
     {
@@ -41,28 +45,33 @@ public class ImageScanner
 
     public ImageScanner ()
     {
-        peer = create();
+        final long nativePeer = create();
+        peer = nativePeer;
+        cleanable = nativePeer == 0 ? null :
+            NativeCleanup.register(this, () -> destroyPeer(nativePeer));
     }
 
     /** Create an associated peer instance. */
     private native long create();
 
-    protected void finalize ()
-    {
-        destroy();
-    }
-
     /** Clean up native data associated with an instance. */
     public synchronized void destroy ()
     {
         if(peer != 0) {
-            destroy(peer);
             peer = 0;
+            cleanable.clean();
         }
     }
 
+    /** Clean up native data when used with try-with-resources. */
+    @Override
+    public void close ()
+    {
+        destroy();
+    }
+
     /** Destroy the associated peer instance.  */
-    private native void destroy(long peer);
+    private static native void destroyPeer(long peer);
 
     /** Set config for indicated symbology (0 for all) to specified value.
      */
