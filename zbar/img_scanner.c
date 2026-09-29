@@ -33,6 +33,7 @@
 #endif
 
 #include <assert.h>
+#include <stddef.h>
 #include <stdlib.h> /* malloc, free */
 #include <string.h> /* memcmp, memset, memcpy */
 
