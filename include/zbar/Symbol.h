@@ -31,6 +31,8 @@
 #endif
 
 #include <assert.h>
+#include <cstddef>
+#include <iterator>
 #include <ostream>
 #include <stdlib.h>
 #include <string>
@@ -142,9 +144,15 @@ public:
     };
 
     /// iteration over Point objects in a symbol location polygon.
-    class PointIterator : public std::iterator<std::input_iterator_tag, Point>
+    class PointIterator
     {
     public:
+	typedef std::input_iterator_tag iterator_category;
+	typedef Point value_type;
+	typedef std::ptrdiff_t difference_type;
+	typedef Point *pointer;
+	typedef Point &reference;
+
 	/// constructor.
 	PointIterator(const Symbol *sym = NULL, int index = 0)
 	    : _sym(sym), _index(index)
@@ -422,9 +430,15 @@ private:
 };
 
 /// iteration over Symbol result objects in a scanned Image or SymbolSet.
-class SymbolIterator : public std::iterator<std::input_iterator_tag, Symbol>
+class SymbolIterator
 {
 public:
+    typedef std::input_iterator_tag iterator_category;
+    typedef Symbol value_type;
+    typedef std::ptrdiff_t difference_type;
+    typedef Symbol *pointer;
+    typedef Symbol &reference;
+
     /// default constructor.
     SymbolIterator()
     {
