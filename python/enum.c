@@ -48,12 +48,16 @@ static zbarEnumItem *enumitem_new(PyTypeObject *type, PyObject *args,
 	return (NULL);
     }
 
-    /* we assume the "fast path" for a single-digit ints (see longobject.c) */
-    /* this also holds if we get a small_int preallocated long */
-#if PY_VERSION_HEX >= 0x030900A4
-    Py_SET_SIZE(&self->val, Py_SIZE(longval));
+    /* Enum values fit in one digit.  Avoid Py_SIZE() on the exact int
+     * returned by PyLong_FromLong(): it asserts on Python 3.14. */
+#if PY_VERSION_HEX >= 0x030c0000
+    self->val.long_value.lv_tag =
+	((uintptr_t)(val != 0) << _PyLong_NON_SIZE_BITS) |
+	(val == 0 ? 1 : (val < 0 ? 2 : 0));
+#elif PY_VERSION_HEX >= 0x030900A4
+    Py_SET_SIZE(&self->val, val == 0 ? 0 : (val < 0 ? -1 : 1));
 #else
-    Py_SIZE(&self->val)	  = Py_SIZE(longval);
+    Py_SIZE(&self->val)	  = val == 0 ? 0 : (val < 0 ? -1 : 1);
 #endif
 #if PY_VERSION_HEX >= 0x030c0000
     self->val.long_value.ob_digit[0] = longval->long_value.ob_digit[0];
@@ -135,12 +139,16 @@ zbarEnumItem *zbarEnumItem_New(PyObject *byname, PyObject *byvalue, int val,
 	return (NULL);
     }
 
-    /* we assume the "fast path" for a single-digit ints (see longobject.c) */
-    /* this also holds if we get a small_int preallocated long */
-#if PY_VERSION_HEX >= 0x030900A4
-    Py_SET_SIZE(&self->val, Py_SIZE(longval));
+    /* Enum values fit in one digit.  Avoid Py_SIZE() on the exact int
+     * returned by PyLong_FromLong(): it asserts on Python 3.14. */
+#if PY_VERSION_HEX >= 0x030c0000
+    self->val.long_value.lv_tag =
+	((uintptr_t)(val != 0) << _PyLong_NON_SIZE_BITS) |
+	(val == 0 ? 1 : (val < 0 ? 2 : 0));
+#elif PY_VERSION_HEX >= 0x030900A4
+    Py_SET_SIZE(&self->val, val == 0 ? 0 : (val < 0 ? -1 : 1));
 #else
-    Py_SIZE(&self->val)	  = Py_SIZE(longval);
+    Py_SIZE(&self->val)	  = val == 0 ? 0 : (val < 0 ? -1 : 1);
 #endif
 #if PY_VERSION_HEX >= 0x030c0000
     self->val.long_value.ob_digit[0] = longval->long_value.ob_digit[0];
