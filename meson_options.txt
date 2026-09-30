@@ -5,6 +5,13 @@ option(
   description: 'Comma separated symbologies, or all',
 )
 option(
+  'library_type',
+  type: 'combo',
+  choices: ['static', 'shared', 'both'],
+  value: 'both',
+  description: 'Build the core and GTK libraries as static, shared, or both',
+)
+option(
   'static_qt',
   type: 'boolean',
   value: false,

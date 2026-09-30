@@ -65,6 +65,12 @@ You can see all available options by using:
 
     meson configure build
 
+Choose the core ZBar and GTK library variants with `-Dlibrary_type=static`,
+`-Dlibrary_type=shared`, or `-Dlibrary_type=both`. The default is `both`.
+For example, to build only static variants of those libraries:
+
+    meson setup build -Dlibrary_type=static
+
 Meson normally installs under `/usr/local`. Set `--prefix=/usr` during setup
 -to choose a different prefix, like on this example:
 

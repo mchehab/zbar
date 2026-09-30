@@ -207,17 +207,46 @@ if host_machine.system() == 'linux'
   zbar_link_args += '-Wl,--version-script=' + zbar_map
   zbar_link_depends += files('zbar.map')
 endif
-libzbar = library(
-  'zbar', src,
-  include_directories: inc,
-  dependencies: deps,
-  c_args: zbar_args,
-  link_args: zbar_link_args,
-  link_depends: zbar_link_depends,
-  version: '0.3.0',
-  soversion: '0',
-  install: true,
-)
+if get_option('library_type') == 'both'
+  libzbar = both_libraries(
+    'zbar', src,
+    include_directories: inc,
+    dependencies: deps,
+    c_args: zbar_args,
+    link_args: zbar_link_args,
+    link_depends: zbar_link_depends,
+    version: '0.3.0',
+    soversion: '0',
+    install: true,
+  )
+  alias_target('zbar-libraries',
+               libzbar.get_shared_lib(), libzbar.get_static_lib())
+else
+  if get_option('library_type') == 'static'
+    libzbar = static_library(
+      'zbar', src,
+      include_directories: inc,
+      dependencies: deps,
+      c_args: zbar_args,
+      link_args: zbar_link_args,
+      link_depends: zbar_link_depends,
+      install: true,
+    )
+  else
+    libzbar = shared_library(
+      'zbar', src,
+      include_directories: inc,
+      dependencies: deps,
+      c_args: zbar_args,
+      link_args: zbar_link_args,
+      link_depends: zbar_link_depends,
+      version: '0.3.0',
+      soversion: '0',
+      install: true,
+    )
+  endif
+  alias_target('zbar-libraries', libzbar)
+endif
 zbar_dep = declare_dependency(
   link_with: libzbar,
   include_directories: inc,
