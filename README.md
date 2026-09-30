@@ -69,20 +69,6 @@ Optional features are configured with Meson options, for example:
 meson setup builddir -Dgtk=gtk3 -Dpython=python3 -Dvideo=false
 ```
 
-
-* NOTES
-
-
-  1) Currently, we maintain a Continuous Integration build test at
-     TravisCI:
-
-        <https://travis-ci.org/github/mchehab/zbar/>
-
-     Due to that, there are scripts meant to test ZBar build on
-     Linux, Windows and MacOS, that could be helpful. Please see
-     the `.travis.yml` file, and the corresponding scripts under `travis/`.
-
-
 The scanner/decoder library itself only requires a few standard
 library functions which should be available almost anywhere.
 
