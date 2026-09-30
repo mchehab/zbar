@@ -28,10 +28,10 @@ using namespace zbar;
 
 static const QString textFormat("%1:%2");
 
-QZBarThread::QZBarThread(int verbosity)
+QZBarThread::QZBarThread(int verbosity, QZBarRenderer *renderer)
     : _videoOpened(false), reqWidth(DEFAULT_WIDTH), reqHeight(DEFAULT_HEIGHT),
-      video(NULL), image(NULL), running(true), videoRunning(false),
-      videoEnabled(false)
+      renderer(renderer), video(NULL), image(NULL), running(true),
+      videoRunning(false), videoEnabled(false)
 {
     zbar_set_verbosity(verbosity);
     scanner.set_handler(*this);
@@ -52,13 +52,11 @@ void QZBarThread::image_callback(Image &image)
 
 void QZBarThread::processImage(Image &image)
 {
-    {
 	scanner.recycle_image(image);
-	Image tmp = image.convert(zbar_fourcc('Y', '8', '0', '0'));
-	scanner.scan(tmp);
-	image.set_symbols(tmp.get_symbols());
-    }
-    window.draw(image);
+	Image preview = image.convert(zbar_fourcc('Y', '8', '0', '0'));
+	scanner.scan(preview);
+	image.set_symbols(preview.get_symbols());
+	renderer->draw(image, preview);
     if (this->image && this->image != &image) {
 	delete this->image;
 	this->image = NULL;
@@ -117,7 +115,7 @@ void QZBarThread::openVideo(const QString &device)
 	if (reqWidth != DEFAULT_WIDTH || reqHeight != DEFAULT_HEIGHT)
 	    video->request_size(reqWidth, reqHeight);
 
-	negotiate_format(*video, window);
+	renderer->negotiate(*video);
 	{
 	    QMutexLocker locker(&mutex);
 	    videoEnabled = _videoOpened = true;

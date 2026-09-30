@@ -30,6 +30,7 @@
 #include <zbar.h>
 #include <zbar/QZBar.h>
 #include <zbar/QZBarImage.h>
+#include "QZBarRenderer.h"
 
 #define DEFAULT_WIDTH  640
 #define DEFAULT_HEIGHT 480
@@ -96,14 +97,10 @@ public:
 
     bool _videoOpened;
     unsigned reqWidth, reqHeight;
+    QZBarRenderer *renderer;
 
-    // window is also shared: owned by main gui thread.
-    // processor thread only calls draw(), clear() and negotiate_format().
-    // protected by its own internal lock
-
-    Window window;
-
-    QZBarThread(int verbosity = 0);
+    QZBarThread(int verbosity, QZBarRenderer *renderer);
+    ~QZBarThread() { delete renderer; }
 
     int get_controls(int index, char **name = NULL, char **group = NULL,
 		     enum QZBar::ControlType *type = NULL, int *min = NULL,
@@ -163,7 +160,7 @@ protected:
 
     void clear()
     {
-	window.clear();
+	renderer->clear();
 	if (image) {
 	    delete image;
 	    image = NULL;

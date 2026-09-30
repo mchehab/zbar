@@ -21,7 +21,6 @@
 //  http://sourceforge.net/projects/zbar
 //------------------------------------------------------------------------
 
-#include <QX11Info>
 #include <qevent.h>
 #include <qurl.h>
 #include <zbar/QZBar.h>
@@ -33,26 +32,18 @@ QZBar::QZBar(QWidget *parent, int verbosity)
     : QWidget(parent), thread(NULL), _videoDevice(), _videoEnabled(false),
       _attached(false)
 {
-    setAttribute(Qt::WA_OpaquePaintEvent);
-    setAttribute(Qt::WA_PaintOnScreen);
-#if QT_VERSION >= 0x040400
-    setAttribute(Qt::WA_NativeWindow);
-    setAttribute(Qt::WA_DontCreateNativeAncestors);
-#endif
-
     QSizePolicy sizing(QSizePolicy::Preferred, QSizePolicy::Preferred);
     sizing.setHeightForWidth(true);
     setSizePolicy(sizing);
 
-    thread = new QZBarThread(verbosity);
-    if (testAttribute(Qt::WA_WState_Created)) {
-#if QT_VERSION >= 0x050000
-	thread->window.attach(QX11Info::display(), winId());
-#else
-	thread->window.attach(x11Info().display(), winId());
-#endif
-	_attached = 1;
-    }
+    QZBarRenderer *renderer = QZBarRenderer::create(verbosity);
+
+    renderer->configure(this);
+    thread = new QZBarThread(verbosity, renderer);
+
+    if (testAttribute(Qt::WA_WState_Created))
+	_attached = renderer->attach(this);
+
     connect(thread, SIGNAL(videoOpened(bool)), this, SIGNAL(videoOpened(bool)));
     connect(this, SIGNAL(videoOpened(bool)), this, SLOT(sizeChange()));
     connect(thread, SIGNAL(update()), this, SLOT(update()));
@@ -75,7 +66,10 @@ QZBar::~QZBar()
 
 QPaintEngine *QZBar::paintEngine() const
 {
-    return (NULL);
+    if (!thread)
+	return QWidget::paintEngine();
+
+    return thread->renderer->paintEngine(const_cast<QZBar *>(this));
 }
 
 QString QZBar::videoDevice() const
@@ -296,37 +290,25 @@ int QZBar::heightForWidth(int width) const
 
 void QZBar::paintEvent(QPaintEvent *event)
 {
-    try {
-	if (thread)
-	    thread->window.redraw();
-    } catch (Exception &) {
-	// sometimes Qt attempts to paint the widget before it's parented(?)
-	// just ignore this (can't throw from event anyway)
-    }
+    if (thread)
+	thread->renderer->paint(this);
 }
 
 void QZBar::resizeEvent(QResizeEvent *event)
 {
     QSize size = event->size();
-    try {
-	if (thread)
-	    thread->window.resize(size.rwidth(), size.rheight());
-    } catch (Exception &) { /* ignore */
-    }
+    if (thread)
+	thread->renderer->resize(this, size.width(), size.height());
 }
 
 void QZBar::changeEvent(QEvent *event)
 {
     try {
-	QMutexLocker locker(&thread->mutex);
-	if (event->type() == QEvent::ParentChange)
-#if QT_VERSION >= 0x050000
-	    thread->window.attach(QX11Info::display(), winId());
-#else
-	    thread->window.attach(x11Info().display(), winId());
-#endif
+	if (thread && event->type() == QEvent::ParentChange)
+	    thread->renderer->attach(this);
 
-    } catch (Exception &) { /* ignore (FIXME do something w/error) */
+    } catch (Exception &) {
+	/* ignore (FIXME do something w/error) */
     }
 }
 
@@ -336,18 +318,18 @@ void QZBar::attach()
 	return;
 
     try {
-#if QT_VERSION >= 0x050000
-	thread->window.attach(QX11Info::display(), winId());
-#else
-	thread->window.attach(x11Info().display(), winId());
-#endif
-	thread->window.resize(width(), height());
+	if (!thread->renderer->attach(this))
+	    return;
+
+	thread->renderer->resize(this, width(), height());
+
 	_attached = 1;
 
 	_videoEnabled = !_videoDevice.isEmpty();
 	if (_videoEnabled)
 	    thread->pushEvent(new QZBarThread::VideoDeviceEvent(_videoDevice));
-    } catch (Exception &) { /* ignore (FIXME do something w/error) */
+    } catch (Exception &) {
+	/* ignore (FIXME do something w/error) */
     }
 }
 

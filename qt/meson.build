@@ -37,7 +37,7 @@ if qt_found
       command: [qt_moc_program, '@INPUT@', '-o', '@OUTPUT@'],
     )
   endforeach
-  qt_sources = ['QZBar.cpp', 'QZBarThread.cpp', qt_moc]
+  qt_sources = ['QZBar.cpp', 'QZBarThread.cpp', 'QZBarRenderer.cpp', qt_moc]
   qt_options = get_option('qt6') ? ['cpp_std=gnu++17'] : []
   if get_option('static_qt')
     qt_lib = static_library(
