@@ -23,6 +23,12 @@ option(
   description: 'Build documentation',
 )
 option(
+  'docdir',
+  type: 'string',
+  value: '',
+  description: 'Installation directory for project documentation',
+)
+option(
   'video',
   type: 'boolean',
   value: true,

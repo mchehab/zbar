@@ -4,6 +4,13 @@
 BUILD_DIR ?= build
 MESON_ARGS ?=
 
+RPM_TOPDIR = $(abspath $(BUILD_DIR))
+MOCK_CONFIG ?= fedora-rawhide-x86_64
+
+VERSION = $(shell meson introspect --projectinfo $(BUILD_DIR) -i | \
+	    grep '"version"' | cut -d '"' -f 4)
+DIST_TARBALL = $(BUILD_DIR)/meson-dist/zbar-$(VERSION).tar.gz
+
 .PHONY: all clean reconfigure install uninstall devenv distclean check tests \
 	check-local regress other-tests docs html-local dist archive dist-nsis
 
@@ -55,3 +62,11 @@ dist archive: $(BUILD_DIR)/build.ninja
 dist-nsis: all
 	python3 tools/build_nsis.py $(BUILD_DIR) \
 		--runtime-prefix "$(MINGW_PREFIX)"
+
+srpm: dist
+	mkdir -p "$(RPM_TOPDIR)"/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+	cp "$(DIST_TARBALL)" "$(RPM_TOPDIR)/SOURCES/"
+	rpmbuild --define "_topdir $(RPM_TOPDIR)" -bs "$(BUILD_DIR)/zbar.spec"
+
+mock: srpm
+	mock -r "$(MOCK_CONFIG)" --resultdir="./SRPMS" "$(BUILD_DIR)/SRPMS/zbar-$(VERSION)-1.src.rpm"

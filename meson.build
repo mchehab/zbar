@@ -133,17 +133,21 @@ if get_option('build_tests')
   subdir('test')
 endif
 
+docdir = get_option('docdir')
+if docdir == ''
+  docdir = get_option('datadir') / 'doc/zbar'
+endif
 install_data(
   'COPYING', 'HACKING.md', 'INSTALL.md', 'LICENSE.md',
   'NEWS.md', 'README.md', 'TODO.md',
-  install_dir: get_option('datadir') / 'doc/zbar',
+  install_dir: docdir,
 )
 if is_windows
   install_data('python/test/barcode.png', 'examples/scan_image.cpp',
                'examples/scan_image.vcproj',
                install_dir: get_option('datadir') / 'zbar')
   install_data('README-windows.md',
-               install_dir: get_option('datadir') / 'doc/zbar')
+               install_dir: docdir)
 endif
 spec_conf = configuration_data()
 spec_conf.set('VERSION', meson.project_version())
