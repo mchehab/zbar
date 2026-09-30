@@ -133,7 +133,9 @@ int main(int argc, char *argv[])
 {
     const char *video_arg = NULL;
 
+#if GTK_MAJOR_VERSION >= 3
     gdk_set_allowed_backends("x11,*");
+#endif
     gtk_init(&argc, &argv);
 
     if (argc > 1)
