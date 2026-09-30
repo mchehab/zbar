@@ -10,6 +10,10 @@
 #include "image.h"
 #include "util.h"
 
+#ifdef QR_DEBUG
+#include "debug_image.h"
+#endif
+
 #if 0
 /*Binarization based on~\cite{GPP06}.
   @ARTICLE{GPP06,
