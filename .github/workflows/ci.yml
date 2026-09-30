@@ -20,8 +20,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y meson ninja-build pkg-config build-essential \
-            devscripts debhelper-compat dh-exec dh-sequence-python3 \
-            dh-sequence-meson lftp libdbus-1-dev libjpeg-dev \
+            devscripts lintian debhelper-compat dh-exec dh-sequence-python3 gettext xmlto \
+            gobject-introspection libgirepository1.0-dev \
+            libdbus-1-dev libjpeg-dev \
             libmagick++-dev libv4l-dev libgtk-3-dev libgtk2.0-dev \
             libqt5x11extras5-dev qtbase5-dev python3-dev
       - name: build
@@ -36,13 +37,14 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential pkg-config meson ninja-build \
-            libdbus-1-dev libjpeg-dev libv4l-dev libx11-dev libxext-dev libgtk2.0-dev
+            gettext libdbus-1-dev libjpeg-dev libv4l-dev libx11-dev \
+            libxext-dev libgtk2.0-dev libgirepository1.0-dev xvfb
       - name: configure
         run: meson setup builddir -Dgtk=gtk2 -Dpython=no -Dqt=false -Djava=disabled -Ddoc=false
       - name: build
         run: meson compile -C builddir
       - name: check
-        run: meson test -C builddir --print-errorlogs
+        run: xvfb-run -a meson test -C builddir --no-suite regression --print-errorlogs
       - name: install
         run: DESTDIR="$PWD/stage" meson install -C builddir
 
@@ -55,13 +57,14 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential pkg-config meson ninja-build \
-            libdbus-1-dev libjpeg-dev libv4l-dev libx11-dev libxext-dev libgtk-3-dev
+            gettext libdbus-1-dev libjpeg-dev libv4l-dev libx11-dev \
+            libxext-dev libgtk-3-dev libgirepository1.0-dev xvfb
       - name: configure
         run: meson setup builddir -Dgtk=gtk3 -Dpython=no -Dqt=false -Djava=disabled -Ddoc=false
       - name: build
         run: meson compile -C builddir
       - name: check
-        run: meson test -C builddir --print-errorlogs
+        run: xvfb-run -a meson test -C builddir --no-suite regression --print-errorlogs
       - name: install
         run: DESTDIR="$PWD/stage" meson install -C builddir
 
@@ -73,7 +76,8 @@ jobs:
       - name: prepare
         run: |
           sudo apt-get update
-          sudo apt-get install -y meson ninja-build pkg-config gcc-mingw-w64 mingw-w64-i686-dev
+          sudo apt-get install -y meson ninja-build pkg-config gcc-mingw-w64 g++-mingw-w64 mingw-w64-i686-dev \
+            win-iconv-mingw-w64-dev
       - name: configure
         run: |
           cat > mingw-cross.ini <<'EOF'
@@ -82,6 +86,13 @@ jobs:
           cpp = 'i686-w64-mingw32-g++'
           ar = 'i686-w64-mingw32-ar'
           strip = 'i686-w64-mingw32-strip'
+          windres = 'i686-w64-mingw32-windres'
+          pkgconfig = 'pkg-config'
+          [properties]
+          needs_exe_wrapper = true
+          [built-in options]
+          c_args = ['-I/usr/i686-w64-mingw32/include']
+          c_link_args = ['-L/usr/i686-w64-mingw32/lib']
           [host_machine]
           system = 'windows'
           cpu_family = 'x86'
@@ -90,7 +101,8 @@ jobs:
           EOF
           meson setup builddir --cross-file mingw-cross.ini \
             -Dgtk=no -Dpython=no -Dqt=false -Djava=disabled \
-            -Dimagemagick=disabled -Djpeg=disabled -Ddbus=disabled -Dvideo=true
+            -Dimagemagick=disabled -Djpeg=disabled -Ddbus=disabled -Dnls=disabled \
+            -Dx11=disabled -Dbuild_tests=false -Dvideo=true
       - name: build
         run: meson compile -C builddir
       - name: install
@@ -104,7 +116,8 @@ jobs:
       - name: prepare
         run: |
           sudo apt-get update
-          sudo apt-get install -y meson ninja-build pkg-config gcc-mingw-w64 mingw-w64-i686-dev
+          sudo apt-get install -y meson ninja-build pkg-config gcc-mingw-w64 g++-mingw-w64 mingw-w64-i686-dev \
+            win-iconv-mingw-w64-dev
       - name: configure
         run: |
           cat > mingw-cross.ini <<'EOF'
@@ -113,6 +126,13 @@ jobs:
           cpp = 'i686-w64-mingw32-g++'
           ar = 'i686-w64-mingw32-ar'
           strip = 'i686-w64-mingw32-strip'
+          windres = 'i686-w64-mingw32-windres'
+          pkgconfig = 'pkg-config'
+          [properties]
+          needs_exe_wrapper = true
+          [built-in options]
+          c_args = ['-I/usr/i686-w64-mingw32/include']
+          c_link_args = ['-L/usr/i686-w64-mingw32/lib']
           [host_machine]
           system = 'windows'
           cpu_family = 'x86'
@@ -121,8 +141,8 @@ jobs:
           EOF
           meson setup builddir --cross-file mingw-cross.ini \
             -Dgtk=no -Dpython=no -Dqt=false -Djava=disabled \
-            -Dimagemagick=disabled -Djpeg=disabled -Ddbus=disabled \
-            -Dvideo=true -Ddirectshow=true
+            -Dimagemagick=disabled -Djpeg=disabled -Ddbus=disabled -Dnls=disabled \
+            -Dx11=disabled -Dbuild_tests=false -Dvideo=true -Ddirectshow=true
       - name: build
         run: meson compile -C builddir
       - name: install
@@ -137,13 +157,16 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: prepare
-        run: brew install meson ninja pkg-config libjpeg-turbo
+        run: brew install meson ninja pkg-config libjpeg-turbo gettext
       - name: configure
-        run: meson setup builddir -Dvideo=false -Dpython=no -Dgtk=no -Dqt=false -Djava=disabled -Ddoc=false
+        run: |
+          export CPPFLAGS="-I$(brew --prefix)/include"
+          export LDFLAGS="-L$(brew --prefix)/lib"
+          meson setup builddir -Dvideo=false -Dpython=no -Dgtk=no -Dqt=false -Djava=disabled -Ddoc=false -Dbuild_tests=false
       - name: build
         run: meson compile -C builddir
       - name: check
-        run: meson test -C builddir --print-errorlogs
+        run: meson test -C builddir --no-suite display --no-suite regression --print-errorlogs
       - name: install
         run: DESTDIR="$PWD/stage" meson install -C builddir
 
@@ -164,13 +187,15 @@ jobs:
           install: >-
             mingw-w64-ucrt-x86_64-gcc
             mingw-w64-ucrt-x86_64-pkgconf
-            meson
-            ninja
+            mingw-w64-ucrt-x86_64-meson
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-libiconv
+            mingw-w64-ucrt-x86_64-gettext
             git
       - uses: actions/checkout@v7
       - name: configure
-        run: meson setup builddir -Dvideo=false -Dgtk=no -Dpython=no -Dqt=false -Djava=disabled -Ddoc=false -Ddbus=disabled
+        run: meson setup builddir -Dvideo=false -Dgtk=no -Dpython=no -Dqt=false -Djava=disabled -Ddoc=false -Ddbus=disabled -Dbuild_tests=false
       - name: build
         run: meson compile -C builddir
       - name: check
-        run: meson test -C builddir --print-errorlogs
+        run: meson test -C builddir --no-suite display --no-suite regression --print-errorlogs

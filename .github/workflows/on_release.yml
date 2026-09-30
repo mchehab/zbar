@@ -22,9 +22,10 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y meson ninja-build build-essential pkg-config \
-                                devscripts debhelper-compat dh-exec \
-                                dh-sequence-python3 dh-sequence-meson lftp \
-                                libdbus-1-dev libjpeg-dev libmagickwand-dev \
+                                devscripts lintian debhelper-compat dh-exec \
+                                dh-sequence-python3 gettext xmlto \
+                                gobject-introspection libgirepository1.0-dev \
+                                libdbus-1-dev libjpeg-dev libmagick++-dev \
                                 libv4l-dev libgtk-3-dev libgtk2.0-dev \
                                 libqt5x11extras5-dev qtbase5-dev python3-dev
     - name: Debian package build
@@ -46,9 +47,11 @@ jobs:
     - uses: actions/checkout@v7
     - name: prepare
       run: |
-        brew install meson ninja libiconv graphicsmagick python pkg-config ccache
+        brew install meson ninja libiconv graphicsmagick python pkg-config ccache gettext
     - name: configure and build
       run: |
+        export CPPFLAGS="-I$(brew --prefix)/include"
+        export LDFLAGS="-L$(brew --prefix)/lib"
         meson setup builddir --prefix=/usr/local -Dvideo=false -Dpython=python3
         meson compile -C builddir
         DESTDIR="$PWD/macos" meson install -C builddir
@@ -89,9 +92,11 @@ jobs:
         install: >-
           mingw-w64-${{ matrix.arch }}-gcc
           base-devel git zip
-          meson
-          ninja
-          pkgconf
+          mingw-w64-${{ matrix.arch }}-meson
+          mingw-w64-${{ matrix.arch }}-ninja
+          mingw-w64-${{ matrix.arch }}-pkgconf
+          mingw-w64-${{ matrix.arch }}-libiconv
+          mingw-w64-${{ matrix.arch }}-gettext
 
     - uses: actions/checkout@v7
 
@@ -104,6 +109,8 @@ jobs:
       shell: msys2 {0}
       run: |
         DESTDIR=${PWD}/win_${{ matrix.arch }} meson install -C builddir
+        python3 tools/stage_windows.py "${PWD}/win_${{ matrix.arch }}" \
+          --runtime-bin "${MINGW_PREFIX}/bin"
         (cd ${PWD}/win_${{ matrix.arch }}; zip -r ../zbar-win_${{ matrix.arch }}.zip .)
 
     - name: upload

@@ -1,0 +1,47 @@
+#!/usr/bin/make -f
+export DH_VERBOSE = 1
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export DEB_CFLAGS_MAINT_APPEND = -Wall
+include /usr/share/dpkg/default.mk
+export PYBUILD_NAME = zbar
+
+BUILD_DIR = obj-$(DEB_HOST_GNU_TYPE)
+LIB_SEARCH = -L$(CURDIR)/$(BUILD_DIR)/zbar
+
+%:
+	dh $@ --buildsystem=meson --with gir
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		-Djava=disabled -Dgtk=gtk3 -Dpython=python3 -Dqt=true \
+		-Ddefault_library=both -Dgir=true -Ddoc=true -Dnls=enabled \
+		-Ddbusconfdir=/etc \
+		-Dpython.platlibdir=/usr/lib/python3/dist-packages
+
+override_dh_auto_test:
+	# Tests requiring an X server or camera are run separately.
+	meson test -C $(BUILD_DIR) --no-suite display \
+		--no-suite regression --print-errorlogs
+
+override_dh_auto_install: build-perl
+	dh_auto_install
+
+build-perl:
+	dh_auto_configure --buildsystem=perl_makemaker --sourcedirectory=perl \
+		--builddirectory=perl -- \
+		INC="-I$(CURDIR)/include" LIBS="$(LIB_SEARCH) -lzbar"
+	dh_auto_build --buildsystem=perl_makemaker --sourcedirectory=perl \
+		--builddirectory=perl -- OTHERLDFLAGS="$(LIB_SEARCH)" LD_RUN_PATH=''
+	dh_auto_install --buildsystem=perl_makemaker --sourcedirectory=perl \
+		--builddirectory=perl
+
+execute_after_dh_clean:
+	[ ! -f perl/Makefile ] || $(MAKE) -C perl realclean
+
+override_dh_shlibdeps:
+	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
+
+override_dh_makeshlibs:
+	dh_makeshlibs -- -v$(DEB_VERSION_UPSTREAM)
+
+.PHONY: build-perl

@@ -6,7 +6,7 @@ my $ver;
 
 open IN, "meson.build" or die;
 while (<IN>) {
-	if (m/^project\('zbar',.*version:\s*'([\d.]+)'/) {
+	if (m/version:\s*'([\d.]+)'/) {
 		$ver=$1;
 		last;
 	}
