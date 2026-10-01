@@ -1,5 +1,11 @@
 Revision history for Perl extension Barcode::ZBar.
 
+0.11  2024-02-04
+    * perl: Update module copright years
+    * perl: Update module version
+    * perl: Remove embedded Devel::CheckLib
+    * perl: update to more recent ppport.h
+
 0.10  2022-02-08 Official Release to CPAN
 	* Barcode::ZBar 0.10 update version
 

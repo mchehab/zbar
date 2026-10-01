@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------
-#  Copyright 2008-2010 (c) Jeff Brown <spadix@users.sourceforge.net>
+#  Copyright 2008-2024 (c) Jeff Brown <spadix@users.sourceforge.net>
 #
 #  This file is part of the ZBar Bar Code Reader.
 #
@@ -32,7 +32,7 @@ our @ISA = qw(Exporter);
 our @EXPORT_OK = qw(SPACE BAR
                     version increase_verbosity set_verbosity);
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 require XSLoader;
 XSLoader::load('Barcode::ZBar', $VERSION);
@@ -206,7 +206,7 @@ Jeff Brown, E<lt>spadix@users.sourceforge.netE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2008-2010 (c) Jeff Brown E<lt>spadix@users.sourceforge.netE<gt>
+Copyright 2008-2024 (c) Jeff Brown E<lt>spadix@users.sourceforge.netE<gt>
 
 The ZBar Bar Code Reader is free software; you can redistribute it
 and/or modify it under the terms of the GNU Lesser Public License as
