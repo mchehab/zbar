@@ -19,7 +19,7 @@ test()
 	else
 		CMD="$ZBARIMG"
 	fi
-	if [[ "$OSTYPE" == msys* && "$CMD" != *"--raw"* ]]; then
+	if [[ "$CMD" != *"--raw"* ]]; then
 		CK=`$CMD "$i" 2>/dev/null|perl -pe 's/\r(?=\n)//g'|sha1sum|cut -d" " -f1`
 	else
 		CK=`$CMD "$i" 2>/dev/null|sha1sum|cut -d" " -f1`
@@ -92,4 +92,3 @@ if [ "$ERR" == "" ]; then
 else
 	exit 1
 fi
-
