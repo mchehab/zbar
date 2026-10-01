@@ -1103,8 +1103,15 @@ static void v4l2_insert_resolution(zbar_video_t *vdo, unsigned int *n_res,
     unsigned int i;
 
     for (i = 0; i < *n_res; i++) {
-	if (vdo->res[i].width == width && vdo->res[i].height == height)
+	if (vdo->res[i].width == width && vdo->res[i].height == height) {
+	    if (vdo->res[i].max_fps < max_fps) {
+		vdo->res[i].width   = width;
+		vdo->res[i].height  = height;
+		vdo->res[i].max_fps = max_fps;
+	    }
+
 	    return;
+	}
     }
 
     vdo->res =
@@ -1129,8 +1136,6 @@ static int v4l2_get_supported_resolutions(zbar_video_t *vdo)
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     for (fmt.index = 0; !v4l2_ioctl(vdo->fd, VIDIOC_ENUM_FMT, &fmt);
 	 fmt.index++) {
-	if (vdo->format != fmt.pixelformat)
-	    continue;
 
 	frmsize.pixel_format = fmt.pixelformat;
 	frmsize.index	     = 0;
