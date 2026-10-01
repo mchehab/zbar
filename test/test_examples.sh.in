@@ -19,7 +19,11 @@ test()
 	else
 		CMD="$ZBARIMG"
 	fi
-	CK=`$CMD "$i" 2>/dev/null|sha1sum|cut -d" " -f1`
+	if [[ "$CMD" != *"--raw"* ]]; then
+		CK=`$CMD "$i" 2>/dev/null|perl -pe 's/\r(?=\n)//g'|sha1sum|cut -d" " -f1`
+	else
+		CK=`$CMD "$i" 2>/dev/null|sha1sum|cut -d" " -f1`
+	fi
 	ORG=`grep "zbarimg $j" "$DIR/examples/sha1sum"|cut -d " " -f1`
 
 	if [ "$CK" != "$ORG" ]; then
@@ -88,4 +92,3 @@ if [ "$ERR" == "" ]; then
 else
 	exit 1
 fi
-

@@ -157,12 +157,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: prepare
-        run: brew install meson ninja pkg-config libjpeg-turbo gettext
+        run: brew install meson ninja pkg-config libjpeg-turbo gettext imagemagick
       - name: configure
         run: |
           export CPPFLAGS="-I$(brew --prefix)/include"
           export LDFLAGS="-L$(brew --prefix)/lib"
-          meson setup builddir -Dvideo=false -Dpython=no -Dgtk=no -Dqt=false -Djava=disabled -Ddoc=false -Dbuild_tests=false
+          meson setup builddir -Dvideo=false -Dpython=no -Dgtk=no -Dqt=false -Djava=disabled -Ddoc=false -Dimagemagick=enabled
       - name: build
         run: meson compile -C builddir
       - name: check
@@ -191,10 +191,11 @@ jobs:
             mingw-w64-ucrt-x86_64-ninja
             mingw-w64-ucrt-x86_64-libiconv
             mingw-w64-ucrt-x86_64-gettext
+            mingw-w64-ucrt-x86_64-imagemagick
             git
       - uses: actions/checkout@v7
       - name: configure
-        run: meson setup builddir -Dvideo=false -Dgtk=no -Dpython=no -Dqt=false -Djava=disabled -Ddoc=false -Ddbus=disabled -Dbuild_tests=false
+        run: meson setup builddir -Dvideo=false -Dgtk=no -Dpython=no -Dqt=false -Djava=disabled -Ddoc=false -Ddbus=disabled -Dimagemagick=enabled
       - name: build
         run: meson compile -C builddir
       - name: check

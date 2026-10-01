@@ -22,7 +22,11 @@
  *------------------------------------------------------------------------*/
 
 #include "config.h"
+#ifdef HAVE_ARGP_H
 #include <argp.h>
+#else
+#include "non_argp.h"
+#endif
 #ifdef HAVE_INTTYPES_H
 #include <inttypes.h>
 #endif

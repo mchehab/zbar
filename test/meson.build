@@ -1,4 +1,9 @@
-test_decode = executable('test_decode', 'test_decode.c',
+argp_compat = []
+if not cc.has_header('argp.h')
+  argp_compat = files('non_argp.c')
+endif
+
+test_decode = executable('test_decode', ['test_decode.c', argp_compat],
                           dependencies: zbar_dep)
 decoder_codes = ['ean', 'databar', 'code128', 'code93', 'code39',
                  'codabar', 'i25']
@@ -19,8 +24,10 @@ image_sources = files('test_images.c')
 test_convert = executable('test_convert', ['test_convert.c', image_sources],
                            dependencies: zbar_dep)
 test('conversion', test_convert, suite: 'other')
-executable('test_proc', ['test_proc.c', image_sources],
-            dependencies: zbar_dep)
+if host_machine.system() != 'windows'
+  executable('test_proc', ['test_proc.c', image_sources],
+              dependencies: zbar_dep)
+endif
 executable('test_cpp', 'test_cpp.cpp', dependencies: zbar_dep)
 cpp_image_test = executable('test_cpp_img',
                             ['test_cpp_img.cpp', image_sources],
@@ -29,17 +36,18 @@ if x11_found
   test('cpp-images', cpp_image_test, suite: 'display')
 endif
 if get_option('video')
-  executable('test_video', ['test_video.c', image_sources],
+  executable('test_video', ['test_video.c', image_sources, argp_compat],
               dependencies: zbar_dep)
 endif
 if jpeg_dep.found()
-  jpeg_test = executable('test_jpeg', 'test_jpeg.c', dependencies: zbar_dep)
+  jpeg_test = executable('test_jpeg', ['test_jpeg.c', argp_compat],
+                         dependencies: zbar_dep)
   if x11_found
     test('jpeg', jpeg_test, args: ['-q'], suite: 'display')
   endif
 endif
 if dbus_dep.found()
-  executable('test_dbus', 'test_dbus.c',
+  executable('test_dbus', ['test_dbus.c', argp_compat],
               dependencies: [dbus_dep, zbar_dep])
 endif
 
@@ -58,10 +66,14 @@ configure_file(input: 'check_dbus.sh.in', output: 'check_dbus.sh',
                configuration: shell_conf)
 bash = find_program('bash', required: false)
 if magick_found and bash.found() and not meson.is_cross_build()
-  test('images', bash, args: [image_script])
   image_python = import('python').find_installation('python3')
   image_env = environment()
   image_env.set('ZBARIMG', zbarimg.full_path())
+  if host_machine.system() == 'windows'
+    image_env.prepend('PATH', meson.project_build_root() / 'zbar',
+                      separator: ';')
+  endif
+  test('images', bash, args: [image_script], env: image_env)
   if codes.contains('ean') or codes.contains('all')
     test('image-xml', image_python, args: files('barcodetest.py'),
          env: image_env)
