@@ -89,8 +89,8 @@ and/or not reflect the best way to compile ZBar on Windows.
 If you find inconsistencies, feel free to submit patches improving the
 building steps.
 
-Also, please notice that the instructions here is for a minimal version,
-without any bindings nor ImageMagick.
+The native Windows CI configuration builds the core library, `zbarimg`, and
+portable test programs. It leaves out bindings, video capture, and GUI tests.
 
 Cross-compiling on Ubuntu with MinGW-w64
 -----------------------------------------
@@ -154,19 +154,23 @@ tools:
         mingw-w64-ucrt-x86_64-meson \
         mingw-w64-ucrt-x86_64-ninja \
         mingw-w64-ucrt-x86_64-libiconv \
-        mingw-w64-ucrt-x86_64-gettext
+        mingw-w64-ucrt-x86_64-gettext \
+        mingw-w64-ucrt-x86_64-imagemagick
 
-From the repository root, configure and build a minimal native Windows
-version:
+From the repository root, configure and build the native Windows test
+configuration:
 
     meson setup build -Dvideo=false -Dgtk=no -Dpython=no -Dqt=false \
         -Dgir=false -Djava=disabled -Ddoc=false -Ddbus=disabled \
-        -Djpeg=disabled -Dimagemagick=disabled -Dgraphicsmagick=disabled \
-        -Dnls=disabled -Dx11=disabled -Dxshm=disabled -Dxv=disabled \
-        -Dbuild_tests=false
+        -Dimagemagick=enabled -Dnls=disabled -Dx11=disabled \
+        -Dxshm=disabled -Dxv=disabled
     meson compile -C build
+    meson test -C build --no-suite display --no-suite regression \
+        --print-errorlogs
 
-To install, run `meson install -C build` from the UCRT64 terminal.
+These tests cover decoder behavior, image conversion, and image scanning. The
+display and long decoder regression suites are skipped. To install, run
+`meson install -C build` from the UCRT64 terminal.
 
 The release workflow also builds 64-bit and 32-bit packages using the MSYS2
 MINGW64 and MINGW32 environments. Open the matching terminal and set
@@ -209,13 +213,14 @@ and/or not reflect the best way to compile ZBar on MacOS.
 If you find inconsistencies, feel free to submit patches improving the
 building steps.
 
-Also, please notice that the instructions here is for a minimal version,
-without any bindings nor ImageMagick.
+The macOS CI configuration builds the core library, `zbarimg`, and portable
+test programs. It leaves out bindings, video capture, and GUI tests.
 
 
-Install the dependencies used by the macOS GitHub Actions build:
+Install the dependencies used by the macOS GitHub Actions build, including
+ImageMagick for `zbarimg` and the image scanning tests:
 
-    brew install meson ninja pkg-config libjpeg-turbo gettext
+    brew install meson ninja pkg-config libjpeg-turbo gettext imagemagick
 
 Set the include and library paths from Homebrew, then configure and build:
 
@@ -229,17 +234,12 @@ Set the include and library paths from Homebrew, then configure and build:
         -Dqt=false \
         -Djava=disabled \
         -Ddoc=false \
-        -Ddbus=disabled \
-        -Djpeg=disabled \
-        -Dimagemagick=disabled \
-        -Dgraphicsmagick=disabled \
-        -Dnls=disabled \
-        -Dx11=disabled \
-        -Dxshm=disabled \
-        -Dxv=disabled \
-        -Dbuild_tests=false
+        -Dimagemagick=enabled
     meson compile -C build
+    meson test -C build --no-suite display --no-suite regression \
+        --print-errorlogs
 
-To install, use:
+This runs the decoder, image conversion, and image scanning tests. The display
+and long decoder regression suites are skipped. To install, use:
 
     meson install -C build
