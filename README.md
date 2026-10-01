@@ -69,6 +69,10 @@ Optional features are configured with Meson options, for example:
 meson setup builddir -Dgtk=gtk3 -Dpython=python3 -Dvideo=false
 ```
 
+To run the tests for a configured build, use `meson test -C builddir`. The
+macOS and native Windows CI test configurations and dependencies are described
+in `INSTALL.md`.
+
 The scanner/decoder library itself only requires a few standard
 library functions which should be available almost anywhere.
 

@@ -121,6 +121,14 @@ BUILDING
 
 See `INSTALL.md` for build instructions.
 
+TESTING
+-------
+
+The native Windows test instructions use the MSYS2 UCRT64 environment and
+include the portable test suites for decoding and image scanning. See
+`INSTALL.md` for the required packages and commands. The test command skips
+display-dependent and long regression suites.
+
 
 RUNNING
 =======
