@@ -167,8 +167,11 @@ static int scan_image(const char *filename)
 
     int found	       = 0;
     MagickWand *images = NewMagickWand();
-    if (!images)
-        return (-1);
+
+    if (!images) {
+	exit_code = 1;
+	return (-1);
+    }
 
     // default is a measly 72dpi for pdf
     MagickSetResolution(images, 900, 900);
@@ -185,7 +188,10 @@ static int scan_image(const char *filename)
 	    goto error;
 
 	zbar_image_t *zimage = zbar_image_create();
-	assert(zimage);
+	if (!zimage) {
+	    exit_code = 1;
+	    goto error;
+	}
 	zbar_image_set_format(zimage, zbar_fourcc('Y', '8', '0', '0'));
 
 	int width  = MagickGetImageWidth(images);
@@ -197,16 +203,20 @@ static int scan_image(const char *filename)
 	// (but only if it's a color image)
 	size_t bloblen	    = width * height;
 	unsigned char *blob = malloc(bloblen);
-        if (!blob)
-            goto error;
+	if (!blob) {
+	    zbar_image_destroy(zimage);
+	    exit_code = 1;
+	    goto error;
+	}
 
 	zbar_image_set_data(zimage, blob, bloblen, zbar_image_free_data);
 
 	if (!MagickGetImagePixels(images, 0, 0, width, height, "I", CharPixel,
 				  blob)) {
-            free(blob);
-            goto error;
-        }
+	    zbar_image_destroy(zimage);
+	    exit_code = 1;
+	    goto error;
+	}
 
 	if (xmllvl == 1) {
 	    xmllvl++;
@@ -236,7 +246,7 @@ static int scan_image(const char *filename)
 		if (len &&
 		    fwrite(zbar_symbol_get_data(sym), len, 1, stdout) != 1) {
 		    exit_code = 1;
-		    free(blob);
+		    zbar_image_destroy(zimage);
 		    goto error;
 		}
 	    } else {
@@ -247,7 +257,7 @@ static int scan_image(const char *filename)
 		zbar_symbol_xml(sym, &xmlbuf, &xmlbuflen);
 		if (fwrite(xmlbuf, xmlbuflen, 1, stdout) != 1) {
 		    exit_code = 1;
-		    free(blob);
+		    zbar_image_destroy(zimage);
 		    goto error;
 		}
 	    }
@@ -291,6 +301,8 @@ static int scan_image(const char *filename)
     return (0);
 
 error:
+    if (!exit_code)
+	exit_code = 1;
     DestroyMagickWand(images);
     return (-1);
 }
