@@ -204,6 +204,13 @@ int qr_code_data_list_extract_text(const qr_code_data_list *_qrlist,
 		    }
 		}
 
+	 /*
+	  * Add extra spaces for NUL separators that could be inserted
+	  * for each missing run in an incomplete structured-append group.
+	  */
+	    if (sa_size > 1)
+		sa_ctext += sa_size - 1;
+
 	    /*Step 2: Convert the entries.*/
 	    sa_text  = (char *)malloc((sa_ctext + 1) * sizeof(*sa_text));
 	    sa_ntext = 0;
