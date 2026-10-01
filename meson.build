@@ -34,6 +34,7 @@ conf.set('LIB_VERSION_MINOR', 3)
 conf.set('LIB_VERSION_REVISION', 0)
 
 headers = [
+  'argp.h',
   'assert.h',
   'errno.h',
   'fcntl.h',

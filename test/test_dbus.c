@@ -14,7 +14,12 @@
  *  GNU Lesser Public License for more details.
  *------------------------------------------------------------------------*/
 
+#include "config.h"
+#ifdef HAVE_ARGP_H
 #include <argp.h>
+#else
+#include "non_argp.h"
+#endif
 #include <dbus/dbus.h>
 #include <stdarg.h>
 #include <stdbool.h>

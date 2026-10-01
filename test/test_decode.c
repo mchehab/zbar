@@ -21,7 +21,12 @@
  *  http://sourceforge.net/projects/zbar
  *------------------------------------------------------------------------*/
 
+#include "config.h"
+#ifdef HAVE_ARGP_H
 #include <argp.h>
+#else
+#include "non_argp.h"
+#endif
 #include <assert.h>
 #include <ctype.h>
 #include <inttypes.h>

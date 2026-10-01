@@ -54,7 +54,11 @@ int main(int argc, char *argv[])
     if (test_image_bars(img))
 	return (2);
 
+#ifdef _WIN32
+    if (zbar_image_write(img, "base"))
+#else
     if (zbar_image_write(img, "/tmp/base"))
+#endif
 	return (1);
     return (0);
 }
