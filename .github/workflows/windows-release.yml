@@ -1,0 +1,88 @@
+name: Windows release packages
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Windows ${{ matrix.arch }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            msystem: MINGW64
+            triplet: x64-mingw-static
+          - arch: i686
+            msystem: MINGW32
+            triplet: x86-mingw-static
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}/build/vcpkg
+      VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
+      VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.triplet }}
+      # Override run-vcpkg's default x-gha backend, removed from current vcpkg.
+      VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/build/vcpkg-cache,readwrite
+      VCPKG_MAX_CONCURRENCY: 4
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        id: python
+        with:
+          python-version: '3.13'
+      - uses: msys2/setup-msys2@v2.32.0
+        with:
+          msystem: ${{ matrix.msystem }}
+          path-type: inherit
+          update: true
+          install: >-
+            base-devel git
+            mingw-w64-${{ matrix.arch }}-gcc
+            mingw-w64-${{ matrix.arch }}-meson
+            mingw-w64-${{ matrix.arch }}-ninja
+            mingw-w64-${{ matrix.arch }}-cmake
+            mingw-w64-${{ matrix.arch }}-pkgconf
+      - name: Record toolchain
+        id: toolchain
+        run: |
+          echo "MSYS2_MINGW_BIN=$(cygpath -m "$MINGW_PREFIX/bin")" >> "$GITHUB_ENV"
+          echo "version=$(gcc -dumpfullversion -dumpversion)" >> "$GITHUB_OUTPUT"
+          echo "image=$ImageVersion" >> "$GITHUB_OUTPUT"
+      - name: Cache compiled dependencies
+        uses: actions/cache@v4
+        with:
+          path: build/vcpkg-cache
+          key: vcpkg-${{ matrix.triplet }}-${{ steps.toolchain.outputs.version }}-${{ steps.toolchain.outputs.image }}-${{ hashFiles('.github/workflows/windows-release.yml') }}
+          restore-keys: |
+            vcpkg-${{ matrix.triplet }}-${{ steps.toolchain.outputs.version }}-
+      - name: Set up vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgDirectory: ${{ env.VCPKG_ROOT }}
+          vcpkgGitCommitId: 9e593bb18ea69cc5095e012465dcd675a822ed0d
+          runVcpkgInstall: false
+      - name: Install dependencies with vcpkg
+        shell: pwsh
+        run: |
+          $env:PATH = "$env:MSYS2_MINGW_BIN;$env:PATH"
+          New-Item -ItemType Directory -Force build/vcpkg-cache | Out-Null
+          & "$env:VCPKG_ROOT/vcpkg.exe" install graphicsmagick libiconv --classic --triplet $env:VCPKG_DEFAULT_TRIPLET --host-triplet $env:VCPKG_DEFAULT_HOST_TRIPLET
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build static executables
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: '"${{ steps.python.outputs.python-path }}" tools/build_windows_release.py'
+      - name: Upload release packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: zbar-win_${{ matrix.arch }}
+          path: build/packages/zbar-win_${{ matrix.arch }}-*.zip
+          if-no-files-found: error
+          compression-level: 0

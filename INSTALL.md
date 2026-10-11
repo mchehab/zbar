@@ -172,34 +172,40 @@ These tests cover decoder behavior, image conversion, and image scanning. The
 display and long decoder regression suites are skipped. To install, run
 `meson install -C build` from the UCRT64 terminal.
 
-The release workflow also builds 64-bit and 32-bit packages using the MSYS2
-MINGW64 and MINGW32 environments. Open the matching terminal and set
-`ARCH=x86_64` for MINGW64 or `ARCH=i686` for MINGW32. Install the tools for
-that architecture:
+Building the Windows release packages
+-------------------------------------
 
-    pacman -Syu --needed \
-        mingw-w64-${ARCH}-gcc \
-        mingw-w64-${ARCH}-meson \
-        mingw-w64-${ARCH}-ninja \
-        mingw-w64-${ARCH}-pkgconf \
-        mingw-w64-${ARCH}-libiconv \
-        mingw-w64-${ARCH}-gettext \
-        base-devel git zip
+Install MSYS2 and Python, and ensure `python` is on PATH. Open the MINGW64 terminal
+for 64-bit packages or MINGW32 for 32-bit packages. From the repository root,
+set `ARCH=x86_64` for MINGW64 or `ARCH=i686` for MINGW32 and install the build
+tools:
 
-Build and stage the release files with the same options as GitHub Actions:
+    export ARCH=x86_64
+    pacman -Syu --needed base-devel git \
+        mingw-w64-${ARCH}-{gcc,meson,ninja,cmake,pkgconf}
 
-    export CPPFLAGS=-D__USE_MINGW_ANSI_STDIO=1
-    meson setup build --prefix=/usr \
-        -Dvideo=false -Dgtk=no -Dgir=false -Dpython=no -Dqt=false \
-        -Djava=disabled -Ddoc=false -Djpeg=disabled \
-        -Dimagemagick=disabled -Dgraphicsmagick=disabled -Ddbus=disabled \
-        -Dnls=disabled -Dx11=disabled -Dxshm=disabled -Dxv=disabled \
-        -Dbuild_tests=false -Dpthread=true
-    meson compile -C build
-    DESTDIR="${PWD}/stage" meson install -C build
-    python3 tools/stage_windows.py "${PWD}/stage" \
-        --runtime-bin "${MINGW_PREFIX}/bin"
-    (cd stage && zip -r ../zbar-win_${ARCH}.zip .)
+In a regular PowerShell window, check out the same vcpkg revision as the
+workflow and install the dependencies:
+
+    git clone https://github.com/microsoft/vcpkg.git C:/vcpkg
+    git -C C:/vcpkg checkout 9e593bb18ea69cc5095e012465dcd675a822ed0d
+    $env:VCPKG_ROOT = "C:/vcpkg"
+    $env:PATH = "C:\msys64\mingw64\bin;$env:PATH"
+    $triplet = "x64-mingw-static"
+    & "$env:VCPKG_ROOT/bootstrap-vcpkg.bat" -disableMetrics
+    & "$env:VCPKG_ROOT/vcpkg.exe" install graphicsmagick libiconv --classic --triplet $triplet --host-triplet $triplet
+
+For 32-bit packages, use `C:\msys64\mingw32\bin` and `x86-mingw-static`.
+Adjust the MSYS2 path if installed elsewhere. Keep MSYS2's `usr/bin` out of
+this PowerShell PATH so vcpkg can select its own build tools.
+Use a vcpkg path outside `C:\Users`: the stock GraphicsMagick port can fail
+to compile when that path appears unescaped in generated C strings.
+
+Return to the matching MINGW64 or MINGW32 terminal, retaining the `ARCH`
+setting above, to build, stage and package both camera backends:
+
+    export VCPKG_ROOT=C:/vcpkg
+    python tools/build_windows_release.py
 
 Building ZBar On MacOS
 ======================

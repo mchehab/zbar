@@ -5,6 +5,6 @@ if is_windows
 endif
 zbarimg = executable(
   'zbarimg', zbarimg_sources,
-  dependencies: [zbar_dep, magick_dep, intl_dep],
+  dependencies: [zbar_executable_dep, magick_dep, intl_dep],
   install: true,
 )

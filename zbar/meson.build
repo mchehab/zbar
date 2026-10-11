@@ -69,7 +69,8 @@ foreach code : linear_codes
   endif
 endforeach
 if codes.contains('qrcode') or codes.contains('all')
-  iconv_dep = dependency('iconv', required: true)
+  iconv_dep = dependency('iconv', required: true,
+                         kwargs: static_dependency_options)
   iconv_const_input = cc.compiles(
     '''#include <stddef.h>
        #include <iconv.h>
@@ -169,14 +170,16 @@ else
   src += files('video/null.c')
 endif
 
-jpeg_dep = dependency('libjpeg', required: get_option('jpeg'))
+jpeg_dep = dependency('libjpeg', required: get_option('jpeg'),
+                      kwargs: static_dependency_options)
 conf.set('HAVE_LIBJPEG', jpeg_dep.found() ? 1 : false)
 if jpeg_dep.found()
   src += files('jpeg.c')
   deps += jpeg_dep
 endif
 dbus_dep = dependency('dbus-1', version: '>=1.0',
-                      required: get_option('dbus'))
+                      required: get_option('dbus'),
+                      kwargs: static_dependency_options)
 conf.set('HAVE_DBUS', dbus_dep.found() ? 1 : false)
 if dbus_dep.found()
   deps += dbus_dep
@@ -251,6 +254,18 @@ zbar_dep = declare_dependency(
   link_with: libzbar,
   include_directories: inc,
   dependencies: deps,
+)
+# Keep library bindings on their usual linkage while command-line programs
+# use the static archive in release packages.
+executable_libzbar = libzbar
+if static_executables and get_option('library_type') == 'both'
+  executable_libzbar = libzbar.get_static_lib()
+endif
+zbar_executable_dep = declare_dependency(
+  link_with: executable_libzbar,
+  include_directories: inc,
+  dependencies: deps,
+  link_args: executable_link_args,
 )
 pkg.generate(libzbar,
   name: 'zbar',
