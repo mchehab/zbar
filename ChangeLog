@@ -1,3 +1,7 @@
+0.23.95:
+  * fix: undefined behavior (UBSan) warnings in QR decoder and scanner
+  * ci: address some issues for artifact generation
+
 0.23.94:
   * zbar: convert to meson and update github actions
   * v4l2: prefer video fourcc with maximum fps
