@@ -1313,7 +1313,7 @@ int main(int argc, char *argv[])
     if (rand_seed) {
 	seed = time(NULL);
 	srand(seed);
-	seed = (rand() << 8) ^ rand();
+	seed = ((unsigned)rand() << 8) ^ (unsigned)rand();
 	zprintf(0, "Random SEED=%d\n", seed);
     }
 
@@ -1330,7 +1330,7 @@ int main(int argc, char *argv[])
     if (num_iter) {
 	for (iter = 0; iter < num_iter; iter++) {
 	    test1();
-	    seed = (rand() << 8) ^ rand();
+	    seed = ((unsigned)rand() << 8) ^ (unsigned)rand();
 	}
     } else {
 	test_databar_F_1();

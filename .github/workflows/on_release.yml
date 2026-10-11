@@ -47,12 +47,15 @@ jobs:
     - uses: actions/checkout@v7
     - name: prepare
       run: |
-        brew install meson ninja libiconv graphicsmagick python pkg-config ccache gettext
+        brew install meson ninja pkg-config libjpeg-turbo gettext \
+                     graphicsmagick python ccache libiconv
     - name: configure and build
       run: |
         export CPPFLAGS="-I$(brew --prefix)/include"
         export LDFLAGS="-L$(brew --prefix)/lib"
-        meson setup builddir --prefix=/usr/local -Dvideo=false -Dpython=python3
+        meson setup builddir --prefix=/usr/local -Dvideo=false \
+                             -Dpython=python3 -Dgtk=no -Dqt=false \
+                             -Djava=disabled -Ddoc=false
         meson compile -C builddir
         DESTDIR="$PWD/macos" meson install -C builddir
     - name: generating tarball
