@@ -1,6 +1,6 @@
 project(
   'zbar', 'c', 'cpp',
-  version: '0.23.93',
+  version: '0.23.94',
   meson_version: '>=0.61.0',
   default_options: [
     'c_std=gnu99',
