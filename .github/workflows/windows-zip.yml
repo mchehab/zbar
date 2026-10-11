@@ -56,10 +56,10 @@ jobs:
           echo "version=$(gcc -dumpfullversion -dumpversion)" >> "$GITHUB_OUTPUT"
           echo "image=$ImageVersion" >> "$GITHUB_OUTPUT"
       - name: Cache compiled dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: build/vcpkg-cache
-          key: vcpkg-${{ matrix.triplet }}-${{ steps.toolchain.outputs.version }}-${{ steps.toolchain.outputs.image }}-${{ hashFiles('.github/workflows/windows-release.yml') }}
+          key: vcpkg-${{ matrix.triplet }}-${{ steps.toolchain.outputs.version }}-${{ steps.toolchain.outputs.image }}-${{ hashFiles('.github/workflows/windows-zip.yml') }}
           restore-keys: |
             vcpkg-${{ matrix.triplet }}-${{ steps.toolchain.outputs.version }}-
       - name: Set up vcpkg
@@ -80,7 +80,7 @@ jobs:
           ARCH: ${{ matrix.arch }}
         run: '"${{ steps.python.outputs.python-path }}" tools/build_windows_release.py'
       - name: Upload release packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: zbar-win_${{ matrix.arch }}
           path: build/packages/zbar-win_${{ matrix.arch }}-*.zip

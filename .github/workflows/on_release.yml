@@ -67,7 +67,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
 
   Windows:
-    uses: ./.github/workflows/windows-release.yml
+    uses: ./.github/workflows/windows-zip.yml
 
   Upload_Windows:
     name: Upload Windows packages
@@ -75,7 +75,7 @@ jobs:
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v8
       with:
         pattern: zbar-win_*
         merge-multiple: true
