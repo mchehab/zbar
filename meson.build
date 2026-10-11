@@ -15,6 +15,19 @@ cc = meson.get_compiler('c')
 pkg = import('pkgconfig')
 fs = import('fs')
 is_windows = host_machine.system() == 'windows'
+static_executables = get_option('static_executables')
+static_dependency_options = {}
+executable_link_args = []
+if static_executables
+  if not is_windows or not ['gcc', 'clang'].contains(cc.get_id())
+    error('static_executables requires a Windows MinGW compiler')
+  endif
+  if get_option('library_type') == 'shared'
+    error('static_executables requires library_type=static or both')
+  endif
+  static_dependency_options = {'static': true}
+  executable_link_args = ['-static']
+endif
 inc = include_directories('.', 'include')
 # Match the Autotools warning flags used by AM_CFLAGS and AM_CXXFLAGS.
 add_project_arguments('-Wno-parentheses', language: ['c', 'cpp'])
@@ -73,16 +86,19 @@ magick_dep = disabler()
 magick_found = false
 if not get_option('imagemagick').disabled()
   if get_option('graphicsmagick').enabled()
-    magick_dep = dependency('GraphicsMagickWand', required: true)
+    magick_dep = dependency('GraphicsMagickWand', required: true,
+                            kwargs: static_dependency_options)
     conf.set('HAVE_GRAPHICSMAGICK', 1)
   else
-    magick_dep = dependency('MagickWand', required: false)
+    magick_dep = dependency('MagickWand', required: false,
+                            kwargs: static_dependency_options)
     if magick_dep.found()
       conf.set('HAVE_IMAGEMAGICK', 1)
       conf.set('HAVE_IMAGEMAGICK7',
                magick_dep.version().version_compare('>=7') ? 1 : false)
     elif get_option('graphicsmagick').auto()
-      magick_dep = dependency('GraphicsMagickWand', required: false)
+      magick_dep = dependency('GraphicsMagickWand', required: false,
+                              kwargs: static_dependency_options)
       if magick_dep.found()
         conf.set('HAVE_GRAPHICSMAGICK', 1)
       endif
@@ -94,7 +110,8 @@ if not get_option('imagemagick').disabled()
   endif
 endif
 
-intl_dep = dependency('intl', required: get_option('nls'))
+intl_dep = dependency('intl', required: get_option('nls'),
+                      kwargs: static_dependency_options)
 conf.set('ENABLE_NLS', intl_dep.found() ? 1 : false)
 if intl_dep.found()
   subdir('po')
@@ -159,6 +176,7 @@ summary(
   {
     'Image scanner': magick_found,
     'Video scanner': get_option('video'),
+    'Static executables': static_executables,
     'GTK': gtk_found,
     'Qt': qt_found,
     'Python': python_found,

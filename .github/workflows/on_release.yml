@@ -67,55 +67,23 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
 
   Windows:
-    name: Build for Windows
-    runs-on: windows-latest
-    strategy:
-      matrix:
-        arch: [x86_64, i686]
-        include:
-          - arch: x86_64
-            msystem: MINGW64
-          - arch: i686
-            msystem: MINGW32
-    defaults:
-      run:
-        shell: msys2 {0}
+    uses: ./.github/workflows/windows-release.yml
 
-    env:
-      CPPFLAGS: -D__USE_MINGW_ANSI_STDIO=1
-
+  Upload_Windows:
+    name: Upload Windows packages
+    needs: Windows
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
     steps:
-    - uses: msys2/setup-msys2@v2.32.0
+    - uses: actions/download-artifact@v4
       with:
-        msystem: ${{ matrix.msystem }}
-        update: false
-        install: >-
-          mingw-w64-${{ matrix.arch }}-gcc
-          base-devel git zip
-          mingw-w64-${{ matrix.arch }}-meson
-          mingw-w64-${{ matrix.arch }}-ninja
-          mingw-w64-${{ matrix.arch }}-pkgconf
-          mingw-w64-${{ matrix.arch }}-libiconv
-          mingw-w64-${{ matrix.arch }}-gettext
-
-    - uses: actions/checkout@v7
-
-    - name: configure and build
-      shell: msys2 {0}
-      run: |
-        meson setup builddir --prefix=/usr -Dvideo=false -Dgtk=no -Dpython=no -Dqt=false -Djava=disabled -Dimagemagick=disabled -Ddbus=disabled -Dpthread=true
-        meson compile -C builddir
-    - name: generating zip
-      shell: msys2 {0}
-      run: |
-        DESTDIR=${PWD}/win_${{ matrix.arch }} meson install -C builddir
-        python3 tools/stage_windows.py "${PWD}/win_${{ matrix.arch }}" \
-          --runtime-bin "${MINGW_PREFIX}/bin"
-        (cd ${PWD}/win_${{ matrix.arch }}; zip -r ../zbar-win_${{ matrix.arch }}.zip .)
-
+        pattern: zbar-win_*
+        merge-multiple: true
+        path: windows-packages
     - name: upload
       uses: softprops/action-gh-release@v3.0.3
       with:
         tag_name: ${{ github.event.release.tag_name }}
-        files: ./zbar-win_${{ matrix.arch }}.zip
+        files: windows-packages/*.zip
+        fail_on_unmatched_files: true
         token: ${{ secrets.GITHUB_TOKEN }}

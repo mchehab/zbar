@@ -13,11 +13,11 @@ parser.add_argument('--objdump', default='objdump')
 args = parser.parse_args()
 system_dlls = {
     'advapi32.dll', 'avicap32.dll', 'bcrypt.dll', 'comctl32.dll',
-    'comdlg32.dll', 'crypt32.dll', 'd3d11.dll', 'dxgi.dll', 'gdi32.dll',
+    'comdlg32.dll', 'crypt32.dll', 'd3d11.dll', 'dwrite.dll', 'dxgi.dll', 'gdi32.dll',
     'gdiplus.dll', 'imm32.dll', 'kernel32.dll', 'kernelbase.dll',
     'msvcrt.dll', 'netapi32.dll', 'ntdll.dll', 'ole32.dll', 'oleaut32.dll',
     'psapi.dll', 'rpcrt4.dll', 'secur32.dll', 'setupapi.dll', 'shell32.dll',
-    'shlwapi.dll', 'user32.dll', 'ucrtbase.dll', 'version.dll', 'vfw32.dll',
+    'shlwapi.dll', 'urlmon.dll', 'user32.dll', 'usp10.dll', 'ucrtbase.dll', 'version.dll', 'vfw32.dll',
     'winmm.dll', 'winspool.drv', 'ws2_32.dll', 'wldap32.dll',
 }
 # Meson may install under usr/bin, a configured prefix, or directly in bin.

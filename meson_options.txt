@@ -12,6 +12,12 @@ option(
   description: 'Build the core and GTK libraries as static, shared, or both',
 )
 option(
+  'static_executables',
+  type: 'boolean',
+  value: false,
+  description: 'Link Windows command-line executables and their dependencies statically',
+)
+option(
   'static_qt',
   type: 'boolean',
   value: false,

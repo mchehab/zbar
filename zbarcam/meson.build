@@ -1,6 +1,6 @@
 zbarcam_sources = files('zbarcam.c')
 zbarcam_args = []
-zbarcam_deps = [zbar_dep, intl_dep]
+zbarcam_deps = [zbar_executable_dep, intl_dep]
 if is_windows
   zbarcam_sources += windows.compile_resources('zbarcam.rc',
                                                include_directories: inc)
