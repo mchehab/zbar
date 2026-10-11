@@ -67,7 +67,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
 
   Windows:
-    uses: ./.github/workflows/windows-release.yml
+    uses: ./.github/workflows/windows-zip.yml
 
   Upload_Windows:
     name: Upload Windows packages
