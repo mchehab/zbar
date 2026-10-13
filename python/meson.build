@@ -25,7 +25,7 @@ if py.found()
     )
     python_extension = py.extension_module(
       'zbar', python_sources,
-      dependencies: [zbar_dep, python_dep],
+      dependencies: [zbar_dep, python_dep, py.dependency(embed: true)],
       install: true,
     )
     if py.language_version().version_compare('<3') and gtk_found
