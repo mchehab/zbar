@@ -1,5 +1,5 @@
 use 5.006;
-use ExtUtils::MakeMaker;
+use ExtUtils::MakeMaker '6.52';
 
 use lib qw(inc);
 use Devel::CheckLib;
@@ -19,6 +19,10 @@ WriteMakefile(
     LICENSE           => 'lgpl_2_1',
     LIBS              => ['-lzbar'],
     MIN_PERL_VERSION  => '5.006',
+    CONFIGURE_REQUIRES => {
+        "ExtUtils::MakeMaker"   => 6.52,
+        "Devel::CheckLib"       => 1.16,
+    },
     META_MERGE        => {
         "meta-spec" => {
             version => '2',
