@@ -1,5 +1,5 @@
 argp_compat = []
-if not cc.has_header('argp.h')
+if not cc.has_header('argp.h') or not cc.has_function('argp_parse')
   argp_compat = files('non_argp.c')
 endif
 
