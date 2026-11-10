@@ -30,7 +30,7 @@ jobs:
 
   Ubuntu_Gtk2:
     name: Ubuntu with Gtk2
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
       - name: prepare
@@ -38,8 +38,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential pkg-config meson ninja-build \
             gettext libdbus-1-dev libjpeg-dev libv4l-dev libx11-dev \
-            libxext-dev libgtk2.0-dev gir1.2-gtk-2.0 \
-            libgirepository1.0-dev xvfb
+            libxext-dev libgtk2.0-dev libgirepository1.0-dev xvfb
       - name: configure
         run: meson setup builddir -Dgtk=gtk2 -Dpython=no -Dqt=false -Djava=disabled -Ddoc=false
       - name: build
