@@ -547,6 +547,16 @@ found_start:;
 		    right_border[border_len - 1].y
 	    };
 
+	    if (top_left_source.x < 0 || top_left_source.x >= img->width ||
+		top_left_source.y < 0 || top_left_source.y >= img->height ||
+		bottom_right_source.x < 0 ||
+		bottom_right_source.x >= img->width ||
+		bottom_right_source.y < 0 ||
+		bottom_right_source.y >= img->height) {
+		free(buf);
+		goto free_borders;
+	    }
+
 	    const unsigned char *data = img->data;
 	    unsigned sample_x	      = top_left_source.x;
 	    unsigned sample_y	      = top_left_source.y;
